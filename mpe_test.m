@@ -1,30 +1,28 @@
 define_constants;
-mpc = loadcase('t_case9_opfv2');
+mpc = rundcpf(loadcase('t_case9_opfv2'));
+nb = size(mpc.bus, 1);
+ng = size(mpc.gen, 1);
 
 dc = dc_aggregate();
 dc.create_model(mpc);
 
+dc
+v = mpc.bus(:, VA) * pi/180;
+z = mpc.gen(:, PG) / mpc.baseMVA;
+x = [v;z];
+P = dc.port_inj_power(x, 1)
+dc.C * P
+
+mpc = runpf(loadcase('t_case9_opfv2'));
 ac = acsp_aggregate();
 ac.create_model(mpc);
 
-dc
-dc.node
-dc.var
-{dc.var.order.name}
-dc.mpe_list{1}
-dc.mpe_list{2}
-dc.mpe_list{3}
-dc.mpe_list{4}
-
 ac
-ac.node
-ac.var
-{ac.var.order.name}
-ac.mpe_list{1}
-ac.mpe_list{2}
-ac.mpe_list{3}
-ac.mpe_list{4}
-
+v = mpc.bus(:, VM) .* exp(1j * mpc.bus(:, VA) * pi/180);
+z = (mpc.gen(:, PG) + 1j * mpc.gen(:, QG)) / mpc.baseMVA;
+x = [v;z];
+S = ac.port_inj_power(x, 1)
+ac.C * S
 
 
 % mpe_type_lib = struct( ...

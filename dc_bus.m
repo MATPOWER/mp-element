@@ -25,7 +25,7 @@ classdef dc_bus < mp_bus & dc_model
 
             nb = obj.nk;
             Va0   = mpc.bus(:, VA) * pi/180;
-            asm.add_var('Va', nb, Va0);
+            asm.add_var('v', 'Va', nb, Va0);
         end
     end     %% methods
 end         %% classdef

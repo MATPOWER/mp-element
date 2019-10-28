@@ -48,5 +48,46 @@ classdef dc_model < mp_model
         function params = model_params(obj)
            params = {'B', 'K', 'p'};
         end
+        function vtypes = model_vvars(obj)
+            vtypes = {'v'};
+        end
+        function vtypes = model_zvars(obj)
+            vtypes = {'z'};
+        end
+
+        function [B, K, p] = get_params(obj)
+            np = obj.nk * obj.np;
+            nz = obj.nk * obj.nz;
+            if isempty(obj.B)
+                B = sparse(np, np);
+            else
+                B = obj.B;
+            end
+            if isempty(obj.K)
+                K = sparse(np, nz);
+            else
+                K = obj.K;
+            end
+            if isempty(obj.p)
+                p = zeros(np, 1);
+            else
+                p = obj.p;
+            end
+        end
+
+        function P = port_inj_power(obj, x, sysx, idx)
+            % sys x : 1 = system x, 0 = class aggregate x
+            
+            [B, K, p] = obj.get_params();
+            [v, z] = obj.x2vz(x, sysx);
+            
+            if sysx
+                Ct = obj.C.';
+                Dt = obj.D.';
+                P = B*Ct*v + K*Dt*z + p;
+            else
+                P = B*v + K*z + p;
+            end
+        end
     end     %% methods
 end         %% classdef

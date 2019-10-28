@@ -16,8 +16,7 @@ classdef mp_aggregate < mp_element & mp_modeler
         mpe_idx  = struct();    %% key = element name, val = index into mpe_list
         nv = 0;                 %% total number of v variables
         node = [];
-        zvar = [];
-        var = [];
+        state = [];
     end
     
     methods
@@ -25,11 +24,6 @@ classdef mp_aggregate < mp_element & mp_modeler
         function obj = mp_aggregate(varargin)
 %             fprintf('--> mp_aggregate (%d args)\n', nargin);
             obj@mp_element(varargin{:});
-            if isempty(obj.node)    %% skip if constructed from existing object
-                obj.init_set_types();   %% should be called in mp_modeler
-                                        %% constructor, if not for:
-                                        %% https://savannah.gnu.org/bugs/?52614
-            end
             obj.name = 'aggregate';
             obj.mpc_field = '';
             obj.np = 0;     %% unknown number of ports at this point, init to 0
@@ -50,18 +44,14 @@ classdef mp_aggregate < mp_element & mp_modeler
                 end
             end
             
-            %% create nodes
+            %% create nodes and node voltage state variables
             obj.add_nodes(obj, mpc);
             
-            %% add variables for each element type
-            for mpe = obj.mpe_list
-                mpe{1}.add_vars(obj, mpc);
-            end
-
+            %% create non-voltage states and corresponding state variables
+            obj.add_states(obj, mpc);
+            
             %% build params
-            for mpe = obj.mpe_list
-                mpe{1}.build_params(obj, mpc);
-            end
+            obj.build_params(obj, mpc);
         end
 
         function mpe = mpe_by_name(obj, name)
@@ -69,49 +59,131 @@ classdef mp_aggregate < mp_element & mp_modeler
         end
 
         function obj = add_nodes(obj, asm, mpc)
-            %% give each element opportunity to add nodes
+            %% each element adds its nodes
             for mpe = obj.mpe_list
                 mpe{1}.add_nodes(obj, mpc);
             end
             
             %% add voltage variables for each node
-            obj.add_vvars(mpc);
+            obj.add_vvars(obj, mpc);
         end
 
-        function obj = add_vvars(obj, mpc)
+        function obj = add_states(obj, asm, mpc)
+            %% each element adds its states
+            for mpe = obj.mpe_list
+                mpe{1}.add_states(obj, mpc);
+            end
+            
+            %% add state variables for each node
+            obj.add_zvars(obj, mpc);
+        end
+
+        function obj = build_params(obj, asm, mpc)
+            %% each element builds parameters, aggregate incidence matrices
+            C = {};
+            D = {};
+            for mpe = obj.mpe_list
+                mpe{1}.build_params(obj, mpc);
+                C = horzcat(C, mpe{1}.C);
+                D = horzcat(D, mpe{1}.D);
+            end
+            obj.C = horzcat(C{:});
+            obj.D = horzcat(D{:});
+        end
+
+        function M = stack_matrix_params(obj, name, vnotz)
+            nn = obj.getN('node');
+            if vnotz
+                nc = nn;
+            else
+                nc = obj.nz;
+            end
+            ii = {};
+            jj = {};
+            ss = {};
+            last_i = 0;
+            last_j = 0;
+            for mpe = obj.mpe_list
+                Mk = mpe{1}.(name);
+                if ~isempty(Mk)
+                    [i, j, s] = find(Mk);
+                    ii = horzcat(ii, i + last_i);
+                    jj = horzcat(jj, j + last_j);
+                    ss = horzcat(ss, s);
+                end
+                m = mpe{1}.nk * mpe{1}.np;      %% total number of ports for class
+                if vnotz
+                    n = m;
+                else
+                    n = mpe{1}.nk * mpe{1}.nz;  %% total number of states for class
+                end
+                last_i = last_i + m;
+                last_j = last_j + n;
+            end
+            
+            M = sparse(vertcat(ii{:}), vertcat(jj{:}), vertcat(ss{:}), last_i, last_j);
+        end
+
+        function v = stack_vector_params(obj, name)
+            nn = obj.getN('node');
+            vv = {};
+
+            for mpe = obj.mpe_list
+                vk = mpe{1}.(name);
+                if isempty(vk)
+                    vk = zeros(mpe{1}.nk * mpe{1}.np, 1);
+                end
+                vv = horzcat(vv, vk);
+            end
+            v = vertcat(vv{:});
+        end
+
+        function obj = add_vvars(obj, asm, mpc)
             for k = 1:length(obj.node.order)
                 mpe = obj.mpe_by_name(obj.node.order(k).name);
                 mpe.add_vvars(obj, mpc);
             end
-            obj.nv = obj.getN('var');
+            for vtype = obj.model_vvars
+                obj.nv = obj.nv + obj.getN(vtype{1});
+            end
+        end
+
+        function obj = add_zvars(obj, asm, mpc)
+            for k = 1:length(obj.state.order)
+                mpe = obj.mpe_by_name(obj.state.order(k).name);
+                mpe.add_zvars(obj, mpc);
+            end
         end
 
         function obj = def_set_types(obj)
             obj.set_types = struct(...
                     'node', 'node', ...
-                    'zvar', 'non-voltage state variable', ...
-                    'var', 'variable' ...
+                    'state', 'state' ...
                 );
         end
 
         function obj = init_set_types(obj)
             %% call parent to create base data structures for each type
             init_set_types@mp_modeler(obj);
-
+            
             %% finish initializing data structures for each type
-            obj.node.data = struct( ...
+            obj.node.data = struct( ...             %% node type
                 'idx2ID', struct(), ...
                 'ID2idx', struct() );
 
-            obj.zvar.data = struct( ...
+            obj.state.data = struct( ...            %% state type
                 'idx2ID', struct(), ...
                 'ID2idx', struct() );
-
-            obj.var.data = struct( ...
-                'v0', struct(), ...
-                'vl', struct(), ...
-                'vu', struct(), ...
-                'vt', struct() );
+                                                    %% variable types
+            for vtype = horzcat(obj.model_vvars(), obj.model_zvars())
+                assert(isfield(obj.set_types, vtype{1}), ...
+                    'var type ''%'' is missing from def_set_types()', vtype{1});
+                obj.(vtype{1}).data = struct( ...
+                    'v0', struct(), ...
+                    'vl', struct(), ...
+                    'vu', struct(), ...
+                    'vt', struct() );
+            end
         end
 
         function add_node(obj, name, idx, varargin)
@@ -159,11 +231,11 @@ classdef mp_aggregate < mp_element & mp_modeler
             end
         end
 
-        function add_zvar(obj, name, idx, varargin)
-            %   obj.add_zvar(name, N, IDs)
-            %   obj.add_zvar(name, N)
-            %   obj.add_zvar(name, idx_list, N, IDs)
-            %   obj.add_zvar(name, idx_list, N)
+        function add_state(obj, name, idx, varargin)
+            %   obj.add_state(name, N, IDs)
+            %   obj.add_state(name, N)
+            %   obj.add_state(name, idx_list, N, IDs)
+            %   obj.add_state(name, idx_list, N)
             if iscell(idx)
                 N = varargin{1};
                 args = varargin(2:end);
@@ -177,7 +249,7 @@ classdef mp_aggregate < mp_element & mp_modeler
             if nargs >= 1;
                 idx2ID = args{1};
                 if length(idx2ID) ~= N
-                    error('mp_aggregate/add_zvar: length of IDs vector (%d) must equal N (%d) ', length(idx2ID), N);
+                    error('mp_aggregate/add_state: length of IDs vector (%d) must equal N (%d) ', length(idx2ID), N);
                 end
             end
             if isempty(idx2ID)
@@ -187,34 +259,34 @@ classdef mp_aggregate < mp_element & mp_modeler
             %% create reverse mapping
             ID2idx = sparse(idx2ID, ones(N, 1), 1:N, max(idx2ID), 1);
 
-            %% add the named zvar set
-            obj.add_named_set('zvar', name, idx, N);
+            %% add the named state set
+            obj.add_named_set('state', name, idx, N);
             
-            %% add type-specific data for zvars (idx2ID, ID2idx)
+            %% add type-specific data for states (idx2ID, ID2idx)
             if isempty(idx)
-                obj.zvar.data.idx2ID.(name) = idx2ID;
-                obj.zvar.data.ID2idx.(name) = ID2idx;
+                obj.state.data.idx2ID.(name) = idx2ID;
+                obj.state.data.ID2idx.(name) = ID2idx;
             else
                 %% calls to substruct() are relatively expensive, so we
                 %% pre-build the struct for addressing cell array fields
                 %% sc = substruct('.', name, '{}', idx);
                 sc = struct('type', {'.', '{}'}, 'subs', {name, idx});  %% cell array field
-                obj.zvar.data.v0 = subsasgn(obj.zvar.data.idx2ID, sc, idx2ID);
-                obj.zvar.data.v0 = subsasgn(obj.zvar.data.ID2idx, sc, ID2idx);
+                obj.state.data.v0 = subsasgn(obj.state.data.idx2ID, sc, idx2ID);
+                obj.state.data.v0 = subsasgn(obj.state.data.ID2idx, sc, ID2idx);
             end
         end
 
-        function add_var(obj, name, idx, varargin)
-            %   obj.add_var(name, N, v0, vl, vu, vt)
-            %   obj.add_var(name, N, v0, vl, vu)
-            %   obj.add_var(name, N, v0, vl)
-            %   obj.add_var(name, N, v0)
-            %   obj.add_var(name, N)
-            %   obj.add_var(name, idx_list, N, v0, vl, vu, vt)
-            %   obj.add_var(name, idx_list, N, v0, vl, vu)
-            %   obj.add_var(name, idx_list, N, v0, vl)
-            %   obj.add_var(name, idx_list, N, v0)
-            %   obj.add_var(name, idx_list, N)
+        function add_var(obj, vtype, name, idx, varargin)
+            %   obj.add_var(vtype, name, N, v0, vl, vu, vt)
+            %   obj.add_var(vtype, name, N, v0, vl, vu)
+            %   obj.add_var(vtype, name, N, v0, vl)
+            %   obj.add_var(vtype, name, N, v0)
+            %   obj.add_var(vtype, name, N)
+            %   obj.add_var(vtype, name, idx_list, N, v0, vl, vu, vt)
+            %   obj.add_var(vtype, name, idx_list, N, v0, vl, vu)
+            %   obj.add_var(vtype, name, idx_list, N, v0, vl)
+            %   obj.add_var(vtype, name, idx_list, N, v0)
+            %   obj.add_var(vtype, name, idx_list, N)
             if iscell(idx)
                 N = varargin{1};
                 args = varargin(2:end);
@@ -252,24 +324,27 @@ classdef mp_aggregate < mp_element & mp_modeler
             end
 
             %% add the named variable set
-            obj.add_named_set('var', name, idx, N);
+            obj.add_named_set(vtype, name, idx, N);
             
             %% add type-specific data for var (v0, vl, vu, vt)
+            d = obj.(vtype).data;
+            obj.(vtype).data = [];
             if isempty(idx)
-                obj.var.data.v0.(name) = v0;    %% initial value
-                obj.var.data.vl.(name) = vl;    %% lower bound
-                obj.var.data.vu.(name) = vu;    %% upper bound
-                obj.var.data.vt.(name) = vt;    %% variable type
+                d.v0.(name) = v0;       %% initial value
+                d.vl.(name) = vl;       %% lower bound
+                d.vu.(name) = vu;       %% upper bound
+                d.vt.(name) = vt;       %% variable type
             else
                 %% calls to substruct() are relatively expensive, so we
                 %% pre-build the struct for addressing cell array fields
                 %% sc = substruct('.', name, '{}', idx);
                 sc = struct('type', {'.', '{}'}, 'subs', {name, idx});  %% cell array field
-                obj.var.data.v0 = subsasgn(obj.var.data.v0, sc, v0);    %% initial value
-                obj.var.data.vl = subsasgn(obj.var.data.vl, sc, vl);    %% lower bound
-                obj.var.data.vu = subsasgn(obj.var.data.vu, sc, vu);    %% upper bound
-                obj.var.data.vt = subsasgn(obj.var.data.vt, sc, vt);    %% variable type
+                d.v0 = subsasgn(d.v0, sc, v0);      %% initial value
+                d.vl = subsasgn(d.vl, sc, vl);      %% lower bound
+                d.vu = subsasgn(d.vu, sc, vu);      %% upper bound
+                d.vt = subsasgn(d.vt, sc, vt);      %% variable type
             end
+            obj.(vtype).data = d;
         end
     end     %% methods
 end         %% classdef

@@ -32,5 +32,8 @@ classdef acsp_model < ac_model
         function tag = model_tag(obj)
             tag = 'acsp';
         end
+        function vtypes = model_vvars(obj)
+            vtypes = {'va', 'vm'};
+        end
     end     %% methods
 end         %% classdef

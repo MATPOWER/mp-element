@@ -18,14 +18,14 @@ classdef mp_bus < mp_element
             obj@mp_element(varargin{:});
             obj.name = 'bus';
             obj.mpc_field = 'bus';
-            obj.np = 1;             %% this is a 1 port element
+            obj.np = 0;             %% this is a 0 port element
         end
 
         function obj = add_nodes(obj, asm, mpc)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I] = idx_bus;
     
-            nb = size(mpc.bus, 1);      %% number of buses
+            nb = obj.nk;            %% number of buses
             asm.add_node(obj.name, nb, mpc.bus(:, BUS_I));
         end
     end     %% methods

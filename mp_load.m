@@ -22,8 +22,15 @@ classdef mp_load < mp_element
         end
 
         function obj = build_params(obj, asm, mpc)
+            %% define constants
+            [PQ, PV, REF, NONE, BUS_I] = idx_bus;
+
+            %% incidence matrices
+            nn = asm.getN('node');
             nb = obj.nk;
-            obj.C = { speye(nb) };
+            IDs = mpc.bus(:, BUS_I);                %% bus IDs
+            nidx = asm.node.data.ID2idx.bus(IDs);   %% node indexes
+            obj.C = { sparse(nidx, 1:nb, 1, nn, nb) };
         end
     end     %% methods
 end         %% classdef

@@ -31,16 +31,14 @@ classdef acsp_gen < mp_gen & acsp_model
             Qg   = mpc.gen(:, QG);
             Qmin = mpc.gen(:, QMIN);
             Qmax = mpc.gen(:, QMAX);
-            asm.add_var('Pg', ng, Pg, Pmin, Pmax);
-            asm.add_var('Qg', ng, Qg, Qmin, Qmax);
+            asm.add_var('zr', 'Pg', ng, Pg, Pmin, Pmax);
+            asm.add_var('zi', 'Qg', ng, Qg, Qmin, Qmax);
         end
 
         function obj = build_params(obj, asm, mpc)
             build_params@mp_gen(obj, asm, mpc);     %% call parent
             ng = obj.nk;
-            I = speye(ng);
-            obj.N = [ sparse(ng,ng) I 1j*I];
-            obj.D = [I I];
+            obj.N = -speye(ng);
         end
     end     %% methods
 end         %% classdef

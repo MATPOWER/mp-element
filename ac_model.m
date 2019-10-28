@@ -53,5 +53,58 @@ classdef ac_model < mp_model
         function params = model_params(obj)
            params = {'Y', 'L', 'M', 'N', 'i', 's'};
         end
+        function vtypes = model_zvars(obj)
+            vtypes = {'zr', 'zi'};
+        end
+
+        function [Y, L, M, N, i, s] = get_params(obj)
+            np = obj.nk * obj.np;
+            nz = obj.nk * obj.nz;
+            if isempty(obj.Y)
+                Y = sparse(np, np);
+            else
+                Y = obj.Y;
+            end
+            if isempty(obj.L)
+                L = sparse(np, nz);
+            else
+                L = obj.L;
+            end
+            if isempty(obj.M)
+                M = sparse(np, np);
+            else
+                M = obj.M;
+            end
+            if isempty(obj.N)
+                N = sparse(np, nz);
+            else
+                N = obj.N;
+            end
+            if isempty(obj.i)
+                i = zeros(np, 1);
+            else
+                i = obj.i;
+            end
+            if isempty(obj.s)
+                s = zeros(np, 1);
+            else
+                s = obj.s;
+            end
+        end
+
+        function S = port_inj_power(obj, x, sysx, idx)
+            % sys x : 1 = system x, 0 = class aggregate x
+            
+            [Y, L, M, N, i, s] = obj.get_params();
+            [v, z] = obj.x2vz(x, sysx);
+            
+            if sysx
+                Ct = obj.C.';
+                Dt = obj.D.';
+                S = Ct*v .* conj(Y*Ct*v + L*Dt*z + i) + M*Ct*v + N*Dt*z + s;
+            else
+                S = v .* conj(Y*v + L*z + i) + M*v + N*z + s;
+            end
+        end
     end     %% methods
 end         %% classdef

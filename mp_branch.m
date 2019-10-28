@@ -22,16 +22,24 @@ classdef mp_branch < mp_element
         end
 
         function obj = build_params(obj, asm, mpc)
-%             define_constants;
+            %% define constants
+            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
+                TAP, SHIFT, BR_STATUS] = idx_brch;
+
             branch = mpc.branch;
             nl = obj.nk;
 
-%             f = branch(:, F_BUS);           %% list of "from" buses
-%             t = branch(:, T_BUS);           %% list of "to" buses
-%             Cf = sparse(f, 1:nl, 1, nb, nl);%% connection matrix for line & from buses
-%             Ct = sparse(t, 1:nl, 1, nb, nl);%% connection matrix for line & to buses
-% 
-%             obj.C = { Cf, Ct };
+            %% incidence matrices
+            nn = asm.getN('node');
+            nl = obj.nk;
+
+            fIDs = mpc.branch(:, F_BUS);            %% "from" bus IDs
+            tIDs = mpc.branch(:, T_BUS);            %% "to" bus IDs
+            fidx = asm.node.data.ID2idx.bus(fIDs);  %% "from" node indexes
+            tidx = asm.node.data.ID2idx.bus(tIDs);  %% "to" node indexes
+
+            obj.C = { sparse(fidx, 1:nl, 1, nn, nl), ...
+                      sparse(tidx, 1:nl, 1, nn, nl) };
         end
     end     %% methods
 end         %% classdef

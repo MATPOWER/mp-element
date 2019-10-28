@@ -28,8 +28,8 @@ classdef acsp_bus < mp_bus & acsp_model
             Vm0   = mpc.bus(:, VM);
             Vmin = mpc.bus(:, VMIN);
             Vmax = mpc.bus(:, VMAX);
-            asm.add_var('Va', nb, Va0);
-            asm.add_var('Vm', nb, Vm0, Vmin, Vmax);
+            asm.add_var('va', 'Va', nb, Va0);
+            asm.add_var('vm', 'Vm', nb, Vm0, Vmin, Vmax);
         end
     end     %% methods
 end         %% classdef

@@ -22,10 +22,9 @@ classdef mp_element < handle
 %       init() - called automatically by constructor with same args, should
 %           be called explicitly by sub-class constructor if called with args
 %           mpe.init(...)
-%       add_nodes() - add node and node to element ID mappings
+%       add_nodes() - add node, voltage variables, and node to element ID mappings
+%       add_states() - add state, state variables
 %           
-%       add_vars() - add state variables to model
-%           asm = mpe.add_vars(asm, mpc)
 %       build_params() - build model parameters from data model
 %           params = mpe.build_params(asm, mpc)
 %       count() - returns the number of elements of this type in mpc, sets mpe.nk
@@ -74,7 +73,7 @@ classdef mp_element < handle
         mpc_field = '';     %% field checked for presence of this element type
         np = 0;             %% number of ports per element
         nk = 0;             %% number of elements of this type loaded
-        nz = 0;             %% number of non-voltage state variables per element
+        nz = 0;             %% number of non-voltage states per element
         C = {};             %% cell array of sparse element-node incidence
                             %% matrices, where C{j}(i,k) is 1 if port j of
                             %% element k is connected to node i
@@ -111,16 +110,29 @@ classdef mp_element < handle
         function obj = add_nodes(obj, asm, mpc)
         end
 
+        function obj = add_states(obj, asm, mpc)
+        end
+
         function obj = add_vvars(obj, asm, mpc)
         end
 
         function obj = add_zvars(obj, asm, mpc)
         end
 
-        function obj = add_vars(obj, asm, mpc)
+        function obj = build_params(obj, asm, mpc)
         end
 
-        function obj = build_params(obj, asm, mpc)
+        function [v, z] = x2vz(obj, x, sysx);
+            % sys x : 1 = system x, 0 = class aggregate x
+            if sysx
+                nv = size(obj.C, 1);
+                nz = size(obj.D, 1);
+            else
+                nv = obj.nk * obj.np;
+                nz = obj.nk * obj.nz;
+            end
+            v = x(1:nv);
+            z = x(nv+1:nv+nz);
         end
     end     %% methods
 end         %% classdef

@@ -22,22 +22,28 @@ classdef mp_gen < mp_element
             obj.nz = 1;
         end
 
+        function obj = add_states(obj, asm, mpc)
+            %% define constants
+            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
+    
+            ng = obj.nk;            %% number of gens
+            asm.add_state(obj.name, ng);
+        end
+
         function obj = build_params(obj, asm, mpc)
             %% define constants
-            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
-                MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
-                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
+            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
 
+            %% incidence matrices
             nn = asm.getN('node');
             ng = obj.nk;
-            b2n = asm.node.data.ID2idx.bus;     %% bus to node map
+            IDs = mpc.gen(:, GEN_BUS);              %% bus IDs
+            nidx = asm.node.data.ID2idx.bus(IDs);   %% node indexes
+            obj.C = { sparse(nidx, 1:ng, 1, nn, ng) };
 
-            %% what nodes are the gens at
-            gnodes = b2n(mpc.gen(:, GEN_BUS));
-            Cg = sparse(gnodes, (1:ng)', 1, nn, ng);    %% connection matrix
-                                                        %% element i, j is 1 if
-                                                        %% gen j is at node i
-            obj.C = { Cg };
+            nz = asm.getN('state');
+            sidx = asm.state.data.ID2idx.(obj.name);    %% state indexes
+            obj.D = { sparse(sidx, 1:ng, 1, nz, ng) };
         end
     end     %% methods
 end         %% classdef

@@ -28,15 +28,13 @@ classdef dc_gen < mp_gen & dc_model
             Pg   = mpc.gen(:, PG);
             Pmin = mpc.gen(:, PMIN);
             Pmax = mpc.gen(:, PMAX);
-            asm.add_var('Pg', ng, Pg, Pmin, Pmax);
+            asm.add_var('z', 'Pg', ng, Pg, Pmin, Pmax);
         end
 
         function obj = build_params(obj, asm, mpc)
             build_params@mp_gen(obj, asm, mpc);     %% call parent
             ng = obj.nk;
-            I = speye(ng);
-            obj.K = I;
-            obj.D = {I};
+            obj.K = -speye(ng);
         end
     end     %% methods
 end         %% classdef
