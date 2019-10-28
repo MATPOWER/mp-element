@@ -92,6 +92,21 @@ classdef ac_model < mp_model
             end
         end
 
+        function I = port_inj_current(obj, x, sysx, idx)
+            % sys x : 1 = system x, 0 = class aggregate x
+            
+            [Y, L, M, N, i, s] = obj.get_params();
+            [v, z] = obj.x2vz(x, sysx);
+            
+            if sysx
+                Ct = obj.C.';
+                Dt = obj.D.';
+                I = Y*Ct*v + L*Dt*z + i + conj((M*Ct*v + N*Dt*z + s) ./ (Ct*v));
+            else
+                I = Y*v + L*z + i + conj((M*v + N*z + s) ./ v);
+            end
+        end
+
         function S = port_inj_power(obj, x, sysx, idx)
             % sys x : 1 = system x, 0 = class aggregate x
             

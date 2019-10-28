@@ -23,6 +23,9 @@ z = (mpc.gen(:, PG) + 1j * mpc.gen(:, QG)) / mpc.baseMVA;
 x = [v;z];
 S = ac.port_inj_power(x, 1)
 ac.C * S
+I = ac.port_inj_current(x, 1)
+ac.C * I
+
 
 
 % mpe_type_lib = struct( ...
