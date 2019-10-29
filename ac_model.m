@@ -99,11 +99,21 @@ classdef ac_model < mp_model
             [v, z] = obj.x2vz(x, sysx);
             
             if sysx
-                Ct = obj.C.';
-                Dt = obj.D.';
-                I = Y*Ct*v + L*Dt*z + i + conj((M*Ct*v + N*Dt*z + s) ./ (Ct*v));
+                Ct = horzcat(obj.C{:}).';
+                Dt = horzcat(obj.D{:}).';
+                if nargin < 4       %% all ports
+                    I = Y*Ct*v + L*Dt*z + i + conj((M*Ct*v + N*Dt*z + s) ./ (Ct*v));
+                else                %% selected ports
+                    I = Y(idx, :)*Ct*v + L(idx, :)*Dt*z + i(idx) + ...
+                        conj((M(idx, :)*Ct*v + N(idx, :)*Dt*z + s(idx)) ./ (Ct(idx, :)*v));
+                end
             else
-                I = Y*v + L*z + i + conj((M*v + N*z + s) ./ v);
+                if nargin < 4       %% all ports
+                    I = Y*v + L*z + i + conj((M*v + N*z + s) ./ v);
+                else                %% selected ports
+                    I = Y(idx, :)*v + L(idx, :)*z + i(idx) + ...
+                        conj((M(idx, :)*v + N(idx, :)*z + s(idx)) ./ v(idx));
+                end
             end
         end
 
@@ -114,11 +124,21 @@ classdef ac_model < mp_model
             [v, z] = obj.x2vz(x, sysx);
             
             if sysx
-                Ct = obj.C.';
-                Dt = obj.D.';
-                S = Ct*v .* conj(Y*Ct*v + L*Dt*z + i) + M*Ct*v + N*Dt*z + s;
+                Ct = horzcat(obj.C{:}).';
+                Dt = horzcat(obj.D{:}).';
+                if nargin < 4       %% all ports
+                    S = Ct*v .* conj(Y*Ct*v + L*Dt*z + i) + M*Ct*v + N*Dt*z + s;
+                else                %% selected ports
+                    S = Ct(idx, :)*v .* conj(Y(idx, :)*Ct*v + L(idx, :)*Dt*z + i(idx)) + ...
+                        M(idx, :)*Ct*v + N(idx, :)*Dt*z + s(idx);
+                end
             else
-                S = v .* conj(Y*v + L*z + i) + M*v + N*z + s;
+                if nargin < 4       %% all ports
+                    S = v .* conj(Y*v + L*z + i) + M*v + N*z + s;
+                else                %% selected ports
+                    S = v(idx) .* conj(Y(idx, :)*v + L(idx, :)*z + i) + ...
+                        M(idx, :)*v + N(idx, :)*z + s(idx);
+                end
             end
         end
     end     %% methods

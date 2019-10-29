@@ -82,11 +82,19 @@ classdef dc_model < mp_model
             [v, z] = obj.x2vz(x, sysx);
             
             if sysx
-                Ct = obj.C.';
-                Dt = obj.D.';
-                P = B*Ct*v + K*Dt*z + p;
+                Ct = horzcat(obj.C{:}).';
+                Dt = horzcat(obj.D{:}).';
+                if nargin < 4       %% all ports
+                    P = B*Ct*v + K*Dt*z + p;
+                else                %% selected ports
+                    P = B(idx, :)*Ct*v + K(idx, :)*Dt*z + p(idx);
+                end
             else
-                P = B*v + K*z + p;
+                if nargin < 4       %% all ports
+                    P = B*v + K*z + p;
+                else                %% selected ports
+                    P = B(idx, :)*v + K(idx, :)*z + p(idx);
+                end
             end
         end
     end     %% methods

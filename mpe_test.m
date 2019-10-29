@@ -5,13 +5,26 @@ ng = size(mpc.gen, 1);
 
 dc = dc_aggregate();
 dc.create_model(mpc);
+nv = dc.nv;
+nz = dc.nz;
+np = dc.np;
 
 dc
 v = mpc.bus(:, VA) * pi/180;
 z = mpc.gen(:, PG) / mpc.baseMVA;
 x = [v;z];
-P = dc.port_inj_power(x, 1)
-dc.C * P
+A = [   dc.C{1} sparse(nv, nz);
+        sparse(nz, np) dc.D{1}   ];
+P  = dc.port_inj_power(x, 1)
+P1 = dc.port_inj_power(A'*x, 0)
+norm(P-P1)
+dc.C{1} * P
+gen = dc.mpe_by_name('gen');
+Pg = gen.port_inj_power(x, 1)
+Pg31 = gen.port_inj_power(x, 1, [3;1])
+Pg2 = gen.port_inj_power(x, 1, 2)
+
+% return;
 
 mpc = runpf(loadcase('t_case9_opfv2'));
 ac = acsp_aggregate();
@@ -21,10 +34,19 @@ ac
 v = mpc.bus(:, VM) .* exp(1j * mpc.bus(:, VA) * pi/180);
 z = (mpc.gen(:, PG) + 1j * mpc.gen(:, QG)) / mpc.baseMVA;
 x = [v;z];
-S = ac.port_inj_power(x, 1)
-ac.C * S
-I = ac.port_inj_current(x, 1)
-ac.C * I
+A = [   dc.C{1} sparse(nv, nz);
+        sparse(nz, np) dc.D{1}   ];
+S  = ac.port_inj_power(x, 1)
+S1 = ac.port_inj_power(A'*x, 0)
+norm(S-S1)
+ac.C{1} * S
+I  = ac.port_inj_current(x, 1)
+I1 = ac.port_inj_current(A'*x, 0)
+ac.C{1} * I
+gen = ac.mpe_by_name('gen');
+Sg = gen.port_inj_power(x, 1)
+Sg31 = gen.port_inj_power(x, 1, [3;1])
+Sg2 = gen.port_inj_power(x, 1, 2)
 
 
 

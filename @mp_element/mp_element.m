@@ -125,14 +125,15 @@ classdef mp_element < handle
         function [v, z] = x2vz(obj, x, sysx);
             % sys x : 1 = system x, 0 = class aggregate x
             if sysx
-                nv = size(obj.C, 1);
-                nz = size(obj.D, 1);
+                nv = size(obj.C{1}, 1);
+%                 nz = size(obj.D{1}, 1);     % doesn't work when D = {}
             else
                 nv = obj.nk * obj.np;
-                nz = obj.nk * obj.nz;
+%                 nz = obj.nk * obj.nz;
             end
             v = x(1:nv);
-            z = x(nv+1:nv+nz);
+            z = x(nv+1:end);
+%             z = x(nv+1:nv+nz);
         end
     end     %% methods
 end         %% classdef

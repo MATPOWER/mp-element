@@ -87,8 +87,8 @@ classdef mp_aggregate < mp_element & mp_modeler
                 C = horzcat(C, mpe{1}.C);
                 D = horzcat(D, mpe{1}.D);
             end
-            obj.C = horzcat(C{:});
-            obj.D = horzcat(D{:});
+            obj.C = { horzcat(C{:}) };
+            obj.D = { horzcat(D{:}) };
         end
 
         function M = stack_matrix_params(obj, name, vnotz)
