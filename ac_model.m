@@ -57,38 +57,72 @@ classdef ac_model < mp_model
             vtypes = {'zr', 'zi'};
         end
 
-        function [Y, L, M, N, i, s] = get_params(obj)
+        function [Y, L, M, N, i, s] = get_params(obj, idx)
             np = obj.nk * obj.np;
             nz = obj.nk * obj.nz;
-            if isempty(obj.Y)
-                Y = sparse(np, np);
-            else
-                Y = obj.Y;
-            end
-            if isempty(obj.L)
-                L = sparse(np, nz);
-            else
-                L = obj.L;
-            end
-            if isempty(obj.M)
-                M = sparse(np, np);
-            else
-                M = obj.M;
-            end
-            if isempty(obj.N)
-                N = sparse(np, nz);
-            else
-                N = obj.N;
-            end
-            if isempty(obj.i)
-                i = zeros(np, 1);
-            else
-                i = obj.i;
-            end
-            if isempty(obj.s)
-                s = zeros(np, 1);
-            else
-                s = obj.s;
+            if nargin >= 2 && ~isempty(idx) %% selected ports
+                ni = length(idx);
+                if isempty(obj.Y)
+                    Y = sparse(ni, np);
+                else
+                    Y = obj.Y(idx, :);
+                end
+                if isempty(obj.L)
+                    L = sparse(ni, nz);
+                else
+                    L = obj.L(idx, :);
+                end
+                if isempty(obj.M)
+                    M = sparse(ni, np);
+                else
+                    M = obj.M(idx, :);
+                end
+                if isempty(obj.N)
+                    N = sparse(ni, nz);
+                else
+                    N = obj.N(idx, :);
+                end
+                if isempty(obj.i)
+                    i = zeros(ni, 1);
+                else
+                    i = obj.i(idx);
+                end
+                if isempty(obj.s)
+                    s = zeros(ni, 1);
+                else
+                    s = obj.s(idx);
+                end
+            else                            %% all ports
+                if isempty(obj.Y)
+                    Y = sparse(np, np);
+                else
+                    Y = obj.Y;
+                end
+                if isempty(obj.L)
+                    L = sparse(np, nz);
+                else
+                    L = obj.L;
+                end
+                if isempty(obj.M)
+                    M = sparse(np, np);
+                else
+                    M = obj.M;
+                end
+                if isempty(obj.N)
+                    N = sparse(np, nz);
+                else
+                    N = obj.N;
+                end
+                if isempty(obj.i)
+                    i = zeros(np, 1);
+                else
+                    i = obj.i;
+                end
+                if isempty(obj.s)
+                    s = zeros(np, 1);
+                else
+                    s = obj.s;
+                end
             end
         end
 
@@ -99,8 +133,8 @@ classdef ac_model < mp_model
             [v, z] = obj.x2vz(x, sysx);
             
             if sysx
-                Ct = horzcat(obj.C{:}).';
-                Dt = horzcat(obj.D{:}).';
+                Ct = obj.getC('tr');
+                Dt = obj.getD('tr');
                 if nargin < 4       %% all ports
                     I = Y*Ct*v + L*Dt*z + i + conj((M*Ct*v + N*Dt*z + s) ./ (Ct*v));
                 else                %% selected ports
@@ -117,29 +151,103 @@ classdef ac_model < mp_model
             end
         end
 
-        function S = port_inj_power(obj, x, sysx, idx)
-            % sys x : 1 = system x, 0 = class aggregate x
+%         function S = port_inj_power(obj, x, sysx, idx)
+%             % S = obj.port_inj_power(x, sysx, idx)
+%             % [S, dSdVa, dSdVm, dSdzr, dSdzi] = obj.port_inj_power(x, sysx, idx)
+%             % sys x : 1 = system x, 0 = class aggregate x
+%             
+%             [Y, L, M, N, i, s] = obj.get_params();
+%             [v, z] = obj.x2vz(x, sysx);
+%             
+%             if sysx
+%                 Ct = obj.getC('tr');
+%                 Dt = obj.getD('tr');
+%                 if nargin < 4       %% all ports
+%                     S = Ct*v .* conj(Y*Ct*v + L*Dt*z + i) + M*Ct*v + N*Dt*z + s;
+%                 else                %% selected ports
+%                     S = Ct(idx, :)*v .* conj(Y(idx, :)*Ct*v + L(idx, :)*Dt*z + i(idx)) + ...
+%                         M(idx, :)*Ct*v + N(idx, :)*Dt*z + s(idx);
+%                 end
+%                 if nargout > 1
+%                 end
+%             else
+%                 if nargin < 4       %% all ports
+%                     S = v .* conj(Y*v + L*z + i) + M*v + N*z + s;
+%                 else                %% selected ports
+%                     S = v(idx) .* conj(Y(idx, :)*v + L(idx, :)*z + i) + ...
+%                         M(idx, :)*v + N(idx, :)*z + s(idx);
+%                 end
+%                 if nargout > 1
+%                 end
+%             end
+%         end
+
+        function [S, Sv1, Sv2, Szr, Szi] = port_inj_power(obj, x, sysx, idx)
+            % S = obj.port_inj_power(x, sysx)
+            % S = obj.port_inj_power(x, sysx, idx)
+            % [S, Sv1, Sv2] = obj.port_inj_power(...)
+            % [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(...)
+            % sysx : 1 = system x, 0 = class aggregate x
+
+            if nargin < 4
+                idx = [];
+            end
             
-            [Y, L, M, N, i, s] = obj.get_params();
+            [Y, L, M, N, i, s] = obj.get_params(idx);
             [v, z] = obj.x2vz(x, sysx);
-            
-            if sysx
-                Ct = horzcat(obj.C{:}).';
-                Dt = horzcat(obj.D{:}).';
-                if nargin < 4       %% all ports
-                    S = Ct*v .* conj(Y*Ct*v + L*Dt*z + i) + M*Ct*v + N*Dt*z + s;
-                else                %% selected ports
-                    S = Ct(idx, :)*v .* conj(Y(idx, :)*Ct*v + L(idx, :)*Dt*z + i(idx)) + ...
-                        M(idx, :)*Ct*v + N(idx, :)*Dt*z + s(idx);
-                end
+
+            %% set full port voltages and states for element class
+            if sysx         %% system x is provided, convert to x for ports
+                Ct = obj.getC('tr');
+                Dt = obj.getD('tr');
+                vv = Ct * v;        %% full port voltages for element class
+                zz = Dt * z;        %% full states for element class
+            else            %% x for ports provided directly
+                vv = v;             %% full port voltages for element class
+                zz = z;             %% full states for element class
+            end
+
+            %% port voltages for selected ports
+            if isempty(idx)
+                vi = vv;
             else
-                if nargin < 4       %% all ports
-                    S = v .* conj(Y*v + L*z + i) + M*v + N*z + s;
+                vi = vv(idx);
+            end
+
+            %% compute linear current injections and power injections
+            Ilin = Y*vv + L*zz + i;
+            S = vi .* conj(Ilin) + M*vv + N*zz + s;
+
+            if nargout > 1
+                n  = length(vv);    %% number of all port voltages
+                ni = length(vi);    %% number of selected port voltages
+
+                %% intermediate terms
+                diagv  = sparse(1:n, 1:n, vv, n, n);
+                diagvi = sparse(1:ni, 1:ni, vi, ni, ni);
+                if isempty(idx)     %% all ports
+                    diagIlinc = sparse(1:n, 1:n, conj(Ilin), n, n);
                 else                %% selected ports
-                    S = v(idx) .* conj(Y(idx, :)*v + L(idx, :)*z + i) + ...
-                        M(idx, :)*v + N(idx, :)*z + s(idx);
+                    diagIlinc = sparse(1:ni, idx, conj(Ilin), ni, n);
+                end
+                
+                if nargout < 4
+                    [Sv1, Sv2] = obj.port_inj_power_jac( ...
+                            n, ni, vv, Y, L, M, N, diagv, diagvi, diagIlinc);
+                else
+                    [Sv1, Sv2, Szr, Szi] = obj.port_inj_power_jac( ...
+                            n, ni, vv, Y, L, M, N, diagv, diagvi, diagIlinc);
+                end
+                if sysx
+                    Sv1 = Sv1 * Ct;
+                    Sv2 = Sv2 * Ct;
+                    if nargout >= 4
+                        Szr = Szr * Dt;
+                        Szi = Szi * Dt;
+                    end
                 end
             end
         end
+
     end     %% methods
 end         %% classdef

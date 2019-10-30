@@ -135,5 +135,21 @@ classdef mp_element < handle
             z = x(nv+1:end);
 %             z = x(nv+1:nv+nz);
         end
+
+        function C = getC(obj, transpose_it)
+            if nargin > 1
+                C = horzcat(obj.C{:}).';
+            else
+                C = horzcat(obj.C{:});
+            end
+        end
+
+        function D = getD(obj, transpose_it)
+            if nargin > 1
+                D = horzcat(obj.D{:}).';
+            else
+                D = horzcat(obj.D{:});
+            end
+        end
     end     %% methods
 end         %% classdef

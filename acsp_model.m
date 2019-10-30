@@ -35,5 +35,47 @@ classdef acsp_model < ac_model
         function vtypes = model_vvars(obj)
             vtypes = {'va', 'vm'};
         end
+
+        function [Sva, Svm, Szr, Szi] = port_inj_power_jac(obj, ...
+                n, ni, vv, Y, L, M, N, diagv, diagvi, diagIlinc)
+            % [Sva, Svm] = obj.port_inj_power(...)
+            % [Sva, Svm, Szr, Szi] = obj.port_inj_power(...)
+
+            %% intermediate terms
+            A = diagvi * diagIlinc;
+            B = diagvi * conj(Y);
+            C = B * conj(diagv);
+            D = sparse(1:n, 1:n, 1 ./ abs(vv), n, n);
+
+            %% linear power term
+            Slin_va = 1j * M * diagv;
+            Slin_vm =  M * D * diagv;
+
+            %% power from linear current term
+            SI_va = 1j * (A - C);
+            SI_vm = (A + C) * D;
+
+            %% combine
+            Sva = Slin_va + SI_va;
+            Svm = Slin_vm + SI_vm;
+
+            if nargout > 2
+                %% intermediate terms
+                E = diagvi * conj(L);
+
+                %% linear power term
+                Slin_zr = N;
+                Slin_zi = 1j * N;
+
+                %% power from linear current term
+                SI_zr = E;
+                SI_zi = 1j * E;
+
+                %% combine
+                Szr = Slin_zr + SI_zr;
+                Szi = Slin_zi + SI_zi;
+            end
+        end
+
     end     %% methods
 end         %% classdef

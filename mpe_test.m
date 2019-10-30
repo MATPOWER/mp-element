@@ -1,5 +1,6 @@
 define_constants;
-mpc = rundcpf(loadcase('t_case9_opfv2'));
+mpopt = mpoption('out.all', 0, 'verbose', 2);
+mpc = rundcpf(loadcase('t_case9_opfv2'), mpopt);
 nb = size(mpc.bus, 1);
 ng = size(mpc.gen, 1);
 
@@ -26,7 +27,9 @@ Pg2 = gen.port_inj_power(x, 1, 2)
 
 % return;
 
-mpc = runpf(loadcase('t_case9_opfv2'));
+mpc = ext2int(runpf(loadcase('t_case9_opfv2'), mpopt));
+mpc = ext2int(loadcase('t_case9_opfv2'));
+mpc = rmfield(mpc, 'order');
 ac = acsp_aggregate();
 ac.create_model(mpc);
 
@@ -48,6 +51,16 @@ Sg = gen.port_inj_power(x, 1)
 Sg31 = gen.port_inj_power(x, 1, [3;1])
 Sg2 = gen.port_inj_power(x, 1, 2)
 
+[S, dSdva, dSdvm, dSdzr, dSdzi] = ac.port_inj_power(x, 1, [3;2;1])
+
+[x, success, i] = ac.solve_power_flow(mpc)
+
+% [S, dSdva, dSdvm, dSdzr, dSdzi] = gen.port_inj_power(x, 1)
+% C = horzcat(gen.C{:});
+% D = horzcat(gen.D{:});
+% A = [   C sparse(size(C, 1), size(D, 2));
+%         sparse(size(D, 1), size(C, 2)) D   ];
+% [S, dSdva, dSdvm, dSdzr, dSdzi] = gen.port_inj_power(A'*x, 0)
 
 
 % mpe_type_lib = struct( ...

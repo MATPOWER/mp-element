@@ -25,12 +25,12 @@ classdef acsp_gen < mp_gen & acsp_model
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
             ng = obj.nk;
-            Pg   = mpc.gen(:, PG);
-            Pmin = mpc.gen(:, PMIN);
-            Pmax = mpc.gen(:, PMAX);
-            Qg   = mpc.gen(:, QG);
-            Qmin = mpc.gen(:, QMIN);
-            Qmax = mpc.gen(:, QMAX);
+            Pg   = mpc.gen(:, PG) / mpc.baseMVA;
+            Pmin = mpc.gen(:, PMIN) / mpc.baseMVA;
+            Pmax = mpc.gen(:, PMAX) / mpc.baseMVA;
+            Qg   = mpc.gen(:, QG) / mpc.baseMVA;
+            Qmin = mpc.gen(:, QMIN) / mpc.baseMVA;
+            Qmax = mpc.gen(:, QMAX) / mpc.baseMVA;
             asm.add_var('zr', 'Pg', ng, Pg, Pmin, Pmax);
             asm.add_var('zi', 'Qg', ng, Qg, Qmin, Qmax);
         end

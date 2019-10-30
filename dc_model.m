@@ -55,23 +55,42 @@ classdef dc_model < mp_model
             vtypes = {'z'};
         end
 
-        function [B, K, p] = get_params(obj)
+        function [B, K, p] = get_params(obj, idx)
             np = obj.nk * obj.np;
             nz = obj.nk * obj.nz;
-            if isempty(obj.B)
-                B = sparse(np, np);
-            else
-                B = obj.B;
-            end
-            if isempty(obj.K)
-                K = sparse(np, nz);
-            else
-                K = obj.K;
-            end
-            if isempty(obj.p)
-                p = zeros(np, 1);
-            else
-                p = obj.p;
+            if nargin >= 2 && ~isempty(idx) %% selected ports
+                ni = length(idx);
+                if isempty(obj.B)
+                    B = sparse(ni, np);
+                else
+                    B = obj.B(idx, :);
+                end
+                if isempty(obj.K)
+                    K = sparse(ni, nz);
+                else
+                    K = obj.K(idx, :);
+                end
+                if isempty(obj.p)
+                    p = zeros(ni, 1);
+                else
+                    p = obj.p(idx);
+                end
+            else                            %% all ports
+                if isempty(obj.B)
+                    B = sparse(np, np);
+                else
+                    B = obj.B;
+                end
+                if isempty(obj.K)
+                    K = sparse(np, nz);
+                else
+                    K = obj.K;
+                end
+                if isempty(obj.p)
+                    p = zeros(np, 1);
+                else
+                    p = obj.p;
+                end
             end
         end
 
@@ -82,8 +101,8 @@ classdef dc_model < mp_model
             [v, z] = obj.x2vz(x, sysx);
             
             if sysx
-                Ct = horzcat(obj.C{:}).';
-                Dt = horzcat(obj.D{:}).';
+                Ct = obj.getC('tr');
+                Dt = obj.getD('tr');
                 if nargin < 4       %% all ports
                     P = B*Ct*v + K*Dt*z + p;
                 else                %% selected ports

@@ -25,9 +25,9 @@ classdef dc_gen < mp_gen & dc_model
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
             ng = obj.nk;
-            Pg   = mpc.gen(:, PG);
-            Pmin = mpc.gen(:, PMIN);
-            Pmax = mpc.gen(:, PMAX);
+            Pg   = mpc.gen(:, PG) / mpc.baseMVA;
+            Pmin = mpc.gen(:, PMIN) / mpc.baseMVA;
+            Pmax = mpc.gen(:, PMAX) / mpc.baseMVA;
             asm.add_var('z', 'Pg', ng, Pg, Pmin, Pmax);
         end
 
