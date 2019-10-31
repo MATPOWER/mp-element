@@ -126,35 +126,108 @@ classdef ac_model < mp_model
             end
         end
 
-        function I = port_inj_current(obj, x, sysx, idx)
-            % sys x : 1 = system x, 0 = class aggregate x
+%         function I = port_inj_current_old(obj, x, sysx, idx)
+%             
+%             [Y, L, M, N, i, s] = obj.get_params();
+%             [v, z] = obj.x2vz(x, sysx);
+%             
+%             if sysx
+%                 Ct = obj.getC('tr');
+%                 Dt = obj.getD('tr');
+%                 if nargin < 4       %% all ports
+%                     I = Y*Ct*v + L*Dt*z + i + conj((M*Ct*v + N*Dt*z + s) ./ (Ct*v));
+%                 else                %% selected ports
+%                     I = Y(idx, :)*Ct*v + L(idx, :)*Dt*z + i(idx) + ...
+%                         conj((M(idx, :)*Ct*v + N(idx, :)*Dt*z + s(idx)) ./ (Ct(idx, :)*v));
+%                 end
+%             else
+%                 if nargin < 4       %% all ports
+%                     I = Y*v + L*z + i + conj((M*v + N*z + s) ./ v);
+%                 else                %% selected ports
+%                     I = Y(idx, :)*v + L(idx, :)*z + i(idx) + ...
+%                         conj((M(idx, :)*v + N(idx, :)*z + s(idx)) ./ v(idx));
+%                 end
+%             end
+%         end
+
+        function [I, Iv1, Iv2, Izr, Izi] = port_inj_current(obj, x, sysx, idx)
+            % I = obj.port_inj_current(x, sysx)
+            % I = obj.port_inj_current(x, sysx, idx)
+            % [I, Iv1, Iv2] = obj.port_inj_current(...)
+            % [I, Iv1, Iv2, Izr, Izi] = obj.port_inj_current(...)
+            % sysx : 1 = system x, 0 = class aggregate x
+
+            if nargin < 4
+                idx = [];
+            end
             
-            [Y, L, M, N, i, s] = obj.get_params();
+            [Y, L, M, N, i, s] = obj.get_params(idx);
             [v, z] = obj.x2vz(x, sysx);
-            
-            if sysx
+
+            %% set full port voltages and states for element class
+            if sysx         %% system x is provided, convert to x for ports
                 Ct = obj.getC('tr');
                 Dt = obj.getD('tr');
-                if nargin < 4       %% all ports
-                    I = Y*Ct*v + L*Dt*z + i + conj((M*Ct*v + N*Dt*z + s) ./ (Ct*v));
-                else                %% selected ports
-                    I = Y(idx, :)*Ct*v + L(idx, :)*Dt*z + i(idx) + ...
-                        conj((M(idx, :)*Ct*v + N(idx, :)*Dt*z + s(idx)) ./ (Ct(idx, :)*v));
-                end
+                vv = Ct * v;        %% full port voltages for element class
+                zz = Dt * z;        %% full states for element class
+            else            %% x for ports provided directly
+                vv = v;             %% full port voltages for element class
+                zz = z;             %% full states for element class
+            end
+
+            %% port voltages for selected ports
+            if isempty(idx)
+                vi = vv;
             else
-                if nargin < 4       %% all ports
-                    I = Y*v + L*z + i + conj((M*v + N*z + s) ./ v);
+                vi = vv(idx);
+            end
+
+            %% compute linear current injections and power injections
+            Slin = M*vv + N*zz + s;
+            I = Y*vv + L*zz + i + conj(Slin ./ vi);
+
+            if nargout > 1
+                n  = length(vv);    %% number of all port voltages
+                ni = length(vi);    %% number of selected port voltages
+
+                %% intermediate terms
+                diagv = sparse(1:n, 1:n, vv, n, n);
+                invdiagvic = sparse(1:ni, 1:ni, 1./conj(vi), ni, ni);
+                if isempty(idx)     %% all ports
+                    diagSlinc = sparse(1:n, 1:n, conj(Slin), n, n);
                 else                %% selected ports
-                    I = Y(idx, :)*v + L(idx, :)*z + i(idx) + ...
-                        conj((M(idx, :)*v + N(idx, :)*z + s(idx)) ./ v(idx));
+                    diagSlinc = sparse(1:ni, idx, conj(Slin), ni, n);
+                end
+                
+                [Iv1, Iv2] = obj.port_inj_current_jac( ...
+                        n, vv, Y, M, diagv, invdiagvic, diagSlinc);
+
+                if nargout >= 4
+                    %% linear current term
+                    Ilin_zr = L;
+                    Ilin_zi = 1j * L;
+
+                    %% current from linear power term
+                    IS_zr = invdiagvic * conj(N);   %% B
+                    IS_zi = 1j * IS_zr;             %% jB
+
+                    %% combine
+                    Izr = Ilin_zr + IS_zr;
+                    Izi = Ilin_zi + IS_zi;
+                end
+
+                if sysx
+                    Iv1 = Iv1 * Ct;
+                    Iv2 = Iv2 * Ct;
+                    if nargout >= 4
+                        Izr = Izr * Dt;
+                        Izi = Izi * Dt;
+                    end
                 end
             end
         end
 
-%         function S = port_inj_power(obj, x, sysx, idx)
-%             % S = obj.port_inj_power(x, sysx, idx)
-%             % [S, dSdVa, dSdVm, dSdzr, dSdzi] = obj.port_inj_power(x, sysx, idx)
-%             % sys x : 1 = system x, 0 = class aggregate x
+%         function S = port_inj_power_old(obj, x, sysx, idx)
 %             
 %             [Y, L, M, N, i, s] = obj.get_params();
 %             [v, z] = obj.x2vz(x, sysx);
@@ -231,13 +304,23 @@ classdef ac_model < mp_model
                     diagIlinc = sparse(1:ni, idx, conj(Ilin), ni, n);
                 end
                 
-                if nargout < 4
-                    [Sv1, Sv2] = obj.port_inj_power_jac( ...
-                            n, ni, vv, Y, L, M, N, diagv, diagvi, diagIlinc);
-                else
-                    [Sv1, Sv2, Szr, Szi] = obj.port_inj_power_jac( ...
-                            n, ni, vv, Y, L, M, N, diagv, diagvi, diagIlinc);
+                [Sv1, Sv2] = obj.port_inj_power_jac( ...
+                        n, vv, Y, M, diagv, diagvi, diagIlinc);
+
+                if nargout >= 4
+                    %% linear power term
+                    Slin_zr = N;
+                    Slin_zi = 1j * N;
+
+                    %% power from linear current term
+                    SI_zr = diagvi * conj(L);   %% E
+                    SI_zi = 1j * SI_zr;         %% jE
+
+                    %% combine
+                    Szr = Slin_zr + SI_zr;
+                    Szi = Slin_zi + SI_zi;
                 end
+
                 if sysx
                     Sv1 = Sv1 * Ct;
                     Sv2 = Sv2 * Ct;

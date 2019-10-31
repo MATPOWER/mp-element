@@ -45,15 +45,26 @@ norm(S-S1)
 ac.C{1} * S
 I  = ac.port_inj_current(x, 1)
 I1 = ac.port_inj_current(A'*x, 0)
+norm(I-I1)
 ac.C{1} * I
+
+[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x, 1, [3;2;1])
+[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x, 1)
+
+% return;
+
 gen = ac.mpe_by_name('gen');
 Sg = gen.port_inj_power(x, 1)
 Sg31 = gen.port_inj_power(x, 1, [3;1])
 Sg2 = gen.port_inj_power(x, 1, 2)
 
-[S, dSdva, dSdvm, dSdzr, dSdzi] = ac.port_inj_power(x, 1, [3;2;1])
+[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x, 1, [3;2;1])
+[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x, 1)
 
 [x, success, i] = ac.solve_power_flow(mpc)
+
+[x, success, i] = ac.solve_opf(mpc)
+
 
 % [S, dSdva, dSdvm, dSdzr, dSdzi] = gen.port_inj_power(x, 1)
 % C = horzcat(gen.C{:});

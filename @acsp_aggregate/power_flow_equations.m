@@ -38,7 +38,7 @@ vm(pq) = x(npv+npq+1:end);
 v = vm .* exp(1j * va);
 
 %% get port power injections with derivatives
-[S, Sva, Svm, Szr, Szi] = port_inj_power(obj, [v; z], 1);
+[S, Sva, Svm] = port_inj_power(obj, [v; z], 1);
 
 %% nodal power balance
 C = obj.getC();
