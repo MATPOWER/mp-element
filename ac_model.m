@@ -67,30 +67,40 @@ classdef ac_model < mp_model
                 else
                     Y = obj.Y(idx, :);
                 end
-                if isempty(obj.L)
-                    L = sparse(ni, nz);
-                else
-                    L = obj.L(idx, :);
-                end
-                if isempty(obj.M)
-                    M = sparse(ni, np);
-                else
-                    M = obj.M(idx, :);
-                end
-                if isempty(obj.N)
-                    N = sparse(ni, nz);
-                else
-                    N = obj.N(idx, :);
-                end
-                if isempty(obj.i)
-                    i = zeros(ni, 1);
-                else
-                    i = obj.i(idx);
-                end
-                if isempty(obj.s)
-                    s = zeros(ni, 1);
-                else
-                    s = obj.s(idx);
+                if nargout > 1
+                    if isempty(obj.L)
+                        L = sparse(ni, nz);
+                    else
+                        L = obj.L(idx, :);
+                    end
+                    if nargout > 2
+                        if isempty(obj.M)
+                            M = sparse(ni, np);
+                        else
+                            M = obj.M(idx, :);
+                        end
+                        if nargout > 3
+                            if isempty(obj.N)
+                                N = sparse(ni, nz);
+                            else
+                                N = obj.N(idx, :);
+                            end
+                            if nargout > 4
+                                if isempty(obj.i)
+                                    i = zeros(ni, 1);
+                                else
+                                    i = obj.i(idx);
+                                end
+                                if nargout > 5
+                                    if isempty(obj.s)
+                                        s = zeros(ni, 1);
+                                    else
+                                        s = obj.s(idx);
+                                    end
+                                end
+                            end
+                        end
+                    end
                 end
             else                            %% all ports
                 if isempty(obj.Y)
@@ -98,30 +108,40 @@ classdef ac_model < mp_model
                 else
                     Y = obj.Y;
                 end
-                if isempty(obj.L)
-                    L = sparse(np, nz);
-                else
-                    L = obj.L;
-                end
-                if isempty(obj.M)
-                    M = sparse(np, np);
-                else
-                    M = obj.M;
-                end
-                if isempty(obj.N)
-                    N = sparse(np, nz);
-                else
-                    N = obj.N;
-                end
-                if isempty(obj.i)
-                    i = zeros(np, 1);
-                else
-                    i = obj.i;
-                end
-                if isempty(obj.s)
-                    s = zeros(np, 1);
-                else
-                    s = obj.s;
+                if nargout > 1
+                    if isempty(obj.L)
+                        L = sparse(np, nz);
+                    else
+                        L = obj.L;
+                    end
+                    if nargout > 2
+                        if isempty(obj.M)
+                            M = sparse(np, np);
+                        else
+                            M = obj.M;
+                        end
+                        if nargout > 3
+                            if isempty(obj.N)
+                                N = sparse(np, nz);
+                            else
+                                N = obj.N;
+                            end
+                            if nargout > 4
+                                if isempty(obj.i)
+                                    i = zeros(np, 1);
+                                else
+                                    i = obj.i;
+                                end
+                                if nargout > 5
+                                    if isempty(obj.s)
+                                        s = zeros(np, 1);
+                                    else
+                                        s = obj.s;
+                                    end
+                                end
+                            end
+                        end
+                    end
                 end
             end
         end
@@ -162,36 +182,17 @@ classdef ac_model < mp_model
             end
             
             [Y, L, M, N, i, s] = obj.get_params(idx);
-            [v, z] = obj.x2vz(x, sysx);
-
-            %% set full port voltages and states for element class
-            if sysx         %% system x is provided, convert to x for ports
-                Ct = obj.getC('tr');
-                Dt = obj.getD('tr');
-                vv = Ct * v;        %% full port voltages for element class
-                zz = Dt * z;        %% full states for element class
-            else            %% x for ports provided directly
-                vv = v;             %% full port voltages for element class
-                zz = z;             %% full states for element class
-            end
-
-            %% port voltages for selected ports
-            if isempty(idx)
-                vi = vv;
-            else
-                vi = vv(idx);
-            end
+            [v, z, vi] = obj.x2vz(x, sysx, idx);
 
             %% compute linear current injections and power injections
-            Slin = M*vv + N*zz + s;
-            I = Y*vv + L*zz + i + conj(Slin ./ vi);
+            Slin = M*v + N*z + s;
+            I = Y*v + L*z + i + conj(Slin ./ vi);
 
             if nargout > 1
-                n  = length(vv);    %% number of all port voltages
-                ni = length(vi);    %% number of selected port voltages
-
                 %% intermediate terms
-                diagv = sparse(1:n, 1:n, vv, n, n);
+                n  = length(v);     %% number of all port voltages
+                ni = length(vi);    %% number of selected port voltages
+                diagv = sparse(1:n, 1:n, v, n, n);
                 invdiagvic = sparse(1:ni, 1:ni, 1./conj(vi), ni, ni);
                 if isempty(idx)     %% all ports
                     diagSlinc = sparse(1:n, 1:n, conj(Slin), n, n);
@@ -200,7 +201,7 @@ classdef ac_model < mp_model
                 end
                 
                 [Iv1, Iv2] = obj.port_inj_current_jac( ...
-                        n, vv, Y, M, diagv, invdiagvic, diagSlinc);
+                        n, v, Y, M, diagv, invdiagvic, diagSlinc);
 
                 if nargout >= 4
                     %% linear current term
@@ -217,9 +218,11 @@ classdef ac_model < mp_model
                 end
 
                 if sysx
+                    Ct = obj.getC('tr');
                     Iv1 = Iv1 * Ct;
                     Iv2 = Iv2 * Ct;
                     if nargout >= 4
+                        Dt = obj.getD('tr');
                         Izr = Izr * Dt;
                         Izi = Izi * Dt;
                     end
@@ -267,45 +270,26 @@ classdef ac_model < mp_model
             end
             
             [Y, L, M, N, i, s] = obj.get_params(idx);
-            [v, z] = obj.x2vz(x, sysx);
-
-            %% set full port voltages and states for element class
-            if sysx         %% system x is provided, convert to x for ports
-                Ct = obj.getC('tr');
-                Dt = obj.getD('tr');
-                vv = Ct * v;        %% full port voltages for element class
-                zz = Dt * z;        %% full states for element class
-            else            %% x for ports provided directly
-                vv = v;             %% full port voltages for element class
-                zz = z;             %% full states for element class
-            end
-
-            %% port voltages for selected ports
-            if isempty(idx)
-                vi = vv;
-            else
-                vi = vv(idx);
-            end
+            [v, z, vi] = obj.x2vz(x, sysx, idx);
 
             %% compute linear current injections and power injections
-            Ilin = Y*vv + L*zz + i;
-            S = vi .* conj(Ilin) + M*vv + N*zz + s;
+            Ilin = Y*v + L*z + i;
+            S = vi .* conj(Ilin) + M*v + N*z + s;
 
             if nargout > 1
-                n  = length(vv);    %% number of all port voltages
-                ni = length(vi);    %% number of selected port voltages
-
                 %% intermediate terms
-                diagv  = sparse(1:n, 1:n, vv, n, n);
+                n  = length(v);     %% number of all port voltages
+                ni = length(vi);    %% number of selected port voltages
+                diagv  = sparse(1:n, 1:n, v, n, n);
                 diagvi = sparse(1:ni, 1:ni, vi, ni, ni);
                 if isempty(idx)     %% all ports
-                    diagIlinc = sparse(1:n, 1:n, conj(Ilin), n, n);
+                    diagIlincJ = sparse(1:n, 1:n, conj(Ilin), n, n);
                 else                %% selected ports
-                    diagIlinc = sparse(1:ni, idx, conj(Ilin), ni, n);
+                    diagIlincJ = sparse(1:ni, idx, conj(Ilin), ni, n);
                 end
                 
                 [Sv1, Sv2] = obj.port_inj_power_jac( ...
-                        n, vv, Y, M, diagv, diagvi, diagIlinc);
+                        n, v, Y, M, diagv, diagvi, diagIlincJ);
 
                 if nargout >= 4
                     %% linear power term
@@ -322,9 +306,11 @@ classdef ac_model < mp_model
                 end
 
                 if sysx
+                    Ct = obj.getC('tr');
                     Sv1 = Sv1 * Ct;
                     Sv2 = Sv2 * Ct;
                     if nargout >= 4
+                        Dt = obj.getD('tr');
                         Szr = Szr * Dt;
                         Szi = Szi * Dt;
                     end
@@ -332,5 +318,43 @@ classdef ac_model < mp_model
             end
         end
 
+        function H = port_inj_power_hess(obj, x, lam, sysx, idx)
+            % H = obj.port_inj_power_hess(x, lam)
+            % H = obj.port_inj_power_hess(x, lam, sysx)
+            % H = obj.port_inj_power_hess(x, lam, sysx, idx)
+
+            if nargin < 5
+                idx = [];
+            end
+
+            [Y, L, M, N, i] = obj.get_params(idx);
+            [v, z, vi] = obj.x2vz(x, sysx, idx);
+
+            %% compute linear current injections
+            Ilin = Y*v + L*z + i;
+
+            %% intermediate terms
+            nz = length(z);
+            n  = length(v);     %% number of all port voltages
+            ni = length(vi);    %% number of selected port voltages
+            diagvi = sparse(1:ni, 1:ni, vi, ni, ni);
+            if isempty(idx)     %% all ports
+                diagIlincJ = sparse(1:n, 1:n, conj(Ilin), n, n);
+                dlamJ      = sparse(1:n, 1:n, lam, n, n);
+            else                %% selected ports
+                diagIlincJ = sparse(1:ni, idx, conj(Ilin), ni, n);
+                dlamJ      = sparse(1:ni, idx, lam, ni, n);
+            end
+
+            [Svava, Svavm, Svmvm] = ...
+                obj.port_inj_power_hess_v(x, lam, v, z, diagvi, Y, L, M, diagIlincJ, dlamJ);
+            [Svazr, Svazi, Svmzr, Svmzi] = ...
+                obj.port_inj_power_hess_vz(x, lam, v, z, diagvi, L, dlamJ);
+
+            H = [   Svava   Svavm   Svazr   Svazi;
+                    Svavm.' Svmvm   Svmzr   Svmzi;
+                    Svazr.' Svmzr.' sparse(nz, 2*nz);
+                    Svazi.' Svmzi.' sparse(nz, 2*nz)  ];
+        end
     end     %% methods
 end         %% classdef

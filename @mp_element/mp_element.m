@@ -122,8 +122,10 @@ classdef mp_element < handle
         function obj = build_params(obj, asm, mpc)
         end
 
-        function [v, z] = x2vz(obj, x, sysx);
+        function [v, z, vi] = x2vz(obj, x, sysx, idx);
             % sys x : 1 = system x, 0 = class aggregate x
+
+            %% get sizes
             if sysx
                 nv = size(obj.C{1}, 1);
 %                 nz = size(obj.D{1}, 1);     % doesn't work when D = {}
@@ -131,9 +133,26 @@ classdef mp_element < handle
                 nv = obj.nk * obj.np;
 %                 nz = obj.nk * obj.nz;
             end
+
+            %% split x
             v = x(1:nv);
             z = x(nv+1:end);
 %             z = x(nv+1:nv+nz);
+
+            %% set full port voltages and states for element class
+            if sysx         %% system x is provided, convert to x for ports
+                v = obj.getC('tr') * v;     %% full port voltages for element class
+                z = obj.getD('tr') * z;     %% full states for element class
+            end
+
+            %% port voltages for selected ports
+            if nargout > 2
+                if isempty(idx)
+                    vi = v;
+                else
+                    vi = v(idx);
+                end
+            end
         end
 
         function C = getC(obj, transpose_it)

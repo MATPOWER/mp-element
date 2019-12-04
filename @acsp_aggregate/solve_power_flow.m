@@ -23,10 +23,10 @@ function [x, success, i] = solve_power_flow(obj, mpc)
 [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
 
 %% create x0 for Newton power flow
-va = obj.params_var('va')
-vm = obj.params_var('vm')
-zr = obj.params_var('zr')
-zi = obj.params_var('zi')
+va = obj.params_var('va');
+vm = obj.params_var('vm');
+zr = obj.params_var('zr');
+zi = obj.params_var('zi');
 v = vm .* exp(1j * va);
 z = zr + 1j * zi;
 x0 = [va([pv; pq]); vm(pq)];

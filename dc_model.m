@@ -65,15 +65,19 @@ classdef dc_model < mp_model
                 else
                     B = obj.B(idx, :);
                 end
-                if isempty(obj.K)
-                    K = sparse(ni, nz);
-                else
-                    K = obj.K(idx, :);
-                end
-                if isempty(obj.p)
-                    p = zeros(ni, 1);
-                else
-                    p = obj.p(idx);
+                if nargout > 1
+                    if isempty(obj.K)
+                        K = sparse(ni, nz);
+                    else
+                        K = obj.K(idx, :);
+                    end
+                    if nargout > 2
+                        if isempty(obj.p)
+                            p = zeros(ni, 1);
+                        else
+                            p = obj.p(idx);
+                        end
+                    end
                 end
             else                            %% all ports
                 if isempty(obj.B)
@@ -81,15 +85,19 @@ classdef dc_model < mp_model
                 else
                     B = obj.B;
                 end
-                if isempty(obj.K)
-                    K = sparse(np, nz);
-                else
-                    K = obj.K;
-                end
-                if isempty(obj.p)
-                    p = zeros(np, 1);
-                else
-                    p = obj.p;
+                if nargout > 1
+                    if isempty(obj.K)
+                        K = sparse(np, nz);
+                    else
+                        K = obj.K;
+                    end
+                    if nargout > 2
+                        if isempty(obj.p)
+                            p = zeros(np, 1);
+                        else
+                            p = obj.p;
+                        end
+                    end
                 end
             end
         end
@@ -97,24 +105,29 @@ classdef dc_model < mp_model
         function P = port_inj_power(obj, x, sysx, idx)
             % sys x : 1 = system x, 0 = class aggregate x
             
-            [B, K, p] = obj.get_params();
+            if nargin < 4
+                idx = [];
+            end
+            
+            [B, K, p] = obj.get_params(idx);
             [v, z] = obj.x2vz(x, sysx);
             
-            if sysx
-                Ct = obj.getC('tr');
-                Dt = obj.getD('tr');
-                if nargin < 4       %% all ports
-                    P = B*Ct*v + K*Dt*z + p;
-                else                %% selected ports
-                    P = B(idx, :)*Ct*v + K(idx, :)*Dt*z + p(idx);
-                end
-            else
-                if nargin < 4       %% all ports
-                    P = B*v + K*z + p;
-                else                %% selected ports
-                    P = B(idx, :)*v + K(idx, :)*z + p(idx);
-                end
-            end
+            P = B*v + K*z + p;
+%             if sysx
+%                 Ct = obj.getC('tr');
+%                 Dt = obj.getD('tr');
+%                 if nargin < 4       %% all ports
+%                     P = B*Ct*v + K*Dt*z + p;
+%                 else                %% selected ports
+%                     P = B(idx, :)*Ct*v + K(idx, :)*Dt*z + p(idx);
+%                 end
+%             else
+%                 if nargin < 4       %% all ports
+%                     P = B*v + K*z + p;
+%                 else                %% selected ports
+%                     P = B(idx, :)*v + K(idx, :)*z + p(idx);
+%                 end
+%             end
         end
     end     %% methods
 end         %% classdef
