@@ -170,5 +170,39 @@ classdef mp_element < handle
                 D = horzcat(obj.D{:});
             end
         end
+        
+        function display(obj)
+%             if have_fcn('octave')
+%                 struct(obj)
+%             else
+%                 display@handle(obj)
+%             end
+            fprintf('ELEMENT NAME           : %s\n', obj.name);
+            fprintf('ELEMENT CLASS          : %s\n', class(obj));
+            fprintf('# OF ELEMENTS          : %d\n', obj.nk);
+            fprintf('# OF PORTS/ELEM        : %d\n', obj.np);
+            fprintf('# OF NON-V STATES/ELEM : %d\n', obj.nz);
+            if isa(obj, 'mp_model')
+                fprintf('MODEL NAME             : %s\n', obj.model_name());
+                fprintf('MODEL TAG              : %s\n', obj.model_tag());
+                fprintf('MODEL CLASS            : %s\n', obj.find_model_class());
+                fprintf('MODEL PARAMETERS');
+                model_params = obj.model_params();
+                for j = 1:length(model_params)
+                    pn = model_params{j};   %% parameter name
+                    if j == 1
+                        fmt = '%6s : ';
+                    else
+                        fmt = '%22s : ';
+                    end
+                    if isempty(obj.(pn))
+                        fprintf([fmt '-\n'], pn);
+                    else
+                        [m, n] = size(obj.(pn));
+                        fprintf([fmt '%d x %d\n'], pn, m, n);
+                    end
+                end
+            end
+        end
     end     %% methods
 end         %% classdef

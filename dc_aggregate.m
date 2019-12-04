@@ -29,8 +29,8 @@ classdef dc_aggregate < mp_aggregate & dc_model
 
         function obj = def_set_types(obj)
             def_set_types@mp_aggregate(obj);        %% call parent first
-            obj.set_types.v = 'voltage variable';
-            obj.set_types.z = 'non-voltage variable';
+            obj.set_types.v = 'VOLTAGE VARS (v)';
+            obj.set_types.z = 'NON-VOLTAGE VARS (z)';
         end
 
         function obj = build_params(obj, asm, mpc)

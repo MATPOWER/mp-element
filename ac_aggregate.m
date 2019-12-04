@@ -21,8 +21,8 @@ classdef ac_aggregate < mp_aggregate & ac_model
 
         function obj = def_set_types(obj)
             def_set_types@mp_aggregate(obj);        %% call parent first
-            obj.set_types.zr = 'non-voltage variable real part';
-            obj.set_types.zi = 'non-voltage variable imag part';
+            obj.set_types.zr = 'NON-VOLTAGE VARS REAL (zr)';
+            obj.set_types.zi = 'NON-VOLTAGE VARS IMAG (zi)';
         end
 
         function obj = build_params(obj, asm, mpc)

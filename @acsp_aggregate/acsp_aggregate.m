@@ -28,8 +28,8 @@ classdef acsp_aggregate < ac_aggregate & acsp_model
 
         function obj = def_set_types(obj)
             def_set_types@ac_aggregate(obj);        %% call parent first
-            obj.set_types.va = 'voltage angle variable';
-            obj.set_types.vm = 'voltage magnitude variable';
+            obj.set_types.va = 'VOLTAGE ANG VARS (va)';
+            obj.set_types.vm = 'VOLTAGE MAG VARS (vm)';
         end
     end     %% methods
 end         %% classdef
