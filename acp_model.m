@@ -77,6 +77,48 @@ classdef acp_model < ac_model
             Svm = Slin_vm + SI_vm;
         end
 
+        function H = port_inj_power_hess(obj, x, lam, sysx, idx)
+            % H = obj.port_inj_power_hess(x, lam)
+            % H = obj.port_inj_power_hess(x, lam, sysx)
+            % H = obj.port_inj_power_hess(x, lam, sysx, idx)
+
+            if nargin < 5
+                idx = [];
+                if nargin < 4
+                    sysx = 1;
+                end
+            end
+
+            [Y, L, M, N, i] = obj.get_params(idx);
+            [v, z, vi] = obj.x2vz(x, sysx, idx);
+
+            %% compute linear current injections
+            Ilin = Y*v + L*z + i;
+
+            %% intermediate terms
+            nz = length(z);
+            n  = length(v);     %% number of all port voltages
+            ni = length(vi);    %% number of selected port voltages
+            diagvi = sparse(1:ni, 1:ni, vi, ni, ni);
+            if isempty(idx)     %% all ports
+                diagIlincJ = sparse(1:n, 1:n, conj(Ilin), n, n);
+                dlamJ      = sparse(1:n, 1:n, lam, n, n);
+            else                %% selected ports
+                diagIlincJ = sparse(1:ni, idx, conj(Ilin), ni, n);
+                dlamJ      = sparse(1:ni, idx, lam, ni, n);
+            end
+
+            [Svava, Svavm, Svmvm] = ...
+                obj.port_inj_power_hess_v(x, lam, v, z, diagvi, Y, L, M, diagIlincJ, dlamJ);
+            [Svazr, Svazi, Svmzr, Svmzi] = ...
+                obj.port_inj_power_hess_vz(x, lam, v, z, diagvi, L, dlamJ);
+
+            H = [   Svava   Svavm   Svazr   Svazi;
+                    Svavm.' Svmvm   Svmzr   Svmzi;
+                    Svazr.' Svmzr.' sparse(nz, 2*nz);
+                    Svazi.' Svmzi.' sparse(nz, 2*nz)  ];
+        end
+
         function [Svava, Svavm, Svmvm] = port_inj_power_hess_v(obj, x, lam, v, z, diagvi, Y, L, M, diagIlincJ, dlamJ)
             % [Svava, Svavm, Svmvm] = obj.port_inj_power_hess_v(x, lam)
             % [Svava, Svavm, Svmvm] = obj.port_inj_power_hess_v(x, lam, sysx)
