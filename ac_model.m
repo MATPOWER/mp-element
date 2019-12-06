@@ -179,6 +179,9 @@ classdef ac_model < mp_model
 
             if nargin < 4
                 idx = [];
+                if nargin < 3
+                    sysx = 1;
+                end
             end
             
             [Y, L, M, N, i, s] = obj.get_params(idx);
@@ -261,12 +264,16 @@ classdef ac_model < mp_model
         function [S, Sv1, Sv2, Szr, Szi] = port_inj_power(obj, x, sysx, idx)
             % S = obj.port_inj_power(x, sysx)
             % S = obj.port_inj_power(x, sysx, idx)
+            %   
             % [S, Sv1, Sv2] = obj.port_inj_power(...)
             % [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(...)
             % sysx : 1 = system x, 0 = class aggregate x
 
             if nargin < 4
                 idx = [];
+                if nargin < 3
+                    sysx = 1;
+                end
             end
             
             [Y, L, M, N, i, s] = obj.get_params(idx);
