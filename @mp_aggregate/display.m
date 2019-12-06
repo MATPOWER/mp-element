@@ -18,8 +18,8 @@ display@mp_element(obj)
 fprintf('\n');
 
 %% nodes and states
-obj.display_set('node', 'NODES');
-obj.display_set('state', 'STATES');
+obj.display_set('node', obj.set_types.('node'));
+obj.display_set('state', obj.set_types.('state'));
 
 %% variables
 vvars = obj.model_vvars();
