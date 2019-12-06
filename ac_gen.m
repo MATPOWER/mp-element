@@ -1,4 +1,4 @@
-classdef acsp_gen < mp_gen & acsp_model
+classdef ac_gen < mp_gen & acsp_model
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef acsp_gen < mp_gen & acsp_model
     
     methods
         %% constructor
-        function obj = acsp_gen(varargin)
+        function obj = ac_gen(varargin)
             obj@mp_gen(varargin{:});
         end
 

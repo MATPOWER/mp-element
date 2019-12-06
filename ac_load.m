@@ -1,4 +1,4 @@
-classdef acsp_load < mp_load & acsp_model
+classdef ac_load < mp_load & acsp_model
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef acsp_load < mp_load & acsp_model
     
     methods
         %% constructor
-        function obj = acsp_load(varargin)
+        function obj = ac_load(varargin)
             obj@mp_load(varargin{:});
         end
 

@@ -18,7 +18,7 @@ classdef acsp_aggregate < ac_aggregate & acsp_model
         function obj = acsp_aggregate(varargin)
             obj@ac_aggregate(varargin{:});
             obj.element_classes = ...
-                { @acsp_bus, @acsp_gen, @acsp_load, @acsp_branch };
+                { @acsp_bus, @ac_gen, @ac_load, @ac_branch };
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_modeler
                                         %% constructor, if not for:

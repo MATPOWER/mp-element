@@ -1,4 +1,4 @@
-classdef acsp_branch < mp_branch & acsp_model
+classdef ac_branch < mp_branch & acsp_model
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef acsp_branch < mp_branch & acsp_model
     
     methods
         %% constructor
-        function obj = acsp_branch(varargin)
+        function obj = ac_branch(varargin)
             obj@mp_branch(varargin{:});
         end
 
