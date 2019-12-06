@@ -1,4 +1,4 @@
-function [x, success, i] = solve_power_flow(obj, mpc)
+function [x, success, i] = solve_power_flow(obj, mpc, mpopt)
 %SOLVE_POWER_FLOW  Solves Newton power flow
 %   SUCCESS = SOLVE_POWER_FLOW(OBJ, MPC)
 %
@@ -19,6 +19,19 @@ function [x, success, i] = solve_power_flow(obj, mpc)
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
+%% MATPOWER options
+if nargin < 3
+    mpopt = mpoption;
+end
+
+%% set up Newton solver options
+opt = struct( ...
+        'verbose',    mpopt.verbose, ...
+        'tol',        mpopt.pf.tol, ...
+        'max_it',     mpopt.pf.nr.max_it, ...
+        'lin_solver', mpopt.pf.nr.lin_solver ...
+    );
+
 %% get bus index lists of each type of bus
 [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
 
@@ -33,4 +46,4 @@ x0 = [va([pv; pq]); vm(pq)];
 
 fcn = @(x)power_flow_equations(obj, x, va, vm, z, ref, pv, pq);
 
-[x, success, i] = newton_solver(x0, fcn);
+[x, success, i] = newton_solver(x0, fcn, opt);

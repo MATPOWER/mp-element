@@ -26,27 +26,26 @@ function [F, J] = power_flow_equations(obj, x, va, vm, z, ref, pv, pq)
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
+%% dimensions
 npv = length(pv);
 npq = length(pq);
 nv = length(va);
 nz = length(z);
-pvq = [pv; pq];
 
 %% update model state ([v; z]) from power flow state (x)
+pvq = [pv; pq];
 va(pvq) = x(1:npv+npq);
 vm(pq) = x(npv+npq+1:end);
 v = vm .* exp(1j * va);
 
-%% get port power injections with derivatives
-[S, Sva, Svm] = obj.port_inj_power([v; z], 1);
-
-%% nodal power balance
+%% incidence matrix
 C = obj.getC();
-SS = C * S;
-F = [real(SS(pvq)); imag(SS(pq))];
 
 %% Jacobian
 if nargout > 1
+    %% get port power injections with derivatives
+    [S, Sva, Svm] = obj.port_inj_power([v; z], 1);
+
     SSva = C * Sva;
     SSvm = C * Svm;
     J = [   real(SSva(pvq, pvq)) real(SSvm(pvq, pq));
@@ -56,4 +55,11 @@ if nargout > 1
 %     J = [
 %         real(SSva(pvq, pvq)) real(SSvm(pvq, pq)) real(SSzr(pvq, :)) real(SSzi(pvq, :));
 %         imag(SSva(pq,  pvq)) imag(SSvm(pq,  pq)) imag(SSzr(pq,  :)) imag(SSzi(pq,  :))  ];
+else
+    %% get port power injections (w/o derivatives)
+    S = obj.port_inj_power([v; z], 1);
 end
+
+%% nodal power balance
+SS = C * S;
+F = [real(SS(pvq)); imag(SS(pq))];
