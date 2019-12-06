@@ -124,6 +124,8 @@ classdef mp_element < handle
 
         function [v, z, vi] = x2vz(obj, x, sysx, idx);
             % sys x : 1 = system x, 0 = class aggregate x
+            % if x is a matrix, each output will have the same number of
+            % columns, each column considered a separate instance of the vectors
 
             %% get sizes
             if sysx
@@ -135,9 +137,8 @@ classdef mp_element < handle
             end
 
             %% split x
-            v = x(1:nv);
-            z = x(nv+1:end);
-%             z = x(nv+1:nv+nz);
+            v = x(1:nv, :);
+            z = x(nv+1:end, :);
 
             %% set full port voltages and states for element class
             if sysx         %% system x is provided, convert to x for ports
@@ -150,7 +151,7 @@ classdef mp_element < handle
                 if isempty(idx)
                     vi = v;
                 else
-                    vi = v(idx);
+                    vi = v(idx, :);
                 end
             end
         end
