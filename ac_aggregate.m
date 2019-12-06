@@ -39,5 +39,37 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             obj.i = obj.stack_vector_params('i');
             obj.s = obj.stack_vector_params('s');
         end
+
+        function [G, Gv1, Gv2, Gzr, Gzi] = nodal_power_balance(obj, x)
+            %% node incidence matrix
+            C = obj.getC();
+
+            %% get port power injections with derivatives
+            if nargout > 1
+                [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x, 1);
+                Gv1 = C * Sv1;      %% Gva or Gvr
+                Gv2 = C * Sv2;      %% Gvm or Gvi
+                Gzr = C * Szr;
+                Gzi = C * Szi;
+            else
+                S = obj.port_inj_power(x, 1);
+            end
+
+            %% nodal power balance
+            G = C * S;
+        end
+
+        function [g, dg] = opf_power_balance_fcn(obj, x)
+            if nargout > 1
+                [G, Gv1, Gv2, Gzr, Gzi] = obj.nodal_power_balance(x);
+                dG = [Gv1 Gv2 Gzr Gzi];
+                dg = [  real(dG);       %% P mismatch w.r.t v1, v2, zr, zi
+                        imag(dG)    ];  %% Q mismatch w.r.t v1, v2, zr, zi
+            else
+                G = obj.nodal_power_balance(x);
+            end
+            g = [ real(G);              %% active power (P) mismatch
+                  imag(G) ];            %% reactive power (Q) mismatch
+        end
     end     %% methods
 end         %% classdef

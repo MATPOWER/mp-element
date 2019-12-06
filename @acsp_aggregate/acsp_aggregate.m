@@ -31,5 +31,16 @@ classdef acsp_aggregate < ac_aggregate & acsp_model
             obj.set_types.va = 'VOLTAGE ANG VARS (va)';
             obj.set_types.vm = 'VOLTAGE MAG VARS (vm)';
         end
+
+        function d2G = opf_power_balance_hess(obj, x, lam)
+            nlam = length(lam) / 2;
+            lamP = lam(1:nlam);
+            lamQ = lam((1:nlam)+nlam);
+
+            d2Gr = obj.port_inj_power_hess(x, lamP);
+            d2Gi = obj.port_inj_power_hess(x, lamQ);
+
+            d2G = real(d2Gr) + imag(d2Gi);
+        end
     end     %% methods
 end         %% classdef
