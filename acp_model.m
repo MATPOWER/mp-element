@@ -236,9 +236,9 @@ classdef acp_model < ac_model
 
             %% power from linear current term
             Svazr = 1j * LL;
-            Svazi = -LL;
+            Svazi = LL;
             Svmzr = M;
-            Svmzi = 1j * M;
+            Svmzi = -1j * M;
         end
     end     %% methods
 end         %% classdef

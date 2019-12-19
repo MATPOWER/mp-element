@@ -212,8 +212,8 @@ classdef ac_model < mp_model
                     Ilin_zi = 1j * L;
 
                     %% current from linear power term
-                    IS_zr = invdiagvic * conj(N);   %% E
-                    IS_zi = 1j * IS_zr;             %% jE
+                    IS_zr = invdiagvic * conj(N);   %% C
+                    IS_zi = -1j * IS_zr;            %% -jC
 
                     %% combine
                     Izr = Ilin_zr + IS_zr;
@@ -305,7 +305,7 @@ classdef ac_model < mp_model
 
                     %% power from linear current term
                     SI_zr = diagvi * conj(L);   %% E
-                    SI_zi = 1j * SI_zr;         %% jE
+                    SI_zi = -1j * SI_zr;        %% -jE
 
                     %% combine
                     Szr = Slin_zr + SI_zr;
