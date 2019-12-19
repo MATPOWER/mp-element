@@ -13,7 +13,7 @@ if nargin < 1
     quiet = 0;
 end
 
-t_begin(199, quiet);
+t_begin(201, quiet);
 
 define_constants;
 if quiet
@@ -51,7 +51,8 @@ t_ok(strcmp(dc.set_types.z, 'NON-VOLTAGE VARS (z)'), [t 'set_types.z']);
 t_is(length(dc.mpe_list), 0, 12, [t '# of element types']);
 
 t = 'dc.create_model(mpc) : ';
-mpc = rundcpf(loadcase('t_case9_opfv2'), mpopt);
+mpc = ext2int(rundcpf(loadcase(casefile), mpopt));
+t_ok(mpc.success, [t 'solved power flow']);
 dc.create_model(mpc);
 t_is(dc.nk, 1, 12, [t 'nk']);
 t_is(dc.np, 30, 12, [t 'np']);
@@ -202,7 +203,8 @@ t_ok(strcmp(ac.set_types.zi, 'NON-VOLTAGE VARS IMAG (zi)'), [t 'set_types.zi']);
 t_is(length(ac.mpe_list), 0, 12, [t '# of element types']);
 
 t = 'ac.create_model(mpc) : ';
-mpc = ext2int(runpf(loadcase('t_case9_opfv2'), mpopt));
+mpc = ext2int(runpf(loadcase(casefile), mpopt));
+t_ok(mpc.success, [t 'solved power flow']);
 ac.create_model(mpc);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);
@@ -357,11 +359,11 @@ t_is(Sg2, eSg(2), 6, t);
 t = 'H = ac.port_inj_power_hess(x, lam, 1) : ';
 lam = [1:np]' / 100;
 H = ac.port_inj_power_hess(x, lam, 1);
-t_is(size(H), [66 66], 12, t);
+t_is(size(H), [24 24], 12, t);
 
 t = 'H = ac.port_inj_power_hess(x, lam(1:3), 1, [3;2;1]) : ';
 H = ac.port_inj_power_hess(x, lam(1:3), 1, [3;2;1]);
-t_is(size(H), [66 66], 12, t);
+t_is(size(H), [24 24], 12, t);
 
 t = 'I = ac.port_inj_current(x)';
 I  = ac.port_inj_current(x);
@@ -392,7 +394,7 @@ t_is(Izi1, Izi([3;2;1], :), 12, [t 'Izi']);
 
 %% AC Newton power flow
 t = '[x, success, i] = ac.solve_power_flow(mpc, mpopt) : ';
-mpc = ext2int(loadcase('t_case9_opfv2'));
+mpc = ext2int(loadcase(casefile));
 mpc = rmfield(mpc, 'order');
 ac = acsp_aggregate().create_model(mpc);
 [x, success, i] = ac.solve_power_flow(mpc, mpopt);
