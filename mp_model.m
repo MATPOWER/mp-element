@@ -38,13 +38,17 @@ classdef mp_model < handle
         end
 
         function varargout = get_params(obj, idx, names)
-            % [p1, p2, ...] = get_params(obj, idx)
+            % [p1, p2, ..., pN] = get_params(obj, idx)
+            % pA = get_params(obj, idx, nameA)
             % [pA, pB, ...] = get_params(obj, idx, {nameA, nameB, ...})
             if nargin < 3
                 names = obj.model_params();
             end
             if nargin < 2
                 idx = [];
+            end
+            if ~iscell(names)
+                names = {names};
             end
             np = obj.nk * obj.np;
             ncols = [1; np; obj.nk * obj.nz];   %% 1 = 1, 2 = np, 3 = nz

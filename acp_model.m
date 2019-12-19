@@ -64,7 +64,7 @@ classdef acp_model < ac_model
                 end
             end
 
-            [Y, L, M, N, i, s] = obj.get_params(idx);
+            [Y, M, N, s] = obj.get_params(idx, {'Y', 'M', 'N', 's'});
             [v, z, vi] = obj.x2vz(x, sysx, idx);
 
             %% compute linear power injections
@@ -120,7 +120,7 @@ classdef acp_model < ac_model
                 else
                     idx = z;
                 end
-                [Y, L, M, N, i, s] = obj.get_params(idx);
+                [Y, M, N, s] = obj.get_params(idx, {'Y', 'M', 'N', 's'});
                 [v, z, vi] = obj.x2vz(x, sysx, idx);
 
                 %% compute linear power injections
@@ -188,7 +188,7 @@ classdef acp_model < ac_model
                 else
                     idx = z;
                 end
-                [Y, L, M, N] = obj.get_params(idx);
+                N = obj.get_params(idx, 'N');
                 [v, z, vi] = obj.x2vz(x, sysx, idx);
 
                 n  = length(v);     %% number of all port voltages
@@ -252,7 +252,7 @@ classdef acp_model < ac_model
                 end
             end
 
-            [Y, L, M, N, i] = obj.get_params(idx);
+            [Y, L, M, i] = obj.get_params(idx, {'Y', 'L', 'M', 'i'});
             [v, z, vi] = obj.x2vz(x, sysx, idx);
 
             %% compute linear current injections
@@ -308,7 +308,7 @@ classdef acp_model < ac_model
                 else
                     idx = z;
                 end
-                [Y, L, M, N, i] = obj.get_params(idx);
+                [Y, L, M, i] = obj.get_params(idx, {'Y', 'L', 'M', 'i'});
                 [v, z, vi] = obj.x2vz(x, sysx, idx);
 
                 %% compute linear current injections
@@ -372,7 +372,7 @@ classdef acp_model < ac_model
                 else
                     idx = z;
                 end
-                [Y, L] = obj.get_params(idx);
+                L = obj.get_params(idx, 'L');
                 [v, z, vi] = obj.x2vz(x, sysx, idx);
 
                 n  = length(v);     %% number of all port voltages
