@@ -200,7 +200,12 @@ classdef mp_element < handle
                         fprintf([fmt '-\n'], pn);
                     else
                         [m, n] = size(obj.(pn));
-                        fprintf([fmt '%d x %d\n'], pn, m, n);
+                        if ~full(any(any(obj.(pn))))
+                            s = '(all zeros)';
+                        else
+                            s = '';
+                        end
+                        fprintf([fmt '%d x %-7d%s\n'], pn, m, n, s);
                     end
                 end
             end
