@@ -13,7 +13,7 @@ if nargin < 1
     quiet = 0;
 end
 
-t_begin(87, quiet);
+t_begin(99, quiet);
 
 define_constants;
 if quiet
@@ -22,14 +22,14 @@ else
     verbose = 1;
 end
 
-casefile = 't_case9_opfv2';
+casefile = 't_case9_gizmo';
 
 mpopt = mpoption('out.all', 0, 'verbose', 0);
 
 %% create aggregate system object
 mpc = ext2int(loadcase(casefile));
 mpc = rmfield(mpc, 'order');
-ac = acsp_aggregate().create_model(mpc);
+ac = acsp_test_aggregate().create_model(mpc);
 C = ac.getC();
 D = ac.getD();
 np = ac.np;
@@ -59,15 +59,19 @@ sv2 = ac.params_var('vm');
 szr = ac.params_var('zr');
 szi = ac.params_var('zi');
 
-%% do one Newton step to get voltages that are not solution but not flat start
-mpopt1 = mpoption(mpopt, 'pf.nr.max_it', 1);
-[xpf, success, i] = ac.solve_power_flow(mpc, mpopt1);
-sv1([pv; pq]) = xpf(1:npvq);
-sv2(pq)       = xpf(npvq+(1:npq));
+% %% do one Newton step to get voltages that are not solution but not flat start
+% mpopt1 = mpoption(mpopt, 'pf.nr.max_it', 1);
+% [xpf, success, i] = ac.solve_power_flow(mpc, mpopt1);
+% sv1([pv; pq]) = xpf(1:npvq);
+% sv2(pq)       = xpf(npvq+(1:npq));
+
+%% randomize voltages a bit
+sv1 = sv1 + (0.6*rand(size(sv1)) - 0.3);    sv1(ref) = 0;
+sv2 = sv2 + (0.06*rand(size(sv1)) - 0.03);  sv2(ref) = 1;
 
 %% adjust values of z
 szr(1) = 0.67;
-szi = [0.1; 0.2; 0.3];
+szi(1:3) = [0.1; 0.2; 0.3];
 
 %% initialize v, z, x
 sv = sv2 .* exp(1j * sv1);
@@ -147,7 +151,7 @@ for k = 1:length(lam)
     ek = e0; ek(k) = 1;
     HH = HH + lam(k) * ac.port_inj_power_hess(x0, ek);
 end
-t_is(H, HH, 12, [t 'weighted sum of indiv Hessians']);
+t_is(H, HH, 12, [t 'weighted sum indiv Hessians']);
 
 t = 'ac.port_inj_power_hess(x, lam, 1, idx) : ';
 H = ac.port_inj_power_hess(x0, lam(idx), 1, idx);
@@ -156,7 +160,7 @@ for k = 1:length(idx)
     ek = e0; ek(idx(k)) = 1;
     HH = HH + lam(idx(k)) * ac.port_inj_power_hess(x0, ek);
 end
-t_is(H, HH, 12, [t 'weighted sum of indiv Hessians']);
+t_is(H, HH, 12, [t 'weighted sum indiv Hessians']);
 
 t = 'ac.port_inj_power_hess(x, lam) : ';
 H = ac.port_inj_power_hess(x0, lam);
@@ -261,7 +265,7 @@ for k = 1:length(lam)
     ek = e0; ek(k) = 1;
     HH = HH + lam(k) * ac.port_inj_power_hess(x0, ek, 0);
 end
-t_is(H, HH, 12, [t 'weighted sum of indiv Hessians']);
+t_is(H, HH, 12, [t 'weighted sum indiv Hessians']);
 
 t = 'ac.port_inj_power_hess(x, lam, 0, idx) : ';
 H = ac.port_inj_power_hess(x0, lam(idx), 0, idx);
@@ -270,7 +274,7 @@ for k = 1:length(idx)
     ek = e0; ek(idx(k)) = 1;
     HH = HH + lam(idx(k)) * ac.port_inj_power_hess(x0, ek, 0);
 end
-t_is(H, HH, 12, [t 'weighted sum of indiv Hessians']);
+t_is(H, HH, 12, [t 'weighted sum indiv Hessians']);
 
 t = 'ac.port_inj_power_hess(x, lam, 0) : ';
 H = ac.port_inj_power_hess(x0, lam, 0);
@@ -304,6 +308,11 @@ for k = 1:Nz
     numH(:, 2*Nv+Nz+k) = ([Sv1p, Sv2p, Szrp, Szip]- [Sv1, Sv2, Szr, Szi]).' * lam / dx;
 end
 t_is(full(H), numH, 5, [t 'numerical Hessian']);
+
+
+
+
+
 
 
 %  x0 = [va([pv; pq]); vm(pq)];
