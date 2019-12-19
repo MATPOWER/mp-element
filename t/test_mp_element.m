@@ -31,6 +31,7 @@ tests = {};
 
 %% MATPOWER base test
 tests{end+1} = 't_mp_element';
+tests{end+1} = 't_acp_port_inj_current';
 tests{end+1} = 't_acp_port_inj_power';
 
 %% run the tests
