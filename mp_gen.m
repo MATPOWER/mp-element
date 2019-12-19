@@ -23,9 +23,9 @@ classdef mp_gen < mp_element
         end
 
         function obj = add_states(obj, asm, mpc)
-            %% define constants
-            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
-    
+%             %% define constants
+%             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
+
             ng = obj.nk;            %% number of gens
             asm.add_state(obj.name, ng);
         end

@@ -198,13 +198,13 @@ classdef ac_model < mp_model
                 diagv = sparse(1:n, 1:n, v, n, n);
                 invdiagvic = sparse(1:ni, 1:ni, 1./conj(vi), ni, ni);
                 if isempty(idx)     %% all ports
-                    diagSlinc = sparse(1:n, 1:n, conj(Slin), n, n);
+                    diagSlincJ = sparse(1:n, 1:n, conj(Slin), n, n);
                 else                %% selected ports
-                    diagSlinc = sparse(1:ni, idx, conj(Slin), ni, n);
+                    diagSlincJ = sparse(1:ni, idx, conj(Slin), ni, n);
                 end
                 
                 [Iv1, Iv2] = obj.port_inj_current_jac( ...
-                        n, v, Y, M, diagv, invdiagvic, diagSlinc);
+                        n, v, Y, M, diagv, invdiagvic, diagSlincJ);
 
                 if nargout >= 4
                     %% linear current term
@@ -212,8 +212,8 @@ classdef ac_model < mp_model
                     Ilin_zi = 1j * L;
 
                     %% current from linear power term
-                    IS_zr = invdiagvic * conj(N);   %% B
-                    IS_zi = 1j * IS_zr;             %% jB
+                    IS_zr = invdiagvic * conj(N);   %% E
+                    IS_zi = 1j * IS_zr;             %% jE
 
                     %% combine
                     Izr = Ilin_zr + IS_zr;
