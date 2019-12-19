@@ -41,6 +41,8 @@ classdef ac_model < mp_model
         N = [];
         i = [];
         s = [];
+        param_ncols = struct('Y', 2, 'L', 3, 'M', 2, 'N', 3, 'i', 1, 's', 1);
+            %% num of columns for each parameter, where 1 = 1, 2 = np, 3 = nz
     end
 
     methods
@@ -55,95 +57,6 @@ classdef ac_model < mp_model
         end
         function vtypes = model_zvars(obj)
             vtypes = {'zr', 'zi'};
-        end
-
-        function [Y, L, M, N, i, s] = get_params(obj, idx)
-            np = obj.nk * obj.np;
-            nz = obj.nk * obj.nz;
-            if nargin >= 2 && ~isempty(idx) %% selected ports
-                ni = length(idx);
-                if isempty(obj.Y)
-                    Y = sparse(ni, np);
-                else
-                    Y = obj.Y(idx, :);
-                end
-                if nargout > 1
-                    if isempty(obj.L)
-                        L = sparse(ni, nz);
-                    else
-                        L = obj.L(idx, :);
-                    end
-                    if nargout > 2
-                        if isempty(obj.M)
-                            M = sparse(ni, np);
-                        else
-                            M = obj.M(idx, :);
-                        end
-                        if nargout > 3
-                            if isempty(obj.N)
-                                N = sparse(ni, nz);
-                            else
-                                N = obj.N(idx, :);
-                            end
-                            if nargout > 4
-                                if isempty(obj.i)
-                                    i = zeros(ni, 1);
-                                else
-                                    i = obj.i(idx);
-                                end
-                                if nargout > 5
-                                    if isempty(obj.s)
-                                        s = zeros(ni, 1);
-                                    else
-                                        s = obj.s(idx);
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            else                            %% all ports
-                if isempty(obj.Y)
-                    Y = sparse(np, np);
-                else
-                    Y = obj.Y;
-                end
-                if nargout > 1
-                    if isempty(obj.L)
-                        L = sparse(np, nz);
-                    else
-                        L = obj.L;
-                    end
-                    if nargout > 2
-                        if isempty(obj.M)
-                            M = sparse(np, np);
-                        else
-                            M = obj.M;
-                        end
-                        if nargout > 3
-                            if isempty(obj.N)
-                                N = sparse(np, nz);
-                            else
-                                N = obj.N;
-                            end
-                            if nargout > 4
-                                if isempty(obj.i)
-                                    i = zeros(np, 1);
-                                else
-                                    i = obj.i;
-                                end
-                                if nargout > 5
-                                    if isempty(obj.s)
-                                        s = zeros(np, 1);
-                                    else
-                                        s = obj.s;
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
         end
 
 %         function I = port_inj_current_old(obj, x, sysx, idx)

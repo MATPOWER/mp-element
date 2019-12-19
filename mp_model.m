@@ -37,6 +37,44 @@ classdef mp_model < handle
             error('model_params() method not implemented');
         end
 
+        function varargout = get_params(obj, idx, names)
+            % [p1, p2, ...] = get_params(obj, idx)
+            % [pA, pB, ...] = get_params(obj, idx, {nameA, nameB, ...})
+            if nargin < 3
+                names = obj.model_params();
+            end
+            if nargin < 2
+                idx = [];
+            end
+            np = obj.nk * obj.np;
+            ncols = [1; np; obj.nk * obj.nz];   %% 1 = 1, 2 = np, 3 = nz
+
+            if nargout > length(names)
+                namestr = sprintf(' ''%s''', names{:})
+                error('@mp_model/get_params: return values must correspond to%s', namestr);
+            end
+
+            varargout = cell(1, nargout);
+            if isempty(idx)     %% all ports
+                for k = 1:nargout
+                    if isempty(obj.(names{k}))
+                        varargout{k} = sparse(np, ncols(obj.param_ncols.(names{k})));
+                    else
+                        varargout{k} = obj.(names{k});
+                    end
+                end
+            else                %% selected ports
+                ni = length(idx);
+                for k = 1:nargout
+                    if isempty(obj.(names{k}))
+                        varargout{k} = sparse(ni, ncols(obj.param_ncols.(names{k})));
+                    else
+                        varargout{k} = obj.(names{k})(idx, :);
+                    end
+                end
+            end
+        end
+
         function model_class = find_model_class(obj)
             if isa(obj, 'mp_model')
                 tab = obj.superclass_tab({'mp_model', 'mp_element'});

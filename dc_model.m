@@ -36,6 +36,8 @@ classdef dc_model < mp_model
         B = [];
         K = [];
         p = [];
+        param_ncols = struct('B', 2, 'K', 3, 'p', 1);
+            %% num of columns for each parameter, where 1 = 1, 2 = np, 3 = nz
     end
 
     methods
@@ -53,53 +55,6 @@ classdef dc_model < mp_model
         end
         function vtypes = model_zvars(obj)
             vtypes = {'z'};
-        end
-
-        function [B, K, p] = get_params(obj, idx)
-            np = obj.nk * obj.np;
-            nz = obj.nk * obj.nz;
-            if nargin >= 2 && ~isempty(idx) %% selected ports
-                ni = length(idx);
-                if isempty(obj.B)
-                    B = sparse(ni, np);
-                else
-                    B = obj.B(idx, :);
-                end
-                if nargout > 1
-                    if isempty(obj.K)
-                        K = sparse(ni, nz);
-                    else
-                        K = obj.K(idx, :);
-                    end
-                    if nargout > 2
-                        if isempty(obj.p)
-                            p = zeros(ni, 1);
-                        else
-                            p = obj.p(idx);
-                        end
-                    end
-                end
-            else                            %% all ports
-                if isempty(obj.B)
-                    B = sparse(np, np);
-                else
-                    B = obj.B;
-                end
-                if nargout > 1
-                    if isempty(obj.K)
-                        K = sparse(np, nz);
-                    else
-                        K = obj.K;
-                    end
-                    if nargout > 2
-                        if isempty(obj.p)
-                            p = zeros(np, 1);
-                        else
-                            p = obj.p;
-                        end
-                    end
-                end
-            end
         end
 
         function P = port_inj_power(obj, x, sysx, idx)
