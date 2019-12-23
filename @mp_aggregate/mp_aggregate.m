@@ -138,20 +138,20 @@ classdef mp_aggregate < mp_element & mp_modeler
             v = vertcat(vv{:});
         end
 
-        function obj = add_vvars(obj, asm, mpc)
+        function obj = add_vvars(obj, asm, mpc, idx)
             for k = 1:length(obj.node.order)
                 mpe = obj.mpe_by_name(obj.node.order(k).name);
-                mpe.add_vvars(obj, mpc);
+                mpe.add_vvars(obj, mpc, obj.state.order(k).idx);
             end
             for vtype = obj.model_vvars
                 obj.nv = obj.nv + obj.getN(vtype{1});
             end
         end
 
-        function obj = add_zvars(obj, asm, mpc)
+        function obj = add_zvars(obj, asm, mpc, idx)
             for k = 1:length(obj.state.order)
                 mpe = obj.mpe_by_name(obj.state.order(k).name);
-                mpe.add_zvars(obj, mpc);
+                mpe.add_zvars(obj, mpc, obj.state.order(k).idx);
             end
         end
 
@@ -226,8 +226,8 @@ classdef mp_aggregate < mp_element & mp_modeler
                 %% pre-build the struct for addressing cell array fields
                 %% sc = substruct('.', name, '{}', idx);
                 sc = struct('type', {'.', '{}'}, 'subs', {name, idx});  %% cell array field
-                obj.node.data.v0 = subsasgn(obj.node.data.idx2ID, sc, idx2ID);
-                obj.node.data.v0 = subsasgn(obj.node.data.ID2idx, sc, ID2idx);
+                obj.node.data.idx2ID = subsasgn(obj.node.data.idx2ID, sc, idx2ID);
+                obj.node.data.ID2idx = subsasgn(obj.node.data.ID2idx, sc, ID2idx);
             end
         end
 
@@ -271,8 +271,8 @@ classdef mp_aggregate < mp_element & mp_modeler
                 %% pre-build the struct for addressing cell array fields
                 %% sc = substruct('.', name, '{}', idx);
                 sc = struct('type', {'.', '{}'}, 'subs', {name, idx});  %% cell array field
-                obj.state.data.v0 = subsasgn(obj.state.data.idx2ID, sc, idx2ID);
-                obj.state.data.v0 = subsasgn(obj.state.data.ID2idx, sc, ID2idx);
+                obj.state.data.idx2ID = subsasgn(obj.state.data.idx2ID, sc, idx2ID);
+                obj.state.data.ID2idx = subsasgn(obj.state.data.ID2idx, sc, ID2idx);
             end
         end
 

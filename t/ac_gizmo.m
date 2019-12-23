@@ -18,18 +18,21 @@ classdef ac_gizmo < mp_gizmo & acsp_model
             obj@mp_gizmo(varargin{:});
         end
 
-        function obj = add_zvars(obj, asm, mpc)
+        function obj = add_zvars(obj, asm, mpc, idx)
             nk = obj.nk;
-            Z1max = ones(nk, 1);
-            Z2max = 2 * ones(nk, 1);
-            Zr1   = mpc.gizmo(:, 20);
-            Zi1   = mpc.gizmo(:, 21);
-            Zr2   = mpc.gizmo(:, 22);
-            Zi2   = mpc.gizmo(:, 23);
-            asm.add_var('zr', 'Z1r_gizmo', nk, Zr1, -Z1max, Z1max);
-            asm.add_var('zr', 'Z2r_gizmo', nk, Zr2, -Z2max, Z2max);
-            asm.add_var('zi', 'Z1i_gizmo', nk, Zi1, -Z1max, Z1max);
-            asm.add_var('zi', 'Z2i_gizmo', nk, Zi2, -Z2max, Z2max);
+            switch idx{:}
+                case 1
+                    Zmax = ones(nk, 1);
+                    Zr   = mpc.gizmo(:, 20);
+                    Zi   = mpc.gizmo(:, 21);
+                case 2
+                    Zmax = 2 * ones(nk, 1);
+                    Zr   = mpc.gizmo(:, 22);
+                    Zi   = mpc.gizmo(:, 23);
+            end
+            vname = sprintf('Z%d_gizmo', idx{:});
+            asm.add_var('zr', vname, nk, Zr, -Zmax, Zmax);
+            asm.add_var('zi', vname, nk, Zi, -Zmax, Zmax);
         end
 
         function obj = build_params(obj, asm, mpc)

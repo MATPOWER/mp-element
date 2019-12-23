@@ -23,9 +23,14 @@ classdef mp_gizmo < mp_element
         end
 
         function obj = add_states(obj, asm, mpc)
-            asm.add_state(obj.name, obj.nk*obj.nz);
-%             asm.add_state([obj.name '1'], obj.nk);
-%             asm.add_state([obj.name '2'], obj.nk);
+            if obj.nz > 1
+                asm.init_indexed_name('state', obj.name, {obj.nz});
+                for k = 1:obj.nz
+                    asm.add_state(obj.name, {k}, obj.nk);
+                end
+            elseif obj.nz == 1
+                asm.add_state(obj.name, obj.nk);
+            end
         end
 
         function obj = build_params(obj, asm, mpc)
@@ -43,13 +48,9 @@ classdef mp_gizmo < mp_element
                       sparse(idx3, 1:nk, 1, nn, nk) };
 
             nz = asm.getN('state');
-%             sidx1 = asm.state.data.ID2idx.([obj.name '1']);  %% state 1 indexes
-%             sidx2 = asm.state.data.ID2idx.([obj.name '2']);  %% state 2 indexes
-            sidx = asm.state.data.ID2idx.(obj.name);    %% state indexes
-            sidx1 = sidx(1:nk);         %% state 1 indexes
-            sidx2 = sidx(nk+1:2*nk);    %% state 2 indexes
-            obj.D = { sparse(sidx1, 1:nk, 1, nz, nk), ...
-                      sparse(sidx2, 1:nk, 1, nz, nk) };
+            ss = asm.get_idx('state');
+            obj.D = { sparse(ss.i1.(obj.name)(1):ss.iN.(obj.name)(1), 1:nk, 1, nz, nk), ...
+                      sparse(ss.i1.(obj.name)(2):ss.iN.(obj.name)(2), 1:nk, 1, nz, nk) };
         end
     end     %% methods
 end         %% classdef

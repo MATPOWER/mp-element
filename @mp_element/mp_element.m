@@ -113,10 +113,10 @@ classdef mp_element < handle
         function obj = add_states(obj, asm, mpc)
         end
 
-        function obj = add_vvars(obj, asm, mpc)
+        function obj = add_vvars(obj, asm, mpc, idx)
         end
 
-        function obj = add_zvars(obj, asm, mpc)
+        function obj = add_zvars(obj, asm, mpc, idx)
         end
 
         function obj = build_params(obj, asm, mpc)
