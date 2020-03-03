@@ -1,8 +1,10 @@
-classdef mp_aggregate < mp_element & mp_modeler
-%MP_AGGREGATE
+classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
+%MP_AGGREGATE Abstract class, explicitly a subclass of mp_element and
+%             mp_idx_manager and implicitly assumed to be subclasses of
+%             mp_model as well
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -155,6 +157,7 @@ classdef mp_aggregate < mp_element & mp_modeler
             end
         end
 
+        %%-----  mp_idx_manager methods  -----
         function obj = def_set_types(obj)
             obj.set_types = struct(...
                     'node', 'NODES', ...
@@ -164,7 +167,7 @@ classdef mp_aggregate < mp_element & mp_modeler
 
         function obj = init_set_types(obj)
             %% call parent to create base data structures for each type
-            init_set_types@mp_modeler(obj);
+            init_set_types@mp_idx_manager(obj);
             
             %% finish initializing data structures for each type
             obj.node.data = struct( ...             %% node type

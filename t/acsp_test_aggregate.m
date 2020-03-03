@@ -1,7 +1,7 @@
 classdef acsp_test_aggregate < acsp_aggregate
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -14,7 +14,7 @@ classdef acsp_test_aggregate < acsp_aggregate
             obj@acsp_aggregate(varargin{:});
             obj.element_classes{end+1} = @ac_gizmo;
             if isempty(obj.node)    %% skip if constructed from existing object
-                obj.init_set_types();   %% should be called in mp_modeler
+                obj.init_set_types();   %% should be called in mp_idx_manager
                                         %% constructor, if not for:
                                         %% https://savannah.gnu.org/bugs/?52614
             end

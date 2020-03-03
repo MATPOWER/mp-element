@@ -3,10 +3,10 @@ function display(obj)
 %   Called when semicolon is omitted at the command-line. Displays the details
 %   of the variables, constraints, costs included in the model.
 %
-%   See also MP_MODELER.
+%   See also MP_IDX_MANAGER.
 
 %   MATPOWER
-%   Copyright (c) 2008-2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2008-2020, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
