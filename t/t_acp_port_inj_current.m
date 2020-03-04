@@ -136,7 +136,7 @@ t_is(iIv2, Iv2(idx, :), 12, [t 'Iv2']);
 t_is(iIzr, Izr(idx, :), 12, [t 'Izr']);
 t_is(iIzi, Izi(idx, :), 12, [t 'Izi']);
 
-t = 'ac.port_inj_current_hess(x0, ek) == ac.p_i_p_h(x0, 1, 1, k) : ';
+t = 'ac.port_inj_current_hess(x0, ek) == ac.p_i_c_h(x0, 1, 1, k) : ';
 for k = 1:length(lam)
     ek = e0; ek(k) = 1;
     H1 = ac.port_inj_current_hess(x0, ek);
@@ -250,7 +250,7 @@ t_is(iIv2, Iv2(idx, :), 12, [t 'Iv2']);
 t_is(iIzr, Izr(idx, :), 12, [t 'Izr']);
 t_is(iIzi, Izi(idx, :), 12, [t 'Izi']);
 
-t = 'ac.port_inj_current_hess(x0, ek, 0) == ac.p_i_p_h(x0, 1, 0, k) : ';
+t = 'ac.port_inj_current_hess(x0, ek, 0) == ac.p_i_c_h(x0, 1, 0, k) : ';
 for k = 1:length(lam)
     ek = e0; ek(k) = 1;
     H1 = ac.port_inj_current_hess(x0, ek, 0);
