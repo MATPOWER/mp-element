@@ -299,7 +299,7 @@ classdef acp_model < ac_model
             % [Svava, Svavm, Svmvm] = obj.port_inj_power_hess_v(x, lam)
             % [Svava, Svavm, Svmvm] = obj.port_inj_power_hess_v(x, lam, sysx)
             % [Svava, Svavm, Svmvm] = obj.port_inj_power_hess_v(x, lam, sysx, idx)
-            % [...] = obj.port_inj_power_hess_vz(x, lam, v, z, diagvi, Y, M, diagIlincJ, dlamJ)
+            % [...] = obj.port_inj_power_hess_v(x, lam, v, z, diagvi, Y, M, diagIlincJ, dlamJ)
 
             if nargin < 10
                 sysx = v;
