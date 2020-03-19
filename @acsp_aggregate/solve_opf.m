@@ -80,41 +80,9 @@ if nz_extra
 end
 om.add_quad_cost('polPg', Qpg, cpg, kpg, {'zr'});
 
-% from mipsopf_solver()
-%
-%% options
-opt = mpopt.mips;
-opt.verbose = mpopt.verbose;
-if opt.feastol == 0
-    opt.feastol = mpopt.opf.violation;  %% = MPOPT.opf.violation by default
-end
-if ~isfield(opt, 'cost_mult') || isempty(opt.cost_mult)
-    opt.cost_mult = 1e-4;
-end
+%% solve it
+opt = mpopt2nlpopt(mpopt, om.problem_type(), 'DEFAULT');
+[x, f, eflag, output, lambda] = om.solve(opt);
+success = (eflag > 0);
 
-%% unpack data
-mpc = om.get_mpc();
-[baseMVA, bus, gen, branch, gencost] = ...
-    deal(mpc.baseMVA, mpc.bus, mpc.gen, mpc.branch, mpc.gencost);
-[vv, ll, nne, nni] = om.get_idx();
-
-%% problem dimensions
-nb = size(bus, 1);          %% number of buses
-nl = size(branch, 1);       %% number of branches
-ny = om.getN('var', 'y');   %% number of piece-wise linear costs
-
-%% linear constraints
-[A, l, u] = om.params_lin_constraint();
-
-%% bounds on optimization vars
-[x0, xmin, xmax] = om.params_var();
-
-%%-----  run opf  -----
-f_fcn = @(x)opf_costfcn(x, om);
-gh_fcn = @(x)opf_consfcn(x, om);
-hess_fcn = @(x, lambda, cost_mult)opf_hessfcn(x, lambda, cost_mult, om);
-[x, f, info, Output, Lambda] = ...
-  mips(f_fcn, x0, A, l, u, xmin, xmax, gh_fcn, hess_fcn, opt);
-success = (info > 0);
-
-i = Output.iterations;
+i = output.iterations;
