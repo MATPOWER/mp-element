@@ -181,6 +181,25 @@ classdef mp_element < handle
             end
         end
         
+%         function A = getA(obj, varargin)
+%             C = obj.getC(varargin{:});
+%             D = obj.getD(varargin{:});
+%             [mC, nC] = size(C);
+%             [mD, nD] = size(D);
+%             A = [ C sparse(mC, nD); sparse(mD, nC) D ];
+%         end
+%         
+%         function Ap = getAprime(obj, varargin)
+%             C = obj.getC(varargin{:});
+%             D = obj.getD(varargin{:});
+%             [mC, nC] = size(C);
+%             [mD, nD] = size(D);
+%             Ap = [   C sparse(mC, nC+2*nD);
+%                     sparse(mC, nC) C sparse(mC, 2*nD);
+%                     sparse(mD, 2*nC) D sparse(mD, nD);
+%                     sparse(mD, 2*nC+nD) D ];
+%         end
+        
         function display(obj)
 %             if have_fcn('octave')
 %                 struct(obj)
@@ -218,6 +237,13 @@ classdef mp_element < handle
                     end
                 end
             end
+        end
+
+        %%-----  OPF methods  -----
+        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+        end
+
+        function add_opf_costs(obj, asm, om, mpc, mpopt)
         end
     end     %% methods
 end         %% classdef
