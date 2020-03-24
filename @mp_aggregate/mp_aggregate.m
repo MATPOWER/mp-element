@@ -350,5 +350,52 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             end
             obj.(vtype).data = d;
         end
+
+        %%-----  OPF methods  -----
+        function add_opf_vars(obj, om)
+            vars = horzcat(obj.model_vvars(), obj.model_zvars());
+            for vtype = vars
+                st = obj.(vtype{1});
+                for k = 1:st.NS
+                    name = st.order(k).name;
+                    if isempty(st.order(k).idx)
+                        d = st.data;
+                        om.add_var(name, st.idx.N.(name), d.v0.(name), d.vl.(name), d.vu.(name), d.vt.(name));
+                    else
+                        error('handling of indexed sets not implmented here (yet)');
+                    end
+                end
+            end
+        end
+
+        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+            %% system constraints
+            obj.add_opf_system_constraints(om, mpc, mpopt);
+            
+            %% each element adds its OPF constraints
+            for mpe = obj.mpe_list
+                mpe{1}.add_opf_constraints(asm, om, mpc, mpopt);
+            end
+        end
+
+        function add_opf_costs(obj, asm, om, mpc, mpopt)
+            %% system constraints
+            obj.add_opf_system_costs(om, mpc, mpopt);
+            
+            %% each element adds its OPF constraints
+            for mpe = obj.mpe_list
+                mpe{1}.add_opf_costs(asm, om, mpc, mpopt);
+            end
+        end
+
+        function add_opf_system_constraints(obj, om, mpc, mpopt)
+            %% can be overridden to add additional system constraints
+            %% node balance constraints
+            obj.add_opf_node_balance_constraints(om);
+        end
+
+        function add_opf_system_costs(obj, om, mpc, mpopt)
+            %% can be overridden to add additional system costs
+        end
     end     %% methods
 end         %% classdef
