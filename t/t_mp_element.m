@@ -298,9 +298,9 @@ t_ok(isempty(mpe{k}.getD()), [t 'D']);
 % C = mpe{k}.getC()
 % D = mpe{k}.getD()
 
-t = 'ac_branch : '; k = 4;
+t = 'acsp_branch : '; k = 4;
 t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'ac_branch'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'acsp_branch'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'acsp_model'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-power-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acsp'), [t 'model tag']);
@@ -569,9 +569,9 @@ t_ok(isempty(mpe{k}.getD()), [t 'D']);
 % C = mpe{k}.getC()
 % D = mpe{k}.getD()
 
-t = 'ac_branch : '; k = 4;
+t = 'acsp_branch : '; k = 4;
 t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'ac_branch'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'acsp_branch'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'acsp_model'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-power-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acsp'), [t 'model tag']);
