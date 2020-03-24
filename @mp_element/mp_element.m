@@ -12,7 +12,6 @@ classdef mp_element < handle
 %           where C{j}(i,k) is 1 if port j of element k is connected to node i
 %       D : cell array of sparse incidence matrices for Z variables,
 %           where D{j} is for Z variable j
-%       
 %
 %   Methods
 %       constructor - should be called explicitly without args at top of
@@ -122,36 +121,46 @@ classdef mp_element < handle
         function obj = build_params(obj, asm, mpc)
         end
 
-        function [v, z, vi] = x2vz(obj, x, sysx, idx);
-            % sys x : 1 = system x, 0 = class aggregate x
-            % if x is a matrix, each output will have the same number of
-            % columns, each column considered a separate instance of the vectors
+        function nv_ = get_nv_(obj, sysx);
+            % sysx : 1 = system x_, 0 = element class x_
 
             %% get sizes
             if sysx
-                nv = size(obj.C{1}, 1);
-%                 nz = size(obj.D{1}, 1);     % doesn't work when D = {}
+                nv_ = size(obj.C{1}, 1);
+%                 nz_ = size(obj.D{1}, 1);     % doesn't work when D = {}
             else
-                nv = obj.nk * obj.np;
-%                 nz = obj.nk * obj.nz;
+                nv_ = obj.nk * obj.np;
+%                 nz_ = obj.nk * obj.nz;
             end
+        end
 
-            %% split x
-            v = x(1:nv, :);
-            z = x(nv+1:end, :);
+        function [v_, z_, vi_] = x2vz(obj, x_, sysx, idx);
+            % sysx : 1 = system x_, 0 = element class x_
+            % if x_ is a matrix, each output will have the same number of
+            % columns, each column considered a separate instance of the vectors
+
+            %% split x_
+            nv_ = obj.get_nv_(sysx);
+            v_ = x_(1:nv_, :);
+            z_ = x_(nv_+1:end, :);
 
             %% set full port voltages and states for element class
-            if sysx         %% system x is provided, convert to x for ports
-                v = obj.getC('tr') * v;     %% full port voltages for element class
-                z = obj.getD('tr') * z;     %% full states for element class
+            if sysx         %% system x_ is provided, convert to x_ for ports
+                v_ = obj.getC('tr') * v_;   %% full port voltages for element class
+                Dt = obj.getD('tr');
+                if isempty(Dt)
+                    z_ = [];
+                else
+                    z_ = obj.getD('tr') * z_;   %% full states for element class
+                end
             end
 
             %% port voltages for selected ports
             if nargout > 2
                 if isempty(idx)
-                    vi = v;
+                    vi_ = v_;
                 else
-                    vi = v(idx, :);
+                    vi_ = v_(idx, :);
                 end
             end
         end
