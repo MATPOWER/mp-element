@@ -101,8 +101,14 @@ classdef ac_model < mp_model
             [v, z, vi] = obj.x2vz(x, sysx, idx);
 
             %% compute linear current injections and power injections
-            Slin = M*v + N*z + s;
-            I = Y*v + L*z + i + conj(Slin ./ vi);
+            if isempty(z)
+                Slin = M*v + s;
+                I = Y*v + i + conj(Slin ./ vi);
+            else
+                Slin = M*v + N*z + s;
+                I = Y*v + L*z + i + conj(Slin ./ vi);
+%                 I = Y*v + L*z + i * ones(1, size(x, 2)) + conj(Slin ./ vi);
+            end
 
             if nargout > 1
                 %% intermediate terms
@@ -193,8 +199,14 @@ classdef ac_model < mp_model
             [v, z, vi] = obj.x2vz(x, sysx, idx);
 
             %% compute linear current injections and power injections
-            Ilin = Y*v + L*z + i;
-            S = vi .* conj(Ilin) + M*v + N*z + s;
+            if isempty(z)
+                Ilin = Y*v + i;
+                S = vi .* conj(Ilin) + M*v + s;
+            else
+                Ilin = Y*v + L*z + i;
+                S = vi .* conj(Ilin) + M*v + N*z + s;
+%                 S = vi .* conj(Ilin) + M*v + N*z + s * ones(1, size(x, 2));
+            end
 
             if nargout > 1
                 %% intermediate terms

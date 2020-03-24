@@ -67,7 +67,11 @@ classdef dc_model < mp_model
             [B, K, p] = obj.get_params(idx);
             [v, z] = obj.x2vz(x, sysx);
             
-            P = B*v + K*z + p;
+            if isempty(z)
+                P = B*v + p;
+            else
+                P = B*v + K*z + p;
+            end
 %             if sysx
 %                 Ct = obj.getC('tr');
 %                 Dt = obj.getD('tr');

@@ -68,7 +68,11 @@ classdef acp_model < ac_model
             [v, z, vi] = obj.x2vz(x, sysx, idx);
 
             %% compute linear power injections
-            Slin = M*v + N*z + s;
+            if isempty(z)
+                Slin = M*v + s;
+            else
+                Slin = M*v + N*z + s;
+            end
 
             %% intermediate terms
             nz = length(z);
@@ -124,7 +128,11 @@ classdef acp_model < ac_model
                 [v, z, vi] = obj.x2vz(x, sysx, idx);
 
                 %% compute linear power injections
-                Slin = M*v + N*z + s;
+                if isempty(z)
+                    Slin = M*v + s;
+                else
+                    Slin = M*v + N*z + s;
+                end
 
                 n  = length(v);     %% number of all port voltages
                 ni = length(vi);    %% number of selected port voltages
@@ -256,7 +264,11 @@ classdef acp_model < ac_model
             [v, z, vi] = obj.x2vz(x, sysx, idx);
 
             %% compute linear current injections
-            Ilin = Y*v + L*z + i;
+            if isempty(z)
+                Ilin = Y*v + i;
+            else
+                Ilin = Y*v + L*z + i;
+            end
 
             %% intermediate terms
             nz = length(z);
@@ -312,7 +324,11 @@ classdef acp_model < ac_model
                 [v, z, vi] = obj.x2vz(x, sysx, idx);
 
                 %% compute linear current injections
-                Ilin = Y*v + L*z + i;
+                if isempty(z)
+                    Ilin = Y*v + i;
+                else
+                    Ilin = Y*v + L*z + i;
+                end
 
                 n  = length(v);     %% number of all port voltages
                 ni = length(vi);    %% number of selected port voltages
