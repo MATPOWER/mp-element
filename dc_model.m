@@ -51,7 +51,7 @@ classdef dc_model < mp_model
            params = {'B', 'K', 'p'};
         end
         function vtypes = model_vvars(obj)
-            vtypes = {'v'};
+            vtypes = {'va'};
         end
         function vtypes = model_zvars(obj)
             vtypes = {'z'};

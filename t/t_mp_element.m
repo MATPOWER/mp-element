@@ -46,7 +46,7 @@ t_is(dc.nv, 0, 12, [t 'nv']);
 t_is(length(fieldnames(dc.set_types)), 4, 12, [t '# of set types']);
 t_ok(strcmp(dc.set_types.node, 'NODES'), [t 'set_types.node']);
 t_ok(strcmp(dc.set_types.state, 'STATES'), [t 'set_types.state']);
-t_ok(strcmp(dc.set_types.v, 'VOLTAGE VARS (v)'), [t 'set_types.v']);
+t_ok(strcmp(dc.set_types.va, 'VOLTAGE VARS (va)'), [t 'set_types.va']);
 t_ok(strcmp(dc.set_types.z, 'NON-VOLTAGE VARS (z)'), [t 'set_types.z']);
 t_is(length(dc.mpe_list), 0, 12, [t '# of element types']);
 

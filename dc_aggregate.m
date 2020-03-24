@@ -9,8 +9,8 @@ classdef dc_aggregate < mp_aggregate & dc_model
 %   See https://matpower.org for more info.
 
     properties
-        v = [];
-        z = [];
+        va = [];
+        z  = [];
     end
     
     methods
@@ -22,15 +22,14 @@ classdef dc_aggregate < mp_aggregate & dc_model
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager
                                         %% constructor, if not for:
-                                        %% https://savannah.gnu.org/bugs/?52614
-            end
+            end                         %% https://savannah.gnu.org/bugs/?52614
 %             fprintf('<-- dc_aggregate (%d args)\n', nargin);
         end
 
         function obj = def_set_types(obj)
             def_set_types@mp_aggregate(obj);        %% call parent first
-            obj.set_types.v = 'VOLTAGE VARS (v)';
-            obj.set_types.z = 'NON-VOLTAGE VARS (z)';
+            obj.set_types.va = 'VOLTAGE VARS (va)';
+            obj.set_types.z  = 'NON-VOLTAGE VARS (z)';
         end
 
         function obj = build_params(obj, asm, mpc)

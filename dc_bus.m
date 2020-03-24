@@ -28,7 +28,7 @@ classdef dc_bus < mp_bus & dc_model
             Vamax = Inf(nb, 1);
             k = find(mpc.bus(:, BUS_TYPE) == REF);
             Vamax(k) = Va0(k);
-            asm.add_var('v', 'Va', nb, Va0, -Vamax, Vamax);
+            asm.add_var('va', 'Va', nb, Va0, -Vamax, Vamax);
         end
     end     %% methods
 end         %% classdef
