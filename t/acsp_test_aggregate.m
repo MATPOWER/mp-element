@@ -16,8 +16,7 @@ classdef acsp_test_aggregate < acsp_aggregate
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager
                                         %% constructor, if not for:
-                                        %% https://savannah.gnu.org/bugs/?52614
-            end
+            end                         %% https://savannah.gnu.org/bugs/?52614
         end
     end     %% methods
 end         %% classdef

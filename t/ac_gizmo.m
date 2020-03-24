@@ -30,9 +30,10 @@ classdef ac_gizmo < mp_gizmo & acsp_model
                     Zr   = mpc.gizmo(:, 22);
                     Zi   = mpc.gizmo(:, 23);
             end
-            vname = sprintf('Z%d_gizmo', idx{:});
-            asm.add_var('zr', vname, nk, Zr, -Zmax, Zmax);
-            asm.add_var('zi', vname, nk, Zi, -Zmax, Zmax);
+            vname_r = sprintf('Zr%d_gizmo', idx{:});
+            vname_i = sprintf('Zi%d_gizmo', idx{:});
+            asm.add_var('zr', vname_r, nk, Zr, -Zmax, Zmax);
+            asm.add_var('zi', vname_i, nk, Zi, -Zmax, Zmax);
         end
 
         function obj = build_params(obj, asm, mpc)
