@@ -96,8 +96,14 @@ classdef mp_gen < mp_element
             %% find/prepare piecewise linear generator costs
             ipwl = find(mpc.gencost(:, MODEL) == PW_LINEAR);  %% piece-wise linear costs
             ny = size(ipwl, 1);   %% number of piece-wise linear cost vars
-            nq = ng;    %% number of Qg variables
-            [Ay, by] = makeAy(mpc.baseMVA, ng, mpc.gencost, 1, 1+ng, 1+ng+nq);
+            if isa(obj, 'dc_model')
+                nq = 0;    %% number of Qg variables
+                q1 = [];
+            else
+                nq = ng;    %% number of Qg variables
+                q1 = 1+ng;
+            end
+            [Ay, by] = makeAy(mpc.baseMVA, ng, mpc.gencost, 1, q1, 1+ng+nq);
             obj.cost_pwl = struct('ny', ny, 'ipwl', ipwl, 'Ay', Ay, 'by', by);
         end
         
@@ -108,13 +114,6 @@ classdef mp_gen < mp_element
             %% piecewise linear costs
             if obj.cost_pwl.ny
                 om.add_var('y', obj.cost_pwl.ny);
-            end
-        end
-
-        function add_opf_constraints(obj, asm, om, mpc, mpopt)
-            %% piecewise linear costs
-            if obj.cost_pwl.ny
-                om.add_lin_constraint('ycon', obj.cost_pwl.Ay, [], obj.cost_pwl.by, {'Pg', 'Qg', 'y'});
             end
         end
 

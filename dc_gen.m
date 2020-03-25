@@ -36,5 +36,15 @@ classdef dc_gen < mp_gen & dc_model
             ng = obj.nk;
             obj.K = -speye(ng);
         end
+
+        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+            %% piecewise linear costs
+            if obj.cost_pwl.ny
+                om.add_lin_constraint('ycon', obj.cost_pwl.Ay, [], obj.cost_pwl.by, {'Pg', 'y'});
+            end
+
+            %% call parent
+            add_opf_constraints@mp_gen(obj, asm, om, mpc, mpopt);
+        end
     end     %% methods
 end         %% classdef

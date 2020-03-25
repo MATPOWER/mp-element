@@ -98,6 +98,11 @@ classdef ac_gen < mp_gen & acsp_model
             om.add_lin_constraint('PQl', Apql, [], ubpql, {'Pg', 'Qg'});      %% npql
             om.userdata.Apqdata = Apqdata;
 
+            %% piecewise linear costs
+            if obj.cost_pwl.ny
+                om.add_lin_constraint('ycon', obj.cost_pwl.Ay, [], obj.cost_pwl.by, {'Pg', 'Qg', 'y'});
+            end
+
             %% call parent
             add_opf_constraints@mp_gen(obj, asm, om, mpc, mpopt);
         end
