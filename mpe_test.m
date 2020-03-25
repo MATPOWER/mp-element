@@ -22,9 +22,15 @@ ac = acsp_aggregate().create_model(mpc);
 [x, success, i] = ac.solve_opf(mpc, mpopt);
 
 
-mpc = ext2int(loadcase('t_case9_gizmo'));
+% mpc = ext2int(loadcase('t_case9_gizmo'));
 % mpc = rmfield(mpc, 'order');
 ac = acsp_test_aggregate().create_model(mpc);
 
 [x, success, i] = ac.solve_power_flow(mpc, mpopt);
 [x, success, i] = ac.solve_opf(mpc, mpopt);
+
+
+mpc = ext2int(loadcase('t_case9_opf'));
+
+dc = dc_aggregate().create_model(mpc);
+[x, success, i] = dc.solve_opf(mpc, mpopt);
