@@ -61,12 +61,11 @@ classdef ac_branch < mp_branch% & ac_model
         end
 
         function add_opf_constraints(obj, asm, om, mpc, mpopt)
-        
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
                 TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
-            
+
             %% find branches with flow limits
             il = find(mpc.branch(:, RATE_A) ~= 0 & mpc.branch(:, RATE_A) < 1e10);
             nl2 = length(il);         %% number of constrained lines
@@ -82,6 +81,9 @@ classdef ac_branch < mp_branch% & ac_model
             fcn_flow = @(x)opf_branch_flow_fcn(obj, x, asm, idx, [lims; lims]);
             hess_flow = @(x, lam)opf_branch_flow_hess(obj, x, lam, asm, idx);
             om.add_nln_constraint({'Sf', 'St'}, [nl2;nl2], 0, fcn_flow, hess_flow);
+
+            %% call parent
+            add_opf_constraints@mp_branch(obj, asm, om, mpc, mpopt);
         end
     end     %% methods
 end         %% classdef
