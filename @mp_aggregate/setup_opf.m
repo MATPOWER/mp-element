@@ -27,6 +27,6 @@ end
 
 %% create optimization model
 om = opt_model();
-obj.add_opf_vars(om);
+obj.add_opf_vars(obj, om, mpc, mpopt);
 obj.add_opf_constraints(obj, om, mpc, mpopt);
 obj.add_opf_costs(obj, om, mpc, mpopt);

@@ -32,10 +32,9 @@ classdef acsp_aggregate < ac_aggregate & acsp_model
         end
 
         function x_ = x2x_(obj, x)
-            %% convert real to complex x
-            nx_ = size(x, 1) / 2;   %% number of state vars
+            %% convert (real) opt_model x to (complex) network model x_
             nv_ = obj.nv / 2;       %% number of voltage vars (sysx=1)
-            nz_ = nx_ - nv_;        %% number of non-voltage state vars
+            nz_ = obj.nz;           %% number of state vars
             va = x(1:nv_, :);       b = nv_;
             vm = x(b+1:b+nv_, :);   b = b + nv_;
             zr = x(b+1:b+nz_, :);   b = b + nz_;

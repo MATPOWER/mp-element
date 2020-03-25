@@ -16,7 +16,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
                                 %% filled in by subclass init()
         mpe_list = {};          %% cell array of mp_element objects
         mpe_idx  = struct();    %% key = element name, val = index into mpe_list
-        nv = 0;                 %% total number of v variables
+        nv = 0;                 %% total number of (real) v variables
         node = [];
         state = [];
     end
@@ -352,7 +352,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
         end
 
         %%-----  OPF methods  -----
-        function add_opf_vars(obj, om)
+        function add_opf_vars(obj, asm, om, mpc, mpopt)
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars
                 st = obj.(vtype{1});
@@ -365,6 +365,11 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
                         error('handling of indexed sets not implmented here (yet)');
                     end
                 end
+            end
+            
+            %% each element adds its OPF variables
+            for mpe = obj.mpe_list
+                mpe{1}.add_opf_vars(asm, om, mpc, mpopt);
             end
         end
 
@@ -379,10 +384,10 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
         end
 
         function add_opf_costs(obj, asm, om, mpc, mpopt)
-            %% system constraints
+            %% system costs
             obj.add_opf_system_costs(om, mpc, mpopt);
             
-            %% each element adds its OPF constraints
+            %% each element adds its OPF costs
             for mpe = obj.mpe_list
                 mpe{1}.add_opf_costs(asm, om, mpc, mpopt);
             end

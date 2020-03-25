@@ -72,7 +72,7 @@ classdef mp_element < handle
         mpc_field = '';     %% field checked for presence of this element type
         np = 0;             %% number of ports per element
         nk = 0;             %% number of elements of this type loaded
-        nz = 0;             %% number of non-voltage states per element
+        nz = 0;             %% number of non-voltage states per element (possibly complex)
         C = {};             %% cell array of sparse element-node incidence
                             %% matrices, where C{j}(i,k) is 1 if port j of
                             %% element k is connected to node i
@@ -240,6 +240,9 @@ classdef mp_element < handle
         end
 
         %%-----  OPF methods  -----
+        function add_opf_vars(obj, asm, om, mpc, mpopt)
+        end
+
         function add_opf_constraints(obj, asm, om, mpc, mpopt)
         end
 
