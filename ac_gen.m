@@ -90,5 +90,16 @@ classdef ac_gen < mp_gen & acsp_model
                 end
             end
         end
+
+        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+            %% generator PQ capability curve constraints
+            [Apqh, ubpqh, Apql, ubpql, Apqdata] = makeApq(mpc.baseMVA, mpc.gen);
+            om.add_lin_constraint('PQh', Apqh, [], ubpqh, {'Pg', 'Qg'});      %% npqh
+            om.add_lin_constraint('PQl', Apql, [], ubpql, {'Pg', 'Qg'});      %% npql
+            om.userdata.Apqdata = Apqdata;
+
+            %% call parent
+            add_opf_constraints@mp_gen(obj, asm, om, mpc, mpopt);
+        end
     end     %% methods
 end         %% classdef
