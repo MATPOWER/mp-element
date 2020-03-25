@@ -8,9 +8,10 @@ classdef mp_gen < mp_element
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%     properties
-%         name = 'gen';
-%     end
+    properties
+        cost_pwl = struct();
+        cost_poly_p = struct();
+    end
     
     methods
         %% constructor
@@ -47,20 +48,19 @@ classdef mp_gen < mp_element
         end
 
         %%-----  OPF methods  -----
-        function add_opf_costs(obj, asm, om, mpc, mpopt)
-            %% find/prepare polynomial generator costs
+        function build_gen_cost_params(obj, mpc, mpopt, pcost)
+            %% find/prepare polynomial generator costs for active power
             [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
             ng = obj.nk;
+            if nargin < 4
+                [pcost qcost] = pqcost(mpc.gencost, ng);
+            end
             cpg = [];
             cqg = [];
-            [pcost qcost] = pqcost(mpc.gencost, ng);
             ip0 = find(pcost(:, MODEL) == POLYNOMIAL & pcost(:, NCOST) == 1);   %% constant
             ip1 = find(pcost(:, MODEL) == POLYNOMIAL & pcost(:, NCOST) == 2);   %% linear
             ip2 = find(pcost(:, MODEL) == POLYNOMIAL & pcost(:, NCOST) == 3);   %% quadratic
             ip3 = find(pcost(:, MODEL) == POLYNOMIAL & pcost(:, NCOST) > 3);    %% cubic or greater
-            if ~isempty(ip3)
-                error('mp_gen/add_opf_costs: polynomial generator costs greater than quadratic order not yet implemented');
-            end
             if ~isempty(ip2) || ~isempty(ip1) || ~isempty(ip0)
                 kpg = zeros(ng, 1);
                 cpg = zeros(ng, 1);
@@ -80,8 +80,52 @@ classdef mp_gen < mp_element
                     kpg(ip0) = kpg(ip0) + pcost(ip0, COST);
                 end
             end
-            om.add_quad_cost('polPg', Qpg, cpg, kpg, {'Pg'});
-            
+            obj.cost_poly_p = struct( ...
+                    'ip0', ip0, ...
+                    'ip1', ip1, ...
+                    'ip2', ip2, ...
+                    'ip3', ip3, ...
+                    'kpg', kpg, ...
+                    'cpg', cpg, ...
+                    'Qpg', Qpg ...
+                );
+            if ~isempty(ip3)
+                error('mp_gen/build_gen_cost_params: polynomial generator costs greater than quadratic order not yet implemented');
+            end
+
+            %% find/prepare piecewise linear generator costs
+            ipwl = find(mpc.gencost(:, MODEL) == PW_LINEAR);  %% piece-wise linear costs
+            ny = size(ipwl, 1);   %% number of piece-wise linear cost vars
+            nq = ng;    %% number of Qg variables
+            [Ay, by] = makeAy(mpc.baseMVA, ng, mpc.gencost, 1, 1+ng, 1+ng+nq);
+            obj.cost_pwl = struct('ny', ny, 'ipwl', ipwl, 'Ay', Ay, 'by', by);
+        end
+        
+        function add_opf_vars(obj, asm, om, mpc, mpopt)
+            %% collect/construct all generator cost parameters
+            obj.build_gen_cost_params(mpc, mpopt);
+
+            %% piecewise linear costs
+            if obj.cost_pwl.ny
+                om.add_var('y', obj.cost_pwl.ny);
+            end
+        end
+
+        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+            %% piecewise linear costs
+            if obj.cost_pwl.ny
+                om.add_lin_constraint('ycon', obj.cost_pwl.Ay, [], obj.cost_pwl.by, {'Pg', 'Qg', 'y'});
+            end
+        end
+
+        function add_opf_costs(obj, asm, om, mpc, mpopt)
+            %% (quadratic) polynomial costs
+            om.add_quad_cost('polPg', obj.cost_poly_p.Qpg, obj.cost_poly_p.cpg, obj.cost_poly_p.kpg, {'Pg'});
+
+            %% piecewise linear costs
+            if obj.cost_pwl.ny
+                om.add_quad_cost('pwl', [], ones(obj.cost_pwl.ny, 1), 0, {'y'});
+            end
         end
     end     %% methods
 end         %% classdef

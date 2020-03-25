@@ -8,9 +8,9 @@ classdef ac_gen < mp_gen & acsp_model
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%     properties
-%         name = 'gen';
-%     end
+    properties
+        cost_poly_q = struct();
+    end
     
     methods
         %% constructor
@@ -39,6 +39,56 @@ classdef ac_gen < mp_gen & acsp_model
             build_params@mp_gen(obj, asm, mpc);     %% call parent
             ng = obj.nk;
             obj.N = -speye(ng);
+        end
+
+        function build_gen_cost_params(obj, mpc, mpopt, pcost, qcost)
+            [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
+            ng = obj.nk;
+            if nargin < 5
+                [pcost qcost] = pqcost(mpc.gencost, ng);
+            end
+
+            %% call parent (with pcost) to handle active power costs
+            build_gen_cost_params@mp_gen(obj, mpc, mpopt, pcost);
+            
+            %% find/prepare polynomial generator costs for reactive power
+            if ~isempty(qcost)
+                iq0 = find(qcost(:, MODEL) == POLYNOMIAL & qcost(:, NCOST) == 1);   %% constant
+                iq1 = find(qcost(:, MODEL) == POLYNOMIAL & qcost(:, NCOST) == 2);   %% linear
+                iq2 = find(qcost(:, MODEL) == POLYNOMIAL & qcost(:, NCOST) == 3);   %% quadratic
+                iq3 = find(qcost(:, MODEL) == POLYNOMIAL & qcost(:, NCOST) > 3);    %% cubic or greater
+                if ~isempty(iq2) || ~isempty(iq1) || ~isempty(iq0)
+                    kqg = zeros(ng, 1);
+                    cqg = zeros(ng, 1);
+                    if ~isempty(iq2)
+                        Qqg = zeros(ng, 1);
+                        Qqg(iq2) = 2 * qcost(iq2, COST) * mpc.baseMVA^2;
+                        cqg(iq2) = cqg(iq2) + qcost(iq2, COST+1) * mpc.baseMVA;
+                        kqg(iq2) = kqg(iq2) + qcost(iq2, COST+2);
+                    else
+                        Qqg = [];   %% no quadratic terms
+                    end
+                    if ~isempty(iq1)
+                        cqg(iq1) = cqg(iq1) + qcost(iq1, COST) * mpc.baseMVA;
+                        kqg(iq1) = kqg(iq1) + qcost(iq1, COST+1);
+                    end
+                    if ~isempty(iq0)
+                        kqg(iq0) = kqg(iq0) + qcost(iq0, COST);
+                    end
+                end
+                obj.cost_poly_q = struct( ...
+                        'iq0', iq0, ...
+                        'iq1', iq1, ...
+                        'iq2', iq2, ...
+                        'iq3', iq3, ...
+                        'kqg', kqg, ...
+                        'cqg', cqg, ...
+                        'Qqg', Qqg ...
+                    );
+                if ~isempty(iq3)
+                    error('mp_gen/build_gen_cost_params: polynomial generator costs greater than quadratic order not yet implemented');
+                end
+            end
         end
     end     %% methods
 end         %% classdef
