@@ -1,6 +1,6 @@
-function [x, success, i] = solve_opf(obj, mpc, mpopt)
-%SOLVE_OPF  Solves AC OPF
-%   SUCCESS = SOLVE_OPF(OBJ, MPC)
+function om = setup_opf(obj, mpc, mpopt)
+%SETUP_OPF  Build the OPF optimization model for this network model
+%   OM = OBJ.SETUP_OPF(MPC, MPOPT)
 %
 %   Inputs
 %       OBJ - 
@@ -8,7 +8,7 @@ function [x, success, i] = solve_opf(obj, mpc, mpopt)
 %       MPOPT - 
 %
 %   Returns
-%       SUCCESS - 
+%       OM - 
 %
 %   See also ...
 
@@ -25,17 +25,8 @@ if nargin < 3
     mpopt = mpoption;
 end
 
-%% create opf_model object
-om = obj.setup_opf(mpc, mpopt);
-
-%% solve it
-opt = mpopt2nlpopt(mpopt, om.problem_type(), 'DEFAULT');
-[x, f, eflag, output, lambda] = om.solve(opt);
-success = (eflag > 0);
-
-% om
-% vv = om.get_idx('var');
-% x(vv.i1.Pg:vv.iN.Pg)
-% keyboard
-
-i = output.iterations;
+%% create optimization model
+om = opt_model();
+obj.add_opf_vars(om);
+obj.add_opf_constraints(obj, om, mpc, mpopt);
+obj.add_opf_costs(obj, om, mpc, mpopt);
