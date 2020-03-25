@@ -41,5 +41,15 @@ classdef dc_aggregate < mp_aggregate & dc_model
             obj.K = obj.stack_matrix_params('K', 0);
             obj.p = obj.stack_vector_params('p');
         end
+
+        function add_opf_node_balance_constraints(obj, om)
+            [B, K, p] = obj.get_params();
+
+            %% power balance constraints
+            C = obj.getC();
+            Amis = C * [B*C' K*obj.getD('tr')];
+            bmis = -C * p;
+            om.add_lin_constraint('Pmis', Amis, bmis, bmis, {'Va', 'Pg'});
+        end
     end     %% methods
 end         %% classdef

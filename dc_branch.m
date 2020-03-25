@@ -39,5 +39,28 @@ classdef dc_branch < mp_branch & dc_model
                 2*nl, 2*nl );
             obj.p = [Pfinj; -Pfinj];
         end
+
+        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+            %% define named indices into data matrices
+            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
+                TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
+                ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
+
+            %% find branches with flow limits
+            il = find(mpc.branch(:, RATE_A) ~= 0 & mpc.branch(:, RATE_A) < 1e10);
+            nl2 = length(il);         %% number of constrained lines
+
+            %% limits
+            lims = mpc.branch(il, RATE_A)/mpc.baseMVA;  %% RATE_A
+
+            %% branch flow constraints
+            [B, K, p] = obj.get_params(il);
+            C = obj.getC();
+            Af = B*C';
+            om.add_lin_constraint('Pf', Af, -p-lims, -p+lims, {'Va'});
+
+            %% call parent
+            add_opf_constraints@mp_branch(obj, asm, om, mpc, mpopt);
+        end
     end     %% methods
 end         %% classdef
