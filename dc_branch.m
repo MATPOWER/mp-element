@@ -57,7 +57,7 @@ classdef dc_branch < mp_branch & dc_model
             [B, K, p] = obj.get_params(il);
             C = obj.getC();
             Af = B*C';
-            om.add_lin_constraint('Pf', Af, -p-lims, -p+lims, {'Va'});
+            om.add_lin_constraint('Pf', Af, -p-lims, -p+lims, {asm.va.order(:).name});
 
             %% call parent
             add_opf_constraints@mp_branch(obj, asm, om, mpc, mpopt);

@@ -49,7 +49,8 @@ classdef dc_aggregate < mp_aggregate & dc_model
             C = obj.getC();
             Amis = C * [B*C' K*obj.getD('tr')];
             bmis = -C * p;
-            om.add_lin_constraint('Pmis', Amis, bmis, bmis, {'Va', 'Pg'});
+            om.add_lin_constraint('Pmis', Amis, bmis, bmis, ...
+                                {obj.va.order(:).name obj.z.order(:).name});
         end
     end     %% methods
 end         %% classdef
