@@ -13,7 +13,7 @@ if nargin < 1
     quiet = 0;
 end
 
-t_begin(99, quiet);
+t_begin(87, quiet);
 
 define_constants;
 if quiet
