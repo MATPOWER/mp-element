@@ -36,24 +36,28 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
 
         function obj = create_model(obj, mpc)
             %% create element objects for each class with data
+            i = 0;
             for c = obj.element_classes
                 mpe = c{1}();       %% element constructor
                 if mpe.count(mpc)
-                    obj.mpe_list{end+1} = mpe;
-                    obj.mpe_idx.(mpe.name) = length(obj.mpe_list);
+                    i = i + 1;
+                    obj.mpe_list{i} = mpe;
+                    obj.mpe_idx.(mpe.name) = i;
                     obj.np = obj.np + mpe.np * mpe.nk;  %% number of ports
                     obj.nz = obj.nz + mpe.nz * mpe.nk;  %% number of z vars
                 end
             end
             
-            %% create nodes and node voltage state variables
-            obj.add_nodes(obj, mpc);
+            if obj.np ~= 0      %% skip for empty model
+                %% create nodes and node voltage state variables
+                obj.add_nodes(obj, mpc);
             
-            %% create non-voltage states and corresponding state variables
-            obj.add_states(obj, mpc);
+                %% create non-voltage states and corresponding state variables
+                obj.add_states(obj, mpc);
             
-            %% build params
-            obj.build_params(obj, mpc);
+                %% build params
+                obj.build_params(obj, mpc);
+            end
         end
 
         function mpe = mpe_by_name(obj, name)
