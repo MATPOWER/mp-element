@@ -18,7 +18,7 @@ classdef acsp_aggregate < ac_aggregate & acsp_model
         function obj = acsp_aggregate(varargin)
             obj@ac_aggregate(varargin{:});
             obj.element_classes = ...
-                { @acsp_bus, @ac_gen, @ac_load, @acsp_branch };
+                { @acsp_bus, @ac_gen, @ac_load, @acsp_branch @ac_shunt };
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager
                                         %% constructor, if not for:

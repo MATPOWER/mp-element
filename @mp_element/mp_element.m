@@ -27,7 +27,7 @@ classdef mp_element < handle
 %       build_params() - build model parameters from data model
 %           params = mpe.build_params(asm, mpc)
 %       count() - returns the number of elements of this type in mpc, sets mpe.nk
-%           TorF = mpe.count(mpc)
+%           nk = mpe.count(mpc)
 %
 %       S = mpe.port_inj_power(x, idx)
 %       [S, dS] = mpe.port_inj_power(x, idx)
@@ -102,8 +102,10 @@ classdef mp_element < handle
         function nk = count(obj, mpc)
             if isfield(mpc, obj.mpc_field) && ~isempty(mpc.(obj.mpc_field))
                 nk = size(mpc.(obj.mpc_field), 1);
+                obj.nk = nk;    %% update the count stored internally
+            else
+                nk = 0;
             end
-            obj.nk = nk;        %% update the count stored internally
         end
 
         function obj = add_nodes(obj, asm, mpc)
