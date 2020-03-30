@@ -55,13 +55,14 @@ classdef mp_gen < mp_element
             if nargin < 4
                 [pcost qcost] = pqcost(mpc.gencost, ng);
             end
-            cpg = [];
-            cqg = [];
+            have_quad_cost = 0;
+            kpg = []; cpg = []; Qpg = [];
             ip0 = find(pcost(:, MODEL) == POLYNOMIAL & pcost(:, NCOST) == 1);   %% constant
             ip1 = find(pcost(:, MODEL) == POLYNOMIAL & pcost(:, NCOST) == 2);   %% linear
             ip2 = find(pcost(:, MODEL) == POLYNOMIAL & pcost(:, NCOST) == 3);   %% quadratic
             ip3 = find(pcost(:, MODEL) == POLYNOMIAL & pcost(:, NCOST) > 3);    %% cubic or greater
             if ~isempty(ip2) || ~isempty(ip1) || ~isempty(ip0)
+                have_quad_cost = 1;
                 kpg = zeros(ng, 1);
                 cpg = zeros(ng, 1);
                 if ~isempty(ip2)
@@ -69,8 +70,6 @@ classdef mp_gen < mp_element
                     Qpg(ip2) = 2 * pcost(ip2, COST) * mpc.baseMVA^2;
                     cpg(ip2) = cpg(ip2) + pcost(ip2, COST+1) * mpc.baseMVA;
                     kpg(ip2) = kpg(ip2) + pcost(ip2, COST+2);
-                else
-                    Qpg = [];   %% no quadratic terms
                 end
                 if ~isempty(ip1)
                     cpg(ip1) = cpg(ip1) + pcost(ip1, COST) * mpc.baseMVA;
@@ -81,6 +80,7 @@ classdef mp_gen < mp_element
                 end
             end
             obj.cost_poly_p = struct( ...
+                    'have_quad_cost', have_quad_cost, ...
                     'ip0', ip0, ...
                     'ip1', ip1, ...
                     'ip2', ip2, ...
@@ -89,9 +89,6 @@ classdef mp_gen < mp_element
                     'cpg', cpg, ...
                     'Qpg', Qpg ...
                 );
-            if ~isempty(ip3)
-                error('mp_gen/build_gen_cost_params: polynomial generator costs greater than quadratic order not yet implemented');
-            end
 
             %% find/prepare piecewise linear generator costs
             ipwl = find(mpc.gencost(:, MODEL) == PW_LINEAR);  %% piece-wise linear costs
@@ -118,8 +115,17 @@ classdef mp_gen < mp_element
         end
 
         function add_opf_costs(obj, asm, om, mpc, mpopt)
-            %% (quadratic) polynomial costs
-            om.add_quad_cost('polPg', obj.cost_poly_p.Qpg, obj.cost_poly_p.cpg, obj.cost_poly_p.kpg, {'Pg'});
+            %% (quadratic) polynomial costs on Pg
+            if obj.cost_poly_p.have_quad_cost
+                om.add_quad_cost('polPg', obj.cost_poly_p.Qpg, obj.cost_poly_p.cpg, obj.cost_poly_p.kpg, {'Pg'});
+            end
+
+            %% (order 3 and higher) polynomial costs on Pg
+            if ~isempty(obj.cost_poly_p.ip3)
+                [pcost qcost] = pqcost(mpc.gencost, obj.nk);
+                cost_Pg = @(x)opf_gen_cost_fcn(x, mpc.baseMVA, pcost, obj.cost_poly_p.ip3, mpopt);
+                om.add_nln_cost('polPg', 1, cost_Pg, {'Pg'});
+            end
 
             %% piecewise linear costs
             if obj.cost_pwl.ny

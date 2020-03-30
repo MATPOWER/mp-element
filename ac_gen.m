@@ -52,12 +52,17 @@ classdef ac_gen < mp_gen & acsp_model
             build_gen_cost_params@mp_gen(obj, mpc, mpopt, pcost);
             
             %% find/prepare polynomial generator costs for reactive power
+            obj.cost_poly_q.have_quad_cost = 0;
+            obj.cost_poly_q.iq3 = [];
             if ~isempty(qcost)
+                have_quad_cost = 0;
+                kqg = []; cqg = []; Qqg = [];
                 iq0 = find(qcost(:, MODEL) == POLYNOMIAL & qcost(:, NCOST) == 1);   %% constant
                 iq1 = find(qcost(:, MODEL) == POLYNOMIAL & qcost(:, NCOST) == 2);   %% linear
                 iq2 = find(qcost(:, MODEL) == POLYNOMIAL & qcost(:, NCOST) == 3);   %% quadratic
                 iq3 = find(qcost(:, MODEL) == POLYNOMIAL & qcost(:, NCOST) > 3);    %% cubic or greater
                 if ~isempty(iq2) || ~isempty(iq1) || ~isempty(iq0)
+                    have_quad_cost = 1;
                     kqg = zeros(ng, 1);
                     cqg = zeros(ng, 1);
                     if ~isempty(iq2)
@@ -65,8 +70,6 @@ classdef ac_gen < mp_gen & acsp_model
                         Qqg(iq2) = 2 * qcost(iq2, COST) * mpc.baseMVA^2;
                         cqg(iq2) = cqg(iq2) + qcost(iq2, COST+1) * mpc.baseMVA;
                         kqg(iq2) = kqg(iq2) + qcost(iq2, COST+2);
-                    else
-                        Qqg = [];   %% no quadratic terms
                     end
                     if ~isempty(iq1)
                         cqg(iq1) = cqg(iq1) + qcost(iq1, COST) * mpc.baseMVA;
@@ -77,6 +80,7 @@ classdef ac_gen < mp_gen & acsp_model
                     end
                 end
                 obj.cost_poly_q = struct( ...
+                        'have_quad_cost', have_quad_cost, ...
                         'iq0', iq0, ...
                         'iq1', iq1, ...
                         'iq2', iq2, ...
@@ -85,9 +89,6 @@ classdef ac_gen < mp_gen & acsp_model
                         'cqg', cqg, ...
                         'Qqg', Qqg ...
                     );
-                if ~isempty(iq3)
-                    error('mp_gen/build_gen_cost_params: polynomial generator costs greater than quadratic order not yet implemented');
-                end
             end
         end
 
@@ -105,6 +106,23 @@ classdef ac_gen < mp_gen & acsp_model
 
             %% call parent
             add_opf_constraints@mp_gen(obj, asm, om, mpc, mpopt);
+        end
+
+        function add_opf_costs(obj, asm, om, mpc, mpopt)
+            %% call parent
+            add_opf_costs@mp_gen(obj, asm, om, mpc, mpopt);
+
+            %% (quadratic) polynomial costs on Qg
+            if obj.cost_poly_q.have_quad_cost
+                om.add_quad_cost('polQg', obj.cost_poly_q.Qpg, obj.cost_poly_q.cpg, obj.cost_poly_q.kpg, {'Qg'});
+            end
+
+            %% (order 3 and higher) polynomial costs on Qg
+            if ~isempty(obj.cost_poly_q.iq3)
+                [pcost qcost] = pqcost(mpc.gencost, obj.nk);
+                cost_Qg = @(x)opf_gen_cost_fcn(x, mpc.baseMVA, qcost, obj.cost_poly_q.iq3, mpopt);
+                om.add_nln_cost('polQg', 1, cost_Qg, {'Qg'});
+            end
         end
     end     %% methods
 end         %% classdef
