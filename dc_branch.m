@@ -50,14 +50,17 @@ classdef dc_branch < mp_branch & dc_model
             il = find(mpc.branch(:, RATE_A) ~= 0 & mpc.branch(:, RATE_A) < 1e10);
             nl2 = length(il);         %% number of constrained lines
 
-            %% limits
-            lims = mpc.branch(il, RATE_A)/mpc.baseMVA;  %% RATE_A
+            if nl2
+                %% limits
+                flow_max = mpc.branch(il, RATE_A)/mpc.baseMVA;  %% RATE_A
 
-            %% branch flow constraints
-            [B, K, p] = obj.get_params(il);
-            C = obj.getC();
-            Af = B*C';
-            om.add_lin_constraint('Pf', Af, -p-lims, -p+lims, {asm.va.order(:).name});
+                %% branch flow constraints
+                [B, K, p] = obj.get_params(il);
+                C = obj.getC();
+                Af = B*C';
+                om.add_lin_constraint('Pf', Af, -p-flow_max, -p+flow_max, ...
+                    {asm.va.order(:).name});
+            end
 
             %% call parent
             add_opf_constraints@mp_branch(obj, asm, om, mpc, mpopt);

@@ -43,8 +43,8 @@ classdef ac_branch < mp_branch% & ac_model
                 [Yff; Yft; Ytf; Ytt], 2*nl, 2*nl );
         end
 
-        function [h, dh] = opf_branch_flow_fcn(obj, x, asm, idx, lims)
-            %% branch power flow constraints
+        function [h, dh] = apparent_power_fcn(obj, x, asm, idx, hmax)
+            %% branch squared apparent power flow constraints
             x_ = asm.x2x_(x);           %% convert real to complex x
 
             %% get port power injections with derivatives
@@ -57,7 +57,57 @@ classdef ac_branch < mp_branch% & ac_model
             else
                 S = obj.port_inj_power(x, 1, idx);
             end
-            h = conj(S) .* S - lims;
+            h = conj(S) .* S - hmax;
+        end
+
+        function [h, dh] = active_power_fcn(obj, x, asm, idx, hmax)
+            %% branch active power flow constraints
+            x_ = asm.x2x_(x);           %% convert real to complex x
+
+            %% get port power injections with derivatives
+            if nargout > 1
+                [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1, idx);
+                P = real(S);
+                dh = real([Sv1 Sv2 Szr Szi]);
+            else
+                P = real(obj.port_inj_power(x, 1, idx));
+            end
+            h = P - hmax;
+        end
+
+        function [h, dh] = active_power2_fcn(obj, x, asm, idx, hmax)
+            %% branch squared active power flow constraints
+            x_ = asm.x2x_(x);           %% convert real to complex x
+
+            %% get port power injections with derivatives
+            if nargout > 1
+                [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1, idx);
+                Sx = [Sv1 Sv2 Szr Szi];
+                P = real(S);
+                n = length(S);
+                dP = spdiags(P, 0, n, n);
+                dh = 2 * real(dP) * real(Sx);
+            else
+                P = real(obj.port_inj_power(x, 1, idx));
+            end
+            h = P .* P - hmax;
+        end
+
+        function [h, dh] = current_fcn(obj, x, asm, idx, hmax)
+            %% branch squared current constraints
+            x_ = asm.x2x_(x);           %% convert real to complex x
+
+            %% get port current injections with derivatives
+            if nargout > 1
+                [I, Iv1, Iv2, Izr, Izi] = obj.port_inj_current(x_, 1, idx);
+                Ix = [Iv1 Iv2 Izr Izi];
+                n = length(I);
+                dI = spdiags(I, 0, n, n);
+                dh = 2 * (real(dI) * real(Ix) + imag(dI) * imag(Ix));
+            else
+                I = obj.port_inj_power(x, 1, idx);
+            end
+            h = conj(I) .* I - hmax;
         end
 
         function add_opf_constraints(obj, asm, om, mpc, mpopt)
@@ -70,17 +120,38 @@ classdef ac_branch < mp_branch% & ac_model
             il = find(mpc.branch(:, RATE_A) ~= 0 & mpc.branch(:, RATE_A) < 1e10);
             nl2 = length(il);         %% number of constrained lines
 
-            %% port indexes
-            nl = obj.nk;
-            idx = [il; nl+il];
+            if nl2
+                %% port indexes
+                nl = obj.nk;
+                idx = [il; nl+il];
 
-            %% limits
-            lims = (mpc.branch(il, RATE_A)/mpc.baseMVA) .^ 2;   %% square of RATE_A
+                %% limits
+                flow_max = mpc.branch(il, RATE_A)/mpc.baseMVA;  %% RATE_A
 
-            %% branch flow constraints
-            fcn_flow = @(x)opf_branch_flow_fcn(obj, x, asm, idx, [lims; lims]);
-            hess_flow = @(x, lam)opf_branch_flow_hess(obj, x, lam, asm, idx);
-            om.add_nln_constraint({'Sf', 'St'}, [nl2;nl2], 0, fcn_flow, hess_flow);
+                %% branch flow constraints
+                lim_type = upper(mpopt.opf.flow_lim(1));
+                if lim_type == 'S'
+                    fcn_flow = @(x)apparent_power_fcn(obj, x, asm, idx, ...
+                                                    [flow_max; flow_max] .^ 2);
+                    hess_flow = @(x, lam)apparent_power_hess(obj, x, lam, asm, idx);
+                elseif lim_type == 'P'
+                    fcn_flow = @(x)active_power_fcn(obj, x, asm, idx, ...
+                                                    [flow_max; flow_max]);
+                    hess_flow = @(x, lam)active_power_hess(obj, x, lam, asm, idx);
+                elseif lim_type == '2' || lim_type == 'P'
+                    fcn_flow = @(x)active_power2_fcn(obj, x, asm, idx, ...
+                                                    [flow_max; flow_max] .^ 2);
+                    hess_flow = @(x, lam)active_power2_hess(obj, x, lam, asm, idx);
+                elseif lim_type == 'I'
+                    fcn_flow = @(x)current_fcn(obj, x, asm, idx, ...
+                                                    [flow_max; flow_max] .^ 2);
+                    hess_flow = @(x, lam)current_hess(obj, x, lam, asm, idx);
+                else
+                    error('ac_branch/add_opf_constraints: MPOPT.opf.flow_lim = ''%s'' not yet implemented.', mpopt.opf.flow_lim);
+                end
+            
+                om.add_nln_constraint({'Sf', 'St'}, [nl2;nl2], 0, fcn_flow, hess_flow);
+            end
 
             %% call parent
             add_opf_constraints@mp_branch(obj, asm, om, mpc, mpopt);
