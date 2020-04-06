@@ -59,30 +59,6 @@ classdef ac_model < mp_model
             vtypes = {'zr', 'zi'};
         end
 
-%         function I = port_inj_current_old(obj, x, sysx, idx)
-%             
-%             [Y, L, M, N, i, s] = obj.get_params();
-%             [v, z] = obj.x2vz(x, sysx);
-%             
-%             if sysx
-%                 Ct = obj.getC('tr');
-%                 Dt = obj.getD('tr');
-%                 if nargin < 4       %% all ports
-%                     I = Y*Ct*v + L*Dt*z + i + conj((M*Ct*v + N*Dt*z + s) ./ (Ct*v));
-%                 else                %% selected ports
-%                     I = Y(idx, :)*Ct*v + L(idx, :)*Dt*z + i(idx) + ...
-%                         conj((M(idx, :)*Ct*v + N(idx, :)*Dt*z + s(idx)) ./ (Ct(idx, :)*v));
-%                 end
-%             else
-%                 if nargin < 4       %% all ports
-%                     I = Y*v + L*z + i + conj((M*v + N*z + s) ./ v);
-%                 else                %% selected ports
-%                     I = Y(idx, :)*v + L(idx, :)*z + i(idx) + ...
-%                         conj((M(idx, :)*v + N(idx, :)*z + s(idx)) ./ v(idx));
-%                 end
-%             end
-%         end
-
         function [I, Iv1, Iv2, Izr, Izi] = port_inj_current(obj, x, sysx, idx)
             % I = obj.port_inj_current(x, sysx)
             % I = obj.port_inj_current(x, sysx, idx)
@@ -152,34 +128,6 @@ classdef ac_model < mp_model
             end
         end
 
-%         function S = port_inj_power_old(obj, x, sysx, idx)
-%             
-%             [Y, L, M, N, i, s] = obj.get_params();
-%             [v, z] = obj.x2vz(x, sysx);
-%             
-%             if sysx
-%                 Ct = obj.getC('tr');
-%                 Dt = obj.getD('tr');
-%                 if nargin < 4       %% all ports
-%                     S = Ct*v .* conj(Y*Ct*v + L*Dt*z + i) + M*Ct*v + N*Dt*z + s;
-%                 else                %% selected ports
-%                     S = Ct(idx, :)*v .* conj(Y(idx, :)*Ct*v + L(idx, :)*Dt*z + i(idx)) + ...
-%                         M(idx, :)*Ct*v + N(idx, :)*Dt*z + s(idx);
-%                 end
-%                 if nargout > 1
-%                 end
-%             else
-%                 if nargin < 4       %% all ports
-%                     S = v .* conj(Y*v + L*z + i) + M*v + N*z + s;
-%                 else                %% selected ports
-%                     S = v(idx) .* conj(Y(idx, :)*v + L(idx, :)*z + i) + ...
-%                         M(idx, :)*v + N(idx, :)*z + s(idx);
-%                 end
-%                 if nargout > 1
-%                 end
-%             end
-%         end
-
         function [S, Sv1, Sv2, Szr, Szi] = port_inj_power(obj, x, sysx, idx)
             % S = obj.port_inj_power(x, sysx)
             % S = obj.port_inj_power(x, sysx, idx)
@@ -248,6 +196,125 @@ classdef ac_model < mp_model
                     end
                 end
             end
+        end
+
+        function [h, dh] = port_apparent_power_lim_fcn(obj, x, asm, idx, hmax)
+            %% branch squared apparent power flow constraints
+            x_ = asm.x2x_(x);           %% convert real to complex x
+
+            %% get port power injections with derivatives
+            if nargout > 1
+                [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1, idx);
+                Sx = [Sv1 Sv2 Szr Szi];
+                n = length(S);
+                dS = spdiags(S, 0, n, n);
+                dh = 2 * (real(dS) * real(Sx) + imag(dS) * imag(Sx));
+            else
+                S = obj.port_inj_power(x, 1, idx);
+            end
+            h = conj(S) .* S - hmax;
+        end
+
+        function [h, dh] = port_active_power_lim_fcn(obj, x, asm, idx, hmax)
+            %% branch active power flow constraints
+            x_ = asm.x2x_(x);           %% convert real to complex x
+
+            %% get port power injections with derivatives
+            if nargout > 1
+                [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1, idx);
+                P = real(S);
+                dh = real([Sv1 Sv2 Szr Szi]);
+            else
+                P = real(obj.port_inj_power(x, 1, idx));
+            end
+            h = P - hmax;
+        end
+
+        function [h, dh] = port_active_power2_lim_fcn(obj, x, asm, idx, hmax)
+            %% branch squared active power flow constraints
+            x_ = asm.x2x_(x);           %% convert real to complex x
+
+            %% get port power injections with derivatives
+            if nargout > 1
+                [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1, idx);
+                Sx = [Sv1 Sv2 Szr Szi];
+                P = real(S);
+                n = length(S);
+                dP = spdiags(P, 0, n, n);
+                dh = 2 * real(dP) * real(Sx);
+            else
+                P = real(obj.port_inj_power(x, 1, idx));
+            end
+            h = P .* P - hmax;
+        end
+
+        function [h, dh] = port_current_lim_fcn(obj, x, asm, idx, hmax)
+            %% branch squared current constraints
+            x_ = asm.x2x_(x);           %% convert real to complex x
+
+            %% get port current injections with derivatives
+            if nargout > 1
+                [I, Iv1, Iv2, Izr, Izi] = obj.port_inj_current(x_, 1, idx);
+                Ix = [Iv1 Iv2 Izr Izi];
+                n = length(I);
+                dI = spdiags(I, 0, n, n);
+                dh = 2 * (real(dI) * real(Ix) + imag(dI) * imag(Ix));
+            else
+                I = obj.port_inj_power(x, 1, idx);
+            end
+            h = conj(I) .* I - hmax;
+        end
+
+        function d2H = port_apparent_power_lim_hess(obj, x, lam, asm, idx)
+            %% branch squared apparent power flow Hessian
+            x_ = asm.x2x_(x);           %% convert real to complex x
+            nlam = length(lam);
+
+            [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1, idx);
+            n = length(S);
+            dSc = spdiags(conj(S), 0, n, n);
+            dlam = spdiags(lam, 0, nlam, nlam);
+            Sx = [Sv1 Sv2 Szr Szi];
+            
+            d2H = 2 * real( obj.port_inj_power_hess(x_, dSc * lam, 1, idx) + ...
+                        Sx.' * dlam * conj(Sx) );
+        end
+
+        function d2H = port_active_power_lim_hess(obj, x, lam, asm, idx)
+            %% branch active power flow Hessian
+            x_ = asm.x2x_(x);           %% convert real to complex x
+
+            d2H = real( obj.port_inj_power_hess(x_, lam, 1, idx) );
+        end
+
+        function d2H = port_active_power2_lim_hess(obj, x, lam, asm, idx)
+            %% branch squared active power flow Hessian
+            x_ = asm.x2x_(x);           %% convert real to complex x
+            nlam = length(lam);
+
+            [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1, idx);
+            n = length(S);
+            dP = spdiags(real(S), 0, n, n);
+            dlam = spdiags(lam, 0, nlam, nlam);
+            Px = real([Sv1 Sv2 Szr Szi]);
+            
+            d2H = 2 * real( obj.port_inj_power_hess(x_, dP * lam, 1, idx) + ...
+                        Px.' * dlam * Px );
+        end
+
+        function d2H = port_current_lim_hess(obj, x, lam, asm, idx)
+            %% branch squared current Hessian
+            x_ = asm.x2x_(x);           %% convert real to complex x
+            nlam = length(lam);
+
+            [I, Iv1, Iv2, Izr, Izi] = obj.port_inj_current(x_, 1, idx);
+            n = length(I);
+            dIc = spdiags(conj(I), 0, n, n);
+            dlam = spdiags(lam, 0, nlam, nlam);
+            Ix = [Iv1 Iv2 Izr Izi];
+            
+            d2H = 2 * real( obj.port_inj_power_hess(x_, dIc * lam, 1, idx) + ...
+                        Ix.' * dlam * conj(Ix) );
         end
     end     %% methods
 end         %% classdef
