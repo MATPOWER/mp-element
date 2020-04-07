@@ -1,7 +1,7 @@
-classdef acsp_bus < mp_bus & acsp_model
+classdef acp_bus < mp_bus & acp_model
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -14,7 +14,7 @@ classdef acsp_bus < mp_bus & acsp_model
     
     methods
         %% constructor
-        function obj = acsp_bus(varargin)
+        function obj = acp_bus(varargin)
             obj@mp_bus(varargin{:});
         end
 

@@ -46,12 +46,12 @@ classdef ac_model < mp_model
     end
 
     methods
-%         function name = model_name(obj)
-%             name = 'AC model';
-%         end
-%         function tag = model_tag(obj)
-%             tag = 'ac';
-%         end
+        function name = model_name(obj)
+            name = 'AC model';
+        end
+        function tag = model_tag(obj)
+            tag = 'ac';
+        end
         function params = model_params(obj)
            params = {'Y', 'L', 'M', 'N', 'i', 's'};
         end

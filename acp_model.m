@@ -26,6 +26,12 @@ classdef acp_model < ac_model
 %     end
 
     methods
+        function name = model_name(obj)
+            name = 'AC-polar model';
+        end
+        function tag = model_tag(obj)
+            tag = 'acp';
+        end
         function vtypes = model_vvars(obj)
             vtypes = {'va', 'vm'};
         end

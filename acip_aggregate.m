@@ -1,4 +1,4 @@
-classdef acsp_aggregate < acp_aggregate% & acsp_model
+classdef acip_aggregate < acp_aggregate% & acip_model
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -15,7 +15,7 @@ classdef acsp_aggregate < acp_aggregate% & acsp_model
     
     methods
         %% constructor
-        function obj = acsp_aggregate(varargin)
+        function obj = acip_aggregate(varargin)
             obj@acp_aggregate(varargin{:});
             obj.element_classes = ...
                 { @acp_bus, @ac_gen, @ac_load, @acp_branch @ac_shunt };
@@ -28,9 +28,9 @@ classdef acsp_aggregate < acp_aggregate% & acsp_model
         function add_opf_node_balance_constraints(obj, om)
             %% power balance constraints
             nn = obj.node.N;            %% number of nodes
-            fcn_mis = @(x)opf_power_balance_fcn(obj, x);
-            hess_mis = @(x, lam)opf_power_balance_hess(obj, x, lam);
-            om.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
+            fcn_mis = @(x)opf_current_balance_fcn(obj, x);
+            hess_mis = @(x, lam)opf_current_balance_hess(obj, x, lam);
+            om.add_nln_constraint({'rImis', 'iImis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
     end     %% methods
 end         %% classdef

@@ -3,7 +3,7 @@ classdef ac_aggregate < mp_aggregate% & ac_model
 %             implicitly assumed to be subclasses of ac_model as well
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -40,7 +40,26 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             obj.s = obj.stack_vector_params('s');
         end
 
-        function [G, Gv1, Gv2, Gzr, Gzi] = nodal_power_balance(obj, x_)
+        function [G, Gv1, Gv2, Gzr, Gzi] = nodal_complex_current_balance(obj, x_)
+            %% node incidence matrix
+            C = obj.getC();
+
+            %% get port current injections with derivatives
+            if nargout > 1
+                [I, Iv1, Iv2, Izr, Izi] = obj.port_inj_current(x_, 1);
+                Gv1 = C * Iv1;      %% Gva or Gvr
+                Gv2 = C * Iv2;      %% Gvm or Gvi
+                Gzr = C * Izr;
+                Gzi = C * Izi;
+            else
+                I = obj.port_inj_current(x, 1);
+            end
+
+            %% nodal current balance
+            G = C * I;
+        end
+
+        function [G, Gv1, Gv2, Gzr, Gzi] = nodal_complex_power_balance(obj, x_)
             %% node incidence matrix
             C = obj.getC();
 
@@ -59,15 +78,29 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             G = C * S;
         end
 
+        function [g, dg] = opf_current_balance_fcn(obj, x)
+            x_ = obj.x2x_(x);           %% convert real to complex x
+            if nargout > 1
+                [G, Gv1, Gv2, Gzr, Gzi] = obj.nodal_complex_current_balance(x_);
+                Gx = [Gv1 Gv2 Gzr Gzi];
+                dg = [  real(Gx);       %% Re{I} mismatch w.r.t v1, v2, zr, zi
+                        imag(Gx)    ];  %% Im{I} mismatch w.r.t v1, v2, zr, zi
+            else
+                G = obj.nodal_complex_current_balance(x_);
+            end
+            g = [ real(G);              %% real current mismatch
+                  imag(G) ];            %% imaginary current mismatch
+        end
+
         function [g, dg] = opf_power_balance_fcn(obj, x)
             x_ = obj.x2x_(x);           %% convert real to complex x
             if nargout > 1
-                [G, Gv1, Gv2, Gzr, Gzi] = obj.nodal_power_balance(x_);
+                [G, Gv1, Gv2, Gzr, Gzi] = obj.nodal_complex_power_balance(x_);
                 Gx = [Gv1 Gv2 Gzr Gzi];
                 dg = [  real(Gx);       %% P mismatch w.r.t v1, v2, zr, zi
                         imag(Gx)    ];  %% Q mismatch w.r.t v1, v2, zr, zi
             else
-                G = obj.nodal_power_balance(x_);
+                G = obj.nodal_complex_power_balance(x_);
             end
             g = [ real(G);              %% active power (P) mismatch
                   imag(G) ];            %% reactive power (Q) mismatch
