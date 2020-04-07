@@ -4,7 +4,7 @@ classdef ac_model < mp_model
 %   from both MP_ELEMENT and MP_MODEL.
 %
 %   Subclass of MP_MODEL.
-%   MP_MODEL provides propoerties and methods related to the specific
+%   MP_MODEL provides properties and methods related to the specific
 %   model and formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   AC_MODEL defines:
@@ -26,7 +26,7 @@ classdef ac_model < mp_model
 %                        {'Y', 'L', 'M', 'N', 'i', 's'}
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.

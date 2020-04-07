@@ -1,10 +1,10 @@
 classdef acp_model < ac_model
-%ACP_MODEL  MATPOWER Model class for AC polar models.
+%ACP_MODEL  MATPOWER Model class for AC polar voltage models.
 %   Each concrete MATPOWER Element class must inherit, at least indirectly,
 %   from both MP_ELEMENT and MP_MODEL.
 %
 %   Subclass of AC_MODEL.
-%   MP_MODEL provides propoerties and methods related to the specific
+%   MP_MODEL provides properties and methods related to the specific
 %   model and formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   Properties
@@ -15,7 +15,7 @@ classdef acp_model < ac_model
 %       model_tag() - returns string w/short label for model/formulation ('acp')
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.

@@ -3,7 +3,7 @@ classdef mp_model < handle
 %   Each concrete MATPOWER Element class must inherit, at least indirectly,
 %   from both MP_ELEMENT and MP_MODEL.
 %
-%   MP_MODEL provides propoerties and methods related to the specific
+%   MP_MODEL provides properties and methods related to the specific
 %   model and formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   Properties
