@@ -14,13 +14,6 @@ classdef mp_element < handle
 %           where D{j} is for Z variable j
 %
 %   Methods
-%       constructor - should be called explicitly without args at top of
-%                     sub-class constructors
-%           mpe = mp_element(mpc)
-%           mpe = mp_element(other object)
-%       init() - called automatically by constructor with same args, should
-%           be called explicitly by sub-class constructor if called with args
-%           mpe.init(...)
 %       add_nodes() - add node, voltage variables, and node to element ID mappings
 %       add_states() - add state, state variables
 %           
@@ -81,24 +74,6 @@ classdef mp_element < handle
     end
     
     methods
-        %% constructor
-        %% subclass constructor should be identical (update parent class name)
-        function obj = mp_element(varargin)
-%             fprintf('--> mp_element (%d args)\n', nargin);
-            if nargin > 0
-                s = varargin{1};
-                if isa(s, 'mp_element')         %% copy another object
-                    props = fieldnames(s);
-                    for k = 1:length(props)
-                        obj.(props{k}) = s.(props{k});
-                    end
-                elseif ~isstruct(s) || ~isfield(s, 'bus')   %% check MPC
-                    error('@mp_element/mp_element: input must be an ''mp_element'' object or MPC');
-                end
-            end
-%             fprintf('<-- mp_element (%d args)\n', nargin);
-        end
-
         function nk = count(obj, mpc)
             if isfield(mpc, obj.mpc_field) && ~isempty(mpc.(obj.mpc_field))
                 nk = size(mpc.(obj.mpc_field), 1);

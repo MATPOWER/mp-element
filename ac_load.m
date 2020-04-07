@@ -13,11 +13,6 @@ classdef ac_load < mp_load & ac_model
 %     end
 
     methods
-        %% constructor
-        function obj = ac_load(varargin)
-            obj@mp_load(varargin{:});
-        end
-
         function k = load_bus(obj, mpc)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...

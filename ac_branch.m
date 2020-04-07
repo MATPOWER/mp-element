@@ -13,11 +13,6 @@ classdef ac_branch < mp_branch% & ac_model
 %     end
     
     methods
-        %% constructor
-        function obj = ac_branch(varargin)
-            obj@mp_branch(varargin{:});
-        end
-
         function obj = build_params(obj, asm, mpc)
             build_params@mp_branch(obj, asm, mpc);  %% call parent
             define_constants;

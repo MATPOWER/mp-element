@@ -8,14 +8,4 @@ classdef acp_branch < ac_branch & acp_model
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%     properties
-%         name = 'branch';
-%     end
-    
-    methods
-        %% constructor
-        function obj = acp_branch(varargin)
-            obj@ac_branch(varargin{:});
-        end
-    end     %% methods
 end         %% classdef

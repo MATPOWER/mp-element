@@ -14,8 +14,8 @@ classdef mp_gizmo < mp_element
     
     methods
         %% constructor
-        function obj = mp_gizmo(varargin)
-            obj@mp_element(varargin{:});
+        function obj = mp_gizmo()
+            obj@mp_element();
             obj.name = 'gizmo';
             obj.mpc_field = 'gizmo';
             obj.np = 3;             %% this is a 3 port element

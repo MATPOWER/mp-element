@@ -14,8 +14,8 @@ classdef mp_branch < mp_element
     
     methods
         %% constructor
-        function obj = mp_branch(varargin)
-            obj@mp_element(varargin{:});
+        function obj = mp_branch()
+            obj@mp_element();
             obj.name = 'branch';
             obj.mpc_field = 'branch';
             obj.np = 2;             %% this is a 2 port element

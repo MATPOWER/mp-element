@@ -10,8 +10,8 @@ classdef acps_test_aggregate < acps_aggregate
 
     methods
         %% constructor
-        function obj = acps_test_aggregate(varargin)
-            obj@acps_aggregate(varargin{:});
+        function obj = acps_test_aggregate()
+            obj@acps_aggregate();
             obj.element_classes{end+1} = @ac_gizmo;
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager

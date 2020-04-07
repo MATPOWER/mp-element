@@ -13,11 +13,6 @@ classdef dc_bus < mp_bus & dc_model
 %     end
     
     methods
-        %% constructor
-        function obj = dc_bus(varargin)
-            obj@mp_bus(varargin{:});
-        end
-
         function obj = add_vvars(obj, asm, mpc, idx)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...

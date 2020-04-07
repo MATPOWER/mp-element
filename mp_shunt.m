@@ -14,8 +14,8 @@ classdef mp_shunt < mp_element
 
     methods
         %% constructor
-        function obj = mp_shunt(varargin)
-            obj@mp_element(varargin{:});
+        function obj = mp_shunt()
+            obj@mp_element();
             obj.name = 'shunt';
             obj.mpc_field = 'bus';
             obj.np = 1;             %% this is a 1 port element

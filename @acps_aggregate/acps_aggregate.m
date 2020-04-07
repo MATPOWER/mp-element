@@ -14,11 +14,10 @@ classdef acps_aggregate < acp_aggregate% & acps_model
 %     end
     
     methods
-        %% constructor
-        function obj = acps_aggregate(varargin)
-            obj@acp_aggregate(varargin{:});
+        function obj = acps_aggregate()
+            obj@acp_aggregate();
             obj.element_classes = ...
-                { @acp_bus, @ac_gen, @ac_load, @acp_branch @ac_shunt };
+                { @acp_bus, @ac_gen, @ac_load, @acp_branch, @ac_shunt };
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager
                                         %% constructor, if not for:

@@ -16,11 +16,6 @@ classdef ac_aggregate < mp_aggregate% & ac_model
     end
     
     methods
-        %% constructor
-        function obj = ac_aggregate(varargin)
-            obj@mp_aggregate(varargin{:});
-        end
-
         function obj = def_set_types(obj)
             def_set_types@mp_aggregate(obj);        %% call parent first
             obj.set_types.zr = 'NON-VOLTAGE VARS REAL (zr)';

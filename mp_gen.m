@@ -15,8 +15,8 @@ classdef mp_gen < mp_element
     
     methods
         %% constructor
-        function obj = mp_gen(varargin)
-            obj@mp_element(varargin{:});
+        function obj = mp_gen()
+            obj@mp_element();
             obj.name = 'gen';
             obj.mpc_field = 'gen';
             obj.np = 1;             %% this is a 1 port element

@@ -14,8 +14,8 @@ classdef mp_load < mp_element
 
     methods
         %% constructor
-        function obj = mp_load(varargin)
-            obj@mp_element(varargin{:});
+        function obj = mp_load()
+            obj@mp_element();
             obj.name = 'load';
             obj.mpc_field = 'bus';
             obj.np = 1;             %% this is a 1 port element

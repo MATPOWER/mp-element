@@ -13,11 +13,6 @@ classdef dc_shunt < mp_shunt & dc_model
 %     end
 
     methods
-        %% constructor
-        function obj = dc_shunt(varargin)
-            obj@mp_shunt(varargin{:});
-        end
-
         function k = shunt_bus(obj, mpc)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...

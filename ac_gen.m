@@ -13,11 +13,6 @@ classdef ac_gen < mp_gen & ac_model
     end
     
     methods
-        %% constructor
-        function obj = ac_gen(varargin)
-            obj@mp_gen(varargin{:});
-        end
-
         function obj = add_zvars(obj, asm, mpc, idx)
             %% define constants
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...

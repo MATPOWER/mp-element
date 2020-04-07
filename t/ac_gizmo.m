@@ -13,11 +13,6 @@ classdef ac_gizmo < mp_gizmo & acp_model
 %     end
     
     methods
-        %% constructor
-        function obj = ac_gizmo(varargin)
-            obj@mp_gizmo(varargin{:});
-        end
-
         function obj = add_zvars(obj, asm, mpc, idx)
             nk = obj.nk;
             switch idx{:}

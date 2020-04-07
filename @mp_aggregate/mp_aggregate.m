@@ -13,7 +13,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
 
     properties
         element_classes = {};   %% classes for individual element types
-                                %% filled in by subclass init()
+                                %% filled in by subclass constructor
         mpe_list = {};          %% cell array of mp_element objects
         mpe_idx  = struct();    %% key = element name, val = index into mpe_list
         nv = 0;                 %% total number of (real) v variables
@@ -23,15 +23,13 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
     
     methods
         %% constructor
-        function obj = mp_aggregate(varargin)
-%             fprintf('--> mp_aggregate (%d args)\n', nargin);
-            obj@mp_element(varargin{:});
+        function obj = mp_aggregate()
+            obj@mp_element();
             obj.name = 'aggregate';
             obj.mpc_field = '';
             obj.np = 0;     %% unknown number of ports at this point, init to 0
             obj.nk = 1;
             obj.nz = 0;     %% unknown number of z vars at this point, init to 0
-%             fprintf('<-- mp_aggregate (%d args)\n', nargin);
         end
 
         function obj = create_model(obj, mpc)
