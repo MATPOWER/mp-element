@@ -5,7 +5,7 @@ mpopt = mpoption('out.all', 0, 'verbose', 2);
 % dc = dc_aggregate().create_model(mpc);
 % 
 % mpc = ext2int(runpf(loadcase('t_case9_opfv2'), mpopt));
-% ac = acsp_aggregate().create_model(mpc);
+% ac = acps_aggregate().create_model(mpc);
 
 % mpc = ext2int(loadcase('t_case9_opfv2'));
 mpc = ext2int(loadcase('t_case9_gizmo'));
@@ -16,7 +16,7 @@ mpc = ext2int(loadcase('t_case9_gizmo'));
 % mpc.branch(4, RATE_A) = 80;
 % mpc = ext2int(mpc);
 
-ac = acsp_aggregate().create_model(mpc);
+ac = acps_aggregate().create_model(mpc);
 
 [x, success, i] = ac.solve_power_flow(mpc, mpopt);
 [x, success, i] = ac.solve_opf(mpc, mpopt);
@@ -24,7 +24,7 @@ ac = acsp_aggregate().create_model(mpc);
 
 % mpc = ext2int(loadcase('t_case9_gizmo'));
 % mpc = rmfield(mpc, 'order');
-ac = acsp_test_aggregate().create_model(mpc);
+ac = acps_test_aggregate().create_model(mpc);
 
 [x, success, i] = ac.solve_power_flow(mpc, mpopt);
 [x, success, i] = ac.solve_opf(mpc, mpopt);

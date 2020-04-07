@@ -29,7 +29,7 @@ mpopt = mpoption('out.all', 0, 'verbose', 0);
 %% create aggregate system object
 mpc = ext2int(loadcase(casefile));
 mpc = rmfield(mpc, 'order');
-ac = acsp_test_aggregate().create_model(mpc);
+ac = acps_test_aggregate().create_model(mpc);
 C = ac.getC();
 D = ac.getD();
 np = ac.np;

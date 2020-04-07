@@ -1,4 +1,4 @@
-classdef acsp_aggregate < acp_aggregate% & acsp_model
+classdef acps_aggregate < acp_aggregate% & acps_model
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -15,7 +15,7 @@ classdef acsp_aggregate < acp_aggregate% & acsp_model
     
     methods
         %% constructor
-        function obj = acsp_aggregate(varargin)
+        function obj = acps_aggregate(varargin)
             obj@acp_aggregate(varargin{:});
             obj.element_classes = ...
                 { @acp_bus, @ac_gen, @ac_load, @acp_branch @ac_shunt };

@@ -11,8 +11,8 @@ classdef acp_model < ac_model
 %       (model parameters inherited from AC_MODEL)
 %
 %   Methods
-%       model_name() - returns string w/name of model/formulation ('AC-power-polar model')
-%       model_tag() - returns string w/short label for model/formulation ('acsp')
+%       model_name() - returns string w/name of model/formulation ('AC-polar model')
+%       model_tag() - returns string w/short label for model/formulation ('acp')
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)

@@ -197,10 +197,10 @@ Pg2 = gen.port_inj_power(x, 1, 2);
 t_is(Pg2, ePg(2), 12, t);
 
 %%-----  AC model  -----
-t = 'acsp_aggregate() : ';
-ac = acsp_aggregate();
+t = 'acps_aggregate() : ';
+ac = acps_aggregate();
 t_ok(strcmp(ac.name, 'aggregate'), [t 'name']);
-t_ok(strcmp(class(ac), 'acsp_aggregate'), [t 'class']);
+t_ok(strcmp(class(ac), 'acps_aggregate'), [t 'class']);
 t_ok(strcmp(ac.find_model_class(), 'acp_model'), [t 'model class']);
 t_ok(strcmp(ac.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(ac.model_tag, 'acp'), [t 'model tag']);
@@ -442,7 +442,7 @@ t_is(Izi1, Izi([3;2;1], :), 12, [t 'Izi']);
 t = '[x, success, i] = ac.solve_power_flow(mpc, mpopt) : ';
 mpc = ext2int(loadcase(casefile));
 % mpc = rmfield(mpc, 'order');
-ac = acsp_aggregate().create_model(mpc);
+ac = acps_aggregate().create_model(mpc);
 [x, success, i] = ac.solve_power_flow(mpc, mpopt);
 ex = [0.168751367 0.083270936 -0.042003860 -0.070114489 0.033608089 0.010847998 0.066307156 -0.075920663 0.987006852 0.975472177 1.003375436 0.985644881 0.996185245 0.957621040]';
 t_is(x, ex, 8, [t 'x']);
@@ -450,10 +450,10 @@ t_is(success, 1, 12, [t 'success']);
 t_is(i, 4, 12, [t 'i']);
 
 %%-----  AC gizmo test model  -----
-t = 'acsp_test_aggregate() : ';
-ac = acsp_test_aggregate();
+t = 'acps_test_aggregate() : ';
+ac = acps_test_aggregate();
 t_ok(strcmp(ac.name, 'aggregate'), [t 'name']);
-t_ok(strcmp(class(ac), 'acsp_test_aggregate'), [t 'class']);
+t_ok(strcmp(class(ac), 'acps_test_aggregate'), [t 'class']);
 t_ok(strcmp(ac.find_model_class(), 'acp_model'), [t 'model class']);
 t_ok(strcmp(ac.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(ac.model_tag, 'acp'), [t 'model tag']);
@@ -489,7 +489,7 @@ npq = length(pq);
 % Qg = mpc.gen(:, QG)
 mpc.gen(ref, PG) = 1.7165997325858 * mpc.baseMVA;
 mpc.gen(:, QG) = [0.2570733353840 0.0079004398259 -0.1749046999314].' * mpc.baseMVA;
-ac = acsp_test_aggregate().create_model(mpc);
+ac = acps_test_aggregate().create_model(mpc);
 % mpopt = mpoption(mpopt, 'verbose', 2);
 [x, success, i] = ac.solve_power_flow(mpc, mpopt);
 ex = [-0.073574123 -0.093174800 -0.093829293 -0.152896476 -0.140800302 -0.212976785 -0.145568305 -0.178427530 0.994516530 0.979478479 1.001167971 0.981251110 0.997410844 0.977848154]';
@@ -500,7 +500,7 @@ t_is(i, 4, 12, [t 'i']);
 t = 'ac.create_model(mpc) : ';
 mpc.bus([pv; pq], VA) = x(1:npv+npq) * 180/pi;
 mpc.bus(pq, VM) = x(npv+npq+(1:npq));
-ac = acsp_test_aggregate().create_model(mpc);
+ac = acps_test_aggregate().create_model(mpc);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);
 t_is(ac.nz, 7, 12, [t 'nz']);

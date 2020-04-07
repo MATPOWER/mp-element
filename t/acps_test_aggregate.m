@@ -1,4 +1,4 @@
-classdef acsp_test_aggregate < acsp_aggregate
+classdef acps_test_aggregate < acps_aggregate
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -10,8 +10,8 @@ classdef acsp_test_aggregate < acsp_aggregate
 
     methods
         %% constructor
-        function obj = acsp_test_aggregate(varargin)
-            obj@acsp_aggregate(varargin{:});
+        function obj = acps_test_aggregate(varargin)
+            obj@acps_aggregate(varargin{:});
             obj.element_classes{end+1} = @ac_gizmo;
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager
