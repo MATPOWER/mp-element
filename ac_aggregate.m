@@ -78,6 +78,22 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             G = C * S;
         end
 
+        function d2G = nodal_complex_current_balance_hess(obj, x_, lam)
+            %% node incidence matrix
+            Ct = obj.getC('tr');
+
+            %% get port power injection hessians
+            d2G = obj.port_inj_current_hess(x_, Ct * lam);
+        end
+
+        function d2G = nodal_complex_power_balance_hess(obj, x_, lam)
+            %% node incidence matrix
+            Ct = obj.getC('tr');
+
+            %% get port power injection hessians
+            d2G = obj.port_inj_power_hess(x_, Ct * lam);
+        end
+
         function [g, dg] = opf_current_balance_fcn(obj, x)
             x_ = obj.x2x_(x);           %% convert real to complex x
             if nargout > 1
@@ -104,6 +120,30 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             end
             g = [ real(G);              %% active power (P) mismatch
                   imag(G) ];            %% reactive power (Q) mismatch
+        end
+
+        function d2G = opf_current_balance_hess(obj, x, lam)
+            x_ = obj.x2x_(x);           %% convert real to complex x
+            nlam = length(lam) / 2;
+            lamIr = lam(1:nlam);
+            lamIi = lam((1:nlam)+nlam);
+
+            d2Gr = obj.nodal_complex_current_balance_hess(x_, lamIr);
+            d2Gi = obj.nodal_complex_current_balance_hess(x_, lamIi);
+
+            d2G = real(d2Gr) + imag(d2Gi);
+        end
+
+        function d2G = opf_power_balance_hess(obj, x, lam)
+            x_ = obj.x2x_(x);           %% convert real to complex x
+            nlam = length(lam) / 2;
+            lamP = lam(1:nlam);
+            lamQ = lam((1:nlam)+nlam);
+
+            d2Gr = obj.nodal_complex_power_balance_hess(x_, lamP);
+            d2Gi = obj.nodal_complex_power_balance_hess(x_, lamQ);
+
+            d2G = real(d2Gr) + imag(d2Gi);
         end
     end     %% methods
 end         %% classdef
