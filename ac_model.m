@@ -90,7 +90,6 @@ classdef ac_model < mp_model
                 %% intermediate terms
                 n  = length(v);     %% number of all port voltages
                 ni = length(vi);    %% number of selected port voltages
-                diagv = sparse(1:n, 1:n, v, n, n);
                 invdiagvic = sparse(1:ni, 1:ni, 1./conj(vi), ni, ni);
                 if isempty(idx)     %% all ports
                     diagSlincJ = sparse(1:n, 1:n, conj(Slin), n, n);
@@ -99,7 +98,7 @@ classdef ac_model < mp_model
                 end
                 
                 [Iv1, Iv2] = obj.port_inj_current_jac( ...
-                        n, v, Y, M, diagv, invdiagvic, diagSlincJ);
+                        n, v, Y, M, invdiagvic, diagSlincJ);
 
                 if nargout >= 4
                     %% linear current term

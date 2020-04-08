@@ -1,5 +1,5 @@
-function obj = t_acp_port_inj_current(quiet)
-%T_ACP_PORT_INJ_CURRENT  Tests of port_inj_current() derivatives wrt polar V.
+function obj = t_acc_port_inj_current(quiet)
+%T_ACC_PORT_INJ_CURRENT  Tests of port_inj_current() derivatives wrt cartesian V.
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -29,7 +29,7 @@ mpopt = mpoption('out.all', 0, 'verbose', 0);
 %% create aggregate system object
 mpc = ext2int(loadcase(casefile));
 mpc = rmfield(mpc, 'order');
-ac = acps_test_aggregate().create_model(mpc);
+ac = accs_test_aggregate().create_model(mpc);
 C = ac.getC();
 D = ac.getD();
 np = ac.np;
@@ -54,8 +54,8 @@ npvq = npv + npq;
 
 %% construct initial system v1, v2, zr, zi, v, z, x
 t = 'construct initial system v, z';
-sv1 = ac.params_var('va');
-sv2 = ac.params_var('vm');
+sv1 = ac.params_var('vr');
+sv2 = ac.params_var('vi');
 szr = ac.params_var('zr');
 szi = ac.params_var('zi');
 
@@ -66,15 +66,15 @@ szi = ac.params_var('zi');
 % sv2(pq)       = xpf(npvq+(1:npq));
 
 %% randomize voltages a bit
-sv1 = sv1 + (0.6*rand(size(sv1)) - 0.3);    sv1(ref) = 0;
-sv2 = sv2 + (0.06*rand(size(sv1)) - 0.03);  sv2(ref) = 1;
+sv1 = sv1 + (0.06*rand(size(sv1)) - 0.03);  %sv1(ref) = 0;
+sv2 = sv2 + (0.06*rand(size(sv1)) - 0.03);  %sv2(ref) = 1;
 
 %% adjust values of z
 szr(1) = 0.67;
 szi(1:3) = [0.1; 0.2; 0.3];
 
 %% initialize v, z, x
-sv = sv2 .* exp(1j * sv1);
+sv = sv1 + 1j * sv2;
 sz = szr + 1j * szi;
 sx = [sv; sz];
 nx = length(sx);
@@ -83,7 +83,7 @@ t_is(nx, nv+nz, 12, t);
 %%-----  tests using system voltages  -----
 t = 'ac.port_inj_current(x) : ';
 v10 = sv1; v20 = sv2; zr0 = szr; zi0 = szi; %% init w/ system v, z components
-v0 = v20 .* exp(1j * v10);
+v0 = v10 + 1j * v20;
 z0 = zr0 + 1j * zi0;
 x0 = [v0; z0];
 Nv = length(v0);
@@ -95,7 +95,7 @@ II0 = ac.port_inj_current(x0*ones(1,Nv));
 t_is(II0, I0*ones(1,Nv), 12, [t 'matrix input']);
 
 %% Iv1
-v = (v20*ones(1,Nv)) .* exp(1j * (v10*ones(1,Nv) + dx*eye(Nv,Nv)));
+v = v10*ones(1,Nv) + dx*eye(Nv,Nv) + 1j * v20*ones(1,Nv);
 z = (zr0 + 1j * zi0) * ones(1,Nv);
 x = [v; z];
 II = ac.port_inj_current(x);
@@ -103,7 +103,7 @@ num_Iv1b = (II - II0) / dx;
 t_is(full(Iv1), num_Iv1b, 6, [t 'Iv1']);
 
 %% Iv2
-v = (v20*ones(1,Nv) + dx*eye(Nv,Nv)) .* exp(1j * (v10*ones(1,Nv)));
+v = v10*ones(1,Nv) + 1j * (v20*ones(1,Nv) + dx*eye(Nv,Nv));
 z = (zr0 + 1j * zi0) * ones(1,Nv);
 x = [v; z];
 II = ac.port_inj_current(x);
@@ -113,7 +113,7 @@ t_is(full(Iv2), num_Iv2b, 6, [t 'Iv2']);
 II0 = ac.port_inj_current(x0*ones(1,Nz));
 
 %% Izr
-v = (v20*ones(1,Nz)) .* exp(1j * (v10*ones(1,Nz)));
+v = v10*ones(1,Nz) + 1j * v20*ones(1,Nz);
 z = (zr0 * ones(1,Nz) + dx*eye(Nz,Nz)) + 1j * (zi0 * ones(1,Nz));
 x = [v; z];
 II = ac.port_inj_current(x);
@@ -121,7 +121,7 @@ num_Izrb = (II - II0) / dx;
 t_is(full(Izr), num_Izrb, 6, [t 'Izr']);
 
 %% Izi
-v = (v20*ones(1,Nz)) .* exp(1j * (v10*ones(1,Nz)));
+v = v10*ones(1,Nz) + 1j * v20*ones(1,Nz);
 z = (zr0 * ones(1,Nz)) + 1j * (zi0 * ones(1,Nz) + dx*eye(Nz,Nz));
 x = [v; z];
 II = ac.port_inj_current(x);
@@ -168,13 +168,13 @@ H = ac.port_inj_current_hess(x0, lam);
 numH = zeros(2*nx, 2*nx);
 for k = 1:Nv
     v1 = v10; v1(k) = v1(k) + dx;
-    v = v20 .* exp(1j * v1);
+    v = v1 + 1j * v20;
     x = [v; z0];
     [I0p, Iv1p, Iv2p, Izrp, Izip] = ac.port_inj_current(x);
     numH(:, k) = ([Iv1p, Iv2p, Izrp, Izip]- [Iv1, Iv2, Izr, Izi]).' * lam / dx;
 
     v2 = v20; v2(k) = v2(k) + dx;
-    v = v2 .* exp(1j * v10);
+    v = v10 + 1j * v2;
     x = [v; z0];
     [I0p, Iv1p, Iv2p, Izrp, Izip] = ac.port_inj_current(x);
     numH(:, Nv+k) = ([Iv1p, Iv2p, Izrp, Izip]- [Iv1, Iv2, Izr, Izi]).' * lam / dx;
@@ -197,7 +197,7 @@ t_is(full(H), numH, 5, [t 'numerical Hessian']);
 %%-----  tests using port voltages  -----
 t = 'ac.port_inj_current(x, 0) : ';
 v10 = C'*sv1; v20 = C'*sv2; zr0 = D'*szr; zi0 = D'*szi; %% init w/ port v, z components
-v0 = v20 .* exp(1j * v10);
+v0 = v10 + 1j * v20;
 z0 = zr0 + 1j * zi0;
 x0 = [v0; z0];
 Nv = length(v0);
@@ -209,7 +209,7 @@ II0 = ac.port_inj_current(x0*ones(1,Nv), 0);
 t_is(II0, I0*ones(1,Nv), 12, [t 'matrix input']);
 
 %% Iv1
-v = (v20*ones(1,Nv)) .* exp(1j * (v10*ones(1,Nv) + dx*eye(Nv,Nv)));
+v = v10*ones(1,Nv) + dx*eye(Nv,Nv) + 1j * v20*ones(1,Nv);
 z = (zr0 + 1j * zi0) * ones(1,Nv);
 x = [v; z];
 II = ac.port_inj_current(x, 0);
@@ -217,7 +217,7 @@ num_Iv1b = (II - II0) / dx;
 t_is(full(Iv1), num_Iv1b, 6, [t 'Iv1']);
 
 %% Iv2
-v = (v20*ones(1,Nv) + dx*eye(Nv,Nv)) .* exp(1j * (v10*ones(1,Nv)));
+v = v10*ones(1,Nv) + 1j * (v20*ones(1,Nv) + dx*eye(Nv,Nv));
 z = (zr0 + 1j * zi0) * ones(1,Nv);
 x = [v; z];
 II = ac.port_inj_current(x, 0);
@@ -227,7 +227,7 @@ t_is(full(Iv2), num_Iv2b, 6, [t 'Iv2']);
 II0 = ac.port_inj_current(x0*ones(1,Nz), 0);
 
 %% Izr
-v = (v20*ones(1,Nz)) .* exp(1j * (v10*ones(1,Nz)));
+v = v10*ones(1,Nz) + 1j * v20*ones(1,Nz);
 z = (zr0 * ones(1,Nz) + dx*eye(Nz,Nz)) + 1j * (zi0 * ones(1,Nz));
 x = [v; z];
 II = ac.port_inj_current(x, 0);
@@ -235,7 +235,7 @@ num_Izrb = (II - II0) / dx;
 t_is(full(Izr), num_Izrb, 6, [t 'Izr']);
 
 %% Izi
-v = (v20*ones(1,Nz)) .* exp(1j * (v10*ones(1,Nz)));
+v = v10*ones(1,Nz) + 1j * v20*ones(1,Nz);
 z = (zr0 * ones(1,Nz)) + 1j * (zi0 * ones(1,Nz) + dx*eye(Nz,Nz));
 x = [v; z];
 II = ac.port_inj_current(x, 0);
@@ -283,13 +283,13 @@ Nx = 2*Nv+2*Nz;
 numH = zeros(Nx, Nx);
 for k = 1:Nv
     v1 = v10; v1(k) = v1(k) + dx;
-    v = v20 .* exp(1j * v1);
+    v = v1 + 1j * v20;
     x = [v; z0];
     [I0p, Iv1p, Iv2p, Izrp, Izip] = ac.port_inj_current(x, 0);
     numH(:, k) = ([Iv1p, Iv2p, Izrp, Izip]- [Iv1, Iv2, Izr, Izi]).' * lam / dx;
 
     v2 = v20; v2(k) = v2(k) + dx;
-    v = v2 .* exp(1j * v10);
+    v = v10 + 1j * v2;
     x = [v; z0];
     [I0p, Iv1p, Iv2p, Izrp, Izip] = ac.port_inj_current(x, 0);
     numH(:, Nv+k) = ([Iv1p, Iv2p, Izrp, Izip]- [Iv1, Iv2, Izr, Izi]).' * lam / dx;
