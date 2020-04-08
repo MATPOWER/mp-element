@@ -28,6 +28,8 @@ end
 %% create optimization model
 % om = opt_model();
 om = opf_model(mpc);    %% switch back to simple opt_model, if possible
-obj.add_opf_vars(obj, om, mpc, mpopt);
-obj.add_opf_constraints(obj, om, mpc, mpopt);
-obj.add_opf_costs(obj, om, mpc, mpopt);
+if obj.np ~= 0      %% skip for empty model
+    obj.add_opf_vars(obj, om, mpc, mpopt);
+    obj.add_opf_constraints(obj, om, mpc, mpopt);
+    obj.add_opf_costs(obj, om, mpc, mpopt);
+end
