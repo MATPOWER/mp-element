@@ -80,9 +80,6 @@ classdef ac_branch < mp_branch% & ac_model
             
                 om.add_nln_constraint({'Sf', 'St'}, [nl2;nl2], 0, fcn_flow, hess_flow);
             end
-
-            %% call parent
-            add_opf_constraints@mp_branch(obj, asm, om, mpc, mpopt);
         end
     end     %% methods
 end         %% classdef

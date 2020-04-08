@@ -57,8 +57,11 @@ classdef dc_branch < mp_branch & dc_model
                     {asm.va.order(:).name});
             end
 
-            %% call parent
-            add_opf_constraints@mp_branch(obj, asm, om, mpc, mpopt);
+            %% branch voltage angle difference limits
+            nb = size(mpc.bus, 1);      %% number of buses
+            [Aang, lang, uang, iang] = makeAang(mpc.baseMVA, mpc.branch, nb, mpopt);
+            om.add_lin_constraint('ang', Aang, lang, uang, {'Va'});
+            om.userdata.iang = iang;
         end
     end     %% methods
 end         %% classdef
