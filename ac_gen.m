@@ -109,7 +109,7 @@ classdef ac_gen < mp_gen & ac_model
 
             %% (quadratic) polynomial costs on Qg
             if obj.cost_poly_q.have_quad_cost
-                om.add_quad_cost('polQg', obj.cost_poly_q.Qpg, obj.cost_poly_q.cpg, obj.cost_poly_q.kpg, {'Qg'});
+                om.add_quad_cost('polQg', obj.cost_poly_q.Qqg, obj.cost_poly_q.cqg, obj.cost_poly_q.kqg, {'Qg'});
             end
 
             %% (order 3 and higher) polynomial costs on Qg
