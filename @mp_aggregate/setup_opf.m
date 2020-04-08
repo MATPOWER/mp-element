@@ -26,7 +26,8 @@ if nargin < 3
 end
 
 %% create optimization model
-om = opt_model();
+% om = opt_model();
+om = opf_model(mpc);    %% switch back to simple opt_model, if possible
 obj.add_opf_vars(obj, om, mpc, mpopt);
 obj.add_opf_constraints(obj, om, mpc, mpopt);
 obj.add_opf_costs(obj, om, mpc, mpopt);
