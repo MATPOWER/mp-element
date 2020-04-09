@@ -22,10 +22,10 @@ classdef mp_element < handle
 %       count() - returns the number of elements of this type in mpc, sets mpe.nk
 %           nk = mpe.count(mpc)
 %
-%       S = mpe.port_inj_power(x, idx)
-%       [S, dS] = mpe.port_inj_power(x, idx)
-%       I = mpe.port_inj_current(x, idx)
-%       [I, dI] = mpe.port_inj_current(x, idx)
+%       S = mpe.port_inj_power(x_, idx)
+%       [S, dS] = mpe.port_inj_power(x_, idx)
+%       I = mpe.port_inj_current(x_, idx)
+%       [I, dI] = mpe.port_inj_current(x_, idx)
 
 %       [nn, n2b, b2n] = mpe.nodes()
 %           nn  : number of nodes

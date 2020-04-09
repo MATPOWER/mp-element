@@ -29,7 +29,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             obj.mpc_field = '';
             obj.np = 0;     %% unknown number of ports at this point, init to 0
             obj.nk = 1;
-            obj.nz = 0;     %% unknown number of z vars at this point, init to 0
+            obj.nz = 0;     %% unknown number of z_ vars at this point, init to 0
         end
 
         function obj = create_model(obj, mpc)
@@ -42,7 +42,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
                     obj.mpe_list{i} = mpe;
                     obj.mpe_idx.(mpe.name) = i;
                     obj.np = obj.np + mpe.np * mpe.nk;  %% number of ports
-                    obj.nz = obj.nz + mpe.nz * mpe.nk;  %% number of z vars
+                    obj.nz = obj.nz + mpe.nz * mpe.nk;  %% number of z_ vars
                 end
             end
             

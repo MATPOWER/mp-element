@@ -41,10 +41,10 @@ va = obj.params_var('va');
 vm = obj.params_var('vm');
 zr = obj.params_var('zr');
 zi = obj.params_var('zi');
-v = vm .* exp(1j * va);
-z = zr + 1j * zi;
+v_ = vm .* exp(1j * va);
+z_ = zr + 1j * zi;
 x0 = [va([pv; pq]); vm(pq)];
 
-fcn = @(x)power_flow_equations(obj, x, va, vm, z, ref, pv, pq);
+fcn = @(x)power_flow_equations(obj, x, va, vm, z_, ref, pv, pq);
 
 [x, success, i] = newton_solver(x0, fcn, opt);

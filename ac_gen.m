@@ -115,7 +115,7 @@ classdef ac_gen < mp_gen & ac_model
             %% (order 3 and higher) polynomial costs on Qg
             if ~isempty(obj.cost_poly_q.iq3)
                 [pcost qcost] = pqcost(mpc.gencost, obj.nk);
-                cost_Qg = @(x)opf_gen_cost_fcn(x, mpc.baseMVA, qcost, obj.cost_poly_q.iq3, mpopt);
+                cost_Qg = @(xx)opf_gen_cost_fcn(xx, mpc.baseMVA, qcost, obj.cost_poly_q.iq3, mpopt);
                 om.add_nln_cost('polQg', 1, cost_Qg, {'Qg'});
             end
         end

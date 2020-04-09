@@ -37,13 +37,13 @@ classdef acp_model < ac_model
         end
 
         function [Iva, Ivm] = port_inj_current_jac(obj, ...
-                n, v, Y, M, invdiagvic, diagSlincJ)
+                n, v_, Y, M, invdiagvic, diagSlincJ)
             % [Iva, Ivm] = obj.port_inj_current_jac(...)
 
             %% intermediate terms
-            diagv = sparse(1:n, 1:n, v, n, n);
+            diagv = sparse(1:n, 1:n, v_, n, n);
             C = invdiagvic * (diagSlincJ - conj(M * diagv));
-            D = sparse(1:n, 1:n, 1 ./ abs(v), n, n);
+            D = sparse(1:n, 1:n, 1 ./ abs(v_), n, n);
 
             %% linear current term
             Ilin_vm = Y * diagv;
@@ -59,10 +59,10 @@ classdef acp_model < ac_model
             Ivm = Ilin_vm + IS_vm;
         end
 
-        function H = port_inj_current_hess(obj, x, lam, sysx, idx)
-            % H = obj.port_inj_current_hess(x, lam)
-            % H = obj.port_inj_current_hess(x, lam, sysx)
-            % H = obj.port_inj_current_hess(x, lam, sysx, idx)
+        function H = port_inj_current_hess(obj, x_, lam, sysx, idx)
+            % H = obj.port_inj_current_hess(x_, lam)
+            % H = obj.port_inj_current_hess(x_, lam, sysx)
+            % H = obj.port_inj_current_hess(x_, lam, sysx, idx)
 
             if nargin < 5
                 idx = [];
@@ -72,20 +72,20 @@ classdef acp_model < ac_model
             end
 
             [Y, M, N, s] = obj.get_params(idx, {'Y', 'M', 'N', 's'});
-            [v, z, vi] = obj.x2vz(x, sysx, idx);
+            [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
 
             %% compute linear power injections
-            if isempty(z)
-                Slin = M*v + s;
+            if isempty(z_)
+                Slin = M*v_ + s;
             else
-                Slin = M*v + N*z + s;
+                Slin = M*v_ + N*z_ + s;
             end
 
             %% intermediate terms
-            nz = length(z);
-            n  = length(v);     %% number of all port voltages
-            ni = length(vi);    %% number of selected port voltages
-            diaginvic = sparse(1:ni, 1:ni, 1 ./ conj(vi), ni, ni);
+            nz = length(z_);
+            n  = length(v_);    %% number of all port voltages
+            ni = length(vi_);   %% number of selected port voltages
+            diaginvic = sparse(1:ni, 1:ni, 1 ./ conj(vi_), ni, ni);
             if isempty(idx)     %% all ports
                 diagSlincJ = sparse(1:n, 1:n, conj(Slin), n, n);
                 dlamJ      = sparse(1:n, 1:n, lam, n, n);
@@ -95,16 +95,16 @@ classdef acp_model < ac_model
             end
 
             [Ivava, Ivavm, Ivmvm] = ...
-                obj.port_inj_current_hess_v(x, lam, v, z, diaginvic, Y, M, diagSlincJ, dlamJ);
+                obj.port_inj_current_hess_v(x_, lam, v_, z_, diaginvic, Y, M, diagSlincJ, dlamJ);
             [Ivazr, Ivazi, Ivmzr, Ivmzi] = ...
-                obj.port_inj_current_hess_vz(x, lam, v, z, diaginvic, N, dlamJ);
+                obj.port_inj_current_hess_vz(x_, lam, v_, z_, diaginvic, N, dlamJ);
 
             H = [   Ivava   Ivavm   Ivazr   Ivazi;
                     Ivavm.' Ivmvm   Ivmzr   Ivmzi;
                     Ivazr.' Ivmzr.' sparse(nz, 2*nz);
                     Ivazi.' Ivmzi.' sparse(nz, 2*nz)  ];
 
-            %% convert for system x, if necessary
+            %% convert for system x_, if necessary
             if sysx
                 C = obj.getC();
                 D = obj.getD();
@@ -118,32 +118,32 @@ classdef acp_model < ac_model
             end
         end
 
-        function [Ivava, Ivavm, Ivmvm] = port_inj_current_hess_v(obj, x, lam, v, z, diaginvic, Y, M, diagSlincJ, dlamJ)
-            % [Ivava, Ivavm, Ivmvm] = obj.port_inj_current_hess_v(x, lam)
-            % [Ivava, Ivavm, Ivmvm] = obj.port_inj_current_hess_v(x, lam, sysx)
-            % [Ivava, Ivavm, Ivmvm] = obj.port_inj_current_hess_v(x, lam, sysx, idx)
-            % [...] = obj.port_inj_current_hess_vz(x, lam, v, z, diaginvic, Y, M, diagSlincJ, dlamJ)
+        function [Ivava, Ivavm, Ivmvm] = port_inj_current_hess_v(obj, x_, lam, v_, z_, diaginvic, Y, M, diagSlincJ, dlamJ)
+            % [Ivava, Ivavm, Ivmvm] = obj.port_inj_current_hess_v(x_, lam)
+            % [Ivava, Ivavm, Ivmvm] = obj.port_inj_current_hess_v(x_, lam, sysx)
+            % [Ivava, Ivavm, Ivmvm] = obj.port_inj_current_hess_v(x_, lam, sysx, idx)
+            % [...] = obj.port_inj_current_hess_vz(x_, lam, v_, z_, diaginvic, Y, M, diagSlincJ, dlamJ)
 
             if nargin < 10
-                sysx = v;
+                sysx = v_;
                 if nargin < 5
                     idx = []
                 else
-                    idx = z;
+                    idx = z_;
                 end
                 [Y, M, N, s] = obj.get_params(idx, {'Y', 'M', 'N', 's'});
-                [v, z, vi] = obj.x2vz(x, sysx, idx);
+                [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
 
                 %% compute linear power injections
-                if isempty(z)
-                    Slin = M*v + s;
+                if isempty(z_)
+                    Slin = M*v_ + s;
                 else
-                    Slin = M*v + N*z + s;
+                    Slin = M*v_ + N*z_ + s;
                 end
 
-                n  = length(v);     %% number of all port voltages
-                ni = length(vi);    %% number of selected port voltages
-                diaginvic = sparse(1:ni, 1:ni, 1 ./ conj(vi), ni, ni);
+                n  = length(v_);    %% number of all port voltages
+                ni = length(vi_);   %% number of selected port voltages
+                diaginvic = sparse(1:ni, 1:ni, 1 ./ conj(vi_), ni, ni);
                 if isempty(idx)     %% all ports
                     diagSlincJ = sparse(1:n, 1:n, conj(Slin), n, n);
                     dlamJ      = sparse(1:n, 1:n, lam, n, n);
@@ -152,17 +152,17 @@ classdef acp_model < ac_model
                     dlamJ      = sparse(1:ni, idx, lam, ni, n);
                 end
             else
-                n  = length(v);     %% number of all port voltages
+                n  = length(v_);    %% number of all port voltages
                 ni = length(lam);
             end
 
             %% intermediate terms
-            diagv  = sparse(1:n, 1:n, v, n, n);
+            diagv  = sparse(1:n, 1:n, v_, n, n);
             A = diaginvic * diagSlincJ;
             B = diaginvic * conj(M);
             % B2 = B * conj(diagv);
             % C = A - B2;
-            D = sparse(1:n, 1:n, 1 ./ abs(v), n, n);
+            D = sparse(1:n, 1:n, 1 ./ abs(v_), n, n);
             % E = diaginvic * conj(N);
             F = dlamJ.';
             G = F * B * conj(diagv);    %% F * B2
@@ -189,37 +189,37 @@ classdef acp_model < ac_model
             Ivmvm = IS_vmvm;
         end
 
-        function [Ivazr, Ivazi, Ivmzr, Ivmzi] = port_inj_current_hess_vz(obj, x, lam, v, z, diaginvic, N, dlamJ)
-            % [Ivazr, Ivazi, Ivmzr, Ivmzi] = obj.port_inj_current_hess_vz(x, lam)
-            % [...] = obj.port_inj_current_hess_vz(x, lam, sysx)
-            % [...] = obj.port_inj_current_hess_vz(x, lam, sysx, idx)
-            % [...] = obj.port_inj_current_hess_vz(x, lam, v, z, diaginvic, N, dlamJ)
+        function [Ivazr, Ivazi, Ivmzr, Ivmzi] = port_inj_current_hess_vz(obj, x_, lam, v_, z_, diaginvic, N, dlamJ)
+            % [Ivazr, Ivazi, Ivmzr, Ivmzi] = obj.port_inj_current_hess_vz(x_, lam)
+            % [...] = obj.port_inj_current_hess_vz(x_, lam, sysx)
+            % [...] = obj.port_inj_current_hess_vz(x_, lam, sysx, idx)
+            % [...] = obj.port_inj_current_hess_vz(x_, lam, v_, z_, diaginvic, N, dlamJ)
 
             if nargin < 8
-                sysx = v;
+                sysx = v_;
                 if nargin < 5
                     idx = []
                 else
-                    idx = z;
+                    idx = z_;
                 end
                 N = obj.get_params(idx, 'N');
-                [v, z, vi] = obj.x2vz(x, sysx, idx);
+                [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
 
-                n  = length(v);     %% number of all port voltages
-                ni = length(vi);    %% number of selected port voltages
-                diaginvic = sparse(1:ni, 1:ni, 1 ./ conj(vi), ni, ni);
+                n  = length(v_);    %% number of all port voltages
+                ni = length(vi_);   %% number of selected port voltages
+                diaginvic = sparse(1:ni, 1:ni, 1 ./ conj(vi_), ni, ni);
                 if isempty(idx)     %% all ports
                     dlamJ = sparse(1:n, 1:n, lam, n, n);
                 else                %% selected ports
                     dlamJ = sparse(1:ni, idx, lam, ni, n);
                 end
             else
-                n  = length(v);     %% number of all port voltages
+                n  = length(v_);    %% number of all port voltages
                 ni = length(lam);
             end
 
             %% intermediate terms
-            D = sparse(1:n, 1:n, 1 ./ abs(v), n, n);
+            D = sparse(1:n, 1:n, 1 ./ abs(v_), n, n);
             E = diaginvic * conj(N);
             NN = dlamJ.' * E;
 
@@ -231,14 +231,14 @@ classdef acp_model < ac_model
         end
 
         function [Sva, Svm] = port_inj_power_jac(obj, ...
-                n, v, Y, M, diagv, diagvi, diagIlincJ)
+                n, v_, Y, M, diagv, diagvi, diagIlincJ)
             % [Sva, Svm] = obj.port_inj_power_jac(...)
 
             %% intermediate terms
             A = diagvi * diagIlincJ;
             B = diagvi * conj(Y);
             C = B * conj(diagv);
-            D = sparse(1:n, 1:n, 1 ./ abs(v), n, n);
+            D = sparse(1:n, 1:n, 1 ./ abs(v_), n, n);
 
             %% linear power term
             Slin_vm = M * diagv;
@@ -254,10 +254,10 @@ classdef acp_model < ac_model
             Svm = Slin_vm + SI_vm;
         end
 
-        function H = port_inj_power_hess(obj, x, lam, sysx, idx)
-            % H = obj.port_inj_power_hess(x, lam)
-            % H = obj.port_inj_power_hess(x, lam, sysx)
-            % H = obj.port_inj_power_hess(x, lam, sysx, idx)
+        function H = port_inj_power_hess(obj, x_, lam, sysx, idx)
+            % H = obj.port_inj_power_hess(x_, lam)
+            % H = obj.port_inj_power_hess(x_, lam, sysx)
+            % H = obj.port_inj_power_hess(x_, lam, sysx, idx)
 
             if nargin < 5
                 idx = [];
@@ -267,20 +267,20 @@ classdef acp_model < ac_model
             end
 
             [Y, L, M, i] = obj.get_params(idx, {'Y', 'L', 'M', 'i'});
-            [v, z, vi] = obj.x2vz(x, sysx, idx);
+            [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
 
             %% compute linear current injections
-            if isempty(z)
-                Ilin = Y*v + i;
+            if isempty(z_)
+                Ilin = Y*v_ + i;
             else
-                Ilin = Y*v + L*z + i;
+                Ilin = Y*v_ + L*z_ + i;
             end
 
             %% intermediate terms
-            nz = length(z);
-            n  = length(v);     %% number of all port voltages
-            ni = length(vi);    %% number of selected port voltages
-            diagvi = sparse(1:ni, 1:ni, vi, ni, ni);
+            nz = length(z_);
+            n  = length(v_);    %% number of all port voltages
+            ni = length(vi_);   %% number of selected port voltages
+            diagvi = sparse(1:ni, 1:ni, vi_, ni, ni);
             if isempty(idx)     %% all ports
                 diagIlincJ = sparse(1:n, 1:n, conj(Ilin), n, n);
                 dlamJ      = sparse(1:n, 1:n, lam, n, n);
@@ -290,16 +290,16 @@ classdef acp_model < ac_model
             end
 
             [Svava, Svavm, Svmvm] = ...
-                obj.port_inj_power_hess_v(x, lam, v, z, diagvi, Y, M, diagIlincJ, dlamJ);
+                obj.port_inj_power_hess_v(x_, lam, v_, z_, diagvi, Y, M, diagIlincJ, dlamJ);
             [Svazr, Svazi, Svmzr, Svmzi] = ...
-                obj.port_inj_power_hess_vz(x, lam, v, z, diagvi, L, dlamJ);
+                obj.port_inj_power_hess_vz(x_, lam, v_, z_, diagvi, L, dlamJ);
 
             H = [   Svava   Svavm   Svazr   Svazi;
                     Svavm.' Svmvm   Svmzr   Svmzi;
                     Svazr.' Svmzr.' sparse(nz, 2*nz);
                     Svazi.' Svmzi.' sparse(nz, 2*nz)  ];
 
-            %% convert for system x, if necessary
+            %% convert for system x_, if necessary
             if sysx
                 C = obj.getC();
                 D = obj.getD();
@@ -313,32 +313,32 @@ classdef acp_model < ac_model
             end
         end
 
-        function [Svava, Svavm, Svmvm] = port_inj_power_hess_v(obj, x, lam, v, z, diagvi, Y, M, diagIlincJ, dlamJ)
-            % [Svava, Svavm, Svmvm] = obj.port_inj_power_hess_v(x, lam)
-            % [Svava, Svavm, Svmvm] = obj.port_inj_power_hess_v(x, lam, sysx)
-            % [Svava, Svavm, Svmvm] = obj.port_inj_power_hess_v(x, lam, sysx, idx)
-            % [...] = obj.port_inj_power_hess_v(x, lam, v, z, diagvi, Y, M, diagIlincJ, dlamJ)
+        function [Svava, Svavm, Svmvm] = port_inj_power_hess_v(obj, x_, lam, v_, z_, diagvi, Y, M, diagIlincJ, dlamJ)
+            % [Svava, Svavm, Svmvm] = obj.port_inj_power_hess_v(x_, lam)
+            % [Svava, Svavm, Svmvm] = obj.port_inj_power_hess_v(x_, lam, sysx)
+            % [Svava, Svavm, Svmvm] = obj.port_inj_power_hess_v(x_, lam, sysx, idx)
+            % [...] = obj.port_inj_power_hess_v(x_, lam, v_, z_, diagvi, Y, M, diagIlincJ, dlamJ)
 
             if nargin < 10
-                sysx = v;
+                sysx = v_;
                 if nargin < 5
                     idx = []
                 else
-                    idx = z;
+                    idx = z_;
                 end
                 [Y, L, M, i] = obj.get_params(idx, {'Y', 'L', 'M', 'i'});
-                [v, z, vi] = obj.x2vz(x, sysx, idx);
+                [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
 
                 %% compute linear current injections
-                if isempty(z)
-                    Ilin = Y*v + i;
+                if isempty(z_)
+                    Ilin = Y*v_ + i;
                 else
-                    Ilin = Y*v + L*z + i;
+                    Ilin = Y*v_ + L*z_ + i;
                 end
 
-                n  = length(v);     %% number of all port voltages
-                ni = length(vi);    %% number of selected port voltages
-                diagvi = sparse(1:ni, 1:ni, vi, ni, ni);
+                n  = length(v_);    %% number of all port voltages
+                ni = length(vi_);   %% number of selected port voltages
+                diagvi = sparse(1:ni, 1:ni, vi_, ni, ni);
                 if isempty(idx)     %% all ports
                     diagIlincJ = sparse(1:n, 1:n, conj(Ilin), n, n);
                     dlamJ      = sparse(1:n, 1:n, lam, n, n);
@@ -347,17 +347,17 @@ classdef acp_model < ac_model
                     dlamJ      = sparse(1:ni, idx, lam, ni, n);
                 end
             else
-                n  = length(v);     %% number of all port voltages
+                n  = length(v_);    %% number of all port voltages
                 ni = length(lam);
             end
 
             %% intermediate terms
-            diagv  = sparse(1:n, 1:n, v, n, n);
+            diagv  = sparse(1:n, 1:n, v_, n, n);
 
             A = diagvi * diagIlincJ;
             B = diagvi * conj(Y);
             C = B * conj(diagv);
-            D = sparse(1:n, 1:n, 1 ./ abs(v), n, n);
+            D = sparse(1:n, 1:n, 1 ./ abs(v_), n, n);
             % E = diagvi * conj(L);
             F = dlamJ.';
             G = F * C;
@@ -381,37 +381,37 @@ classdef acp_model < ac_model
             Svmvm = SI_vmvm;
         end
 
-        function [Svazr, Svazi, Svmzr, Svmzi] = port_inj_power_hess_vz(obj, x, lam, v, z, diagvi, L, dlamJ)
-            % [Svazr, Svazi, Svmzr, Svmzi] = obj.port_inj_power_hess_vz(x, lam)
-            % [...] = obj.port_inj_power_hess_vz(x, lam, sysx)
-            % [...] = obj.port_inj_power_hess_vz(x, lam, sysx, idx)
-            % [...] = obj.port_inj_power_hess_vz(x, lam, v, z, diagvi, L, dlamJ)
+        function [Svazr, Svazi, Svmzr, Svmzi] = port_inj_power_hess_vz(obj, x_, lam, v_, z_, diagvi, L, dlamJ)
+            % [Svazr, Svazi, Svmzr, Svmzi] = obj.port_inj_power_hess_vz(x_, lam)
+            % [...] = obj.port_inj_power_hess_vz(x_, lam, sysx)
+            % [...] = obj.port_inj_power_hess_vz(x_, lam, sysx, idx)
+            % [...] = obj.port_inj_power_hess_vz(x_, lam, v_, z_, diagvi, L, dlamJ)
 
             if nargin < 8
-                sysx = v;
+                sysx = v_;
                 if nargin < 5
                     idx = []
                 else
-                    idx = z;
+                    idx = z_;
                 end
                 L = obj.get_params(idx, 'L');
-                [v, z, vi] = obj.x2vz(x, sysx, idx);
+                [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
 
-                n  = length(v);     %% number of all port voltages
-                ni = length(vi);    %% number of selected port voltages
-                diagvi = sparse(1:ni, 1:ni, vi, ni, ni);
+                n  = length(v_);    %% number of all port voltages
+                ni = length(vi_);   %% number of selected port voltages
+                diagvi = sparse(1:ni, 1:ni, vi_, ni, ni);
                 if isempty(idx)     %% all ports
                     dlamJ = sparse(1:n, 1:n, lam, n, n);
                 else                %% selected ports
                     dlamJ = sparse(1:ni, idx, lam, ni, n);
                 end
             else
-                n  = length(v);     %% number of all port voltages
+                n  = length(v_);    %% number of all port voltages
                 ni = length(lam);
             end
 
             %% intermediate terms
-            D = sparse(1:n, 1:n, 1 ./ abs(v), n, n);
+            D = sparse(1:n, 1:n, 1 ./ abs(v_), n, n);
             E = diagvi * conj(L);
             LL = dlamJ.' * E;
             M = D * LL;

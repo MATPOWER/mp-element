@@ -345,39 +345,39 @@ t = 'ac.getD()';
 D = ac.getD();
 t_is(D, speye(3), 12, t);
 
-t = 'S = ac.port_inj_power(x)';
-v = mpc.bus(:, VM) .* exp(1j * mpc.bus(:, VA) * pi/180);
-z = (mpc.gen(:, PG) + 1j * mpc.gen(:, QG)) / mpc.baseMVA;
-x = [v;z];
-S  = ac.port_inj_power(x);
+t = 'S = ac.port_inj_power(x_)';
+v_ = mpc.bus(:, VM) .* exp(1j * mpc.bus(:, VA) * pi/180);
+z_ = (mpc.gen(:, PG) + 1j * mpc.gen(:, QG)) / mpc.baseMVA;
+x_ = [v_;z_];
+S  = ac.port_inj_power(x_);
 eS = [-0.7195470 -0.85 -1.63 0.9 1.0 1.25 0.7195470 0.3072828 -0.5944531 0.85 0.2410613 -0.7598935 -1.63 0.8650443 -0.4096011 -0.7195470 -0.3055468 0.6089386 -0.85 -0.2401064 0.7649556 1.63 -0.8403988 0.4122642]' ...
   + 1j * [-0.2406895 0.0364902 -0.1446011 0.3 0.35 0.5 0.2406895 -0.0058585 -0.1631204 -0.0364902 0.0453679 -0.1059923 0.0227618 -0.0253242 -0.3571801 -0.2075304 -0.1368795 -0.1242746 0.0789067 -0.2440076 0.0025623 0.1446011 -0.1428198 0.2133889]';
 t_is(S, eS, 6, t);
 t_is(C * S, 0, 10, [t ' : C * S == 0']);
 
-t = 'S = ac.port_inj_power(A''*x, 0)';
+t = 'S = ac.port_inj_power(A''*x_, 0)';
 nv = ac.nv;
 nz = ac.nz;
 np = ac.np;
 A = [   C sparse(nv/2, nz);
         sparse(nz, np) D    ];
-S1 = ac.port_inj_power(A'*x, 0);
+S1 = ac.port_inj_power(A'*x_, 0);
 t_is(S1, eS, 6, t);
 
-t = 'ac.port_inj_power(x, 1, [3;1])';
-S2  = ac.port_inj_power(x, 1, [3;1]);
+t = 'ac.port_inj_power(x_, 1, [3;1])';
+S2  = ac.port_inj_power(x_, 1, [3;1]);
 t_is(S2, eS([3;1]), 6, t);
 
-t = '[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x, 1) : ';
-[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x, 1);
+t = '[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x_, 1) : ';
+[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x_, 1);
 t_is(S, eS, 6, [t 'S']);
 t_is(size(Sva), [24 9], 12, [t 'size(Sva)']);
 t_is(size(Svm), [24 9], 12, [t 'size(Svm)']);
 t_is(size(Szr), [24 3], 12, [t 'size(Szr)']);
 t_is(size(Szi), [24 3], 12, [t 'size(Szi)']);
 
-t = '[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x, 1, [3;2;1]) : ';
-[S1, Sva1, Svm1, Szr1, Szi1] = ac.port_inj_power(x, 1, [3;2;1]);
+t = '[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x_, 1, [3;2;1]) : ';
+[S1, Sva1, Svm1, Szr1, Szi1] = ac.port_inj_power(x_, 1, [3;2;1]);
 t_is(S1, eS([3;2;1]), 6, [t 'S']);
 t_is(Sva1, Sva([3;2;1], :), 12, [t 'Sva']);
 t_is(Svm1, Svm([3;2;1], :), 12, [t 'Svm']);
@@ -389,49 +389,49 @@ gen = ac.mpe_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
 t_ok(strcmp(class(gen), 'ac_gen'), [t 'class']);
 
-t = 'gen.port_inj_power(x, 1)';
-Sg = gen.port_inj_power(x, 1);
+t = 'gen.port_inj_power(x_, 1)';
+Sg = gen.port_inj_power(x_, 1);
 eSg = -[0.7195470; 0.85; 1.63] + 1j * [-0.2406895; 0.0364902; -0.1446011];
 t_is(Sg, eSg, 6, t);
  
-t = 'gen.port_inj_power(x, 1, [3;1])';
-Sg31 = gen.port_inj_power(x, 1, [3;1]);
+t = 'gen.port_inj_power(x_, 1, [3;1])';
+Sg31 = gen.port_inj_power(x_, 1, [3;1]);
 t_is(Sg31, eSg([3;1]), 6, t);
 
-t = 'gen.port_inj_power(x, 1, 2)';
-Sg2 = gen.port_inj_power(x, 1, 2);
+t = 'gen.port_inj_power(x_, 1, 2)';
+Sg2 = gen.port_inj_power(x_, 1, 2);
 t_is(Sg2, eSg(2), 6, t);
 
-t = 'H = ac.port_inj_power_hess(x, lam, 1) : ';
+t = 'H = ac.port_inj_power_hess(x_, lam, 1) : ';
 lam = [1:np]' / 100;
-H = ac.port_inj_power_hess(x, lam, 1);
+H = ac.port_inj_power_hess(x_, lam, 1);
 t_is(size(H), [24 24], 12, t);
 
-t = 'H = ac.port_inj_power_hess(x, lam(1:3), 1, [3;2;1]) : ';
-H = ac.port_inj_power_hess(x, lam(1:3), 1, [3;2;1]);
+t = 'H = ac.port_inj_power_hess(x_, lam(1:3), 1, [3;2;1]) : ';
+H = ac.port_inj_power_hess(x_, lam(1:3), 1, [3;2;1]);
 t_is(size(H), [24 24], 12, t);
 
-t = 'I = ac.port_inj_current(x)';
-I  = ac.port_inj_current(x);
+t = 'I = ac.port_inj_current(x_)';
+I  = ac.port_inj_current(x_);
 eI = [-0.7195470 -0.8440196 -1.6311322 0.8988176 1.0183565 1.2619557 0.7195470 0.3113025 -0.5961880 0.8440196 0.2416340 -0.7720819 -1.6311322 0.8647643 -0.3982054 -0.7195470 -0.3026295 0.6023856 -0.8440196 -0.2462745 0.7663679 1.6311322 -0.8637503 0.4082444]' ...
   + 1j * [0.2406895 -0.1070623 -0.1312139 -0.3714244 -0.3440707 -0.6196286 -0.2406895 -0.0071427 0.2095040 0.1070623 -0.0371169 0.0991665 -0.1312139 0.0829015 0.4043547 0.2406895 0.1619204 0.1441792 -0.1070623 0.2449042 0.0483124 0.1312139 0.2152738 -0.2335468]';
 t_is(I, eI, 6, t);
 t_is(C * I, 0, 10, [t ' : C * I == 0']);
 
-t = 'I = ac.port_inj_current(A''*x, 0)';
-I1 = ac.port_inj_current(A'*x, 0);
+t = 'I = ac.port_inj_current(A''*x_, 0)';
+I1 = ac.port_inj_current(A'*x_, 0);
 t_is(I1, eI, 6, t);
 
-t = '[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x, 1) : ';
-[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x, 1);
+t = '[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x_, 1) : ';
+[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x_, 1);
 t_is(I, eI, 6, [t 'I']);
 t_is(size(Iva), [24 9], 12, [t 'size(Iva)']);
 t_is(size(Ivm), [24 9], 12, [t 'size(Ivm)']);
 t_is(size(Izr), [24 3], 12, [t 'size(Izr)']);
 t_is(size(Izi), [24 3], 12, [t 'size(Izi)']);
 
-t = '[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x, 1, [3;2;1]) : ';
-[I1, Iva1, Ivm1, Izr1, Izi1] = ac.port_inj_current(x, 1, [3;2;1]);
+t = '[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x_, 1, [3;2;1]) : ';
+[I1, Iva1, Ivm1, Izr1, Izi1] = ac.port_inj_current(x_, 1, [3;2;1]);
 t_is(I1, eI([3;2;1]), 6, [t 'I']);
 t_is(Iva1, Iva([3;2;1], :), 12, [t 'Iva']);
 t_is(Ivm1, Ivm([3;2;1], :), 12, [t 'Ivm']);
@@ -667,41 +667,41 @@ t = 'ac.getD()';
 D = ac.getD();
 t_is(D, speye(7), 12, t);
 
-t = 'S = ac.port_inj_power(x)';
-v = mpc.bus(:, VM) .* exp(1j * mpc.bus(:, VA) * pi/180);
-z = [ (mpc.gen(:, PG) + 1j * mpc.gen(:, QG)) / mpc.baseMVA;
+t = 'S = ac.port_inj_power(x_)';
+v_ = mpc.bus(:, VM) .* exp(1j * mpc.bus(:, VA) * pi/180);
+z_ = [ (mpc.gen(:, PG) + 1j * mpc.gen(:, QG)) / mpc.baseMVA;
       mpc.gizmo(:, 20) + 1j * mpc.gizmo(:, 21);
       mpc.gizmo(:, 22) + 1j * mpc.gizmo(:, 23)  ];
-x = [v;z];
-S  = ac.port_inj_power(x);
+x_ = [v_;z_];
+S  = ac.port_inj_power(x_);
 eS = [-1.7165997 -0.85 -1.63 0.9 1 1.25 1.6176722 0.6367558 -0.0934284 0.8133635 0.7191480 -0.9250656 -1.1479321 0.2152553 -0.9710411 -1.6176722 -0.6297178 0.0942154 -0.8133635 -0.7127809 0.9326768 1.1479321 -0.2135503 0.9809164 0.0989275 -0.1768537 0.4820678 0.6378466 0.0366364 -0.0654085]' ...
   + 1j * [-0.2570733 -0.0079004 0.1749047 0.3 0.35 0.5 0.1711473 -0.0147713 -0.2748400 -0.0005591 0.0335496 -0.1518847 0.0000208 -0.0705294 -0.1207424 -0.0187288 -0.1010674 -0.0728762 0.0393266 -0.1849791 0.0705086 0.0827665 -0.2193974 0.0335002 0.0859259 0.0759074 -0.2576712 -0.0131360 0.0084596 -0.1598600]';
 t_is(S, eS, 6, t);
 t_is(C * S, 0, 10, [t ' : C * S == 0']);
 
-t = 'S = ac.port_inj_power(A''*x, 0)';
+t = 'S = ac.port_inj_power(A''*x_, 0)';
 nv = ac.nv;
 nz = ac.nz;
 np = ac.np;
 A = [   C sparse(nv/2, nz);
         sparse(nz, np) D    ];
-S1 = ac.port_inj_power(A'*x, 0);
+S1 = ac.port_inj_power(A'*x_, 0);
 t_is(S1, eS, 6, t);
 
-t = 'ac.port_inj_power(x, 1, [3;1])';
-S2  = ac.port_inj_power(x, 1, [3;1]);
+t = 'ac.port_inj_power(x_, 1, [3;1])';
+S2  = ac.port_inj_power(x_, 1, [3;1]);
 t_is(S2, eS([3;1]), 6, t);
 
-t = '[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x, 1) : ';
-[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x, 1);
+t = '[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x_, 1) : ';
+[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x_, 1);
 t_is(S, eS, 6, [t 'S']);
 t_is(size(Sva), [30 9], 12, [t 'size(Sva)']);
 t_is(size(Svm), [30 9], 12, [t 'size(Svm)']);
 t_is(size(Szr), [30 7], 12, [t 'size(Szr)']);
 t_is(size(Szi), [30 7], 12, [t 'size(Szi)']);
 
-t = '[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x, 1, [3;2;1]) : ';
-[S1, Sva1, Svm1, Szr1, Szi1] = ac.port_inj_power(x, 1, [3;2;1]);
+t = '[S, Sva, Svm, Szr, Szi] = ac.port_inj_power(x_, 1, [3;2;1]) : ';
+[S1, Sva1, Svm1, Szr1, Szi1] = ac.port_inj_power(x_, 1, [3;2;1]);
 t_is(S1, eS([3;2;1]), 6, [t 'S']);
 t_is(Sva1, Sva([3;2;1], :), 12, [t 'Sva']);
 t_is(Svm1, Svm([3;2;1], :), 12, [t 'Svm']);
@@ -713,49 +713,49 @@ gen = ac.mpe_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
 t_ok(strcmp(class(gen), 'ac_gen'), [t 'class']);
 
-t = 'gen.port_inj_power(x, 1)';
-Sg = gen.port_inj_power(x, 1);
+t = 'gen.port_inj_power(x_, 1)';
+Sg = gen.port_inj_power(x_, 1);
 eSg = [-1.7165997; -0.85; -1.63] + 1j * [-0.2570733; -0.0079004; 0.1749047];
 t_is(Sg, eSg, 6, t);
  
-t = 'gen.port_inj_power(x, 1, [3;1])';
-Sg31 = gen.port_inj_power(x, 1, [3;1]);
+t = 'gen.port_inj_power(x_, 1, [3;1])';
+Sg31 = gen.port_inj_power(x_, 1, [3;1]);
 t_is(Sg31, eSg([3;1]), 6, t);
 
-t = 'gen.port_inj_power(x, 1, 2)';
-Sg2 = gen.port_inj_power(x, 1, 2);
+t = 'gen.port_inj_power(x_, 1, 2)';
+Sg2 = gen.port_inj_power(x_, 1, 2);
 t_is(Sg2, eSg(2), 6, t);
 
-t = 'H = ac.port_inj_power_hess(x, lam, 1) : ';
+t = 'H = ac.port_inj_power_hess(x_, lam, 1) : ';
 lam = [1:np]' / 100;
-H = ac.port_inj_power_hess(x, lam, 1);
+H = ac.port_inj_power_hess(x_, lam, 1);
 t_is(size(H), [32 32], 12, t);
 
-t = 'H = ac.port_inj_power_hess(x, lam(1:3), 1, [3;2;1]) : ';
-H = ac.port_inj_power_hess(x, lam(1:3), 1, [3;2;1]);
+t = 'H = ac.port_inj_power_hess(x_, lam(1:3), 1, [3;2;1]) : ';
+H = ac.port_inj_power_hess(x_, lam(1:3), 1, [3;2;1]);
 t_is(size(H), [32 32], 12, t);
 
-t = 'I = ac.port_inj_current(x)';
-I  = ac.port_inj_current(x);
+t = 'I = ac.port_inj_current(x_)';
+I  = ac.port_inj_current(x_);
 eI = [-1.7165997 -0.8455779 -1.6384471 0.8614893 0.9206882 1.1672710 1.6176722 0.6388419 -0.0515376 0.8098875 0.7064979 -0.8887234 -1.1387426 0.2237887 -0.9553581 -1.6176722 -0.6196959 0.1033895 -0.8098875 -0.6701417 0.9149538 1.1387426 -0.1750995 0.9788303 0.0989275 -0.1902557 0.4997044 0.6381768 0.0356904 -0.0368132]' ...
   + 1j * [0.2570733 0.0869502 -0.0546138 -0.4426554 -0.5640375 -0.7300876 -0.1711473 -0.0452001 0.2918523 -0.0751186 -0.1339831 0.3505571 0.1669245 0.0386598 0.2977641 0.1711473 0.1998974 0.0588645 0.0751186 0.3377938 -0.2055844 -0.1669245 0.2595655 -0.1259471 -0.0859259 -0.0490943 0.2215384 -0.1243133 -0.0118315 0.1727578]';
 t_is(I, eI, 6, t);
 t_is(C * I, 0, 10, [t ' : C * I == 0']);
 
-t = 'I = ac.port_inj_current(A''*x, 0)';
-I1 = ac.port_inj_current(A'*x, 0);
+t = 'I = ac.port_inj_current(A''*x_, 0)';
+I1 = ac.port_inj_current(A'*x_, 0);
 t_is(I1, eI, 6, t);
 
-t = '[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x, 1) : ';
-[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x, 1);
+t = '[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x_, 1) : ';
+[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x_, 1);
 t_is(I, eI, 6, [t 'I']);
 t_is(size(Iva), [30 9], 12, [t 'size(Iva)']);
 t_is(size(Ivm), [30 9], 12, [t 'size(Ivm)']);
 t_is(size(Izr), [30 7], 12, [t 'size(Izr)']);
 t_is(size(Izi), [30 7], 12, [t 'size(Izi)']);
 
-t = '[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x, 1, [3;2;1]) : ';
-[I1, Iva1, Ivm1, Izr1, Izi1] = ac.port_inj_current(x, 1, [3;2;1]);
+t = '[I, Iva, Ivm, Izr, Izi] = ac.port_inj_current(x_, 1, [3;2;1]) : ';
+[I1, Iva1, Ivm1, Izr1, Izi1] = ac.port_inj_current(x_, 1, [3;2;1]);
 t_is(I1, eI([3;2;1]), 6, [t 'I']);
 t_is(Iva1, Iva([3;2;1], :), 12, [t 'Iva']);
 t_is(Ivm1, Ivm([3;2;1], :), 12, [t 'Ivm']);

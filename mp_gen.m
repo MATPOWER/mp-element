@@ -123,7 +123,7 @@ classdef mp_gen < mp_element
             %% (order 3 and higher) polynomial costs on Pg
             if ~isempty(obj.cost_poly_p.ip3)
                 [pcost qcost] = pqcost(mpc.gencost, obj.nk);
-                cost_Pg = @(x)opf_gen_cost_fcn(x, mpc.baseMVA, pcost, obj.cost_poly_p.ip3, mpopt);
+                cost_Pg = @(xx)opf_gen_cost_fcn(xx, mpc.baseMVA, pcost, obj.cost_poly_p.ip3, mpopt);
                 om.add_nln_cost('polPg', 1, cost_Pg, {'Pg'});
             end
 

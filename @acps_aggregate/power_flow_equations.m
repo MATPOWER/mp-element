@@ -1,4 +1,4 @@
-function [F, J] = power_flow_equations(obj, x, va, vm, z, ref, pv, pq)
+function [F, J] = power_flow_equations(obj, x, va, vm, z_, ref, pv, pq)
 %POWER_FLOW_EQUATIONS  Evaluates power flow equations
 %   [F, J] = POWER_FLOW_EQUATIONS(OBJ, X, MPC)
 %
@@ -30,13 +30,13 @@ function [F, J] = power_flow_equations(obj, x, va, vm, z, ref, pv, pq)
 npv = length(pv);
 npq = length(pq);
 nv = length(va);
-nz = length(z);
+nz = length(z_);
 
-%% update model state ([v; z]) from power flow state (x)
+%% update model state ([v_; z_]) from power flow state (x)
 pvq = [pv; pq];
 va(pvq) = x(1:npv+npq);
 vm(pq) = x(npv+npq+1:end);
-v = vm .* exp(1j * va);
+v_ = vm .* exp(1j * va);
 
 %% incidence matrix
 C = obj.getC();
@@ -44,7 +44,7 @@ C = obj.getC();
 %% Jacobian
 if nargout > 1
     %% get port power injections with derivatives
-    [S, Sva, Svm] = obj.port_inj_power([v; z], 1);
+    [S, Sva, Svm] = obj.port_inj_power([v_; z_], 1);
 
     SSva = C * Sva;
     SSvm = C * Svm;
@@ -57,7 +57,7 @@ if nargout > 1
 %         imag(SSva(pq,  pvq)) imag(SSvm(pq,  pq)) imag(SSzr(pq,  :)) imag(SSzi(pq,  :))  ];
 else
     %% get port power injections (w/o derivatives)
-    S = obj.port_inj_power([v; z], 1);
+    S = obj.port_inj_power([v_; z_], 1);
 end
 
 %% nodal power balance

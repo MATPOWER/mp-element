@@ -47,7 +47,7 @@ classdef ac_aggregate < mp_aggregate% & ac_model
                 Gzr = C * Izr;
                 Gzi = C * Izi;
             else
-                I = obj.port_inj_current(x, 1);
+                I = obj.port_inj_current(x_, 1);
             end
 
             %% nodal current balance
@@ -66,7 +66,7 @@ classdef ac_aggregate < mp_aggregate% & ac_model
                 Gzr = C * Szr;
                 Gzi = C * Szi;
             else
-                S = obj.port_inj_power(x, 1);
+                S = obj.port_inj_power(x_, 1);
             end
 
             %% nodal power balance

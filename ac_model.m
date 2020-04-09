@@ -8,8 +8,8 @@ classdef ac_model < mp_model
 %   model and formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   AC_MODEL defines:
-%       linear current injection       = Y v + L z + i
-%       linear complex power injection = M v + N z + s
+%       linear current injection       = Y v_ + L z_ + i
+%       linear complex power injection = M v_ + N z_ + s
 %
 %   Properties
 %       (model parameters)
@@ -35,9 +35,9 @@ classdef ac_model < mp_model
 
     properties
         %% model parameters
-        Y = [];
+        Y = [];     %% ilin = Y * v_ + L * z_ + i
         L = [];
-        M = [];
+        M = [];     %% slin = M * v_ + N * z_ + s
         N = [];
         i = [];
         s = [];
@@ -59,12 +59,12 @@ classdef ac_model < mp_model
             vtypes = {'zr', 'zi'};
         end
 
-        function [I, Iv1, Iv2, Izr, Izi] = port_inj_current(obj, x, sysx, idx)
-            % I = obj.port_inj_current(x, sysx)
-            % I = obj.port_inj_current(x, sysx, idx)
+        function [I, Iv1, Iv2, Izr, Izi] = port_inj_current(obj, x_, sysx, idx)
+            % I = obj.port_inj_current(x_, sysx)
+            % I = obj.port_inj_current(x_, sysx, idx)
             % [I, Iv1, Iv2] = obj.port_inj_current(...)
             % [I, Iv1, Iv2, Izr, Izi] = obj.port_inj_current(...)
-            % sysx : 1 = system x, 0 = class aggregate x
+            % sysx : 1 = system x_, 0 = class aggregate x_
 
             if nargin < 4
                 idx = [];
@@ -74,23 +74,23 @@ classdef ac_model < mp_model
             end
             
             [Y, L, M, N, i, s] = obj.get_params(idx);
-            [v, z, vi] = obj.x2vz(x, sysx, idx);
+            [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
 
             %% compute linear current injections and power injections
-            if isempty(z)
-                Slin = M*v + s;
-                I = Y*v + i + conj(Slin ./ vi);
+            if isempty(z_)
+                Slin = M*v_ + s;
+                I = Y*v_ + i + conj(Slin ./ vi_);
             else
-                Slin = M*v + N*z + s;
-                I = Y*v + L*z + i + conj(Slin ./ vi);
-%                 I = Y*v + L*z + i * ones(1, size(x, 2)) + conj(Slin ./ vi);
+                Slin = M*v_ + N*z_ + s;
+                I = Y*v_ + L*z_ + i + conj(Slin ./ vi_);
+%                 I = Y*v_ + L*z_ + i * ones(1, size(x_, 2)) + conj(Slin ./ vi_);
             end
 
             if nargout > 1
                 %% intermediate terms
-                n  = length(v);     %% number of all port voltages
-                ni = length(vi);    %% number of selected port voltages
-                invdiagvic = sparse(1:ni, 1:ni, 1./conj(vi), ni, ni);
+                n  = length(v_);    %% number of all port voltages
+                ni = length(vi_);   %% number of selected port voltages
+                invdiagvic = sparse(1:ni, 1:ni, 1./conj(vi_), ni, ni);
                 if isempty(idx)     %% all ports
                     diagSlincJ = sparse(1:n, 1:n, conj(Slin), n, n);
                 else                %% selected ports
@@ -98,7 +98,7 @@ classdef ac_model < mp_model
                 end
                 
                 [Iv1, Iv2] = obj.port_inj_current_jac( ...
-                        n, v, Y, M, invdiagvic, diagSlincJ);
+                        n, v_, Y, M, invdiagvic, diagSlincJ);
 
                 if nargout >= 4
                     %% linear current term
@@ -127,13 +127,13 @@ classdef ac_model < mp_model
             end
         end
 
-        function [S, Sv1, Sv2, Szr, Szi] = port_inj_power(obj, x, sysx, idx)
-            % S = obj.port_inj_power(x, sysx)
-            % S = obj.port_inj_power(x, sysx, idx)
+        function [S, Sv1, Sv2, Szr, Szi] = port_inj_power(obj, x_, sysx, idx)
+            % S = obj.port_inj_power(x_, sysx)
+            % S = obj.port_inj_power(x_, sysx, idx)
             %   
             % [S, Sv1, Sv2] = obj.port_inj_power(...)
             % [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(...)
-            % sysx : 1 = system x, 0 = class aggregate x
+            % sysx : 1 = system x_, 0 = class aggregate x_
 
             if nargin < 4
                 idx = [];
@@ -143,24 +143,24 @@ classdef ac_model < mp_model
             end
             
             [Y, L, M, N, i, s] = obj.get_params(idx);
-            [v, z, vi] = obj.x2vz(x, sysx, idx);
+            [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
 
             %% compute linear current injections and power injections
-            if isempty(z)
-                Ilin = Y*v + i;
-                S = vi .* conj(Ilin) + M*v + s;
+            if isempty(z_)
+                Ilin = Y*v_ + i;
+                S = vi_ .* conj(Ilin) + M*v_ + s;
             else
-                Ilin = Y*v + L*z + i;
-                S = vi .* conj(Ilin) + M*v + N*z + s;
-%                 S = vi .* conj(Ilin) + M*v + N*z + s * ones(1, size(x, 2));
+                Ilin = Y*v_ + L*z_ + i;
+                S = vi_ .* conj(Ilin) + M*v_ + N*z_ + s;
+%                 S = vi_ .* conj(Ilin) + M*v_ + N*z_ + s * ones(1, size(x_, 2));
             end
 
             if nargout > 1
                 %% intermediate terms
-                n  = length(v);     %% number of all port voltages
-                ni = length(vi);    %% number of selected port voltages
-                diagv  = sparse(1:n, 1:n, v, n, n);
-                diagvi = sparse(1:ni, 1:ni, vi, ni, ni);
+                n  = length(v_);    %% number of all port voltages
+                ni = length(vi_);   %% number of selected port voltages
+                diagv  = sparse(1:n, 1:n, v_, n, n);
+                diagvi = sparse(1:ni, 1:ni, vi_, ni, ni);
                 if isempty(idx)     %% all ports
                     diagIlincJ = sparse(1:n, 1:n, conj(Ilin), n, n);
                 else                %% selected ports
@@ -168,7 +168,7 @@ classdef ac_model < mp_model
                 end
                 
                 [Sv1, Sv2] = obj.port_inj_power_jac( ...
-                        n, v, Y, M, diagv, diagvi, diagIlincJ);
+                        n, v_, Y, M, diagv, diagvi, diagIlincJ);
 
                 if nargout >= 4
                     %% linear power term
@@ -209,7 +209,7 @@ classdef ac_model < mp_model
                 dS = spdiags(S, 0, n, n);
                 dh = 2 * (real(dS) * real(Sx) + imag(dS) * imag(Sx));
             else
-                S = obj.port_inj_power(x, 1, idx);
+                S = obj.port_inj_power(x_, 1, idx);
             end
             h = conj(S) .* S - hmax;
         end
@@ -224,7 +224,7 @@ classdef ac_model < mp_model
                 P = real(S);
                 dh = real([Sv1 Sv2 Szr Szi]);
             else
-                P = real(obj.port_inj_power(x, 1, idx));
+                P = real(obj.port_inj_power(x_, 1, idx));
             end
             h = P - hmax;
         end
@@ -242,7 +242,7 @@ classdef ac_model < mp_model
                 dP = spdiags(P, 0, n, n);
                 dh = 2 * real(dP) * real(Sx);
             else
-                P = real(obj.port_inj_power(x, 1, idx));
+                P = real(obj.port_inj_power(x_, 1, idx));
             end
             h = P .* P - hmax;
         end
@@ -259,7 +259,7 @@ classdef ac_model < mp_model
                 dI = spdiags(I, 0, n, n);
                 dh = 2 * (real(dI) * real(Ix) + imag(dI) * imag(Ix));
             else
-                I = obj.port_inj_power(x, 1, idx);
+                I = obj.port_inj_power(x_, 1, idx);
             end
             h = conj(I) .* I - hmax;
         end

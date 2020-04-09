@@ -52,8 +52,8 @@ npv = length(pv);
 npq = length(pq);
 npvq = npv + npq;
 
-%% construct initial system v1, v2, zr, zi, v, z, x
-t = 'construct initial system v, z';
+%% construct initial system v1, v2, zr, zi, v_, z_, x_
+t = 'construct initial system v_, z_';
 sv1 = ac.params_var('vr');
 sv2 = ac.params_var('vi');
 szr = ac.params_var('zr');
@@ -69,11 +69,11 @@ szi = ac.params_var('zi');
 sv1 = sv1 + (0.06*rand(size(sv1)) - 0.03);  %sv1(ref) = 0;
 sv2 = sv2 + (0.06*rand(size(sv1)) - 0.03);  %sv2(ref) = 1;
 
-%% adjust values of z
+%% adjust values of z_
 szr(1) = 0.67;
 szi(1:3) = [0.1; 0.2; 0.3];
 
-%% initialize v, z, x
+%% initialize v_, z_, x_
 sv = sv1 + 1j * sv2;
 sz = szr + 1j * szi;
 sx = [sv; sz];
@@ -81,8 +81,8 @@ nx = length(sx);
 t_is(nx, nv+nz, 12, t);
 
 %%-----  tests using system voltages  -----
-t = 'ac.port_inj_power(x) : ';
-v10 = sv1; v20 = sv2; zr0 = szr; zi0 = szi; %% init w/ system v, z components
+t = 'ac.port_inj_power(x_) : ';
+v10 = sv1; v20 = sv2; zr0 = szr; zi0 = szi; %% init w/ system v_, z_ components
 v0 = v10 + 1j * v20;
 z0 = zr0 + 1j * zi0;
 x0 = [v0; z0];
@@ -95,40 +95,40 @@ SS0 = ac.port_inj_power(x0*ones(1,Nv));
 t_is(SS0, S0*ones(1,Nv), 12, [t 'matrix input']);
 
 %% Sv1
-v = v10*ones(1,Nv) + dx*eye(Nv,Nv) + 1j * v20*ones(1,Nv);
-z = (zr0 + 1j * zi0) * ones(1,Nv);
-x = [v; z];
-SS = ac.port_inj_power(x);
+v_ = v10*ones(1,Nv) + dx*eye(Nv,Nv) + 1j * v20*ones(1,Nv);
+z_ = (zr0 + 1j * zi0) * ones(1,Nv);
+x_ = [v_; z_];
+SS = ac.port_inj_power(x_);
 num_Sv1b = (SS - SS0) / dx;
 t_is(full(Sv1), num_Sv1b, 6, [t 'Sv1']);
 
 %% Sv2
-v = v10*ones(1,Nv) + 1j * (v20*ones(1,Nv) + dx*eye(Nv,Nv));
-z = (zr0 + 1j * zi0) * ones(1,Nv);
-x = [v; z];
-SS = ac.port_inj_power(x);
+v_ = v10*ones(1,Nv) + 1j * (v20*ones(1,Nv) + dx*eye(Nv,Nv));
+z_ = (zr0 + 1j * zi0) * ones(1,Nv);
+x_ = [v_; z_];
+SS = ac.port_inj_power(x_);
 num_Sv2b = (SS - SS0) / dx;
 t_is(full(Sv2), num_Sv2b, 6, [t 'Sv2']);
 
 SS0 = ac.port_inj_power(x0*ones(1,Nz));
 
 %% Szr
-v = v10*ones(1,Nz) + 1j * v20*ones(1,Nz);
-z = (zr0 * ones(1,Nz) + dx*eye(Nz,Nz)) + 1j * (zi0 * ones(1,Nz));
-x = [v; z];
-SS = ac.port_inj_power(x);
+v_ = v10*ones(1,Nz) + 1j * v20*ones(1,Nz);
+z_ = (zr0 * ones(1,Nz) + dx*eye(Nz,Nz)) + 1j * (zi0 * ones(1,Nz));
+x_ = [v_; z_];
+SS = ac.port_inj_power(x_);
 num_Szrb = (SS - SS0) / dx;
 t_is(full(Szr), num_Szrb, 6, [t 'Szr']);
 
 %% Szi
-v = v10*ones(1,Nz) + 1j * v20*ones(1,Nz);
-z = (zr0 * ones(1,Nz)) + 1j * (zi0 * ones(1,Nz) + dx*eye(Nz,Nz));
-x = [v; z];
-SS = ac.port_inj_power(x);
+v_ = v10*ones(1,Nz) + 1j * v20*ones(1,Nz);
+z_ = (zr0 * ones(1,Nz)) + 1j * (zi0 * ones(1,Nz) + dx*eye(Nz,Nz));
+x_ = [v_; z_];
+SS = ac.port_inj_power(x_);
 num_Szib = (SS - SS0) / dx;
 t_is(full(Szi), num_Szib, 6, [t 'Szi']);
 
-t = 'ac.port_inj_power(x, 1, idx) : ';
+t = 'ac.port_inj_power(x_, 1, idx) : ';
 [iS0, iSv1, iSv2, iSzr, iSzi] = ac.port_inj_power(x0, 1, idx);
 t_is(iS0, S0(idx), 12, [t 'S0']);
 t_is(iSv1, Sv1(idx, :), 12, [t 'Sv1']);
@@ -144,7 +144,7 @@ for k = 1:length(lam)
     t_is(H1, H2, 12, sprintf('%s%d', t, k));
 end
 
-t = 'ac.port_inj_power_hess(x, lam) : ';
+t = 'ac.port_inj_power_hess(x_, lam) : ';
 H = ac.port_inj_power_hess(x0, lam);
 HH = sparse(size(H, 1), size(H, 2));
 for k = 1:length(lam)
@@ -153,7 +153,7 @@ for k = 1:length(lam)
 end
 t_is(H, HH, 12, [t 'weighted sum indiv Hessians']);
 
-t = 'ac.port_inj_power_hess(x, lam, 1, idx) : ';
+t = 'ac.port_inj_power_hess(x_, lam, 1, idx) : ';
 H = ac.port_inj_power_hess(x0, lam(idx), 1, idx);
 HH = sparse(size(H, 1), size(H, 2));
 for k = 1:length(idx)
@@ -162,41 +162,41 @@ for k = 1:length(idx)
 end
 t_is(H, HH, 12, [t 'weighted sum indiv Hessians']);
 
-t = 'ac.port_inj_power_hess(x, lam) : ';
+t = 'ac.port_inj_power_hess(x_, lam) : ';
 H = ac.port_inj_power_hess(x0, lam);
 [S0, Sv1, Sv2, Szr, Szi] = ac.port_inj_power(x0);
 numH = zeros(2*nx, 2*nx);
 for k = 1:Nv
     v1 = v10; v1(k) = v1(k) + dx;
-    v = v1 + 1j * v20;
-    x = [v; z0];
-    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x);
+    v_ = v1 + 1j * v20;
+    x_ = [v_; z0];
+    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x_);
     numH(:, k) = ([Sv1p, Sv2p, Szrp, Szip]- [Sv1, Sv2, Szr, Szi]).' * lam / dx;
 
     v2 = v20; v2(k) = v2(k) + dx;
-    v = v10 + 1j * v2;
-    x = [v; z0];
-    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x);
+    v_ = v10 + 1j * v2;
+    x_ = [v_; z0];
+    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x_);
     numH(:, Nv+k) = ([Sv1p, Sv2p, Szrp, Szip]- [Sv1, Sv2, Szr, Szi]).' * lam / dx;
 end
 for k = 1:Nz
-    z = zr0 + 1j * zi0;
-    z(k) = z(k) + dx;
-    x = [v0; z];
-    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x);
+    z_ = zr0 + 1j * zi0;
+    z_(k) = z_(k) + dx;
+    x_ = [v0; z_];
+    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x_);
     numH(:, 2*Nv+k) = ([Sv1p, Sv2p, Szrp, Szip]- [Sv1, Sv2, Szr, Szi]).' * lam / dx;
 
-    z = zr0 + 1j * zi0;
-    z(k) = z(k) + 1j*dx;
-    x = [v0; z];
-    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x);
+    z_ = zr0 + 1j * zi0;
+    z_(k) = z_(k) + 1j*dx;
+    x_ = [v0; z_];
+    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x_);
     numH(:, 2*Nv+Nz+k) = ([Sv1p, Sv2p, Szrp, Szip]- [Sv1, Sv2, Szr, Szi]).' * lam / dx;
 end
 t_is(full(H), numH, 5, [t 'numerical Hessian']);
 
 %%-----  tests using port voltages  -----
-t = 'ac.port_inj_power(x, 0) : ';
-v10 = C'*sv1; v20 = C'*sv2; zr0 = D'*szr; zi0 = D'*szi; %% init w/ port v, z components
+t = 'ac.port_inj_power(x_, 0) : ';
+v10 = C'*sv1; v20 = C'*sv2; zr0 = D'*szr; zi0 = D'*szi; %% init w/ port v_, z_ components
 v0 = v10 + 1j * v20;
 z0 = zr0 + 1j * zi0;
 x0 = [v0; z0];
@@ -209,40 +209,40 @@ SS0 = ac.port_inj_power(x0*ones(1,Nv), 0);
 t_is(SS0, S0*ones(1,Nv), 12, [t 'matrix input']);
 
 %% Sv1
-v = v10*ones(1,Nv) + dx*eye(Nv,Nv) + 1j * v20*ones(1,Nv);
-z = (zr0 + 1j * zi0) * ones(1,Nv);
-x = [v; z];
-SS = ac.port_inj_power(x, 0);
+v_ = v10*ones(1,Nv) + dx*eye(Nv,Nv) + 1j * v20*ones(1,Nv);
+z_ = (zr0 + 1j * zi0) * ones(1,Nv);
+x_ = [v_; z_];
+SS = ac.port_inj_power(x_, 0);
 num_Sv1b = (SS - SS0) / dx;
 t_is(full(Sv1), num_Sv1b, 6, [t 'Sv1']);
 
 %% Sv2
-v = v10*ones(1,Nv) + 1j * (v20*ones(1,Nv) + dx*eye(Nv,Nv));
-z = (zr0 + 1j * zi0) * ones(1,Nv);
-x = [v; z];
-SS = ac.port_inj_power(x, 0);
+v_ = v10*ones(1,Nv) + 1j * (v20*ones(1,Nv) + dx*eye(Nv,Nv));
+z_ = (zr0 + 1j * zi0) * ones(1,Nv);
+x_ = [v_; z_];
+SS = ac.port_inj_power(x_, 0);
 num_Sv2b = (SS - SS0) / dx;
 t_is(full(Sv2), num_Sv2b, 6, [t 'Sv2']);
 
 SS0 = ac.port_inj_power(x0*ones(1,Nz), 0);
 
 %% Szr
-v = v10*ones(1,Nz) + 1j * v20*ones(1,Nz);
-z = (zr0 * ones(1,Nz) + dx*eye(Nz,Nz)) + 1j * (zi0 * ones(1,Nz));
-x = [v; z];
-SS = ac.port_inj_power(x, 0);
+v_ = v10*ones(1,Nz) + 1j * v20*ones(1,Nz);
+z_ = (zr0 * ones(1,Nz) + dx*eye(Nz,Nz)) + 1j * (zi0 * ones(1,Nz));
+x_ = [v_; z_];
+SS = ac.port_inj_power(x_, 0);
 num_Szrb = (SS - SS0) / dx;
 t_is(full(Szr), num_Szrb, 6, [t 'Szr']);
 
 %% Szi
-v = v10*ones(1,Nz) + 1j * v20*ones(1,Nz);
-z = (zr0 * ones(1,Nz)) + 1j * (zi0 * ones(1,Nz) + dx*eye(Nz,Nz));
-x = [v; z];
-SS = ac.port_inj_power(x, 0);
+v_ = v10*ones(1,Nz) + 1j * v20*ones(1,Nz);
+z_ = (zr0 * ones(1,Nz)) + 1j * (zi0 * ones(1,Nz) + dx*eye(Nz,Nz));
+x_ = [v_; z_];
+SS = ac.port_inj_power(x_, 0);
 num_Szib = (SS - SS0) / dx;
 t_is(full(Szi), num_Szib, 6, [t 'Szi']);
 
-t = 'ac.port_inj_power(x, 0, idx) : ';
+t = 'ac.port_inj_power(x_, 0, idx) : ';
 [iS0, iSv1, iSv2, iSzr, iSzi] = ac.port_inj_power(x0, 0, idx);
 t_is(iS0, S0(idx), 12, [t 'S0']);
 t_is(iSv1, Sv1(idx, :), 12, [t 'Sv1']);
@@ -258,7 +258,7 @@ for k = 1:length(lam)
     t_is(H1, H2, 12, sprintf('%s%d', t, k));
 end
 
-t = 'ac.port_inj_power_hess(x, lam, 0) : ';
+t = 'ac.port_inj_power_hess(x_, lam, 0) : ';
 H = ac.port_inj_power_hess(x0, lam, 0);
 HH = sparse(size(H, 1), size(H, 2));
 for k = 1:length(lam)
@@ -267,7 +267,7 @@ for k = 1:length(lam)
 end
 t_is(H, HH, 12, [t 'weighted sum indiv Hessians']);
 
-t = 'ac.port_inj_power_hess(x, lam, 0, idx) : ';
+t = 'ac.port_inj_power_hess(x_, lam, 0, idx) : ';
 H = ac.port_inj_power_hess(x0, lam(idx), 0, idx);
 HH = sparse(size(H, 1), size(H, 2));
 for k = 1:length(idx)
@@ -276,35 +276,35 @@ for k = 1:length(idx)
 end
 t_is(H, HH, 12, [t 'weighted sum indiv Hessians']);
 
-t = 'ac.port_inj_power_hess(x, lam, 0) : ';
+t = 'ac.port_inj_power_hess(x_, lam, 0) : ';
 H = ac.port_inj_power_hess(x0, lam, 0);
 [S0, Sv1, Sv2, Szr, Szi] = ac.port_inj_power(x0, 0);
 Nx = 2*Nv+2*Nz;
 numH = zeros(Nx, Nx);
 for k = 1:Nv
     v1 = v10; v1(k) = v1(k) + dx;
-        v = v1 + 1j * v20;
-    x = [v; z0];
-    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x, 0);
+        v_ = v1 + 1j * v20;
+    x_ = [v_; z0];
+    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x_, 0);
     numH(:, k) = ([Sv1p, Sv2p, Szrp, Szip]- [Sv1, Sv2, Szr, Szi]).' * lam / dx;
 
     v2 = v20; v2(k) = v2(k) + dx;
-    v = v10 + 1j * v2;
-    x = [v; z0];
-    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x, 0);
+    v_ = v10 + 1j * v2;
+    x_ = [v_; z0];
+    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x_, 0);
     numH(:, Nv+k) = ([Sv1p, Sv2p, Szrp, Szip]- [Sv1, Sv2, Szr, Szi]).' * lam / dx;
 end
 for k = 1:Nz
-    z = zr0 + 1j * zi0;
-    z(k) = z(k) + dx;
-    x = [v0; z];
-    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x, 0);
+    z_ = zr0 + 1j * zi0;
+    z_(k) = z_(k) + dx;
+    x_ = [v0; z_];
+    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x_, 0);
     numH(:, 2*Nv+k) = ([Sv1p, Sv2p, Szrp, Szip]- [Sv1, Sv2, Szr, Szi]).' * lam / dx;
 
-    z = zr0 + 1j * zi0;
-    z(k) = z(k) + 1j*dx;
-    x = [v0; z];
-    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x, 0);
+    z_ = zr0 + 1j * zi0;
+    z_(k) = z_(k) + 1j*dx;
+    x_ = [v0; z_];
+    [S0p, Sv1p, Sv2p, Szrp, Szip] = ac.port_inj_power(x_, 0);
     numH(:, 2*Nv+Nz+k) = ([Sv1p, Sv2p, Szrp, Szip]- [Sv1, Sv2, Szr, Szi]).' * lam / dx;
 end
 t_is(full(H), numH, 5, [t 'numerical Hessian']);
@@ -316,8 +316,8 @@ t_is(full(H), numH, 5, [t 'numerical Hessian']);
 
 
 %  x0 = [va([pv; pq]); vm(pq)];
-% pf_fcn = @(x)power_flow_equations(ac, x, va, vm, z, ref, pv, pq);
-% [F, J] = power_flow_equations(obj, x, va, vm, z, ref, pv, pq)
+% pf_fcn = @(x)power_flow_equations(ac, x, va, vm, z_, ref, pv, pq);
+% [F, J] = power_flow_equations(obj, x, va, vm, z_, ref, pv, pq)
 % [F, J] = pf_fcn(ac, x)
 
 
