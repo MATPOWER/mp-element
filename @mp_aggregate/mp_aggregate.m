@@ -15,7 +15,9 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
         element_classes = {};   %% classes for individual element types
                                 %% filled in by subclass constructor
         mpe_list = {};          %% cell array of mp_element objects
-        mpe_idx  = struct();    %% key = element name, val = index into mpe_list
+        mpe_map  = struct();    %% key = element name, val = index into mpe_list
+        mpe_port_map = [];      %% mpe_port_map(k, 1:2), indices of 1st & last port for element k
+        mpe_z_map = [];         %% mpe_z_map(k, 1:2), indices of 1st & last z var for element k
         nv = 0;                 %% total number of (real) v variables
         node = [];
         state = [];
@@ -40,7 +42,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
                 if mpe.count(mpc)
                     i = i + 1;
                     obj.mpe_list{i} = mpe;
-                    obj.mpe_idx.(mpe.name) = i;
+                    obj.mpe_map.(mpe.name) = i;
                     obj.np = obj.np + mpe.np * mpe.nk;  %% number of ports
                     obj.nz = obj.nz + mpe.nz * mpe.nk;  %% number of z_ vars
                 end
@@ -59,7 +61,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
         end
 
         function mpe = mpe_by_name(obj, name)
-            mpe = obj.mpe_list{obj.mpe_idx.(name)};
+            mpe = obj.mpe_list{obj.mpe_map.(name)};
         end
 
         function obj = add_nodes(obj, asm, mpc)
@@ -86,10 +88,22 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             %% each element builds parameters, aggregate incidence matrices
             C = {};
             D = {};
-            for mpe = obj.mpe_list
-                mpe{1}.build_params(obj, mpc);
-                C = horzcat(C, mpe{1}.C);
-                D = horzcat(D, mpe{1}.D);
+            %% initialize mpe_port_map, mpe_z_map
+            obj.mpe_port_map = zeros(length(obj.mpe_list), 2);
+            obj.mpe_z_map    = zeros(length(obj.mpe_list), 2);
+            pk = 1;     %% port counter
+            zk = 1;     %% z-var counter
+            for k = 1:length(obj.mpe_list)
+                mpe = obj.mpe_list{k};
+                obj.mpe_port_map(k, 1) = pk;        %% starting port index
+                obj.mpe_z_map(k, 1) = zk;           %% starting z-var index
+                mpe.build_params(obj, mpc);
+                C = horzcat(C, mpe.C);
+                D = horzcat(D, mpe.D);
+                pk = pk + mpe.np * mpe.nk;          %% increment port counter
+                zk = zk + mpe.nz * mpe.nk;          %% increment z-var counter
+                obj.mpe_port_map(k, 2) = pk - 1;    %% ending port index
+                obj.mpe_z_map(k, 2)    = zk - 1;    %% ending z-var index
             end
             obj.C = { horzcat(C{:}) };
             obj.D = { horzcat(D{:}) };
