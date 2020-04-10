@@ -34,7 +34,21 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             obj.nz = 0;     %% unknown number of z_ vars at this point, init to 0
         end
 
-        function obj = create_model(obj, mpc)
+        function obj = create_model(obj, mpc, mpopt)
+            %%-----  HACK ALERT  -----
+            %% This is a hack to deal with experimental
+            %% mpopt.exp.sys_wide_zip_loads.pw/qw. MPOPT should be removed
+            %% completely as an argument to create_model() once data and
+            %% options are properly separated.
+            if nargin == 3 && isfield(mpopt, 'exp') && ...
+                    ~isempty(mpopt.exp) && ...
+                    isfield(mpopt.exp, 'sys_wide_zip_loads') && ...
+                    (~isempty(mpopt.exp.sys_wide_zip_loads.pw) || ...
+                     ~isempty(mpopt.exp.sys_wide_zip_loads.qw))
+                mpc.sys_wide_zip_loads = mpopt.exp.sys_wide_zip_loads;
+            end
+            %%-----  end of HACK  -----
+
             %% create element objects for each class with data
             i = 0;
             for c = obj.element_classes

@@ -195,7 +195,8 @@ else
 end
 
 %%-----  build network model from data model (mpc)  -----
-nm = netmodel().create_model(mpc);
+% nm = netmodel().create_model(mpc);
+nm = netmodel().create_model(mpc, mpopt);   %% remove mpopt once we get all data (e.g. exp.sys_wide_zip_loads) out of options
 om = nm.setup_opf(mpc, mpopt);
 
 % % [x, success, i] = nm.solve_power_flow(mpc, mpopt);
