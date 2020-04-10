@@ -35,14 +35,18 @@ classdef ac_model < mp_model
 
     properties
         %% model parameters
-        Y = [];     %% ilin = Y * v_ + L * z_ + i
+        Y = [];     %% ilin(x_, idx) = Y(idx, :) * v_ + L(idx, :) * z_ + i(idx)
         L = [];
-        M = [];     %% slin = M * v_ + N * z_ + s
+        M = [];     %% slin(x_, idx) = M(idx, :) * v_ + N(idx, :) * z_ + s(idx)
         N = [];
         i = [];
         s = [];
         param_ncols = struct('Y', 2, 'L', 3, 'M', 2, 'N', 3, 'i', 1, 's', 1);
             %% num of columns for each parameter, where 1 = 1, 2 = np, 3 = nz
+        inln = '';      %% fcn handle, i = ilin(x_, idx) + inln(x_, idx)
+        snln = '';      %% fcn handle, s = slin(x_, idx) + snln(x_, idx)
+        inln_hess = ''; %% fcn handle, if empty, Hessian assumed zero
+        snln_hess = ''; %% fcn handle, if empty, Hessian assumed zero
     end
 
     methods
@@ -72,7 +76,7 @@ classdef ac_model < mp_model
                     sysx = 1;
                 end
             end
-            
+
             [Y, L, M, N, i, s] = obj.get_params(idx);
             [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
 
@@ -96,34 +100,48 @@ classdef ac_model < mp_model
                 else                %% selected ports
                     diagSlincJ = sparse(1:ni, idx, conj(Slin), ni, n);
                 end
-                
+
                 [Iv1, Iv2] = obj.port_inj_current_jac( ...
                         n, v_, Y, M, invdiagvic, diagSlincJ);
 
-                if nargout >= 4
+                if nargout > 3
                     %% linear current term
-                    Ilin_zr = L;
-                    Ilin_zi = 1j * L;
+                    Izr = L;
+                    Izi = 1j * L;
 
-                    %% current from linear power term
+                    %% + current from linear power term
                     IS_zr = invdiagvic * conj(N);   %% C
-                    IS_zi = -1j * IS_zr;            %% -jC
-
-                    %% combine
-                    Izr = Ilin_zr + IS_zr;
-                    Izi = Ilin_zi + IS_zi;
+                    Izr = Izr + IS_zr;              %% +C
+                    Izi = Izi - 1j * IS_zr;         %% -jC
                 end
 
                 if sysx
                     Ct = obj.getC('tr');
                     Iv1 = Iv1 * Ct;
                     Iv2 = Iv2 * Ct;
-                    if nargout >= 4
+                    if nargout > 3
                         Dt = obj.getD('tr');
                         Izr = Izr * Dt;
                         Izi = Izi * Dt;
                     end
                 end
+            end
+
+            %% general nonlinear current
+            if ~isempty(obj.inln)
+                Inln = cell(1, nargout);
+                [Inln{:}] = obj.inln(x_, sysx, idx);
+                I = I + Inln{1};
+                if nargout > 1
+                    Iv1 = Iv1 + Inln{2};
+                    Iv2 = Iv2 + Inln{3};
+                    if nargout > 3
+                        Izr = Izr + Inln{4};
+                        Izi = Izi + Inln{5};
+                    end
+                end
+            elseif ~isempty(obj.snln)
+                error('Nonlinear current function not defined for corresponding nonlinear power function.')
             end
         end
 
@@ -141,7 +159,7 @@ classdef ac_model < mp_model
                     sysx = 1;
                 end
             end
-            
+
             [Y, L, M, N, i, s] = obj.get_params(idx);
             [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
 
@@ -166,34 +184,48 @@ classdef ac_model < mp_model
                 else                %% selected ports
                     diagIlincJ = sparse(1:ni, idx, conj(Ilin), ni, n);
                 end
-                
+
                 [Sv1, Sv2] = obj.port_inj_power_jac( ...
                         n, v_, Y, M, diagv, diagvi, diagIlincJ);
 
-                if nargout >= 4
+                if nargout > 3
                     %% linear power term
-                    Slin_zr = N;
-                    Slin_zi = 1j * N;
+                    Szr = N;
+                    Szi = 1j * N;
 
-                    %% power from linear current term
+                    %% + power from linear current term
                     SI_zr = diagvi * conj(L);   %% E
-                    SI_zi = -1j * SI_zr;        %% -jE
-
-                    %% combine
-                    Szr = Slin_zr + SI_zr;
-                    Szi = Slin_zi + SI_zi;
+                    Szr = Szr + SI_zr;          %% +E
+                    Szi = Szi - 1j * SI_zr;     %% -jE
                 end
 
                 if sysx
                     Ct = obj.getC('tr');
                     Sv1 = Sv1 * Ct;
                     Sv2 = Sv2 * Ct;
-                    if nargout >= 4
+                    if nargout > 3
                         Dt = obj.getD('tr');
                         Szr = Szr * Dt;
                         Szi = Szi * Dt;
                     end
                 end
+            end
+
+            %% general nonlinear power
+            if ~isempty(obj.snln)
+                Snln = cell(1, nargout);
+                [Snln{:}] = obj.snln(x_, sysx, idx);
+                S = S + Snln{1};
+                if nargout > 1
+                    Sv1 = Sv1 + Snln{2};
+                    Sv2 = Sv2 + Snln{3};
+                    if nargout > 3
+                        Szr = Szr + Snln{4};
+                        Szi = Szi + Snln{5};
+                    end
+                end
+            elseif ~isempty(obj.inln)
+                error('Nonlinear power function not defined for corresponding nonlinear current function.')
             end
         end
 

@@ -116,6 +116,13 @@ classdef acp_model < ac_model
                         sparse(md, 2*nc+nd) D ];
                 H = Ap * H * Ap.';
             end
+
+            %% general nonlinear current
+            if ~isempty(obj.inln_hess)
+                H = H + obj.inln_hess(x_, lam, sysx, idx);
+            elseif ~isempty(obj.snln_hess)
+                error('Nonlinear current Hessian not defined for corresponding nonlinear power Hessian.')
+            end
         end
 
         function [Ivava, Ivavm, Ivmvm] = port_inj_current_hess_v(obj, x_, lam, v_, z_, diaginvic, Y, M, diagSlincJ, dlamJ)
@@ -310,6 +317,13 @@ classdef acp_model < ac_model
                         sparse(md, 2*nc) D sparse(md,nd);
                         sparse(md, 2*nc+nd) D ];
                 H = Ap * H * Ap.';
+            end
+
+            %% general nonlinear power
+            if ~isempty(obj.snln_hess)
+                H = H + obj.snln_hess(x_, lam, sysx, idx);
+            elseif ~isempty(obj.inln_hess)
+                error('Nonlinear power Hessian not defined for corresponding nonlinear current Hessian.')
             end
         end
 

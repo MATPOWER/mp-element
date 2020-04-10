@@ -13,6 +13,10 @@ classdef ac_aggregate < mp_aggregate% & ac_model
     properties
         zr = [];
         zi = [];
+        inln_list = {};         %% private: list of indexes of mpe's w/inln
+        snln_list = {};         %% private: list of indexes of mpe's w/snln
+        inln_hess_list = {};    %% private: list of indexes of mpe's w/inln_hess
+        snln_hess_list = {};    %% private: list of indexes of mpe's w/snln_hess
     end
     
     methods
@@ -33,6 +37,163 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             obj.N = obj.stack_matrix_params('N', 0);
             obj.i = obj.stack_vector_params('i');
             obj.s = obj.stack_vector_params('s');
+
+            %% add general nonlinear function if any element has one defined
+            for k = 1:length(obj.mpe_list)
+                if ~isempty(obj.mpe_list{k}.inln)
+                    obj.inln_list{end+1} = k;
+                    if ~isempty(obj.mpe_list{k}.inln_hess)
+                        obj.inln_hess_list{end+1} = k;
+                    end
+                end
+                if ~isempty(obj.mpe_list{k}.snln)
+                    obj.snln_list{end+1} = k;
+                    if ~isempty(obj.mpe_list{k}.snln_hess)
+                        obj.snln_hess_list{end+1} = k;
+                    end
+                end
+            end
+            if ~isempty(obj.inln_list)
+                obj.inln = @(x_, sysx, idx)port_inj_nln(obj, 'i', x_, sysx, idx);
+                if ~isempty(obj.inln_hess_list)
+                    obj.inln_hess = @(x_, lam, sysx, idx)port_inj_nln_hess(obj, 'i', x_, lam, sysx, idx);
+                end
+            end
+            if ~isempty(obj.snln_list)
+                obj.snln = @(x_, sysx, idx)port_inj_nln(obj, 's', x_, sysx, idx);
+                if ~isempty(obj.snln_hess_list)
+                    obj.snln_hess = @(x_, lam, sysx, idx)port_inj_nln_hess(obj, 's', x_, lam, sysx, idx);
+                end
+            end
+        end
+
+        function [g, gv1, gv2, gzr, gzi] = port_inj_nln(obj, si, x_, sysx, idx)
+            if nargin < 5
+                idx = [];
+                if nargin < 4
+                    sysx = 1;
+                end
+            end
+
+            %% current or power
+            fcn = [si 'nln'];
+            fcn_list = [fcn '_list'];
+
+            %% initialize
+            if isempty(idx)
+                sel = 0;        %% all ports
+                np = obj.np;
+            else
+                sel = 1;        %% selected ports only
+                np = length(idx);
+            end
+            nv = obj.get_nv_(sysx);
+            nz = obj.nz;
+            g = zeros(np, 1);
+            gv1 = sparse(np, nv);
+            gv2 = sparse(np, nv);
+            gzr = sparse(np, nz);
+            gzi = sparse(np, nz);
+
+            %% loop through elements w/gen nonlin fcns, evaluate them
+            for kk = obj.(fcn_list)
+                k = kk{1};      %% index into obj.mpe_list
+                mpe = obj.mpe_list{k};
+                i1 = obj.mpe_port_map(k, 1);    %% starting aggregate port index
+                iN = obj.mpe_port_map(k, 2);    %% ending aggregate port index
+                if mpe.nz
+                    j1 = obj.mpe_port_map(k, 1);    %% starting aggregate z-var index
+                    jN = obj.mpe_port_map(k, 2);    %% ending aggregate z-var index
+                end
+                if sel
+                    [apidx, i] = find(idx >= i1 && idx <= iN);  %% aggregate port indices in range
+                    mpe_idx = apidx - i1 + 1;
+                else
+                    mpe_idx = [];
+                end
+
+                %% call nonlinear function
+                gg = cell(1, nargout);
+                [gg{:}] = mpe.(fcn)(x_, sysx, mpe_idx);
+
+                %% insert the results in aggregate output args
+                if sel
+                    g(i) = gg{1};
+                    if nargout > 1
+                        if sysx
+                            gv1(i, :) = gg{2};
+                            gv2(i, :) = gg{3};
+                            if nargout > 3 && mpe.nz
+                                gzr(i, :) = gg{4};
+                                gzi(i, :) = gg{5};
+                            end
+                        else
+                            gv1(i, i1:iN) = gg{2};
+                            gv2(i, i1:iN) = gg{3};
+                            if nargout > 3 && mpe.nz
+                                gzr(i, j1:jN) = gg{4};
+                                gzi(i, j1:jN) = gg{5};
+                            end
+                        end
+                    end
+                else
+                    g(i1:iN) = gg{1};
+                    if nargout > 1
+                        if sysx
+                            gv1(i1:iN, :) = gg{2};
+                            gv2(i1:iN, :) = gg{3};
+                            if nargout > 3 && mpe.nz
+                                gzr(i1:iN, :) = gg{4};
+                                gzi(i1:iN, :) = gg{5};
+                            end
+                        else
+                            gv1(i1:iN, i1:iN) = gg{2};
+                            gv2(i1:iN, i1:iN) = gg{3};
+                            if nargout > 3 && mpe.nz
+                                gzr(i1:iN, j1:jN) = gg{4};
+                                gzi(i1:iN, j1:jN) = gg{5};
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        function H = port_inj_nln_hess(obj, si, x_, lam, sysx, idx)
+            % H = obj.port_inj_power_hess(x_, lam)
+            % H = obj.port_inj_power_hess(x_, lam, sysx)
+            % H = obj.port_inj_power_hess(x_, lam, sysx, idx)
+            if nargin < 6
+                idx = [];
+                if nargin < 5
+                    sysx = 1;
+                end
+            end
+
+            %% current or power
+            fcn = [si 'nln_hess'];
+            fcn_list = [fcn '_list'];
+
+            %% initialize
+            n = 2 * length(x_);
+            H = sparse(n, n);
+
+            %% loop through elements w/gen nonlin Hessians, evaluate them
+            for kk = obj.(fcn_list)
+                k = kk{1};      %% index into obj.mpe_list
+                mpe = obj.mpe_list{k};
+                if ~isempty(idx)    %% selected ports only
+                    i1 = obj.mpe_port_map(k, 1);    %% starting aggregate port index
+                    iN = obj.mpe_port_map(k, 2);    %% ending aggregate port index
+                    apidx = find(idx >= i1 && idx <= iN);   %% aggregate port indices in range
+                    mpe_idx = apidx - i1 + 1;
+                else                %% all ports
+                    mpe_idx = [];
+                end
+
+                %% call nonlinear function
+                H = H + mpe.(fcn)(x_, lam, sysx, mpe_idx);
+            end
         end
 
         function [G, Gv1, Gv2, Gzr, Gzi] = nodal_complex_current_balance(obj, x_)
