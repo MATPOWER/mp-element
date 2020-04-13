@@ -229,6 +229,138 @@ classdef ac_model < mp_model
             end
         end
 
+        function H = port_inj_current_hess(obj, x_, lam, sysx, idx)
+            % H = obj.port_inj_current_hess(x_, lam)
+            % H = obj.port_inj_current_hess(x_, lam, sysx)
+            % H = obj.port_inj_current_hess(x_, lam, sysx, idx)
+
+            if nargin < 5
+                idx = [];
+                if nargin < 4
+                    sysx = 1;
+                end
+            end
+
+            [Y, M, N, s] = obj.get_params(idx, {'Y', 'M', 'N', 's'});
+            [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
+
+            %% compute linear power injections
+            if isempty(z_)
+                Slin = M*v_ + s;
+            else
+                Slin = M*v_ + N*z_ + s;
+            end
+
+            %% intermediate terms
+            nz = length(z_);
+            n  = length(v_);    %% number of all port voltages
+            ni = length(vi_);   %% number of selected port voltages
+            diaginvic = sparse(1:ni, 1:ni, 1 ./ conj(vi_), ni, ni);
+            if isempty(idx)     %% all ports
+                diagSlincJ = sparse(1:n, 1:n, conj(Slin), n, n);
+                dlamJ      = sparse(1:n, 1:n, lam, n, n);
+            else                %% selected ports
+                diagSlincJ = sparse(1:ni, idx, conj(Slin), ni, n);
+                dlamJ      = sparse(1:ni, idx, lam, ni, n);
+            end
+
+            [Iv1v1, Iv1v2, Iv2v2] = ...
+                obj.port_inj_current_hess_v(x_, lam, v_, z_, diaginvic, Y, M, diagSlincJ, dlamJ);
+            [Iv1zr, Iv1zi, Iv2zr, Iv2zi] = ...
+                obj.port_inj_current_hess_vz(x_, lam, v_, z_, diaginvic, N, dlamJ);
+
+            H = [   Iv1v1   Iv1v2   Iv1zr   Iv1zi;
+                    Iv1v2.' Iv2v2   Iv2zr   Iv2zi;
+                    Iv1zr.' Iv2zr.' sparse(nz, 2*nz);
+                    Iv1zi.' Iv2zi.' sparse(nz, 2*nz)  ];
+
+            %% convert for system x_, if necessary
+            if sysx
+                C = obj.getC();
+                D = obj.getD();
+                [mc, nc] = size(C);
+                [md, nd] = size(D);
+                Ap = [  C sparse(mc, nc+2*nd);
+                        sparse(mc,nc) C sparse(mc, 2*nd);
+                        sparse(md, 2*nc) D sparse(md,nd);
+                        sparse(md, 2*nc+nd) D ];
+                H = Ap * H * Ap.';
+            end
+
+            %% general nonlinear current
+            if ~isempty(obj.inln_hess)
+                H = H + obj.inln_hess(x_, lam, sysx, idx);
+            elseif ~isempty(obj.snln_hess)
+                error('Nonlinear current Hessian not defined for corresponding nonlinear power Hessian.')
+            end
+        end
+
+        function H = port_inj_power_hess(obj, x_, lam, sysx, idx)
+            % H = obj.port_inj_power_hess(x_, lam)
+            % H = obj.port_inj_power_hess(x_, lam, sysx)
+            % H = obj.port_inj_power_hess(x_, lam, sysx, idx)
+
+            if nargin < 5
+                idx = [];
+                if nargin < 4
+                    sysx = 1;
+                end
+            end
+
+            [Y, L, M, i] = obj.get_params(idx, {'Y', 'L', 'M', 'i'});
+            [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
+
+            %% compute linear current injections
+            if isempty(z_)
+                Ilin = Y*v_ + i;
+            else
+                Ilin = Y*v_ + L*z_ + i;
+            end
+
+            %% intermediate terms
+            nz = length(z_);
+            n  = length(v_);    %% number of all port voltages
+            ni = length(vi_);   %% number of selected port voltages
+            diagvi = sparse(1:ni, 1:ni, vi_, ni, ni);
+            if isempty(idx)     %% all ports
+                diagIlincJ = sparse(1:n, 1:n, conj(Ilin), n, n);
+                dlamJ      = sparse(1:n, 1:n, lam, n, n);
+            else                %% selected ports
+                diagIlincJ = sparse(1:ni, idx, conj(Ilin), ni, n);
+                dlamJ      = sparse(1:ni, idx, lam, ni, n);
+            end
+
+            [Sv1v1, Sv1v2, Sv2v2] = ...
+                obj.port_inj_power_hess_v(x_, lam, v_, z_, diagvi, Y, M, diagIlincJ, dlamJ);
+            [Sv1zr, Sv1zi, Sv2zr, Sv2zi] = ...
+                obj.port_inj_power_hess_vz(x_, lam, v_, z_, diagvi, L, dlamJ);
+
+            H = [   Sv1v1   Sv1v2   Sv1zr   Sv1zi;
+                    Sv1v2.' Sv2v2   Sv2zr   Sv2zi;
+                    Sv1zr.' Sv2zr.' sparse(nz, 2*nz);
+                    Sv1zi.' Sv2zi.' sparse(nz, 2*nz)  ];
+
+            %% convert for system x_, if necessary
+            if sysx
+                C = obj.getC();
+                D = obj.getD();
+                [mc, nc] = size(C);
+                [md, nd] = size(D);
+                Ap = [  C sparse(mc, nc+2*nd);
+                        sparse(mc,nc) C sparse(mc, 2*nd);
+                        sparse(md, 2*nc) D sparse(md,nd);
+                        sparse(md, 2*nc+nd) D ];
+                H = Ap * H * Ap.';
+            end
+
+            %% general nonlinear power
+            if ~isempty(obj.snln_hess)
+                H = H + obj.snln_hess(x_, lam, sysx, idx);
+            elseif ~isempty(obj.inln_hess)
+                error('Nonlinear power Hessian not defined for corresponding nonlinear current Hessian.')
+            end
+        end
+
         function [h, dh] = port_apparent_power_lim_fcn(obj, x, asm, idx, hmax)
             %% branch squared apparent power flow constraints
             x_ = asm.x2x_(x);           %% convert real to complex x
