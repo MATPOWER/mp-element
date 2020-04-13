@@ -44,16 +44,12 @@ classdef acc_model < ac_model
             E = invdiagvic * (conj(M) - invdiagvic * diagSlincJ);
 
             %% linear current term
-            Ilin_u = Y;
-            Ilin_w = 1j * Y;
+            Iu = Y;
+            Iw = 1j * Y;
 
-            %% current from linear power term
-            IS_u = E;
-            IS_w = -1j * E;
-
-            %% combine
-            Iu = Ilin_u + IS_u;
-            Iw = Ilin_w + IS_w;
+            %% + current from linear power term
+            Iu = Iu + E;
+            Iw = Iw - 1j * E;
         end
 
         function [Iuu, Iuw, Iww] = port_inj_current_hess_v(obj, x_, lam, v_, z_, diaginvic, Y, M, diagSlincJ, dlamJ)
@@ -170,16 +166,12 @@ classdef acc_model < ac_model
             B = diagvi * conj(Y);
 
             %% linear power term
-            Slin_u = M;
-            Slin_w = 1j * M;
+            Su = M;
+            Sw = 1j * M;
 
-            %% power from linear current term
-            SI_u = A + B;
-            SI_w = 1j * (A - B);
-
-            %% combine
-            Su = Slin_u + SI_u;
-            Sw = Slin_w + SI_w;
+            %% + power from linear current term
+            Su = Su + A + B;
+            Sw = Sw + 1j * (A - B);
         end
 
         function [Suu, Suw, Sww] = port_inj_power_hess_v(obj, x_, lam, v_, z_, diagvi, Y, M, diagIlincJ, dlamJ)
@@ -221,17 +213,17 @@ classdef acc_model < ac_model
             end
 
             %% intermediate terms
-            D = dlamJ.';
-            E = D * conj(Y);
-            F = E + E.';
-            G = 1j * (E - E.');
+            % D = dlamJ.';
+            E = dlamJ.' * conj(Y);  %% D * conj(Y);
+            % F = E + E.';
+            % G = 1j * (E - E.');
 
             %% linear power term
             %% second derivatives all zero
 
             %% power from linear current term
-            Suu = F;
-            Suw = G.';
+            Suu = E + E.';          %% F
+            Suw = 1j * (E.' - E);   %% G.'
             Sww = Suu;
         end
 
