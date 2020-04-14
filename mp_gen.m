@@ -36,15 +36,11 @@ classdef mp_gen < mp_element
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
 
             %% incidence matrices
-            nn = asm.getN('node');
-            ng = obj.nk;
-            IDs = mpc.gen(:, GEN_BUS);              %% bus IDs
-            nidx = asm.node.data.ID2idx.bus(IDs);   %% node indexes
-            obj.C = { sparse(nidx, 1:ng, 1, nn, ng) };
-
-            nz = asm.getN('state');
+            IDs = mpc.gen(:, GEN_BUS);                  %% bus IDs
+            nidx = asm.node.data.ID2idx.bus(IDs);       %% node indexes
             sidx = asm.state.data.ID2idx.(obj.name);    %% state indexes
-            obj.D = { sparse(sidx, 1:ng, 1, nz, ng) };
+            obj.setC(asm.getN('node'), nidx);
+            obj.setD(asm.getN('state'), sidx);
         end
 
         %%-----  OPF methods  -----

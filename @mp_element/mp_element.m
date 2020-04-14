@@ -142,6 +142,24 @@ classdef mp_element < handle
             end
         end
 
+        function setC(obj, nn, varargin)
+            %% obj.setC(nn, nk, idx1, idx2, ...)
+            n = length(varargin);
+            obj.C = cell(1, n);
+            for i = 1:n
+                obj.C{i} = sparse(varargin{i}, 1:obj.nk, 1, nn, obj.nk);
+            end
+        end
+
+        function setD(obj, nz, varargin)
+            %% obj.setD(nz, nk, idx1, idx2, ...)
+            n = length(varargin);
+            obj.D = cell(1, n);
+            for i = 1:n
+                obj.D{i} = sparse(varargin{i}, 1:obj.nk, 1, nz, obj.nk);
+            end
+        end
+
         function C = getC(obj, transpose_it)
             if nargin > 1
                 C = horzcat(obj.C{:}).';

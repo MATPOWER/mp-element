@@ -37,12 +37,9 @@ classdef mp_shunt < mp_element
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
             %% incidence matrices
-            nn = asm.getN('node');
-            nsh = obj.nk;
-            k = obj.busidx;
-            IDs = mpc.bus(k, BUS_I);                %% bus IDs
+            IDs = mpc.bus(obj.busidx, BUS_I);       %% bus IDs
             nidx = asm.node.data.ID2idx.bus(IDs);   %% node indexes
-            obj.C = { sparse(nidx, 1:nsh, 1, nn, nsh) };
+            obj.setC(asm.getN('node'), nidx);
         end
     end     %% methods
 end         %% classdef

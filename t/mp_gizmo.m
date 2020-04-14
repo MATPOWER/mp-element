@@ -43,14 +43,11 @@ classdef mp_gizmo < mp_element
             idx1 = ID2idx(mpc.gizmo(:, 1)); %% port 1 node indexes
             idx2 = ID2idx(mpc.gizmo(:, 2)); %% port 2 node indexes
             idx3 = ID2idx(mpc.gizmo(:, 3)); %% port 3 node indexes
-            obj.C = { sparse(idx1, 1:nk, 1, nn, nk), ...
-                      sparse(idx2, 1:nk, 1, nn, nk), ...
-                      sparse(idx3, 1:nk, 1, nn, nk) };
-
-            nz = asm.getN('state');
             ss = asm.get_idx('state');
-            obj.D = { sparse(ss.i1.(obj.name)(1):ss.iN.(obj.name)(1), 1:nk, 1, nz, nk), ...
-                      sparse(ss.i1.(obj.name)(2):ss.iN.(obj.name)(2), 1:nk, 1, nz, nk) };
+            sidx1 = ss.i1.(obj.name)(1):ss.iN.(obj.name)(1);
+            sidx2 = ss.i1.(obj.name)(2):ss.iN.(obj.name)(2);
+            obj.setC(asm.getN('node'), idx1, idx2, idx3);
+            obj.setD(asm.getN('state'), sidx1, sidx2);
         end
     end     %% methods
 end         %% classdef

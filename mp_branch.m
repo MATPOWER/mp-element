@@ -26,20 +26,12 @@ classdef mp_branch < mp_element
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
                 TAP, SHIFT, BR_STATUS] = idx_brch;
 
-            branch = mpc.branch;
-            nl = obj.nk;
-
             %% incidence matrices
-            nn = asm.getN('node');
-            nl = obj.nk;
-
             fIDs = mpc.branch(:, F_BUS);            %% "from" bus IDs
             tIDs = mpc.branch(:, T_BUS);            %% "to" bus IDs
             fidx = asm.node.data.ID2idx.bus(fIDs);  %% "from" node indexes
             tidx = asm.node.data.ID2idx.bus(tIDs);  %% "to" node indexes
-
-            obj.C = { sparse(fidx, 1:nl, 1, nn, nl), ...
-                      sparse(tidx, 1:nl, 1, nn, nl) };
+            obj.setC(asm.getN('node'), fidx, tidx);
         end
     end     %% methods
 end         %% classdef
