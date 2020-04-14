@@ -188,6 +188,10 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
         end
 
         %%-----  mp_idx_manager methods  -----
+        display(obj)
+        
+        [v0, vl, vu, vt] = params_var(obj, vtype, name, idx)
+        
         function obj = def_set_types(obj)
             obj.set_types = struct(...
                     'node', 'NODES', ...
@@ -382,6 +386,10 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
         end
 
         %%-----  OPF methods  -----
+        om = setup_opf(obj, mpc, mpopt)
+        
+        [x, success, i] = solve_opf(obj, mpc, mpopt)
+        
         function add_opf_vars(obj, asm, om, mpc, mpopt)
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars

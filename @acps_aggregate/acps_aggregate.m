@@ -31,5 +31,9 @@ classdef acps_aggregate < acp_aggregate% & acps_model
             hess_mis = @(x, lam)opf_power_balance_hess(obj, x, lam);
             om.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
+
+        [F, J] = power_flow_equations(obj, x, va, vm, z_, ref, pv, pq)
+
+        [x, success, i] = solve_power_flow(obj, mpc, mpopt)
     end     %% methods
 end         %% classdef
