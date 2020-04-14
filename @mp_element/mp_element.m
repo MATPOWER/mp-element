@@ -66,11 +66,13 @@ classdef mp_element < handle
         np = 0;             %% number of ports per element
         nk = 0;             %% number of elements of this type loaded
         nz = 0;             %% number of non-voltage states per element (possibly complex)
-        C = {};             %% cell array of sparse element-node incidence
-                            %% matrices, where C{j}(i,k) is 1 if port j of
-                            %% element k is connected to node i
-        D = {};             %% cell array of sparse incidence matrices for
-                            %% Z variables, where D{j} is for Z variable j
+        C = [];             %% stacked element-node incidence matrices,
+                            %% where C(i,kk) is 1 if port j of element k is
+                            %% connected to node i, and kk = k + (j-1)*np
+        D = [];             %% stacked sparse incidence matrices for
+                            %% Z variables, where D(i,kk) is 1 if z-variable j
+                            %% of element k is the i-th system z-variable
+                            %% and kk = k + (j-1)*nz
     end
     
     methods
@@ -103,8 +105,8 @@ classdef mp_element < handle
 
             %% get sizes
             if sysx
-                nv_ = size(obj.C{1}, 1);
-%                 nz_ = size(obj.D{1}, 1);     % doesn't work when D = {}
+                nv_ = size(obj.C, 1);
+%                 nz_ = size(obj.D, 1);
             else
                 nv_ = obj.nk * obj.np;
 %                 nz_ = obj.nk * obj.nz;
@@ -142,37 +144,45 @@ classdef mp_element < handle
             end
         end
 
-        function setC(obj, nn, varargin)
-            %% obj.setC(nn, nk, idx1, idx2, ...)
-            n = length(varargin);
-            obj.C = cell(1, n);
-            for i = 1:n
-                obj.C{i} = sparse(varargin{i}, 1:obj.nk, 1, nn, obj.nk);
+        function CD = incidence_matrix(obj, m, varargin)
+            %% obj.setC(m, idx1, idx2, ...)
+            n = length(varargin);   %% number of ports/z-vars
+            if n == 1
+                CD = sparse(varargin{1}, 1:obj.nk, 1, m, obj.nk);
+            elseif n > 1
+                blocks = cell(1, n);
+                for i = 1:n
+                    blocks{i} = sparse(varargin{i}, 1:obj.nk, 1, m, obj.nk);
+                end
+                CD = horzcat(blocks{:});
+            else
+                CD = sparse(m, 0);
             end
         end
 
+        function setC(obj, nn, varargin)
+            %% obj.setC(nn, idx1, idx2, ...)
+            obj.C = obj.incidence_matrix(nn, varargin{:});
+        end
+
         function setD(obj, nz, varargin)
-            %% obj.setD(nz, nk, idx1, idx2, ...)
-            n = length(varargin);
-            obj.D = cell(1, n);
-            for i = 1:n
-                obj.D{i} = sparse(varargin{i}, 1:obj.nk, 1, nz, obj.nk);
-            end
+            %% obj.setD(nz, idx1, idx2, ...)
+            obj.D = obj.incidence_matrix(nz, varargin{:});
         end
 
         function C = getC(obj, transpose_it)
             if nargin > 1
-                C = horzcat(obj.C{:}).';
+                C = obj.C.';
             else
-                C = horzcat(obj.C{:});
+                C = obj.C;
             end
         end
 
         function D = getD(obj, transpose_it)
             if nargin > 1
-                D = horzcat(obj.D{:}).';
+                D = obj.D.';
             else
-                D = horzcat(obj.D{:});
+                D = obj.D;
             end
         end
         

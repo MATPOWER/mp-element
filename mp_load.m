@@ -40,6 +40,7 @@ classdef mp_load < mp_element
             IDs = mpc.bus(obj.busidx, BUS_I);       %% bus IDs
             nidx = asm.node.data.ID2idx.bus(IDs);   %% node indexes
             obj.setC(asm.getN('node'), nidx);
+            obj.setD(asm.getN('state'));
         end
     end     %% methods
 end         %% classdef

@@ -32,6 +32,7 @@ classdef mp_branch < mp_element
             fidx = asm.node.data.ID2idx.bus(fIDs);  %% "from" node indexes
             tidx = asm.node.data.ID2idx.bus(tIDs);  %% "to" node indexes
             obj.setC(asm.getN('node'), fidx, tidx);
+            obj.setD(asm.getN('state'));
         end
     end     %% methods
 end         %% classdef

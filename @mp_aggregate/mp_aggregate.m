@@ -112,15 +112,15 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
                 obj.mpe_port_map(k, 1) = pk;        %% starting port index
                 obj.mpe_z_map(k, 1) = zk;           %% starting z-var index
                 mpe.build_params(obj, mpc);
-                C = horzcat(C, mpe.C);
-                D = horzcat(D, mpe.D);
+                C = horzcat(C, {mpe.C});
+                D = horzcat(D, {mpe.D});
                 pk = pk + mpe.np * mpe.nk;          %% increment port counter
                 zk = zk + mpe.nz * mpe.nk;          %% increment z-var counter
                 obj.mpe_port_map(k, 2) = pk - 1;    %% ending port index
                 obj.mpe_z_map(k, 2)    = zk - 1;    %% ending z-var index
             end
-            obj.C = { horzcat(C{:}) };
-            obj.D = { horzcat(D{:}) };
+            obj.C = horzcat(C{:});
+            obj.D = horzcat(D{:});
         end
 
         function M = stack_matrix_params(obj, name, vnotz)
