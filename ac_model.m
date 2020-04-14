@@ -81,13 +81,17 @@ classdef ac_model < mp_model
             [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
 
             %% compute linear current injections and power injections
+            nc = size(x_, 2);
+            if nc > 1   %% Octave <= 5.2 has issues with broadcasting properly
+                i = i * ones(1, nc);
+                s = s * ones(1, nc);
+            end
             if isempty(z_)
                 Slin = M*v_ + s;
                 I = Y*v_ + i + conj(Slin ./ vi_);
             else
                 Slin = M*v_ + N*z_ + s;
                 I = Y*v_ + L*z_ + i + conj(Slin ./ vi_);
-%                 I = Y*v_ + L*z_ + i * ones(1, size(x_, 2)) + conj(Slin ./ vi_);
             end
 
             if nargout > 1
@@ -169,13 +173,17 @@ classdef ac_model < mp_model
             [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
 
             %% compute linear current injections and power injections
+            nc = size(x_, 2);
+            if nc > 1   %% Octave <= 5.2 has issues with broadcasting properly
+                i = i * ones(1, nc);
+                s = s * ones(1, nc);
+            end
             if isempty(z_)
                 Ilin = Y*v_ + i;
                 S = vi_ .* conj(Ilin) + M*v_ + s;
             else
                 Ilin = Y*v_ + L*z_ + i;
                 S = vi_ .* conj(Ilin) + M*v_ + N*z_ + s;
-%                 S = vi_ .* conj(Ilin) + M*v_ + N*z_ + s * ones(1, size(x_, 2));
             end
 
             if nargout > 1
