@@ -102,59 +102,68 @@ classdef ac_aggregate < mp_aggregate% & ac_model
                 mpe = obj.mpe_list{k};
                 i1 = obj.mpe_port_map(k, 1);    %% starting aggregate port index
                 iN = obj.mpe_port_map(k, 2);    %% ending aggregate port index
-                if mpe.nz
-                    j1 = obj.mpe_port_map(k, 1);    %% starting aggregate z-var index
-                    jN = obj.mpe_port_map(k, 2);    %% ending aggregate z-var index
-                end
+
+                %% set up port index vector for mpe
                 if sel
                     apidx = find(idx >= i1 & idx <= iN);   %% aggregate port indices in range
-                    mpe_idx = idx(apidx) - i1 + 1;
+                    if isempty(apidx)  %% skip if selected ports, but none in range
+                        continue;
+                    end
+                    mpe_idx = idx(apidx) - i1 + 1;  %% port index vector for mpe
                 else
-                    mpe_idx = [];
+                    mpe_idx = [];                   %% all ports for mpe
                 end
 
-                if ~sel || ~isempty(mpe_idx)
-                    %% call nonlinear function
-                    gg = cell(1, nargout);
-                    [gg{:}] = mpe.(fcn)(x_, sysx, mpe_idx);
+                %% set up proper x_ for mpe
+                if sysx
+                    mpe_x_ = x_;
+                else
+                    j1 = obj.mpe_z_map(k, 1);   %% starting aggregate z-var index
+                    jN = obj.mpe_z_map(k, 2);   %% ending aggregate z-var index
+                    mpe_x_ = [  x_(i1:iN, :);
+                                x_(nv+j1:nv+jN, :)  ];
+                end
 
-                    %% insert the results in aggregate output args
-                    if sel
-                        g(apidx, :) = gg{1};
-                        if nargout > 1
-                            if sysx
-                                gv1(apidx, :) = gg{2};
-                                gv2(apidx, :) = gg{3};
-                                if nargout > 3 && mpe.nz
-                                    gzr(apidx, :) = gg{4};
-                                    gzi(apidx, :) = gg{5};
-                                end
-                            else
-                                gv1(apidx, i1:iN) = gg{2};
-                                gv2(apidx, i1:iN) = gg{3};
-                                if nargout > 3 && mpe.nz
-                                    gzr(apidx, j1:jN) = gg{4};
-                                    gzi(apidx, j1:jN) = gg{5};
-                                end
+                %% call nonlinear function
+                gg = cell(1, nargout);
+                [gg{:}] = mpe.(fcn)(mpe_x_, sysx, mpe_idx);
+
+                %% insert the results in aggregate output args
+                if sel
+                    g(apidx, :) = gg{1};
+                    if nargout > 1
+                        if sysx
+                            gv1(apidx, :) = gg{2};
+                            gv2(apidx, :) = gg{3};
+                            if nargout > 3 && mpe.nz
+                                gzr(apidx, :) = gg{4};
+                                gzi(apidx, :) = gg{5};
+                            end
+                        else
+                            gv1(apidx, i1:iN) = gg{2};
+                            gv2(apidx, i1:iN) = gg{3};
+                            if nargout > 3 && mpe.nz
+                                gzr(apidx, j1:jN) = gg{4};
+                                gzi(apidx, j1:jN) = gg{5};
                             end
                         end
-                    else
-                        g(i1:iN, :) = gg{1};
-                        if nargout > 1
-                            if sysx
-                                gv1(i1:iN, :) = gg{2};
-                                gv2(i1:iN, :) = gg{3};
-                                if nargout > 3 && mpe.nz
-                                    gzr(i1:iN, :) = gg{4};
-                                    gzi(i1:iN, :) = gg{5};
-                                end
-                            else
-                                gv1(i1:iN, i1:iN) = gg{2};
-                                gv2(i1:iN, i1:iN) = gg{3};
-                                if nargout > 3 && mpe.nz
-                                    gzr(i1:iN, j1:jN) = gg{4};
-                                    gzi(i1:iN, j1:jN) = gg{5};
-                                end
+                    end
+                else
+                    g(i1:iN, :) = gg{1};
+                    if nargout > 1
+                        if sysx
+                            gv1(i1:iN, :) = gg{2};
+                            gv2(i1:iN, :) = gg{3};
+                            if nargout > 3 && mpe.nz
+                                gzr(i1:iN, :) = gg{4};
+                                gzi(i1:iN, :) = gg{5};
+                            end
+                        else
+                            gv1(i1:iN, i1:iN) = gg{2};
+                            gv2(i1:iN, i1:iN) = gg{3};
+                            if nargout > 3 && mpe.nz
+                                gzr(i1:iN, j1:jN) = gg{4};
+                                gzi(i1:iN, j1:jN) = gg{5};
                             end
                         end
                     end
@@ -185,18 +194,45 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             for kk = obj.(fcn_list)
                 k = kk{1};      %% index into obj.mpe_list
                 mpe = obj.mpe_list{k};
+                i1 = obj.mpe_port_map(k, 1);    %% starting aggregate port index
+                iN = obj.mpe_port_map(k, 2);    %% ending aggregate port index
+
+                %% set up x_ for mpe & corresp row/col indices for mpe
+                if sysx
+                    mpe_x_ = x_;
+                else
+                    nv = obj.get_nv_(sysx);
+                    nz = obj.nz;
+                    j1 = obj.mpe_z_map(k, 1);   %% starting aggregate z-var index
+                    jN = obj.mpe_z_map(k, 2);   %% ending aggregate z-var index
+                    mpe_x_ = [  x_(i1:iN, :);
+                                x_(nv+j1:nv+jN, :)  ];
+
+                    %% indices of rows/cols of H corresponding to mpe x_
+                    h = [(i1:iN) nv+(i1:iN) 2*nv+(j1:jN) 2*nv+nz+(j1:jN)].';
+                end
+                
+                %% set up port index and lambda vectors for mpe
                 if ~isempty(idx)    %% selected ports only
-                    i1 = obj.mpe_port_map(k, 1);    %% starting aggregate port index
-                    iN = obj.mpe_port_map(k, 2);    %% ending aggregate port index
                     apidx = find(idx >= i1 & idx <= iN);    %% aggregate port indices in range
-                    mpe_idx = idx(apidx) - i1 + 1;
+                    if isempty(apidx)  %% skip if selected ports, but none in range
+                        continue;
+                    end
+                    mpe_idx = idx(apidx) - i1 + 1;  %% port index vector for mpe
+                    mpe_lam = lam(apidx);           %% corresponding lam
                 else                %% all ports
                     mpe_idx = [];
+                    mpe_lam = lam(i1:iN);
                 end
 
                 %% call nonlinear function
-                if ~isempty(idx) && ~isempty(mpe_idx)   %% selected ports only
-                    H = H + mpe.(fcn)(x_, lam, sysx, mpe_idx);
+                mpe_H = mpe.(fcn)(mpe_x_, mpe_lam, sysx, mpe_idx);
+
+                %% accumulate output
+                if sysx
+                    H = H + mpe_H;
+                else
+                    H(h,h) = H(h,h) + mpe_H;
                 end
             end
         end
