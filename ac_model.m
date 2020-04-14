@@ -91,18 +91,23 @@ classdef ac_model < mp_model
             end
 
             if nargout > 1
-                %% intermediate terms
                 n  = length(v_);    %% number of all port voltages
                 ni = length(vi_);   %% number of selected port voltages
                 invdiagvic = sparse(1:ni, 1:ni, 1./conj(vi_), ni, ni);
-                if isempty(idx)     %% all ports
-                    diagSlincJ = sparse(1:n, 1:n, conj(Slin), n, n);
-                else                %% selected ports
-                    diagSlincJ = sparse(1:ni, idx, conj(Slin), ni, n);
-                end
+                if any(any(M)) || any(any(N)) || any(s) || any(any(Y))
+                    %% intermediate terms
+                    if isempty(idx)     %% all ports
+                        diagSlincJ = sparse(1:n, 1:n, conj(Slin), n, n);
+                    else                %% selected ports
+                        diagSlincJ = sparse(1:ni, idx, conj(Slin), ni, n);
+                    end
 
-                [Iv1, Iv2] = obj.port_inj_current_jac( ...
-                        n, v_, Y, M, invdiagvic, diagSlincJ);
+                    [Iv1, Iv2] = obj.port_inj_current_jac( ...
+                            n, v_, Y, M, invdiagvic, diagSlincJ);
+                else
+                    Iv1 = sparse(ni, n);
+                    Iv2 = Iv1;
+                end
 
                 if nargout > 3
                     %% linear current term
@@ -174,19 +179,24 @@ classdef ac_model < mp_model
             end
 
             if nargout > 1
-                %% intermediate terms
                 n  = length(v_);    %% number of all port voltages
                 ni = length(vi_);   %% number of selected port voltages
-                diagv  = sparse(1:n, 1:n, v_, n, n);
                 diagvi = sparse(1:ni, 1:ni, vi_, ni, ni);
-                if isempty(idx)     %% all ports
-                    diagIlincJ = sparse(1:n, 1:n, conj(Ilin), n, n);
-                else                %% selected ports
-                    diagIlincJ = sparse(1:ni, idx, conj(Ilin), ni, n);
-                end
+                if any(any(Y)) || any(any(L)) || any(i) || any(any(M))
+                    %% intermediate terms
+                    diagv  = sparse(1:n, 1:n, v_, n, n);
+                    if isempty(idx)     %% all ports
+                        diagIlincJ = sparse(1:n, 1:n, conj(Ilin), n, n);
+                    else                %% selected ports
+                        diagIlincJ = sparse(1:ni, idx, conj(Ilin), ni, n);
+                    end
 
-                [Sv1, Sv2] = obj.port_inj_power_jac( ...
-                        n, v_, Y, M, diagv, diagvi, diagIlincJ);
+                    [Sv1, Sv2] = obj.port_inj_power_jac( ...
+                            n, v_, Y, M, diagv, diagvi, diagIlincJ);
+                else                %% not a function of voltages
+                    Sv1 = sparse(ni, n);
+                    Sv2 = Sv1;
+                end
 
                 if nargout > 3
                     %% linear power term
@@ -251,28 +261,32 @@ classdef ac_model < mp_model
                 Slin = M*v_ + N*z_ + s;
             end
 
-            %% intermediate terms
             nz = length(z_);
             n  = length(v_);    %% number of all port voltages
-            ni = length(vi_);   %% number of selected port voltages
-            diaginvic = sparse(1:ni, 1:ni, 1 ./ conj(vi_), ni, ni);
-            if isempty(idx)     %% all ports
-                diagSlincJ = sparse(1:n, 1:n, conj(Slin), n, n);
-                dlamJ      = sparse(1:n, 1:n, lam, n, n);
-            else                %% selected ports
-                diagSlincJ = sparse(1:ni, idx, conj(Slin), ni, n);
-                dlamJ      = sparse(1:ni, idx, lam, ni, n);
+            if any(any(M)) || any(any(N)) || any(s) || any(any(Y))
+                %% intermediate terms
+                ni = length(vi_);   %% number of selected port voltages
+                diaginvic = sparse(1:ni, 1:ni, 1 ./ conj(vi_), ni, ni);
+                if isempty(idx)     %% all ports
+                    diagSlincJ = sparse(1:n, 1:n, conj(Slin), n, n);
+                    dlamJ      = sparse(1:n, 1:n, lam, n, n);
+                else                %% selected ports
+                    diagSlincJ = sparse(1:ni, idx, conj(Slin), ni, n);
+                    dlamJ      = sparse(1:ni, idx, lam, ni, n);
+                end
+
+                [Iv1v1, Iv1v2, Iv2v2] = ...
+                    obj.port_inj_current_hess_v(x_, lam, v_, z_, diaginvic, Y, M, diagSlincJ, dlamJ);
+                [Iv1zr, Iv1zi, Iv2zr, Iv2zi] = ...
+                    obj.port_inj_current_hess_vz(x_, lam, v_, z_, diaginvic, N, dlamJ);
+
+                H = [   Iv1v1   Iv1v2   Iv1zr   Iv1zi;
+                        Iv1v2.' Iv2v2   Iv2zr   Iv2zi;
+                        Iv1zr.' Iv2zr.' sparse(nz, 2*nz);
+                        Iv1zi.' Iv2zi.' sparse(nz, 2*nz)  ];
+            else                %% not a function of voltages
+                H = sparse(2*(n+nz), 2*(n+nz));
             end
-
-            [Iv1v1, Iv1v2, Iv2v2] = ...
-                obj.port_inj_current_hess_v(x_, lam, v_, z_, diaginvic, Y, M, diagSlincJ, dlamJ);
-            [Iv1zr, Iv1zi, Iv2zr, Iv2zi] = ...
-                obj.port_inj_current_hess_vz(x_, lam, v_, z_, diaginvic, N, dlamJ);
-
-            H = [   Iv1v1   Iv1v2   Iv1zr   Iv1zi;
-                    Iv1v2.' Iv2v2   Iv2zr   Iv2zi;
-                    Iv1zr.' Iv2zr.' sparse(nz, 2*nz);
-                    Iv1zi.' Iv2zi.' sparse(nz, 2*nz)  ];
 
             %% convert for system x_, if necessary
             if sysx
@@ -317,28 +331,32 @@ classdef ac_model < mp_model
                 Ilin = Y*v_ + L*z_ + i;
             end
 
-            %% intermediate terms
             nz = length(z_);
             n  = length(v_);    %% number of all port voltages
-            ni = length(vi_);   %% number of selected port voltages
-            diagvi = sparse(1:ni, 1:ni, vi_, ni, ni);
-            if isempty(idx)     %% all ports
-                diagIlincJ = sparse(1:n, 1:n, conj(Ilin), n, n);
-                dlamJ      = sparse(1:n, 1:n, lam, n, n);
-            else                %% selected ports
-                diagIlincJ = sparse(1:ni, idx, conj(Ilin), ni, n);
-                dlamJ      = sparse(1:ni, idx, lam, ni, n);
+            if any(any(Y)) || any(any(L)) || any(i) || any(any(M))
+                %% intermediate terms
+                ni = length(vi_);   %% number of selected port voltages
+                diagvi = sparse(1:ni, 1:ni, vi_, ni, ni);
+                if isempty(idx)     %% all ports
+                    diagIlincJ = sparse(1:n, 1:n, conj(Ilin), n, n);
+                    dlamJ      = sparse(1:n, 1:n, lam, n, n);
+                else                %% selected ports
+                    diagIlincJ = sparse(1:ni, idx, conj(Ilin), ni, n);
+                    dlamJ      = sparse(1:ni, idx, lam, ni, n);
+                end
+
+                [Sv1v1, Sv1v2, Sv2v2] = ...
+                    obj.port_inj_power_hess_v(x_, lam, v_, z_, diagvi, Y, M, diagIlincJ, dlamJ);
+                [Sv1zr, Sv1zi, Sv2zr, Sv2zi] = ...
+                    obj.port_inj_power_hess_vz(x_, lam, v_, z_, diagvi, L, dlamJ);
+
+                H = [   Sv1v1   Sv1v2   Sv1zr   Sv1zi;
+                        Sv1v2.' Sv2v2   Sv2zr   Sv2zi;
+                        Sv1zr.' Sv2zr.' sparse(nz, 2*nz);
+                        Sv1zi.' Sv2zi.' sparse(nz, 2*nz)  ];
+            else                %% not a function of voltages
+                H = sparse(2*(n+nz), 2*(n+nz));
             end
-
-            [Sv1v1, Sv1v2, Sv2v2] = ...
-                obj.port_inj_power_hess_v(x_, lam, v_, z_, diagvi, Y, M, diagIlincJ, dlamJ);
-            [Sv1zr, Sv1zi, Sv2zr, Sv2zi] = ...
-                obj.port_inj_power_hess_vz(x_, lam, v_, z_, diagvi, L, dlamJ);
-
-            H = [   Sv1v1   Sv1v2   Sv1zr   Sv1zi;
-                    Sv1v2.' Sv2v2   Sv2zr   Sv2zi;
-                    Sv1zr.' Sv2zr.' sparse(nz, 2*nz);
-                    Sv1zi.' Sv2zi.' sparse(nz, 2*nz)  ];
 
             %% convert for system x_, if necessary
             if sysx
