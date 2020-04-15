@@ -61,19 +61,21 @@ classdef mp_model < handle
             varargout = cell(1, nargout);
             if isempty(idx)     %% all ports
                 for k = 1:nargout
-                    if isempty(obj.(names{k}))
+                    P = obj.(names{k});
+                    if isempty(P)
                         varargout{k} = sparse(np, ncols(obj.param_ncols.(names{k})));
                     else
-                        varargout{k} = obj.(names{k});
+                        varargout{k} = P;
                     end
                 end
             else                %% selected ports
                 ni = length(idx);
                 for k = 1:nargout
-                    if isempty(obj.(names{k}))
+                    P = obj.(names{k});
+                    if isempty(P)
                         varargout{k} = sparse(ni, ncols(obj.param_ncols.(names{k})));
                     else
-                        varargout{k} = obj.(names{k})(idx, :);
+                        varargout{k} = P(idx, :);
                     end
                 end
             end
