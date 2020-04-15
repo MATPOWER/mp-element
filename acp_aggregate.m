@@ -40,5 +40,9 @@ classdef acp_aggregate < ac_aggregate & acp_model
             zi = x(b+1:b+nz_, :);
             x_ = [vm .* exp(1j*va); zr+1j*zi];
         end
+
+        function names = opf_legacy_user_var_names(obj)
+            names = {'Va', 'Vm', 'Pg', 'Qg'};
+        end
     end     %% methods
 end         %% classdef

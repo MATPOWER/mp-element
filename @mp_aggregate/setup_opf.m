@@ -32,4 +32,12 @@ if obj.np ~= 0      %% skip for empty model
     obj.add_opf_vars(obj, om, mpc, mpopt);
     obj.add_opf_constraints(obj, om, mpc, mpopt);
     obj.add_opf_costs(obj, om, mpc, mpopt);
+    
+    %% execute userfcn callbacks for 'formulation' stage
+    if isfield(mpc, 'userfcn')
+        userfcn = mpc.userfcn;
+    else
+        userfcn = [];
+    end
+    om = run_userfcn(userfcn, 'formulation', om, mpopt);
 end

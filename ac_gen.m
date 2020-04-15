@@ -94,6 +94,12 @@ classdef ac_gen < mp_gen% & ac_model
             om.add_lin_constraint('PQl', Apql, [], ubpql, {'Pg', 'Qg'});      %% npql
             om.userdata.Apqdata = Apqdata;
 
+            %% dispatchable load constant power factor constraint
+            [Avl, lvl, uvl]  = makeAvl(mpc);
+            if ~isempty(Avl)
+                om.add_lin_constraint('vl',  Avl, lvl, uvl,   {'Pg', 'Qg'});    %% nvl
+            end
+
             %% piecewise linear costs
             if obj.cost_pwl.ny
                 om.add_lin_constraint('ycon', obj.cost_pwl.Ay, [], obj.cost_pwl.by, {'Pg', 'Qg', 'y'});

@@ -409,6 +409,9 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             for mpe = obj.mpe_list
                 mpe{1}.add_opf_vars(asm, om, mpc, mpopt);
             end
+            
+            %% legacy user-defined variables
+            obj.add_opf_legacy_user_vars(om, mpc, mpopt);
         end
 
         function add_opf_constraints(obj, asm, om, mpc, mpopt)
@@ -433,12 +436,145 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
 
         function add_opf_system_constraints(obj, om, mpc, mpopt)
             %% can be overridden to add additional system constraints
+
             %% node balance constraints
             obj.add_opf_node_balance_constraints(om);
+
+            %% legacy user-defined constraints
+            obj.add_opf_legacy_user_constraints(om, mpc, mpopt);
         end
 
         function add_opf_system_costs(obj, om, mpc, mpopt)
             %% can be overridden to add additional system costs
+
+            %% legacy user-defined costs
+            obj.add_opf_legacy_user_costs(om, mpopt);
+        end
+
+        function add_opf_legacy_user_vars(obj, om, mpc, mpopt)
+            %% create (read-only) copies of individual fields for convenience
+            [baseMVA, bus, gen, branch, gencost, Au, lbu, ubu, mpopt, ...
+                N, fparm, H, Cw, z0, zl, zu, userfcn] = opf_args(mpc, mpopt);
+
+            %% get some more problem dimensions
+            if isfield(mpc, 'A')
+                nlin = size(mpc.A, 1);  %% number of linear user constraints
+            else
+                nlin = 0;
+            end
+            if isfield(mpc, 'N')
+                nw = size(mpc.N, 1);    %% number of general cost vars, w
+            else
+                nw = 0;
+            end
+
+            %% get number of user vars, check consistency
+            nx = sum(cellfun(@(x)om.getN('var', x), obj.opf_legacy_user_var_names()));
+            if nlin
+                nz = size(mpc.A, 2) - nx; %% number of user z variables
+                if nz < 0
+                    error('mp_aggregate/add_opf_legacy_user_vars: user supplied A matrix must have at least %d columns.', nx);
+                end
+            else
+                nz = 0;               %% number of user z variables
+                if nw                 %% still need to check number of columns of N
+                    if size(mpc.N, 2) ~= nx;
+                        error('mp_aggregate/add_opf_legacy_user_vars: user supplied N matrix must have %d columns.', nx);
+                    end
+                end
+            end
+
+            %% save data
+            om.userdata.user_vars = obj.opf_legacy_user_var_names();
+            om.userdata.nlin = nlin;
+            om.userdata.nw = nw;
+            om.userdata.A = Au;
+            om.userdata.l = lbu;
+            om.userdata.u = ubu;
+            om.userdata.N = N;
+            om.userdata.fparm = fparm;
+            om.userdata.H = H;
+            om.userdata.Cw = Cw;
+
+            %% add any user-defined vars
+            if nz > 0
+                om.add_var('z', nz, z0, zl, zu);
+                om.userdata.user_vars{end+1} = 'z';
+            end
+        end
+
+        function add_opf_legacy_user_constraints(obj, om, mpc, mpopt)
+            %% user-defined linear constraints
+            if om.userdata.nlin
+                om.add_lin_constraint('usr', om.userdata.A, om.userdata.l, ...
+                    om.userdata.u, om.userdata.user_vars);
+                om.userdata = rmfield(om.userdata, {'A', 'l', 'u', 'nlin'});
+            end
+        end
+
+        function add_opf_legacy_user_costs(obj, om, mpopt)
+            if om.userdata.nw
+                user_cost.N = om.userdata.N;
+                user_cost.Cw = om.userdata.Cw;
+                if ~isempty(om.userdata.fparm)
+                    user_cost.dd = om.userdata.fparm(:, 1);
+                    user_cost.rh = om.userdata.fparm(:, 2);
+                    user_cost.kk = om.userdata.fparm(:, 3);
+                    user_cost.mm = om.userdata.fparm(:, 4);
+                end
+                if ~isempty(om.userdata.H)
+                    user_cost.H = om.userdata.H;
+                end
+                om.add_legacy_cost('usr', user_cost, om.userdata.user_vars);
+                om.userdata = rmfield(om.userdata, {'N', 'fparm', 'H', 'Cw', 'nw'});
+            end
+
+            %% implement legacy user costs using quadratic or general non-linear costs
+            dc = strcmp(upper(mpopt.model), 'DC');
+            cp = om.params_legacy_cost();   %% construct/fetch the parameters
+            [N, H, Cw, rh, mm] = deal(cp.N, cp.H, cp.Cw, cp.rh, cp.mm);
+            [nw, nx] = size(N);
+            if nw
+                if any(cp.dd ~= 1) || any(cp.kk)    %% not simple quadratic form
+                    if dc                           %% (includes "dead zone" or
+                        if any(cp.dd ~= 1)          %%  quadratic "penalty")
+                            error('mp_aggregate/add_opf_legacy_user_costs: DC OPF can only handle legacy user-defined costs with d = 1');
+                        end
+                        if any(cp.kk)
+                            error('mp_aggregate/add_opf_legacy_user_costs: DC OPF can only handle legacy user-defined costs with no "dead zone", i.e. k = 0');
+                        end
+                    else
+                        %% use general nonlinear cost to implement legacy user cost
+                        legacy_cost_fcn = @(x)opf_legacy_user_cost_fcn(x, cp);
+                        om.add_nln_cost('usr', 1, legacy_cost_fcn);
+                    end
+                else                                %% simple quadratic form
+                    %% use a quadratic cost to implement legacy user cost
+                    %% f = 1/2 * w'*H*w + Cw'*w, where w = diag(mm)*(N*x - rh)
+                    %% Let: MN = diag(mm)*N
+                    %%      MR = M * rh
+                    %%      HMR  = H  * MR;
+                    %%      HtMR = H' * MR;
+                    %%  =>   w = MN*x - MR
+                    %% f = 1/2 * (MN*x - MR)'*H*(MN*x - MR) + Cw'*(MN*x - MR)
+                    %%   = 1/2 * x'*MN'*H*MN*x +
+                    %%          (Cw'*MN - 1/2 * MR'*(H+H')*MN)*x +
+                    %%          1/2 * MR'*H*MR - Cw'*MR
+                    %%   = 1/2 * x'*Q*w + c'*x + k
+
+                    [N, H, Cw, rh, mm] = deal(cp.N, cp.H, cp.Cw, cp.rh, cp.mm);
+                    nw = size(N, 1);            %% number of general cost vars, w
+                    M    = sparse(1:nw, 1:nw, mm, nw, nw);
+                    MN   = M * N;
+                    MR   = M * rh;
+                    HMR  = H  * MR;
+                    HtMR = H' * MR;
+                    Q = MN' * H * MN;
+                    c = full(MN' * (Cw - 1/2*(HMR+HtMR)));
+                    k = (1/2 * HtMR - Cw)' * MR;
+                    om.add_quad_cost('usr', Q, c, k);
+                end
+            end
         end
     end     %% methods
 end         %% classdef

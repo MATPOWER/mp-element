@@ -56,5 +56,9 @@ classdef dc_aggregate < mp_aggregate & dc_model
             om.userdata.Bf = Bbr * branch_mpe.C';
             om.userdata.Pfinj = pbr;
         end
+
+        function names = opf_legacy_user_var_names(obj)
+            names = {'Va', 'Pg'};
+        end
     end     %% methods
 end         %% classdef
