@@ -126,12 +126,7 @@ classdef mp_element < handle
             %% set full port voltages and states for element class
             if sysx         %% system x_ is provided, convert to x_ for ports
                 v_ = obj.getC('tr') * v_;   %% full port voltages for element class
-                Dt = obj.getD('tr');
-                if isempty(Dt)
-                    z_ = [];
-                else
-                    z_ = obj.getD('tr') * z_;   %% full states for element class
-                end
+                z_ = obj.getD('tr') * z_;   %% full states for element class
             end
 
             %% port voltages for selected ports
