@@ -17,7 +17,7 @@ classdef acps_nln_test_aggregate < acp_aggregate% & acps_model
         function obj = acps_nln_test_aggregate()
             obj@acp_aggregate();
             obj.element_classes = ...
-                { @acp_bus, @ac_nln_gen, @ac_nln_load, @acp_nln_branch, @ac_nln_shunt, @ac_nln_gizmo };
+                { @acp_bus, @acp_nln_gen, @acp_nln_load, @acp_nln_branch, @acp_nln_shunt, @acp_nln_gizmo };
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager
                                         %% constructor, if not for:

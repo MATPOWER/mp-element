@@ -1,4 +1,4 @@
-classdef ac_nln_wrapper < acp_model
+classdef ac_nln_wrapper < handle
 
 %   MATPOWER
 %   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
