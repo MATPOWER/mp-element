@@ -183,13 +183,17 @@ else
         if mpopt.opf.current_balance
             netmodel = @acci_aggregate;
         else
+%             netmodel = @accs_nln_test_aggregate;
+%             netmodel = @accs_test_aggregate;
             netmodel = @accs_aggregate;
         end
     else
         if mpopt.opf.current_balance
             netmodel = @acpi_aggregate;
         else
-            netmodel = @acps_test_aggregate;
+%             netmodel = @acps_nln_test_aggregate;
+%             netmodel = @acps_test_aggregate;
+            netmodel = @acps_aggregate;
         end
     end
 end
