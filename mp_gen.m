@@ -39,8 +39,8 @@ classdef mp_gen < mp_element
             IDs = mpc.gen(:, GEN_BUS);                  %% bus IDs
             nidx = asm.node.data.ID2idx.bus(IDs);       %% node indexes
             sidx = asm.state.data.ID2idx.(obj.name);    %% state indexes
-            obj.setC(asm.getN('node'), nidx);
-            obj.setD(asm.getN('state'), sidx);
+            obj.C = obj.incidence_matrix(asm.getN('node'), nidx);
+            obj.D = obj.incidence_matrix(asm.getN('state'), sidx);
         end
 
         %%-----  OPF methods  -----

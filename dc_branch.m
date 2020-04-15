@@ -51,8 +51,7 @@ classdef dc_branch < mp_branch & dc_model
 
                 %% branch flow constraints
                 [B, K, p] = obj.get_params(il);
-                C = obj.getC();
-                Af = B*C';
+                Af = B * obj.C';
                 om.add_lin_constraint('Pf', Af, -p-flow_max, -p+flow_max, ...
                     {asm.va.order(:).name});
             end

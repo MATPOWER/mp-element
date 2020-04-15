@@ -125,8 +125,8 @@ classdef mp_element < handle
 
             %% set full port voltages and states for element class
             if sysx         %% system x_ is provided, convert to x_ for ports
-                v_ = obj.getC('tr') * v_;   %% full port voltages for element class
-                z_ = obj.getD('tr') * z_;   %% full states for element class
+                v_ = obj.C' * v_;   %% full port voltages for element class
+                z_ = obj.D' * z_;   %% full states for element class
             end
 
             %% port voltages for selected ports
@@ -140,7 +140,7 @@ classdef mp_element < handle
         end
 
         function CD = incidence_matrix(obj, m, varargin)
-            %% obj.setC(m, idx1, idx2, ...)
+            %% obj.incidence_matrix(m, idx1, idx2, ...)
             n = length(varargin);   %% number of ports/z-vars
             if n == 1
                 CD = sparse(varargin{1}, 1:obj.nk, 1, m, obj.nk);
@@ -155,43 +155,27 @@ classdef mp_element < handle
             end
         end
 
-        function setC(obj, nn, varargin)
-            %% obj.setC(nn, idx1, idx2, ...)
-            obj.C = obj.incidence_matrix(nn, varargin{:});
-        end
-
-        function setD(obj, nz, varargin)
-            %% obj.setD(nz, idx1, idx2, ...)
-            obj.D = obj.incidence_matrix(nz, varargin{:});
-        end
-
-        function C = getC(obj, transpose_it)
-            if nargin > 1
-                C = obj.C.';
-            else
-                C = obj.C;
-            end
-        end
-
-        function D = getD(obj, transpose_it)
-            if nargin > 1
-                D = obj.D.';
-            else
-                D = obj.D;
-            end
-        end
-        
-%         function A = getA(obj, varargin)
-%             C = obj.getC(varargin{:});
-%             D = obj.getD(varargin{:});
+%         function A = getA(obj, tr)
+%             if nargin < 1
+%                 C = obj.C';
+%                 D = obj.D';
+%             else
+%                 C = obj.C;
+%                 D = obj.D;
+%             end
 %             [mC, nC] = size(C);
 %             [mD, nD] = size(D);
 %             A = [ C sparse(mC, nD); sparse(mD, nC) D ];
 %         end
 %         
-%         function Ap = getAprime(obj, varargin)
-%             C = obj.getC(varargin{:});
-%             D = obj.getD(varargin{:});
+%         function Ap = getAprime(obj, tr)
+%             if nargin < 1
+%                 C = obj.C';
+%                 D = obj.D';
+%             else
+%                 C = obj.C;
+%                 D = obj.D;
+%             end
 %             [mC, nC] = size(C);
 %             [mD, nD] = size(D);
 %             Ap = [   C sparse(mC, nC+2*nD);

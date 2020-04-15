@@ -44,8 +44,8 @@ classdef dc_aggregate < mp_aggregate & dc_model
             [B, K, p] = obj.get_params();
 
             %% power balance constraints
-            C = obj.getC();
-            Amis = C * [B*C' K*obj.getD('tr')];
+            C = obj.C;
+            Amis = C * [B*C' K*obj.D'];
             bmis = -C * p;
             om.add_lin_constraint('Pmis', Amis, bmis, bmis, ...
                                 {obj.va.order(:).name obj.z.order(:).name});
@@ -53,8 +53,7 @@ classdef dc_aggregate < mp_aggregate & dc_model
             %% user data
             branch_mpe = obj.mpe_by_name('branch');
             [Bbr, pbr] = branch_mpe.get_params(1:branch_mpe.nk, {'B', 'p'});
-            Cbrt = branch_mpe.getC('tr');
-            om.userdata.Bf = Bbr * Cbrt;
+            om.userdata.Bf = Bbr * branch_mpe.C';
             om.userdata.Pfinj = pbr;
         end
     end     %% methods

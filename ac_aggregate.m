@@ -239,7 +239,7 @@ classdef ac_aggregate < mp_aggregate% & ac_model
 
         function [G, Gv1, Gv2, Gzr, Gzi] = nodal_complex_current_balance(obj, x_)
             %% node incidence matrix
-            C = obj.getC();
+            C = obj.C;
 
             %% get port current injections with derivatives
             if nargout > 1
@@ -258,7 +258,7 @@ classdef ac_aggregate < mp_aggregate% & ac_model
 
         function [G, Gv1, Gv2, Gzr, Gzi] = nodal_complex_power_balance(obj, x_)
             %% node incidence matrix
-            C = obj.getC();
+            C = obj.C;
 
             %% get port power injections with derivatives
             if nargout > 1
@@ -276,19 +276,13 @@ classdef ac_aggregate < mp_aggregate% & ac_model
         end
 
         function d2G = nodal_complex_current_balance_hess(obj, x_, lam)
-            %% node incidence matrix
-            Ct = obj.getC('tr');
-
             %% get port power injection hessians
-            d2G = obj.port_inj_current_hess(x_, Ct * lam);
+            d2G = obj.port_inj_current_hess(x_, obj.C' * lam);
         end
 
         function d2G = nodal_complex_power_balance_hess(obj, x_, lam)
-            %% node incidence matrix
-            Ct = obj.getC('tr');
-
             %% get port power injection hessians
-            d2G = obj.port_inj_power_hess(x_, Ct * lam);
+            d2G = obj.port_inj_power_hess(x_, obj.C' * lam);
         end
 
         function [g, dg] = opf_current_balance_fcn(obj, x)

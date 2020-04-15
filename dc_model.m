@@ -73,8 +73,8 @@ classdef dc_model < mp_model
                 P = B*v + K*z + p;
             end
 %             if sysx
-%                 Ct = obj.getC('tr');
-%                 Dt = obj.getD('tr');
+%                 Ct = obj.C';
+%                 Dt = obj.D';
 %                 if nargin < 4       %% all ports
 %                     P = B*Ct*v + K*Dt*z + p;
 %                 else                %% selected ports

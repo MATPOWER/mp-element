@@ -98,11 +98,11 @@ classdef ac_load < mp_load% & ac_model
                         Szi = Szr;
                     end
                     if sysx
-                        Ct = obj.getC('tr');
+                        Ct = obj.C';
                         Sv1 = Sv1 * Ct;
                         Sv2 = Sv2 * Ct;
                         if nargout > 3  %% Szr, Szi are empty, but num of rows is needed
-                            Dt = obj.getD('tr');
+                            Dt = obj.D';
                             Szr = Szr * Dt;
                             Szi = Szi * Dt;
                         end

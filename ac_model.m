@@ -125,11 +125,11 @@ classdef ac_model < mp_model
                 end
 
                 if sysx
-                    Ct = obj.getC('tr');
+                    Ct = obj.C';
                     Iv1 = Iv1 * Ct;
                     Iv2 = Iv2 * Ct;
                     if nargout > 3
-                        Dt = obj.getD('tr');
+                        Dt = obj.D';
                         Izr = Izr * Dt;
                         Izi = Izi * Dt;
                     end
@@ -218,11 +218,11 @@ classdef ac_model < mp_model
                 end
 
                 if sysx
-                    Ct = obj.getC('tr');
+                    Ct = obj.C';
                     Sv1 = Sv1 * Ct;
                     Sv2 = Sv2 * Ct;
                     if nargout > 3
-                        Dt = obj.getD('tr');
+                        Dt = obj.D';
                         Szr = Szr * Dt;
                         Szi = Szi * Dt;
                     end
@@ -298,8 +298,8 @@ classdef ac_model < mp_model
 
             %% convert for system x_, if necessary
             if sysx
-                C = obj.getC();
-                D = obj.getD();
+                C = obj.C;
+                D = obj.D;
                 [mc, nc] = size(C);
                 [md, nd] = size(D);
                 Ap = [  C sparse(mc, nc+2*nd);
@@ -368,8 +368,8 @@ classdef ac_model < mp_model
 
             %% convert for system x_, if necessary
             if sysx
-                C = obj.getC();
-                D = obj.getD();
+                C = obj.C;
+                D = obj.D;
                 [mc, nc] = size(C);
                 [md, nd] = size(D);
                 Ap = [  C sparse(mc, nc+2*nd);

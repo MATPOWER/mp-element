@@ -46,8 +46,8 @@ classdef mp_gizmo < mp_element
             ss = asm.get_idx('state');
             sidx1 = ss.i1.(obj.name)(1):ss.iN.(obj.name)(1);
             sidx2 = ss.i1.(obj.name)(2):ss.iN.(obj.name)(2);
-            obj.setC(asm.getN('node'), idx1, idx2, idx3);
-            obj.setD(asm.getN('state'), sidx1, sidx2);
+            obj.C = obj.incidence_matrix(asm.getN('node'), idx1, idx2, idx3);
+            obj.D = obj.incidence_matrix(asm.getN('state'), sidx1, sidx2);
         end
     end     %% methods
 end         %% classdef

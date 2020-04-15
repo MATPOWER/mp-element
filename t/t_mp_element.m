@@ -73,11 +73,11 @@ t_is(mpe{k}.nz, 0, 12, [t 'nz']);
 t_ok(isempty(mpe{k}.B), [t 'B']);
 t_ok(isempty(mpe{k}.K), [t 'K']);
 t_ok(isempty(mpe{k}.p), [t 'p']);
-t_ok(isempty(mpe{k}.getC()), [t 'C']);
-t_ok(isempty(mpe{k}.getD()), [t 'D']);
+t_ok(isempty(mpe{k}.C), [t 'C']);
+t_ok(isempty(mpe{k}.D), [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
 t = 'dc_gen : '; k = 2;
 t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
@@ -91,11 +91,11 @@ t_is(mpe{k}.nz, 1, 12, [t 'nz']);
 t_ok(isempty(mpe{k}.B), [t 'B']);
 t_is(mpe{k}.K, -speye(3), 12, [t 'K']);
 t_ok(isempty(mpe{k}.p), [t 'p']);
-t_is(mpe{k}.getC(), sparse([1;3;2], [1;2;3], 1, 9, 3), 12, [t 'C']);
-t_is(mpe{k}.getD(), speye(3), 12, [t 'D']);
+t_is(mpe{k}.C, sparse([1;3;2], [1;2;3], 1, 9, 3), 12, [t 'C']);
+t_is(mpe{k}.D, speye(3), 12, [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
 t = 'dc_load : '; k = 3;
 t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
@@ -110,11 +110,11 @@ t_ok(isempty(mpe{k}.B), [t 'B']);
 t_ok(isempty(mpe{k}.K), [t 'K']);
 t_is(mpe{k}.p, [0.9 1 1.25]', 12, [t 'p']);
 eC = sparse([5 7 9], 1:3, 1, 9, 3);
-t_is(mpe{k}.getC(), eC, 12, [t 'C']);
-t_ok(isempty(mpe{k}.getD()), [t 'D']);
+t_is(mpe{k}.C, eC, 12, [t 'C']);
+t_ok(isempty(mpe{k}.D), [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
 t = 'dc_branch : '; k = 4;
 t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
@@ -142,18 +142,18 @@ pdc = [Pfinj; -Pfinj];
 t_is(mpe{k}.B, Bdc, 12, [t 'B']);
 t_ok(isempty(mpe{k}.K), [t 'K']);
 t_is(mpe{k}.p, pdc, 12, [t 'p']);
-t_is(mpe{k}.getC(), sparse([1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:18]', 1, 9, 18), 12, [t 'C']);
-t_ok(isempty(mpe{k}.getD()), [t 'D']);
+t_is(mpe{k}.C, sparse([1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:18]', 1, 9, 18), 12, [t 'C']);
+t_ok(isempty(mpe{k}.D), [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
-t = 'dc.getC()';
-C = dc.getC();
+t = 'dc.C';
+C = dc.C;
 t_is(C, sparse([1;3;2;5;7;9;1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:24]', 1, 9, 24), 12, t);
 
-t = 'dc.getD()';
-D = dc.getD();
+t = 'dc.D';
+D = dc.D;
 t_is(D, speye(3), 12, t);
 
 t = 'dc.port_inj_power(x) : ';
@@ -251,11 +251,11 @@ t_ok(isempty(mpe{k}.M), [t 'M']);
 t_ok(isempty(mpe{k}.N), [t 'N']);
 t_ok(isempty(mpe{k}.i), [t 'i']);
 t_ok(isempty(mpe{k}.s), [t 's']);
-t_ok(isempty(mpe{k}.getC()), [t 'C']);
-t_ok(isempty(mpe{k}.getD()), [t 'D']);
+t_ok(isempty(mpe{k}.C), [t 'C']);
+t_ok(isempty(mpe{k}.D), [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
 t = 'acp_gen : '; k = 2;
 t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
@@ -272,11 +272,11 @@ t_ok(isempty(mpe{k}.M), [t 'M']);
 t_is(mpe{k}.N, -speye(3), 12, [t 'N']);
 t_ok(isempty(mpe{k}.i), [t 'i']);
 t_ok(isempty(mpe{k}.s), [t 's']);
-t_is(mpe{k}.getC(), sparse([1;3;2], [1;2;3], 1, 9, 3), 12, [t 'C']);
-t_is(mpe{k}.getD(), speye(3), 12, [t 'D']);
+t_is(mpe{k}.C, sparse([1;3;2], [1;2;3], 1, 9, 3), 12, [t 'C']);
+t_is(mpe{k}.D, speye(3), 12, [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
 t = 'acp_load : '; k = 3;
 t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
@@ -294,11 +294,11 @@ t_ok(isempty(mpe{k}.N), [t 'N']);
 t_ok(isempty(mpe{k}.i), [t 'i']);
 t_is(mpe{k}.s, [0.9 1 1.25]' + 1j*[0.3 0.35 0.5]', 12, [t 's']);
 eC = sparse([5 7 9], 1:3, 1, 9, 3);
-t_is(mpe{k}.getC(), eC, 12, [t 'C']);
-t_ok(isempty(mpe{k}.getD()), [t 'D']);
+t_is(mpe{k}.C, eC, 12, [t 'C']);
+t_ok(isempty(mpe{k}.D), [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
 t = 'acp_branch : '; k = 4;
 t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
@@ -331,18 +331,18 @@ t_ok(isempty(mpe{k}.M), [t 'M']);
 t_ok(isempty(mpe{k}.N), [t 'N']);
 t_ok(isempty(mpe{k}.i), [t 'i']);
 t_ok(isempty(mpe{k}.s), [t 's']);
-t_is(mpe{k}.getC(), sparse([1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:18]', 1, 9, 18), 12, [t 'C']);
-t_ok(isempty(mpe{k}.getD()), [t 'D']);
+t_is(mpe{k}.C, sparse([1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:18]', 1, 9, 18), 12, [t 'C']);
+t_ok(isempty(mpe{k}.D), [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
-t = 'ac.getC()';
-C = ac.getC();
+t = 'ac.C';
+C = ac.C;
 t_is(C, sparse([1;3;2;5;7;9;1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:24]', 1, 9, 24), 12, t);
 
-t = 'ac.getD()';
-D = ac.getD();
+t = 'ac.D';
+D = ac.D;
 t_is(D, speye(3), 12, t);
 
 t = 'S = ac.port_inj_power(x_)';
@@ -584,11 +584,11 @@ t_ok(isempty(mpe{k}.M), [t 'M']);
 t_ok(isempty(mpe{k}.N), [t 'N']);
 t_ok(isempty(mpe{k}.i), [t 'i']);
 t_ok(isempty(mpe{k}.s), [t 's']);
-t_ok(isempty(mpe{k}.getC()), [t 'C']);
-t_ok(isempty(mpe{k}.getD()), [t 'D']);
+t_ok(isempty(mpe{k}.C), [t 'C']);
+t_ok(isempty(mpe{k}.D), [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
 t = 'acp_gen : '; k = 2;
 t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
@@ -605,11 +605,11 @@ t_ok(isempty(mpe{k}.M), [t 'M']);
 t_is(mpe{k}.N, -speye(3), 12, [t 'N']);
 t_ok(isempty(mpe{k}.i), [t 'i']);
 t_ok(isempty(mpe{k}.s), [t 's']);
-t_is(mpe{k}.getC(), sparse([1;3;2], [1;2;3], 1, 9, 3), 12, [t 'C']);
-t_is(mpe{k}.getD(), sparse(1:3, 1:3, 1, 7, 3), 12, [t 'D']);
+t_is(mpe{k}.C, sparse([1;3;2], [1;2;3], 1, 9, 3), 12, [t 'C']);
+t_is(mpe{k}.D, sparse(1:3, 1:3, 1, 7, 3), 12, [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
 t = 'acp_load : '; k = 3;
 t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
@@ -627,11 +627,11 @@ t_ok(isempty(mpe{k}.N), [t 'N']);
 t_ok(isempty(mpe{k}.i), [t 'i']);
 t_is(mpe{k}.s, [0.9 1 1.25]' + 1j*[0.3 0.35 0.5]', 12, [t 's']);
 eC = sparse([5 7 9], 1:3, 1, 9, 3);
-t_is(mpe{k}.getC(), eC, 12, [t 'C']);
-t_ok(isempty(mpe{k}.getD()), [t 'D']);
+t_is(mpe{k}.C, eC, 12, [t 'C']);
+t_ok(isempty(mpe{k}.D), [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
 t = 'acp_branch : '; k = 4;
 t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
@@ -664,11 +664,11 @@ t_ok(isempty(mpe{k}.M), [t 'M']);
 t_ok(isempty(mpe{k}.N), [t 'N']);
 t_ok(isempty(mpe{k}.i), [t 'i']);
 t_ok(isempty(mpe{k}.s), [t 's']);
-t_is(mpe{k}.getC(), sparse([1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:18]', 1, 9, 18), 12, [t 'C']);
-t_ok(isempty(mpe{k}.getD()), [t 'D']);
+t_is(mpe{k}.C, sparse([1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:18]', 1, 9, 18), 12, [t 'C']);
+t_ok(isempty(mpe{k}.D), [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
 t = 'acp_gizmo : '; k = 5;
 t_ok(strcmp(mpe{k}.name, 'gizmo'), [t 'name']);
@@ -714,18 +714,18 @@ t_is(mpe{k}.M, eM, 12, [t 'M']);
 t_is(mpe{k}.N, eN, 12, [t 'N']);
 t_is(mpe{k}.i, ei, 12, [t 'i']);
 t_is(mpe{k}.s, es, 12, [t 's']);
-t_is(mpe{k}.getC(), sparse([1;5;2;7;3;9], [1:6]', 1, 9, 6), 12, [t 'C']);
-t_is(mpe{k}.getD(), sparse(4:7, 1:4, 1, 7, 4), 12, [t 'D']);
+t_is(mpe{k}.C, sparse([1;5;2;7;3;9], [1:6]', 1, 9, 6), 12, [t 'C']);
+t_is(mpe{k}.D, sparse(4:7, 1:4, 1, 7, 4), 12, [t 'D']);
 % mpe{k}
-% C = mpe{k}.getC()
-% D = mpe{k}.getD()
+% C = mpe{k}.C
+% D = mpe{k}.D
 
-t = 'ac.getC()';
-C = ac.getC();
+t = 'ac.C';
+C = ac.C;
 t_is(C, sparse([1;3;2;5;7;9;1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4;1;5;2;7;3;9], [1:30]', 1, 9, 30), 12, t);
 
-t = 'ac.getD()';
-D = ac.getD();
+t = 'ac.D';
+D = ac.D;
 t_is(D, speye(7), 12, t);
 
 t = 'S = ac.port_inj_power(x_)';

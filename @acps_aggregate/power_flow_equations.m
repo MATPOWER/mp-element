@@ -39,7 +39,7 @@ vm(pq) = x(npv+npq+1:end);
 v_ = vm .* exp(1j * va);
 
 %% incidence matrix
-C = obj.getC();
+C = obj.C;
 
 %% Jacobian
 if nargout > 1
