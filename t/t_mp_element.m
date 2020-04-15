@@ -13,7 +13,7 @@ if nargin < 1
     quiet = 0;
 end
 
-t_begin(369, quiet);
+t_begin(435, quiet);
 
 define_constants;
 if quiet
@@ -257,12 +257,12 @@ t_ok(isempty(mpe{k}.getD()), [t 'D']);
 % C = mpe{k}.getC()
 % D = mpe{k}.getD()
 
-t = 'ac_gen : '; k = 2;
+t = 'acp_gen : '; k = 2;
 t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'ac_gen'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'ac_model'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'ac'), [t 'model tag']);
+t_ok(strcmp(class(mpe{k}), 'acp_gen'), [t 'class']);
+t_ok(strcmp(mpe{k}.find_model_class(), 'acp_model'), [t 'model class']);
+t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
 t_is(mpe{k}.nk, 3, 12, [t 'nk']);
 t_is(mpe{k}.np, 1, 12, [t 'np']);
 t_is(mpe{k}.nz, 1, 12, [t 'nz']);
@@ -278,12 +278,12 @@ t_is(mpe{k}.getD(), speye(3), 12, [t 'D']);
 % C = mpe{k}.getC()
 % D = mpe{k}.getD()
 
-t = 'ac_load : '; k = 3;
+t = 'acp_load : '; k = 3;
 t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'ac_load'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'ac_model'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'ac'), [t 'model tag']);
+t_ok(strcmp(class(mpe{k}), 'acp_load'), [t 'class']);
+t_ok(strcmp(mpe{k}.find_model_class(), 'acp_model'), [t 'model class']);
+t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
 t_is(mpe{k}.nk, 3, 12, [t 'nk']);
 t_is(mpe{k}.np, 1, 12, [t 'np']);
 t_is(mpe{k}.nz, 0, 12, [t 'nz']);
@@ -387,20 +387,44 @@ t_is(Szi1, Szi([3;2;1], :), 12, [t 'Szi']);
 t = 'ac.mpe_by_name(''gen'') : ';
 gen = ac.mpe_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(gen), 'ac_gen'), [t 'class']);
+t_ok(strcmp(class(gen), 'acp_gen'), [t 'class']);
 
-t = 'gen.port_inj_power(x_, 1)';
+t = 'S = gen.port_inj_power(x_, 1)';
 Sg = gen.port_inj_power(x_, 1);
 eSg = -[0.7195470; 0.85; 1.63] + 1j * [-0.2406895; 0.0364902; -0.1446011];
 t_is(Sg, eSg, 6, t);
  
-t = 'gen.port_inj_power(x_, 1, [3;1])';
+t = 'S = gen.port_inj_power(x_, 1, [3;1])';
 Sg31 = gen.port_inj_power(x_, 1, [3;1]);
 t_is(Sg31, eSg([3;1]), 6, t);
 
-t = 'gen.port_inj_power(x_, 1, 2)';
+t = 'S = gen.port_inj_power(x_, 1, 2)';
 Sg2 = gen.port_inj_power(x_, 1, 2);
 t_is(Sg2, eSg(2), 6, t);
+
+t = '[S, Sva, Svm, Szr, Szi] = gen.port_inj_power(x_, 1)';
+[Sg, Sgva, Sgvm, Sgzr, Sgzi] = gen.port_inj_power(x_, 1);
+t_is(Sg, S(1:3), 12, t);
+t_is(Sgva, Sva(1:3, :), 12, [t 'Sva']);
+t_is(Sgvm, Svm(1:3, :), 12, [t 'Svm']);
+t_is(Sgzr, Szr(1:3, :), 12, [t 'Szr']);
+t_is(Sgzi, Szi(1:3, :), 12, [t 'Szi']);
+
+t = '[S, Sva, Svm, Szr, Szi] = gen.port_inj_power(x_, 1, [3;1])';
+[Sg, Sgva, Sgvm, Sgzr, Sgzi] = gen.port_inj_power(x_, 1, [3;1]);
+t_is(Sg, S([3;1]), 12, t);
+t_is(Sgva, Sva([3;1], :), 12, [t 'Sva']);
+t_is(Sgvm, Svm([3;1], :), 12, [t 'Svm']);
+t_is(Sgzr, Szr([3;1], :), 12, [t 'Szr']);
+t_is(Sgzi, Szi([3;1], :), 12, [t 'Szi']);
+
+t = '[S, Sva, Svm, Szr, Szi] = gen.port_inj_power(x_, 1, 2)';
+[Sg, Sgva, Sgvm, Sgzr, Sgzi] = gen.port_inj_power(x_, 1, 2);
+t_is(Sg, S(2), 12, t);
+t_is(Sgva, Sva(2, :), 12, [t 'Sva']);
+t_is(Sgvm, Svm(2, :), 12, [t 'Svm']);
+t_is(Sgzr, Szr(2, :), 12, [t 'Szr']);
+t_is(Sgzi, Szi(2, :), 12, [t 'Szi']);
 
 t = 'H = ac.port_inj_power_hess(x_, lam, 1) : ';
 lam = [1:np]' / 100;
@@ -437,6 +461,43 @@ t_is(Iva1, Iva([3;2;1], :), 12, [t 'Iva']);
 t_is(Ivm1, Ivm([3;2;1], :), 12, [t 'Ivm']);
 t_is(Izr1, Izr([3;2;1], :), 12, [t 'Izr']);
 t_is(Izi1, Izi([3;2;1], :), 12, [t 'Izi']);
+
+t = 'I = gen.port_inj_current(x_, 1)';
+Ig = gen.port_inj_current(x_, 1);
+eIg = -[0.7195470; 0.8440197; 1.6311322] + 1j * [0.2406896; -0.1070623; -0.1312139];
+t_is(Ig, eIg, 6, t);
+ 
+t = 'I = gen.port_inj_current(x_, 1, [3;1])';
+Ig31 = gen.port_inj_current(x_, 1, [3;1]);
+t_is(Ig31, eIg([3;1]), 6, t);
+
+t = 'I = gen.port_inj_current(x_, 1, 2)';
+Ig2 = gen.port_inj_current(x_, 1, 2);
+t_is(Ig2, eIg(2), 6, t);
+
+t = '[I, Iva, Ivm, Izr, Izi] = gen.port_inj_current(x_, 1)';
+[Ig, Igva, Igvm, Igzr, Igzi] = gen.port_inj_current(x_, 1);
+t_is(Ig, I(1:3), 12, t);
+t_is(Igva, Iva(1:3, :), 12, [t 'Iva']);
+t_is(Igvm, Ivm(1:3, :), 12, [t 'Ivm']);
+t_is(Igzr, Izr(1:3, :), 12, [t 'Izr']);
+t_is(Igzi, Izi(1:3, :), 12, [t 'Izi']);
+
+t = '[I, Iva, Ivm, Izr, Izi] = gen.port_inj_current(x_, 1, [3;1])';
+[Ig, Igva, Igvm, Igzr, Igzi] = gen.port_inj_current(x_, 1, [3;1]);
+t_is(Ig, I([3;1]), 12, t);
+t_is(Igva, Iva([3;1], :), 12, [t 'Iva']);
+t_is(Igvm, Ivm([3;1], :), 12, [t 'Ivm']);
+t_is(Igzr, Izr([3;1], :), 12, [t 'Izr']);
+t_is(Igzi, Izi([3;1], :), 12, [t 'Izi']);
+
+t = '[I, Iva, Ivm, Izr, Izi] = gen.port_inj_current(x_, 1, 2)';
+[Ig, Igva, Igvm, Igzr, Igzi] = gen.port_inj_current(x_, 1, 2);
+t_is(Ig, I(2), 12, t);
+t_is(Igva, Iva(2, :), 12, [t 'Iva']);
+t_is(Igvm, Ivm(2, :), 12, [t 'Ivm']);
+t_is(Igzr, Izr(2, :), 12, [t 'Izr']);
+t_is(Igzi, Izi(2, :), 12, [t 'Izi']);
 
 %% AC Newton power flow
 t = '[x, success, i] = ac.solve_power_flow(mpc, mpopt) : ';
@@ -529,12 +590,12 @@ t_ok(isempty(mpe{k}.getD()), [t 'D']);
 % C = mpe{k}.getC()
 % D = mpe{k}.getD()
 
-t = 'ac_gen : '; k = 2;
+t = 'acp_gen : '; k = 2;
 t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'ac_gen'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'ac_model'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'ac'), [t 'model tag']);
+t_ok(strcmp(class(mpe{k}), 'acp_gen'), [t 'class']);
+t_ok(strcmp(mpe{k}.find_model_class(), 'acp_model'), [t 'model class']);
+t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
 t_is(mpe{k}.nk, 3, 12, [t 'nk']);
 t_is(mpe{k}.np, 1, 12, [t 'np']);
 t_is(mpe{k}.nz, 1, 12, [t 'nz']);
@@ -550,12 +611,12 @@ t_is(mpe{k}.getD(), sparse(1:3, 1:3, 1, 7, 3), 12, [t 'D']);
 % C = mpe{k}.getC()
 % D = mpe{k}.getD()
 
-t = 'ac_load : '; k = 3;
+t = 'acp_load : '; k = 3;
 t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'ac_load'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'ac_model'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'ac'), [t 'model tag']);
+t_ok(strcmp(class(mpe{k}), 'acp_load'), [t 'class']);
+t_ok(strcmp(mpe{k}.find_model_class(), 'acp_model'), [t 'model class']);
+t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
 t_is(mpe{k}.nk, 3, 12, [t 'nk']);
 t_is(mpe{k}.np, 1, 12, [t 'np']);
 t_is(mpe{k}.nz, 0, 12, [t 'nz']);
@@ -609,9 +670,9 @@ t_ok(isempty(mpe{k}.getD()), [t 'D']);
 % C = mpe{k}.getC()
 % D = mpe{k}.getD()
 
-t = 'ac_gizmo : '; k = 5;
+t = 'acp_gizmo : '; k = 5;
 t_ok(strcmp(mpe{k}.name, 'gizmo'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'ac_gizmo'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'acp_gizmo'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'acp_model'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -688,7 +749,7 @@ A = [   C sparse(nv/2, nz);
 S1 = ac.port_inj_power(A'*x_, 0);
 t_is(S1, eS, 6, t);
 
-t = 'ac.port_inj_power(x_, 1, [3;1])';
+t = 'S = ac.port_inj_power(x_, 1, [3;1])';
 S2  = ac.port_inj_power(x_, 1, [3;1]);
 t_is(S2, eS([3;1]), 6, t);
 
@@ -711,20 +772,44 @@ t_is(Szi1, Szi([3;2;1], :), 12, [t 'Szi']);
 t = 'ac.mpe_by_name(''gen'') : ';
 gen = ac.mpe_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(gen), 'ac_gen'), [t 'class']);
+t_ok(strcmp(class(gen), 'acp_gen'), [t 'class']);
 
-t = 'gen.port_inj_power(x_, 1)';
+t = 'S = gen.port_inj_power(x_, 1)';
 Sg = gen.port_inj_power(x_, 1);
 eSg = [-1.7165997; -0.85; -1.63] + 1j * [-0.2570733; -0.0079004; 0.1749047];
 t_is(Sg, eSg, 6, t);
  
-t = 'gen.port_inj_power(x_, 1, [3;1])';
+t = 'S = gen.port_inj_power(x_, 1, [3;1])';
 Sg31 = gen.port_inj_power(x_, 1, [3;1]);
 t_is(Sg31, eSg([3;1]), 6, t);
 
-t = 'gen.port_inj_power(x_, 1, 2)';
+t = 'S = gen.port_inj_power(x_, 1, 2)';
 Sg2 = gen.port_inj_power(x_, 1, 2);
 t_is(Sg2, eSg(2), 6, t);
+
+t = '[S, Sva, Svm, Szr, Szi] = gen.port_inj_power(x_, 1)';
+[Sg, Sgva, Sgvm, Sgzr, Sgzi] = gen.port_inj_power(x_, 1);
+t_is(Sg, S(1:3), 12, t);
+t_is(Sgva, Sva(1:3, :), 12, [t 'Sva']);
+t_is(Sgvm, Svm(1:3, :), 12, [t 'Svm']);
+t_is(Sgzr, Szr(1:3, :), 12, [t 'Szr']);
+t_is(Sgzi, Szi(1:3, :), 12, [t 'Szi']);
+
+t = '[S, Sva, Svm, Szr, Szi] = gen.port_inj_power(x_, 1, [3;1])';
+[Sg, Sgva, Sgvm, Sgzr, Sgzi] = gen.port_inj_power(x_, 1, [3;1]);
+t_is(Sg, S([3;1]), 12, t);
+t_is(Sgva, Sva([3;1], :), 12, [t 'Sva']);
+t_is(Sgvm, Svm([3;1], :), 12, [t 'Svm']);
+t_is(Sgzr, Szr([3;1], :), 12, [t 'Szr']);
+t_is(Sgzi, Szi([3;1], :), 12, [t 'Szi']);
+
+t = '[S, Sva, Svm, Szr, Szi] = gen.port_inj_power(x_, 1, 2)';
+[Sg, Sgva, Sgvm, Sgzr, Sgzi] = gen.port_inj_power(x_, 1, 2);
+t_is(Sg, S(2), 12, t);
+t_is(Sgva, Sva(2, :), 12, [t 'Sva']);
+t_is(Sgvm, Svm(2, :), 12, [t 'Svm']);
+t_is(Sgzr, Szr(2, :), 12, [t 'Szr']);
+t_is(Sgzi, Szi(2, :), 12, [t 'Szi']);
 
 t = 'H = ac.port_inj_power_hess(x_, lam, 1) : ';
 lam = [1:np]' / 100;
@@ -761,6 +846,43 @@ t_is(Iva1, Iva([3;2;1], :), 12, [t 'Iva']);
 t_is(Ivm1, Ivm([3;2;1], :), 12, [t 'Ivm']);
 t_is(Izr1, Izr([3;2;1], :), 12, [t 'Izr']);
 t_is(Izi1, Izi([3;2;1], :), 12, [t 'Izi']);
+
+t = 'I = gen.port_inj_current(x_, 1)';
+Ig = gen.port_inj_current(x_, 1);
+eIg = -[1.7165997; 0.8455780; 1.6384471] + 1j * [0.2570733; 0.0869502; -0.0546139];
+t_is(Ig, eIg, 6, t);
+
+t = 'I = gen.port_inj_current(x_, 1, [3;1])';
+Ig31 = gen.port_inj_current(x_, 1, [3;1]);
+t_is(Ig31, eIg([3;1]), 6, t);
+
+t = 'I = gen.port_inj_current(x_, 1, 2)';
+Ig2 = gen.port_inj_current(x_, 1, 2);
+t_is(Ig2, eIg(2), 6, t);
+
+t = '[I, Iva, Ivm, Izr, Izi] = gen.port_inj_current(x_, 1)';
+[Ig, Igva, Igvm, Igzr, Igzi] = gen.port_inj_current(x_, 1);
+t_is(Ig, I(1:3), 12, t);
+t_is(Igva, Iva(1:3, :), 12, [t 'Iva']);
+t_is(Igvm, Ivm(1:3, :), 12, [t 'Ivm']);
+t_is(Igzr, Izr(1:3, :), 12, [t 'Izr']);
+t_is(Igzi, Izi(1:3, :), 12, [t 'Izi']);
+
+t = '[I, Iva, Ivm, Izr, Izi] = gen.port_inj_current(x_, 1, [3;1])';
+[Ig, Igva, Igvm, Igzr, Igzi] = gen.port_inj_current(x_, 1, [3;1]);
+t_is(Ig, I([3;1]), 12, t);
+t_is(Igva, Iva([3;1], :), 12, [t 'Iva']);
+t_is(Igvm, Ivm([3;1], :), 12, [t 'Ivm']);
+t_is(Igzr, Izr([3;1], :), 12, [t 'Izr']);
+t_is(Igzi, Izi([3;1], :), 12, [t 'Izi']);
+
+t = '[I, Iva, Ivm, Izr, Izi] = gen.port_inj_current(x_, 1, 2)';
+[Ig, Igva, Igvm, Igzr, Igzi] = gen.port_inj_current(x_, 1, 2);
+t_is(Ig, I(2), 12, t);
+t_is(Igva, Iva(2, :), 12, [t 'Iva']);
+t_is(Igvm, Ivm(2, :), 12, [t 'Ivm']);
+t_is(Igzr, Izr(2, :), 12, [t 'Izr']);
+t_is(Igzi, Izi(2, :), 12, [t 'Izi']);
 
 % disp(dc)
 % disp(ac)
