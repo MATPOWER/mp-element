@@ -37,6 +37,8 @@ tests{end+1} = 't_acc_port_inj_current';
 tests{end+1} = 't_acc_port_inj_power';
 tests{end+1} = 't_acp_nln_port_inj_current';
 tests{end+1} = 't_acp_nln_port_inj_power';
+tests{end+1} = 't_acc_nln_port_inj_current';
+tests{end+1} = 't_acc_nln_port_inj_power';
 
 %% run the tests
 all_ok = t_run_tests( tests, verbose );
