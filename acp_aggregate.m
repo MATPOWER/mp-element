@@ -14,6 +14,16 @@ classdef acp_aggregate < ac_aggregate & acp_model
     end
     
     methods
+        function obj = acp_aggregate()
+            obj@ac_aggregate();
+            obj.element_classes = ...
+                { @acp_bus, @acp_gen, @acp_load, @acp_branch, @acp_shunt };
+            if isempty(obj.node)    %% skip if constructed from existing object
+                obj.init_set_types();   %% should be called in mp_idx_manager
+                                        %% constructor, if not for:
+            end                         %% https://savannah.gnu.org/bugs/?52614
+        end
+
         function obj = def_set_types(obj)
             def_set_types@ac_aggregate(obj);        %% call parent first
             obj.set_types.va = 'VOLTAGE ANG VARS (va)';

@@ -14,16 +14,6 @@ classdef accs_aggregate < acc_aggregate% & accs_model
 %     end
     
     methods
-        function obj = accs_aggregate()
-            obj@acc_aggregate();
-            obj.element_classes = ...
-                { @acc_bus, @ac_gen, @ac_load, @acc_branch, @ac_shunt };
-            if isempty(obj.node)    %% skip if constructed from existing object
-                obj.init_set_types();   %% should be called in mp_idx_manager
-                                        %% constructor, if not for:
-            end                         %% https://savannah.gnu.org/bugs/?52614
-        end
-
         function add_opf_node_balance_constraints(obj, om)
             %% power balance constraints
             nn = obj.node.N;            %% number of nodes
