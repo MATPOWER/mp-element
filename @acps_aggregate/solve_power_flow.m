@@ -1,4 +1,4 @@
-function [x, success, i] = solve_power_flow(obj, mpc, mpopt)
+function [v_, success, i, data] = solve_power_flow(obj, mpc, mpopt)
 %SOLVE_POWER_FLOW  Solves Newton power flow
 %   SUCCESS = SOLVE_POWER_FLOW(OBJ, MPC)
 %
@@ -25,6 +25,8 @@ if nargin < 3
     mpopt = mpoption;
 end
 
+if mpopt.verbose, fprintf('-----  solve_power_flow()  -----\n'); end
+
 %% set up Newton solver options
 opt = struct( ...
         'verbose',    mpopt.verbose, ...
@@ -35,6 +37,8 @@ opt = struct( ...
 
 %% get bus index lists of each type of bus
 [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
+npv = length(pv);
+npq = length(pq);
 
 %% create x0 for Newton power flow
 va = obj.params_var('va');
@@ -48,3 +52,7 @@ x0 = [va([pv; pq]); vm(pq)];
 fcn = @(x)power_flow_equations(obj, x, va, vm, z_, ref, pv, pq);
 
 [x, success, i] = newton_solver(x0, fcn, opt);
+
+va([pv; pq]) = x(1:npv+npq);
+vm(pq) = x(npv+npq+1:end);
+v_ = vm .* exp(1j * va);
