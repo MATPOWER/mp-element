@@ -22,8 +22,8 @@ classdef acps_aggregate < acp_aggregate% & acps_model
             om.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
 
-        [F, J] = power_flow_equations(obj, x, va, vm, z_, ref, pv, pq)
 
+        %%-----  PF methods  -----
         function x = vz2pfx(obj, va, vm, zr, zi, t)
             x = [va([t.pv; t.pq]); vm(t.pq)];
         end
@@ -33,6 +33,35 @@ classdef acps_aggregate < acp_aggregate% & acps_model
             vm(t.pq) = x(t.npv+t.npq+1:end);
             v_ = vm .* exp(1j * va);
             z_ = zr + 1j * zi;
+        end
+
+        function [F, J] = power_flow_equations(obj, x, va, vm, zr, zi, t)
+            %% index vector
+            pvq = [t.pv; t.pq];
+
+            %% update model state ([v_; z_]) from power flow state (x)
+            [v_, z_] = pfx2vz(obj, x, va, vm, zr, zi, t);
+
+            %% incidence matrix
+            C = obj.C;
+
+            %% Jacobian
+            if nargout > 1
+                %% get port power injections with derivatives
+                [S, Sva, Svm] = obj.port_inj_power([v_; z_], 1);
+
+                SSva = C * Sva;
+                SSvm = C * Svm;
+                J = [   real(SSva(pvq,  pvq)) real(SSvm(pvq,  t.pq));
+                        imag(SSva(t.pq, pvq)) imag(SSvm(t.pq, t.pq))  ];
+            else
+                %% get port power injections (w/o derivatives)
+                S = obj.port_inj_power([v_; z_], 1);
+            end
+
+            %% nodal power balance
+            SS = C * S;
+            F = [real(SS(pvq)); imag(SS(t.pq))];
         end
     end     %% methods
 end         %% classdef
