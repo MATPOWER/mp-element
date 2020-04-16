@@ -237,6 +237,50 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             end
         end
 
+
+        %%-----  PF methods  -----
+        function [v_, success, i, data] = solve_power_flow(obj, mpc, mpopt)
+            %% MATPOWER options
+            if nargin < 3
+                mpopt = mpoption;
+            end
+
+            if mpopt.verbose, fprintf('-----  solve_power_flow()  -----\n'); end
+
+            %% set up Newton solver options
+            opt = struct( ...
+                    'verbose',    mpopt.verbose, ...
+                    'tol',        mpopt.pf.tol, ...
+                    'max_it',     mpopt.pf.nr.max_it, ...
+                    'lin_solver', mpopt.pf.nr.lin_solver ...
+                );
+
+            %% get bus index lists of each type of bus
+            [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
+            node_types = struct('ref', ref, 'pv', pv, 'pq', pq, ...
+                    'nref', length(ref), 'npv', length(pv), 'npq', length(pq));
+
+            %% create x0 for Newton power flow
+            vvars = obj.model_vvars();
+            zvars = obj.model_zvars();
+            v1 = obj.params_var(vvars{1});
+            v2 = obj.params_var(vvars{2});
+            zr = obj.params_var(zvars{1});
+            zi = obj.params_var(zvars{2});
+            x0 = obj.vz2pfx(v1, v2, zr, zi, node_types);
+
+            %% define power flow equations
+            fcn = @(x)power_flow_equations(obj, x, v1, v2, zr, zi, node_types);
+
+            %% call Newton solver
+            [x, success, i] = newton_solver(x0, fcn, opt);
+
+            %% convert back to complex voltage vector
+            [v_, z_] = pfx2vz(obj, x, v1, v2, zr, zi, node_types);
+        end
+
+
+        %%-----  OPF methods  -----
         function [G, Gv1, Gv2, Gzr, Gzi] = nodal_complex_current_balance(obj, x_)
             %% node incidence matrix
             C = obj.C;

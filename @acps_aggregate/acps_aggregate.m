@@ -24,8 +24,6 @@ classdef acps_aggregate < acp_aggregate% & acps_model
 
         [F, J] = power_flow_equations(obj, x, va, vm, z_, ref, pv, pq)
 
-        [x, success, i] = solve_power_flow(obj, mpc, mpopt)
-
         function x = vz2pfx(obj, va, vm, zr, zi, t)
             x = [va([t.pv; t.pq]); vm(t.pq)];
         end
