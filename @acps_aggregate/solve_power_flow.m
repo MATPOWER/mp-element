@@ -37,22 +37,23 @@ opt = struct( ...
 
 %% get bus index lists of each type of bus
 [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
-npv = length(pv);
-npq = length(pq);
+node_types = struct('ref', ref, 'pv', pv, 'pq', pq, ...
+        'nref', length(ref), 'npv', length(pv), 'npq', length(pq));
+
+% keyboard
 
 %% create x0 for Newton power flow
-va = obj.params_var('va');
-vm = obj.params_var('vm');
-zr = obj.params_var('zr');
-zi = obj.params_var('zi');
-v_ = vm .* exp(1j * va);
-z_ = zr + 1j * zi;
-x0 = [va([pv; pq]); vm(pq)];
+vvars = obj.model_vvars();
+zvars = obj.model_zvars();
+v1 = obj.params_var(vvars{1});
+v2 = obj.params_var(vvars{2});
+zr = obj.params_var(zvars{1});
+zi = obj.params_var(zvars{2});
 
-fcn = @(x)power_flow_equations(obj, x, va, vm, z_, ref, pv, pq);
+x0 = obj.vz2pfx(v1, v2, zr, zi, node_types);
+
+fcn = @(x)power_flow_equations(obj, x, v1, v2, zr, zi, node_types);
 
 [x, success, i] = newton_solver(x0, fcn, opt);
 
-va([pv; pq]) = x(1:npv+npq);
-vm(pq) = x(npv+npq+1:end);
-v_ = vm .* exp(1j * va);
+[v_, z_] = pfx2vz(obj, x, v1, v2, zr, zi, node_types);

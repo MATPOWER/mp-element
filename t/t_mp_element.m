@@ -504,9 +504,10 @@ t = '[x, success, i] = ac.solve_power_flow(mpc, mpopt) : ';
 mpc = ext2int(loadcase(casefile));
 % mpc = rmfield(mpc, 'order');
 ac = acps_aggregate().create_model(mpc);
-[x, success, i] = ac.solve_power_flow(mpc, mpopt);
-ex = [0.168751367 0.083270936 -0.042003860 -0.070114489 0.033608089 0.010847998 0.066307156 -0.075920663 0.987006852 0.975472177 1.003375436 0.985644881 0.996185245 0.957621040]';
-t_is(x, ex, 8, [t 'x']);
+[v_, success, i] = ac.solve_power_flow(mpc, mpopt);
+ev_ = [1 0.985795245 0.996534978 0.986136280 0.973075428 1.002808832 0.985586887 0.993996115 0.954862527]' + ...
+ 1j * [0 0.167951584 0.083174736 -0.041445908 -0.068338709 0.033715184 0.010692065 0.066005818 -0.072633402]';
+t_is(v_, ev_, 8, [t 'x']);
 t_is(success, 1, 12, [t 'success']);
 t_is(i, 4, 12, [t 'i']);
 
@@ -552,15 +553,16 @@ mpc.gen(ref, PG) = 1.7165997325858 * mpc.baseMVA;
 mpc.gen(:, QG) = [0.2570733353840 0.0079004398259 -0.1749046999314].' * mpc.baseMVA;
 ac = acps_test_aggregate().create_model(mpc);
 % mpopt = mpoption(mpopt, 'verbose', 2);
-[x, success, i] = ac.solve_power_flow(mpc, mpopt);
-ex = [-0.073574123 -0.093174800 -0.093829293 -0.152896476 -0.140800302 -0.212976785 -0.145568305 -0.178427530 0.994516530 0.979478479 1.001167971 0.981251110 0.997410844 0.977848154]';
-t_is(x, ex, 8, [t 'x']);
+[v_, success, i] = ac.solve_power_flow(mpc, mpopt);
+ev_ = [1 0.997294645 0.995662368 0.990141911 0.968051969 0.991260416 0.959080764 0.986861859 0.962323832]' + ...
+ 1j * [0 -0.073507764 -0.093040043 -0.093177920 -0.149175997 -0.140499450 -0.207407401 -0.144679179 -0.173550729]';
+t_is(v_, ev_, 8, [t 'x']);
 t_is(success, 1, 12, [t 'success']);
 t_is(i, 4, 12, [t 'i']);
 
 t = 'ac.create_model(mpc) : ';
-mpc.bus([pv; pq], VA) = x(1:npv+npq) * 180/pi;
-mpc.bus(pq, VM) = x(npv+npq+(1:npq));
+mpc.bus(:, VA) = angle(v_) * 180/pi;
+mpc.bus(:, VM) = abs(v_);
 ac = acps_test_aggregate().create_model(mpc);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);
