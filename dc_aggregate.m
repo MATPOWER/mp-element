@@ -60,5 +60,60 @@ classdef dc_aggregate < mp_aggregate & dc_model
         function names = opf_legacy_user_var_names(obj)
             names = {'Va', 'Pg'};
         end
+
+        function [va, success, i, data] = solve_power_flow(obj, mpc, mpopt)
+            %% MATPOWER options
+            if nargin < 3
+                mpopt = mpoption;
+            end
+
+            if mpopt.verbose, fprintf('-----  solve_power_flow()  -----\n'); end
+
+            %% get bus index lists of each type of bus
+            [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
+            npv = length(pv);
+            npq = length(pq);
+
+            %% create x0 for Newton power flow
+            va = obj.params_var('va');
+            z = obj.params_var('z');
+
+            %% constant
+            va_threshold = 1e5;     %% arbitrary threshold on |va| for declaring failure
+            i = 1;                  %% not iterative
+
+            %% set up to trap non-singular matrix warnings
+            [lastmsg, lastid] = lastwarn;
+            lastwarn('');
+
+            %% get parameters
+            [B, K, p] = obj.get_params();
+            BB = obj.C * B * obj.C';
+            pbus = -(obj.C * K * obj.D' * z + obj.C * p);
+
+            %% update angles for non-reference buses
+            va([pv; pq]) = BB([pv; pq], [pv; pq]) \ ...
+                            (pbus([pv; pq]) - BB([pv; pq], ref) * va(ref));
+
+            [msg, id] = lastwarn;
+            %% Octave is not consistent in assigning proper warning id, so we'll just
+            %% check for presence of *any* warning
+            success = 1;    %% successful by default
+            if ~isempty(msg) || max(abs(va)) > va_threshold
+                success = 0;
+            end
+
+            %% restore warning state
+            lastwarn(lastmsg, lastid);
+
+            branch_mpe = obj.mpe_by_name('branch');
+            [Bf, pf] = branch_mpe.get_params(1:branch_mpe.nk, {'B', 'p'});
+            data = struct( ...
+                    'B', BB, ...
+                    'Bf', Bf * branch_mpe.C', ...
+                    'Pbus', pbus, ...
+                    'Pfinj', pf  ...
+                );
+        end
     end     %% methods
 end         %% classdef
