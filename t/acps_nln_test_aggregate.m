@@ -24,6 +24,52 @@ classdef acps_nln_test_aggregate < acp_aggregate% & acps_model
             end                         %% https://savannah.gnu.org/bugs/?52614
         end
 
+
+        %%-----  PF methods  -----
+        function x = vz2pfx(obj, va, vm, zr, zi, t, ad)
+            %% update x from va, vm, zr, zi
+            x = [va([t.pv; t.pq]); vm(t.pq)];
+        end
+
+        function [v_, z_] = pfx2vz(obj, x, va, vm, zr, zi, t, ad)
+            %% update v_, z_ from x
+            va([t.pv; t.pq]) = x(1:t.npv+t.npq);
+            vm(t.pq) = x(t.npv+t.npq+1:end);
+            v_ = vm .* exp(1j * va);
+            z_ = zr + 1j * zi;
+        end
+
+        function [F, J] = power_flow_equations(obj, x, va, vm, zr, zi, t, ad)
+            %% index vector
+            pvq = [t.pv; t.pq];
+
+            %% update model state ([v_; z_]) from power flow state (x)
+            [v_, z_] = pfx2vz(obj, x, va, vm, zr, zi, t);
+
+            %% incidence matrix
+            C = obj.C;
+
+            %% Jacobian
+            if nargout > 1
+                %% get port power injections with derivatives
+                [S, Sva, Svm] = obj.port_inj_power([v_; z_], 1);
+
+                SSva = C * Sva;
+                SSvm = C * Svm;
+                J = [   real(SSva(pvq,  pvq)) real(SSvm(pvq,  t.pq));
+                        imag(SSva(t.pq, pvq)) imag(SSvm(t.pq, t.pq))  ];
+            else
+                %% get port power injections (w/o derivatives)
+                S = obj.port_inj_power([v_; z_], 1);
+            end
+
+            %% nodal power balance
+            SS = C * S;
+            F = [real(SS(pvq)); imag(SS(t.pq))];
+        end
+
+
+        %%-----  OPF methods  -----
         function add_opf_node_balance_constraints(obj, om)
             %% power balance constraints
             nn = obj.node.N;            %% number of nodes
