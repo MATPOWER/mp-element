@@ -14,15 +14,6 @@ classdef acps_aggregate < acp_aggregate% & acps_model
 %     end
     
     methods
-        function add_opf_node_balance_constraints(obj, om)
-            %% power balance constraints
-            nn = obj.node.N;            %% number of nodes
-            fcn_mis = @(x)opf_power_balance_fcn(obj, x);
-            hess_mis = @(x, lam)opf_power_balance_hess(obj, x, lam);
-            om.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
-        end
-
-
         %%-----  PF methods  -----
         function x = vz2pfx(obj, va, vm, zr, zi, t, ad)
             %% update x from va, vm, zr, zi
@@ -64,6 +55,16 @@ classdef acps_aggregate < acp_aggregate% & acps_model
             %% nodal power balance
             SS = C * S;
             F = [real(SS(pvq)); imag(SS(t.pq))];
+        end
+
+
+        %%-----  OPF methods  -----
+        function add_opf_node_balance_constraints(obj, om)
+            %% power balance constraints
+            nn = obj.node.N;            %% number of nodes
+            fcn_mis = @(x)opf_power_balance_fcn(obj, x);
+            hess_mis = @(x, lam)opf_power_balance_hess(obj, x, lam);
+            om.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
     end     %% methods
 end         %% classdef

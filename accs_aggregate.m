@@ -14,15 +14,6 @@ classdef accs_aggregate < acc_aggregate% & accs_model
 %     end
     
     methods
-        function add_opf_node_balance_constraints(obj, om)
-            %% power balance constraints
-            nn = obj.node.N;            %% number of nodes
-            fcn_mis = @(x)opf_power_balance_fcn(obj, x);
-            hess_mis = @(x, lam)opf_power_balance_hess(obj, x, lam);
-            om.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
-        end
-
-
         %%-----  PF methods  -----
         function x = vz2pfx(obj, vr, vi, zr, zi, t, ad)
             %% update x from vr, vi, zr, zi
@@ -61,11 +52,6 @@ classdef accs_aggregate < acc_aggregate% & accs_model
                 J = [   real(SSvr(pqv,  pqv)) real(SSvi(pqv,  pqv));
                         imag(SSvr(t.pq, pqv)) imag(SSvi(t.pq, pqv));
                         dV2_dVr dV2_dVi ];
-            %     SSzr = C * Szr;
-            %     SSzi = C * Szi;
-            %     J = [
-            %         real(SSvr(pvq,  pvq)) real(SSvi(pvq,  t.pq)) real(SSzr(pvq,  :)) real(SSzi(pvq,  :));
-            %         imag(SSvr(t.pq, pvq)) imag(SSvi(t.pq, t.pq)) imag(SSzr(t.pq, :)) imag(SSzi(t.pq, :))  ];
             else
                 %% get port power injections (w/o derivatives)
                 S = obj.port_inj_power([v_; z_], 1);
@@ -75,6 +61,16 @@ classdef accs_aggregate < acc_aggregate% & accs_model
             SS = C * S;
             vmm = v_(t.pv) .* conj(v_(t.pv)) - vr(t.pv).^2 - vi(t.pv).^2;
             F = [real(SS(pqv)); imag(SS(t.pq)); vmm];
+        end
+
+
+        %%-----  OPF methods  -----
+        function add_opf_node_balance_constraints(obj, om)
+            %% power balance constraints
+            nn = obj.node.N;            %% number of nodes
+            fcn_mis = @(x)opf_power_balance_fcn(obj, x);
+            hess_mis = @(x, lam)opf_power_balance_hess(obj, x, lam);
+            om.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
     end     %% methods
 end         %% classdef

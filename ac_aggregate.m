@@ -239,6 +239,10 @@ classdef ac_aggregate < mp_aggregate% & ac_model
 
 
         %%-----  PF methods  -----
+        function ad = power_flow_aux_data(obj, va, vm, zr, zi, t)
+            ad = [];
+        end
+
         function [v_, success, i, data] = solve_power_flow(obj, mpc, mpopt)
             %% MATPOWER options
             if nargin < 3
@@ -282,10 +286,6 @@ classdef ac_aggregate < mp_aggregate% & ac_model
 
             %% convert back to complex voltage vector
             [v_, z_] = pfx2vz(obj, x, v1, v2, zr, zi, node_types, ad);
-        end
-
-        function ad = power_flow_aux_data(obj, va, vm, zr, zi, t)
-            ad = [];
         end
 
 

@@ -40,27 +40,8 @@ classdef dc_aggregate < mp_aggregate & dc_model
             obj.p = obj.stack_vector_params('p');
         end
 
-        function add_opf_node_balance_constraints(obj, om)
-            [B, K, p] = obj.get_params();
 
-            %% power balance constraints
-            C = obj.C;
-            Amis = C * [B*C' K*obj.D'];
-            bmis = -C * p;
-            om.add_lin_constraint('Pmis', Amis, bmis, bmis, ...
-                                {obj.va.order(:).name obj.z.order(:).name});
-
-            %% user data
-            branch_mpe = obj.mpe_by_name('branch');
-            [Bbr, pbr] = branch_mpe.get_params(1:branch_mpe.nk, {'B', 'p'});
-            om.userdata.Bf = Bbr * branch_mpe.C';
-            om.userdata.Pfinj = pbr;
-        end
-
-        function names = opf_legacy_user_var_names(obj)
-            names = {'Va', 'Pg'};
-        end
-
+        %%-----  PF methods  -----
         function [va, success, i, data] = solve_power_flow(obj, mpc, mpopt)
             %% MATPOWER options
             if nargin < 3
@@ -114,6 +95,29 @@ classdef dc_aggregate < mp_aggregate & dc_model
                     'Pbus', pbus, ...
                     'Pfinj', pf  ...
                 );
+        end
+
+
+        %%-----  OPF methods  -----
+        function add_opf_node_balance_constraints(obj, om)
+            [B, K, p] = obj.get_params();
+
+            %% power balance constraints
+            C = obj.C;
+            Amis = C * [B*C' K*obj.D'];
+            bmis = -C * p;
+            om.add_lin_constraint('Pmis', Amis, bmis, bmis, ...
+                                {obj.va.order(:).name obj.z.order(:).name});
+
+            %% user data
+            branch_mpe = obj.mpe_by_name('branch');
+            [Bbr, pbr] = branch_mpe.get_params(1:branch_mpe.nk, {'B', 'p'});
+            om.userdata.Bf = Bbr * branch_mpe.C';
+            om.userdata.Pfinj = pbr;
+        end
+
+        function names = opf_legacy_user_var_names(obj)
+            names = {'Va', 'Pg'};
         end
     end     %% methods
 end         %% classdef

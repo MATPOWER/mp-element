@@ -14,15 +14,6 @@ classdef acpi_aggregate < acp_aggregate% & acpi_model
 %     end
     
     methods
-        function add_opf_node_balance_constraints(obj, om)
-            %% power balance constraints
-            nn = obj.node.N;            %% number of nodes
-            fcn_mis = @(x)opf_current_balance_fcn(obj, x);
-            hess_mis = @(x, lam)opf_current_balance_hess(obj, x, lam);
-            om.add_nln_constraint({'rImis', 'iImis'}, [nn;nn], 1, fcn_mis, hess_mis);
-        end
-
-
         %%-----  PF methods  -----
         function ad = power_flow_aux_data(obj, va, vm, zr, zi, t)
             g = obj.mpe_by_name('gen');
@@ -90,6 +81,16 @@ classdef acpi_aggregate < acp_aggregate% & acpi_model
             %% nodal power balance
             II = C * I;
             F = [real(II(pvq)); imag(II(pvq))];
+        end
+
+
+        %%-----  OPF methods  -----
+        function add_opf_node_balance_constraints(obj, om)
+            %% power balance constraints
+            nn = obj.node.N;            %% number of nodes
+            fcn_mis = @(x)opf_current_balance_fcn(obj, x);
+            hess_mis = @(x, lam)opf_current_balance_hess(obj, x, lam);
+            om.add_nln_constraint({'rImis', 'iImis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
     end     %% methods
 end         %% classdef

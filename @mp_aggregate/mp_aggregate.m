@@ -385,6 +385,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             obj.(vtype).data = d;
         end
 
+
         %%-----  OPF methods  -----
         om = setup_opf(obj, mpc, mpopt)
         

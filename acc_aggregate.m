@@ -30,6 +30,8 @@ classdef acc_aggregate < ac_aggregate & acc_model
             obj.set_types.vi = 'IMAG VOLTAGE VARS (vi)';
         end
 
+
+        %%-----  OPF methods  -----
         function x_ = x2x_(obj, x)
             %% convert (real) opt_model x to (complex) network model x_
             nv_ = obj.nv / 2;       %% number of voltage vars (sysx=1)

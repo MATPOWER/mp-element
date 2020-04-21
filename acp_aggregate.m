@@ -30,6 +30,8 @@ classdef acp_aggregate < ac_aggregate & acp_model
             obj.set_types.vm = 'VOLTAGE MAG VARS (vm)';
         end
 
+
+        %%-----  OPF methods  -----
         function x_ = x2x_(obj, x)
             %% convert (real) opt_model x to (complex) network model x_
             nv_ = obj.nv / 2;       %% number of voltage vars (sysx=1)
