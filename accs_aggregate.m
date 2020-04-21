@@ -25,11 +25,13 @@ classdef accs_aggregate < acc_aggregate% & accs_model
 
         %%-----  PF methods  -----
         function x = vz2pfx(obj, vr, vi, zr, zi, t, ad)
+            %% update x from vr, vi, zr, zi
             pqv = [t.pq; t.pv];
             x = [vr(pqv); vi(pqv)];
         end
 
         function [v_, z_] = pfx2vz(obj, x, vr, vi, zr, zi, t, ad)
+            %% update v_, z_ from x
             pqv = [t.pq; t.pv];
             vr(pqv) = x(1:t.npv+t.npq);
             vi(pqv) = x(t.npv+t.npq+1:end);

@@ -25,10 +25,12 @@ classdef acps_aggregate < acp_aggregate% & acps_model
 
         %%-----  PF methods  -----
         function x = vz2pfx(obj, va, vm, zr, zi, t, ad)
+            %% update x from va, vm, zr, zi
             x = [va([t.pv; t.pq]); vm(t.pq)];
         end
 
         function [v_, z_] = pfx2vz(obj, x, va, vm, zr, zi, t, ad)
+            %% update v_, z_ from x
             va([t.pv; t.pq]) = x(1:t.npv+t.npq);
             vm(t.pq) = x(t.npv+t.npq+1:end);
             v_ = vm .* exp(1j * va);
