@@ -24,12 +24,12 @@ classdef accs_aggregate < acc_aggregate% & accs_model
 
 
         %%-----  PF methods  -----
-        function x = vz2pfx(obj, vr, vi, zr, zi, t)
+        function x = vz2pfx(obj, vr, vi, zr, zi, t, ad)
             pqv = [t.pq; t.pv];
             x = [vr(pqv); vi(pqv)];
         end
 
-        function [v_, z_] = pfx2vz(obj, x, vr, vi, zr, zi, t)
+        function [v_, z_] = pfx2vz(obj, x, vr, vi, zr, zi, t, ad)
             pqv = [t.pq; t.pv];
             vr(pqv) = x(1:t.npv+t.npq);
             vi(pqv) = x(t.npv+t.npq+1:end);
@@ -37,7 +37,7 @@ classdef accs_aggregate < acc_aggregate% & accs_model
             z_ = zr + 1j * zi;
         end
 
-        function [F, J] = power_flow_equations(obj, x, vr, vi, zr, zi, t)
+        function [F, J] = power_flow_equations(obj, x, vr, vi, zr, zi, t, ad)
             %% index vector
             pqv = [t.pq; t.pv];
 

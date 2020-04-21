@@ -260,23 +260,32 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             node_types = struct('ref', ref, 'pv', pv, 'pq', pq, ...
                     'nref', length(ref), 'npv', length(pv), 'npq', length(pq));
 
-            %% create x0 for Newton power flow
+            %% get model variables
             vvars = obj.model_vvars();
             zvars = obj.model_zvars();
             v1 = obj.params_var(vvars{1});
             v2 = obj.params_var(vvars{2});
             zr = obj.params_var(zvars{1});
             zi = obj.params_var(zvars{2});
-            x0 = obj.vz2pfx(v1, v2, zr, zi, node_types);
+
+            %% auxiliary data needed for construction of x, v_, z_ or PF eqns
+            ad = obj.power_flow_aux_data(v1, v2, zr, zi, node_types);
+
+            %% create x0 for Newton power flow
+            x0 = obj.vz2pfx(v1, v2, zr, zi, node_types, ad);
 
             %% define power flow equations
-            fcn = @(x)power_flow_equations(obj, x, v1, v2, zr, zi, node_types);
+            fcn = @(x)power_flow_equations(obj, x, v1, v2, zr, zi, node_types, ad);
 
             %% call Newton solver
             [x, success, i] = newton_solver(x0, fcn, opt);
 
             %% convert back to complex voltage vector
-            [v_, z_] = pfx2vz(obj, x, v1, v2, zr, zi, node_types);
+            [v_, z_] = pfx2vz(obj, x, v1, v2, zr, zi, node_types, ad);
+        end
+
+        function ad = power_flow_aux_data(obj, va, vm, zr, zi, t)
+            ad = [];
         end
 
 
