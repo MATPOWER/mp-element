@@ -281,8 +281,40 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             %% define power flow equations
             fcn = @(x)power_flow_equations(obj, x, v1, v2, zr, zi, node_types, ad);
 
-            %% call Newton solver
-            [x, success, i] = newton_solver(x0, fcn, opt);
+            solver = 1;     %% Newton
+%            solver = 2;     %% fsolve()
+            switch solver
+                case 1
+                    %% call Newton solver
+                    [x, success, i] = newton_solver(x0, fcn, opt);
+                case 2
+                    %% call OT fsolve()
+                    if opt.verbose == 0
+                        vrb = 'off';
+                    elseif opt.verbose == 1
+                        vrb = 'final';
+                    else
+                        vrb = 'iter';
+                    end
+                    if have_fcn('matlab')
+                        alg = 'trust-region-dogleg';
+%                        alg = 'trust-region';
+%                        alg = 'levenberg-marquardt';
+                        fsopt = optimoptions('fsolve', 'SpecifyObjectiveGradient', true, ...
+                            'Display', vrb, ...
+                            'OptimalityTolerance', 1e-7, ...
+                            'Algorithm', alg);
+                        [x, fval, exitflag, output] = fsolve(fcn, x0, fsopt);
+                    else
+                        fsopt = optimset('Jacobian', 'on', 'Display', vrb, ...
+                            'TolFun', 1e-10);
+                        [x, fval, exitflag, output] = fsolve(fcn, x0, fsopt);
+                    end
+                    success = (exitflag == 1);
+                    i = output.iterations;
+                otherwise
+                    error('unknown solver');
+            end
 
             %% convert back to complex voltage vector
             [v_, z_] = pfx2vz(obj, x, v1, v2, zr, zi, node_types, ad);
