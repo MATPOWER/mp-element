@@ -251,12 +251,12 @@ classdef ac_aggregate < mp_aggregate% & ac_model
 
             if mpopt.verbose, fprintf('-----  solve_power_flow()  -----\n'); end
 
-            %% set up Newton solver options
+            %% set up nleqs_master() options
             opt = struct( ...
                     'verbose',    mpopt.verbose, ...
                     'tol',        mpopt.pf.tol, ...
                     'max_it',     mpopt.pf.nr.max_it, ...
-                    'lin_solver', mpopt.pf.nr.lin_solver ...
+                    'newton_opt', struct('lin_solver', mpopt.pf.nr.lin_solver) ...
                 );
 
             %% get bus index lists of each type of bus
@@ -275,46 +275,33 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             %% auxiliary data needed for construction of x, v_, z_ or PF eqns
             ad = obj.power_flow_aux_data(v1, v2, zr, zi, node_types);
 
-            %% create x0 for Newton power flow
+            %% create x0 for power flow
             x0 = obj.vz2pfx(v1, v2, zr, zi, node_types, ad);
 
             %% define power flow equations
             fcn = @(x)power_flow_equations(obj, x, v1, v2, zr, zi, node_types, ad);
 
-            solver = 1;     %% Newton
-%            solver = 2;     %% fsolve()
-            switch solver
-                case 1
-                    %% call Newton solver
-                    [x, success, i] = newton_solver(x0, fcn, opt);
-                case 2
-                    %% call OT fsolve()
-                    if opt.verbose == 0
-                        vrb = 'off';
-                    elseif opt.verbose == 1
-                        vrb = 'final';
-                    else
-                        vrb = 'iter';
-                    end
-                    if have_fcn('matlab')
-                        alg = 'trust-region-dogleg';
-%                        alg = 'trust-region';
-%                        alg = 'levenberg-marquardt';
-                        fsopt = optimoptions('fsolve', 'SpecifyObjectiveGradient', true, ...
-                            'Display', vrb, ...
-                            'OptimalityTolerance', 1e-7, ...
-                            'Algorithm', alg);
-                        [x, fval, exitflag, output] = fsolve(fcn, x0, fsopt);
-                    else
-                        fsopt = optimset('Jacobian', 'on', 'Display', vrb, ...
-                            'TolFun', 1e-10);
-                        [x, fval, exitflag, output] = fsolve(fcn, x0, fsopt);
-                    end
-                    success = (exitflag == 1);
-                    i = output.iterations;
-                otherwise
-                    error('unknown solver');
-            end
+            tol = mpopt.pf.tol;
+            alg = 'DEFAULT';
+%             alg = 'NEWTON';
+%             alg = 'FSOLVE'; tol = tol / 10;
+            fsalg = '';
+            fsalg = 'trust-region-dogleg';
+%             fsalg = 'trust-region';                 %% for optimoptions
+%             fsalg = 'trust-region-reflective';      %% for optimset
+%             fsalg = 'levenberg-marquardt';
+            %% set up nleqs_master() options
+            opt = struct( ...
+                    'verbose',      mpopt.verbose, ...
+                    'alg',          alg, ...
+                    'tol',          tol, ...
+                    'max_it',       mpopt.pf.nr.max_it, ...
+                    'fsolve_opt',   struct('Algorithm', fsalg), ...
+                    'newton_opt',   struct('lin_solver', mpopt.pf.nr.lin_solver) ...
+                );
+            [x, fval, exitflag, output] = nleqs_master(fcn, x0, opt);
+            success = (exitflag == 1);
+            i = output.iterations;
 
             %% convert back to complex voltage vector
             [v_, z_] = pfx2vz(obj, x, v1, v2, zr, zi, node_types, ad);
