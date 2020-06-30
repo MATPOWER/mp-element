@@ -223,6 +223,14 @@ classdef mp_element < handle
             end
         end
 
+        %%-----  PF methods  -----
+%         function add_pf_vars(obj, asm, om, ad, mpc, mpopt)
+%         end
+% 
+%         function add_pf_constraints(obj, asm, om, ad, mpc, mpopt)
+%         end
+
+
         %%-----  OPF methods  -----
         function add_opf_vars(obj, asm, om, mpc, mpopt)
         end

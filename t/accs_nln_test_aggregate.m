@@ -26,27 +26,53 @@ classdef accs_nln_test_aggregate < acc_aggregate% & accs_model
 
 
         %%-----  PF methods  -----
-        function x = vz2pfx(obj, vr, vi, zr, zi, t, ad)
-            %% update x from vr, vi, zr, zi
-            pqv = [t.pq; t.pv];
-            x = [vr(pqv); vi(pqv)];
+        function add_pf_vars(obj, asm, om, ad, mpc, mpopt)
+            %% get model variables
+            vvars = obj.model_vvars();
+
+            %% index vectors
+            pqv = [ad.pq; ad.pv];
+
+            %% voltage real part
+            st = obj.(vvars{1});
+            for k = 1:st.NS
+                name = st.order(k).name;
+                if isempty(st.order(k).idx)
+                    d = st.data;
+                    om.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
+                else
+                    error('handling of indexed sets not implmented here (yet)');
+                end
+            end
+
+            %% voltage imaginary part
+            st = obj.(vvars{2});
+            for k = 1:st.NS
+                name = st.order(k).name;
+                if isempty(st.order(k).idx)
+                    d = st.data;
+                    om.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
+                else
+                    error('handling of indexed sets not implmented here (yet)');
+                end
+            end
         end
 
-        function [v_, z_] = pfx2vz(obj, x, vr, vi, zr, zi, t, ad)
+        function [v_, z_] = pfx2vz(obj, x, ad)
             %% update v_, z_ from x
-            pqv = [t.pq; t.pv];
-            vr(pqv) = x(1:t.npv+t.npq);
-            vi(pqv) = x(t.npv+t.npq+1:end);
-            v_ = vr + 1j * vi;
-            z_ = zr + 1j * zi;
+            pqv = [ad.pq; ad.pv];
+            ad.v1(pqv) = x(1:ad.npv+ad.npq);        %% vr
+            ad.v2(pqv) = x(ad.npv+ad.npq+1:end);    %% vi
+            v_ = ad.v1 + 1j * ad.v2;
+            z_ = ad.zr + 1j * ad.zi;
         end
 
-        function [F, J] = power_flow_equations(obj, x, vr, vi, zr, zi, t, ad)
+        function [F, J] = power_flow_equations(obj, x, ad)
             %% index vector
-            pqv = [t.pq; t.pv];
+            pqv = [ad.pq; ad.pv];
 
             %% update model state ([v_; z_]) from power flow state (x)
-            [v_, z_] = pfx2vz(obj, x, vr, vi, zr, zi, t);
+            [v_, z_] = obj.pfx2vz(x, ad);
 
             %% incidence matrix
             C = obj.C;
@@ -55,19 +81,14 @@ classdef accs_nln_test_aggregate < acc_aggregate% & accs_model
             if nargout > 1
                 %% get port power injections with derivatives
                 [S, Svr, Svi] = obj.port_inj_power([v_; z_], 1);
-                dV2_dVr = sparse(1:t.npv, t.npq+(1:t.npv), 2*real(v_(t.pv)), t.npv, t.npv+t.npq);
-                dV2_dVi = sparse(1:t.npv, t.npq+(1:t.npv), 2*imag(v_(t.pv)), t.npv, t.npv+t.npq);
+                dV2_dVr = sparse(1:ad.npv, ad.npq+(1:ad.npv), 2*real(v_(ad.pv)), ad.npv, ad.npv+ad.npq);
+                dV2_dVi = sparse(1:ad.npv, ad.npq+(1:ad.npv), 2*imag(v_(ad.pv)), ad.npv, ad.npv+ad.npq);
 
                 SSvr = C * Svr;
                 SSvi = C * Svi;
-                J = [   real(SSvr(pqv,  pqv)) real(SSvi(pqv,  pqv));
-                        imag(SSvr(t.pq, pqv)) imag(SSvi(t.pq, pqv));
+                J = [   real(SSvr(pqv,  pqv))   real(SSvi(pqv,  pqv));
+                        imag(SSvr(ad.pq, pqv))  imag(SSvi(ad.pq, pqv));
                         dV2_dVr dV2_dVi ];
-            %     SSzr = C * Szr;
-            %     SSzi = C * Szi;
-            %     J = [
-            %         real(SSvr(pvq,  pvq)) real(SSvi(pvq,  t.pq)) real(SSzr(pvq,  :)) real(SSzi(pvq,  :));
-            %         imag(SSvr(t.pq, pvq)) imag(SSvi(t.pq, t.pq)) imag(SSzr(t.pq, :)) imag(SSzi(t.pq, :))  ];
             else
                 %% get port power injections (w/o derivatives)
                 S = obj.port_inj_power([v_; z_], 1);
@@ -75,8 +96,14 @@ classdef accs_nln_test_aggregate < acc_aggregate% & accs_model
 
             %% nodal power balance + voltage magnitude mismatch
             SS = C * S;
-            vmm = v_(t.pv) .* conj(v_(t.pv)) - vr(t.pv).^2 - vi(t.pv).^2;
-            F = [real(SS(pqv)); imag(SS(t.pq)); vmm];
+            vmm = v_(ad.pv) .* conj(v_(ad.pv)) - ad.v1(ad.pv).^2 - ad.v2(ad.pv).^2;
+            F = [real(SS(pqv)); imag(SS(ad.pq)); vmm];
+        end
+
+        function add_pf_node_balance_constraints(obj, om, ad)
+            %% power balance constraints
+            fcn = @(x)power_flow_equations(obj, x, ad);
+            om.add_nln_constraint({'Pmis', 'Qmis', 'Vmis'}, [ad.npv+ad.npq;ad.npq;ad.npv], 1, fcn, []);
         end
 
 

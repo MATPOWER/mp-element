@@ -28,5 +28,18 @@ classdef mp_bus < mp_element
             nb = obj.nk;            %% number of buses
             asm.add_node(obj.name, nb, mpc.bus(:, BUS_I));
         end
+
+        %%-----  PF methods  -----
+        function ntv = power_flow_node_types(obj, asm, mpc, idx)
+            %% define constants
+            [PQ, PV, REF, NONE] = idx_bus;
+
+            nb = obj.nk;            %% number of buses
+            [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
+            ntv = zeros(nb, 1);
+            ntv(ref) = REF;
+            ntv(pv)  = PV;
+            ntv(pq)  = PQ;
+        end
     end     %% methods
 end         %% classdef

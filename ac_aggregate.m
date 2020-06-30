@@ -239,8 +239,101 @@ classdef ac_aggregate < mp_aggregate% & ac_model
 
 
         %%-----  PF methods  -----
-        function ad = power_flow_aux_data(obj, va, vm, zr, zi, t)
-            ad = [];
+        function ntv = power_flow_node_types(obj, asm, mpc, idx)
+%         function [ntv, nts] = power_flow_node_types(obj, asm, mpc, idx)
+            %% create empty cell array for node type vectors
+            tt = cell(length(obj.node.order), 1);
+            
+            %% get node type vector from each node-creating MPE
+            for k = 1:length(obj.node.order)
+                mpe = obj.mpe_by_name(obj.node.order(k).name);
+                tt{k} = mpe.power_flow_node_types(obj, mpc, obj.state.order(k).idx);
+            end
+
+            %% concatenate into a single node type vector
+            ntv = vertcat(tt{:});
+
+%             %% create node type struct
+%             if nargout > 1
+%                 %% define constants
+%                 [PQ, PV, REF, NONE] = idx_bus;
+% 
+%                 ref = find(ntv == REF);     %% reference node indices
+%                 pv  = find(ntv == PV );     %% PV node indices
+%                 pq  = find(ntv == PQ );     %% PQ node indices
+%                 nts = struct('ref', ref, 'pv', pv, 'pq', pq, ...
+%                     'nref', length(ref), 'npv', length(pv), 'npq', length(pq));
+%             end
+        end
+
+        function ad = power_flow_aux_data(obj, mpc, mpopt)
+            %% get model variables
+            vvars = obj.model_vvars();
+            zvars = obj.model_zvars();
+            v1 = obj.params_var(vvars{1});
+            v2 = obj.params_var(vvars{2});
+            zr = obj.params_var(zvars{1});
+            zi = obj.params_var(zvars{2});
+
+            %% define constants
+            [PQ, PV, REF, NONE] = idx_bus;
+
+            %% get node types
+            ntv = obj.power_flow_node_types(obj, mpc);
+            ref = find(ntv == REF);     %% reference node indices
+            pv  = find(ntv == PV );     %% PV node indices
+            pq  = find(ntv == PQ );     %% PQ node indices
+
+            %% create aux_data struct
+            ad = struct( ...
+                'v1', v1, ...               %% initial value of v1 (va or vr)
+                'v2', v2, ...               %% initial value of v2 (vm or vi)
+                'zr', zr, ...               %% initial value of zr
+                'zi', zi, ...               %% initial value of zi
+                'ref',  ref, ...            %% REF node indices
+                'nref', length(ref), ...    %% number of REF nodes
+                'pv',  pv, ...              %% PV node indices
+                'npv', length(pv), ...      %% number of PV nodes
+                'pq',  pq, ...              %% PQ node indices
+                'npq', length(pq) ...       %% number of PQ nodes
+            );
+        end
+
+        function add_pf_constraints(obj, asm, om, ad, mpc, mpopt)
+            %% system constraints
+            obj.add_pf_system_constraints(om, ad, mpc, mpopt);
+            
+%             %% each element adds its PF constraints
+%             for mpe = obj.mpe_list
+%                 mpe{1}.add_pf_constraints(asm, om, ad, mpc, mpopt);
+%             end
+        end
+
+        function add_pf_system_constraints(obj, om, ad, mpc, mpopt)
+            %% can be overridden to add additional system constraints
+
+            %% node balance constraints
+            obj.add_pf_node_balance_constraints(om, ad);
+        end
+
+        function om = setup_power_flow(obj, mpc, mpopt)
+            %% MATPOWER options
+            if nargin < 3
+                mpopt = mpoption;
+            end
+
+            %% construct power flow auxiliary data
+            ad = obj.power_flow_aux_data(mpc, mpopt);
+
+            %% create mathematical model
+            om = opt_model();
+            if obj.np ~= 0      %% skip for empty model
+                obj.add_pf_vars(obj, om, ad, mpc, mpopt);
+                obj.add_pf_constraints(obj, om, ad, mpc, mpopt);
+            end
+            
+            %% save aux data in MP-Opt-Model
+            om.userdata.ad = ad;
         end
 
         function [v_, success, i, data] = solve_power_flow(obj, mpc, mpopt)
@@ -251,60 +344,31 @@ classdef ac_aggregate < mp_aggregate% & ac_model
 
             if mpopt.verbose, fprintf('-----  solve_power_flow()  -----\n'); end
 
-            %% set up nleqs_master() options
-            opt = struct( ...
-                    'verbose',    mpopt.verbose, ...
-                    'tol',        mpopt.pf.tol, ...
-                    'max_it',     mpopt.pf.nr.max_it, ...
-                    'newton_opt', struct('lin_solver', mpopt.pf.nr.lin_solver) ...
-                );
+            %% create MP-Opt-Model object
+            om = obj.setup_power_flow(mpc, mpopt);
 
-            %% get bus index lists of each type of bus
-            [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
-            node_types = struct('ref', ref, 'pv', pv, 'pq', pq, ...
-                    'nref', length(ref), 'npv', length(pv), 'npq', length(pq));
+            %% solve it
+            opt = mpopt2nleqopt(mpopt, om.problem_type(), 'DEFAULT');
+%             opt = mpopt2nleqopt(mpopt, om.problem_type(), 'NEWTON');
+%             opt = mpopt2nleqopt(mpopt, om.problem_type(), 'FSOLVE');
 
-            %% get model variables
-            vvars = obj.model_vvars();
-            zvars = obj.model_zvars();
-            v1 = obj.params_var(vvars{1});
-            v2 = obj.params_var(vvars{2});
-            zr = obj.params_var(zvars{1});
-            zi = obj.params_var(zvars{2});
+%             [x, f, eflag, output, J] = om.solve(opt);
+            [x, f, eflag, output] = om.solve(opt);
+            success = (eflag > 0);
 
-            %% auxiliary data needed for construction of x, v_, z_ or PF eqns
-            ad = obj.power_flow_aux_data(v1, v2, zr, zi, node_types);
+% om
+% vv = om.get_idx('var');
+% x(vv.i1.Pg:vv.iN.Pg) * mpc.baseMVA
+% keyboard
 
-            %% create x0 for power flow
-            x0 = obj.vz2pfx(v1, v2, zr, zi, node_types, ad);
-
-            %% define power flow equations
-            fcn = @(x)power_flow_equations(obj, x, v1, v2, zr, zi, node_types, ad);
-
-            tol = mpopt.pf.tol;
-            alg = 'DEFAULT';
-%             alg = 'NEWTON';
-%             alg = 'FSOLVE'; tol = tol / 10;
-            fsalg = '';
-            fsalg = 'trust-region-dogleg';
-%             fsalg = 'trust-region';                 %% for optimoptions
-%             fsalg = 'trust-region-reflective';      %% for optimset
-%             fsalg = 'levenberg-marquardt';
-            %% set up nleqs_master() options
-            opt = struct( ...
-                    'verbose',      mpopt.verbose, ...
-                    'alg',          alg, ...
-                    'tol',          tol, ...
-                    'max_it',       mpopt.pf.nr.max_it, ...
-                    'fsolve_opt',   struct('Algorithm', fsalg), ...
-                    'newton_opt',   struct('lin_solver', mpopt.pf.nr.lin_solver) ...
-                );
-            [x, fval, exitflag, output] = nleqs_master(fcn, x0, opt);
-            success = (exitflag == 1);
-            i = output.iterations;
+            if isfield(output, 'iterations')
+                i = output.iterations;
+            else
+                i = -1;
+            end
 
             %% convert back to complex voltage vector
-            [v_, z_] = pfx2vz(obj, x, v1, v2, zr, zi, node_types, ad);
+            [v_, z_] = obj.pfx2vz(x, om.get_userdata('ad'));
         end
 
 

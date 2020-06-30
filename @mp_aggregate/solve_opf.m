@@ -25,7 +25,7 @@ if nargin < 3
     mpopt = mpoption;
 end
 
-%% create opf_model object
+%% create MP-Opt-Model object
 om = obj.setup_opf(mpc, mpopt);
 
 %% solve it

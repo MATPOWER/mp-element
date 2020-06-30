@@ -316,8 +316,8 @@ t_is(full(H), numH, 5, [t 'numerical Hessian']);
 
 
 %  x0 = [va([pv; pq]); vm(pq)];
-% pf_fcn = @(x)power_flow_equations(ac, x, va, vm, z_, ref, pv, pq);
-% [F, J] = power_flow_equations(obj, x, va, vm, z_, ref, pv, pq)
+% pf_fcn = @(x)power_flow_equations(ac, x, ad);
+% [F, J] = power_flow_equations(obj, x, ad)
 % [F, J] = pf_fcn(ac, x)
 
 

@@ -386,6 +386,9 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
         end
 
 
+        %%-----  PF methods  -----
+
+
         %%-----  OPF methods  -----
         om = setup_opf(obj, mpc, mpopt)
         
@@ -394,7 +397,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
         function add_opf_vars(obj, asm, om, mpc, mpopt)
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars
-                st = obj.(vtype{1});
+                st = obj.(vtype{1});    %% set type
                 for k = 1:st.NS
                     name = st.order(k).name;
                     if isempty(st.order(k).idx)
