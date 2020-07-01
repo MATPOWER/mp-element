@@ -15,7 +15,12 @@ classdef dc_branch < mp_branch & dc_model
     methods
         function obj = build_params(obj, asm, mpc)
             build_params@mp_branch(obj, asm, mpc);  %% call parent
-            define_constants;
+
+            %% define named indices into data matrices
+            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
+                TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
+                ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
+
             branch = mpc.branch;
             nl = obj.nk;
 
