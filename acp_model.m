@@ -45,14 +45,18 @@ classdef acp_model < ac_model
             C = invdiagvic * (diagSlincJ - conj(M * diagv));
             D = sparse(1:n, 1:n, 1 ./ abs(v_), n, n);
 
-            %% linear current term
-            Ivm = Y * diagv;
-            Iva = 1j * Ivm;
-            Ivm = Ivm * D;
+%             %% linear current term
+%             Ivm = Y * diagv;
+%             Iva = 1j * Ivm;
+%             Ivm = Ivm * D;
+% 
+%             %% + current from linear power term
+%             Iva = Iva + 1j * C;
+%             Ivm = Ivm - C * D;
 
-            %% + current from linear power term
-            Iva = Iva + 1j * C;
-            Ivm = Ivm - C * D;
+            A = Y * diagv;
+            Iva = 1j * (A + C);
+            Ivm = (A - C) * D;
         end
 
         function [Ivava, Ivavm, Ivmvm] = port_inj_current_hess_v(obj, x_, lam, v_, z_, diaginvic, Y, M, diagSlincJ, dlamJ)
@@ -168,18 +172,23 @@ classdef acp_model < ac_model
 
             %% intermediate terms
             A = diagvi * diagIlincJ;
-            B = diagvi * conj(Y);
-            C = B * conj(diagv);
+%             B = diagvi * conj(Y);
+%             C = B * conj(diagv);
+            C = diagvi * conj(Y * diagv);
             D = sparse(1:n, 1:n, 1 ./ abs(v_), n, n);
 
-            %% linear power term
-            Svm = M * diagv;
-            Sva = 1j * Svm;
-            Svm = Svm * D;
+%             %% linear power term
+%             Svm = M * diagv;
+%             Sva = 1j * Svm;
+%             Svm = Svm * D;
+% 
+%             %% + power from linear current term
+%             Sva = Sva + 1j * (A - C);
+%             Svm = Svm + (A + C) * D;
 
-            %% + power from linear current term
-            Sva = Sva + 1j * (A - C);
-            Svm = Svm + (A + C) * D;
+            Svm = M * diagv + A;
+            Sva = 1j * (Svm - C);
+            Svm = (Svm + C) * D;
         end
 
         function [Svava, Svavm, Svmvm] = port_inj_power_hess_v(obj, x_, lam, v_, z_, diagvi, Y, M, diagIlincJ, dlamJ)
