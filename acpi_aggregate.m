@@ -85,7 +85,7 @@ classdef acpi_aggregate < acp_aggregate% & acpi_model
             z_ = ad.zr + 1j * ad.zi;
         end
 
-        function [F, J] = power_flow_equations(obj, x, ad)
+        function [f, J] = power_flow_equations(obj, x, ad)
             %% index vector
             pvq = [ad.pv; ad.pq];
 
@@ -114,7 +114,7 @@ classdef acpi_aggregate < acp_aggregate% & acpi_model
 
             %% nodal power balance
             II = C * I;
-            F = [real(II(pvq)); imag(II(pvq))];
+            f = [real(II(pvq)); imag(II(pvq))];
         end
 
         function add_pf_node_balance_constraints(obj, om, ad)

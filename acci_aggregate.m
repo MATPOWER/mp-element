@@ -86,7 +86,7 @@ classdef acci_aggregate < acc_aggregate% & acci_model
             z_ = ad.zr + 1j * ad.zi;
         end
 
-        function [F, J] = power_flow_equations(obj, x, ad)
+        function [f, J] = power_flow_equations(obj, x, ad)
             %% index vectors
             pvq = [ad.pv; ad.pq];
             pqv = [ad.pq; ad.pv];
@@ -120,7 +120,7 @@ classdef acci_aggregate < acc_aggregate% & acci_model
             %% nodal power balance
             II = C * I;
             vmm = v_(ad.pv) .* conj(v_(ad.pv)) - ad.v1(ad.pv).^2 - ad.v2(ad.pv).^2;
-            F = [real(II(pvq)); imag(II(pvq)); vmm];
+            f = [real(II(pvq)); imag(II(pvq)); vmm];
         end
 
         function add_pf_node_balance_constraints(obj, om, ad)

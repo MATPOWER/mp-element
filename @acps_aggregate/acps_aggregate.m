@@ -55,7 +55,7 @@ classdef acps_aggregate < acp_aggregate% & acps_model
             z_ = ad.zr + 1j * ad.zi;
         end
 
-        function [F, J] = power_flow_equations(obj, x, ad)
+        function [f, J] = power_flow_equations(obj, x, ad, fdpf)
             %% index vector
             pvq = [ad.pv; ad.pq];
 
@@ -81,7 +81,7 @@ classdef acps_aggregate < acp_aggregate% & acps_model
 
             %% nodal power balance
             SS = C * S;
-            F = [real(SS(pvq)); imag(SS(ad.pq))];
+            f = [real(SS(pvq)); imag(SS(ad.pq))];
         end
 
         function add_pf_node_balance_constraints(obj, om, ad)

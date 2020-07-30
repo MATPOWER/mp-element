@@ -67,7 +67,7 @@ classdef accs_nln_test_aggregate < acc_aggregate% & accs_model
             z_ = ad.zr + 1j * ad.zi;
         end
 
-        function [F, J] = power_flow_equations(obj, x, ad)
+        function [f, J] = power_flow_equations(obj, x, ad)
             %% index vector
             pqv = [ad.pq; ad.pv];
 
@@ -97,7 +97,7 @@ classdef accs_nln_test_aggregate < acc_aggregate% & accs_model
             %% nodal power balance + voltage magnitude mismatch
             SS = C * S;
             vmm = v_(ad.pv) .* conj(v_(ad.pv)) - ad.v1(ad.pv).^2 - ad.v2(ad.pv).^2;
-            F = [real(SS(pqv)); imag(SS(ad.pq)); vmm];
+            f = [real(SS(pqv)); imag(SS(ad.pq)); vmm];
         end
 
         function add_pf_node_balance_constraints(obj, om, ad)
