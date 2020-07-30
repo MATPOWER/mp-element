@@ -299,21 +299,21 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             );
         end
 
-        function add_pf_constraints(obj, asm, om, ad, mpc, mpopt)
+        function add_pf_constraints(obj, asm, om, mpc, mpopt)
             %% system constraints
-            obj.add_pf_system_constraints(om, ad, mpc, mpopt);
+            obj.add_pf_system_constraints(om, mpc, mpopt);
             
 %             %% each element adds its PF constraints
 %             for mpe = obj.mpe_list
-%                 mpe{1}.add_pf_constraints(asm, om, ad, mpc, mpopt);
+%                 mpe{1}.add_pf_constraints(asm, om, mpc, mpopt);
 %             end
         end
 
-        function add_pf_system_constraints(obj, om, ad, mpc, mpopt)
+        function add_pf_system_constraints(obj, om, mpc, mpopt)
             %% can be overridden to add additional system constraints
 
             %% node balance constraints
-            obj.add_pf_node_balance_constraints(om, ad);
+            obj.add_pf_node_balance_constraints(om, mpc, mpopt);
         end
 
         function om = setup_power_flow(obj, mpc, mpopt)
@@ -322,18 +322,18 @@ classdef ac_aggregate < mp_aggregate% & ac_model
                 mpopt = mpoption;
             end
 
-            %% construct power flow auxiliary data
-            ad = obj.power_flow_aux_data(mpc, mpopt);
-
             %% create mathematical model
             om = opt_model();
+
+            %% construct power flow auxiliary data, save in MP-Opt-Model
+            om.userdata.power_flow_aux_data = ...
+                obj.power_flow_aux_data(mpc, mpopt);
+
+            %% add variables and constraints
             if obj.np ~= 0      %% skip for empty model
-                obj.add_pf_vars(obj, om, ad, mpc, mpopt);
-                obj.add_pf_constraints(obj, om, ad, mpc, mpopt);
+                obj.add_pf_vars(obj, om, mpc, mpopt);
+                obj.add_pf_constraints(obj, om, mpc, mpopt);
             end
-            
-            %% save aux data in MP-Opt-Model
-            om.userdata.ad = ad;
         end
 
         function [v_, success, i, data] = solve_power_flow(obj, mpc, mpopt)
@@ -368,7 +368,7 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             end
 
             %% convert back to complex voltage vector
-            [v_, z_] = obj.pfx2vz(x, om.get_userdata('ad'));
+            [v_, z_] = obj.pfx2vz(x, om.get_userdata('power_flow_aux_data'));
         end
 
 

@@ -36,11 +36,12 @@ classdef acci_aggregate < acc_aggregate% & acci_model
             ad.k = k;               %% indices of PV node gen z-vars (in sys z)
         end
 
-        function add_pf_vars(obj, asm, om, ad, mpc, mpopt)
+        function add_pf_vars(obj, asm, om, mpc, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
             %% index vectors
+            ad = om.get_userdata('power_flow_aux_data');
             pqv = [ad.pq; ad.pv];
 
             %% reactive injections
@@ -123,8 +124,9 @@ classdef acci_aggregate < acc_aggregate% & acci_model
             f = [real(II(pvq)); imag(II(pvq)); vmm];
         end
 
-        function add_pf_node_balance_constraints(obj, om, ad)
+        function add_pf_node_balance_constraints(obj, om, mpc, mpopt)
             %% power balance constraints
+            ad = om.get_userdata('power_flow_aux_data');
             npvq = ad.npv+ad.npq;
             fcn = @(x)power_flow_equations(obj, x, ad);
             om.add_nln_constraint({'Irmis', 'Iimis', 'Vmis'}, [npvq;npvq;ad.npv], 1, fcn, []);

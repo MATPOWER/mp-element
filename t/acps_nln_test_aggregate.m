@@ -26,11 +26,12 @@ classdef acps_nln_test_aggregate < acp_aggregate% & acps_model
 
 
         %%-----  PF methods  -----
-        function add_pf_vars(obj, asm, om, ad, mpc, mpopt)
+        function add_pf_vars(obj, asm, om, mpc, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
             %% index vectors
+            ad = om.get_userdata('power_flow_aux_data');
             pvq = [ad.pv; ad.pq];
 
             %% voltage angles
@@ -95,8 +96,9 @@ classdef acps_nln_test_aggregate < acp_aggregate% & acps_model
             f = [real(SS(pvq)); imag(SS(ad.pq))];
         end
 
-        function add_pf_node_balance_constraints(obj, om, ad)
+        function add_pf_node_balance_constraints(obj, om, mpc, mpopt)
             %% power balance constraints
+            ad = om.get_userdata('power_flow_aux_data');
             fcn = @(x)power_flow_equations(obj, x, ad);
             om.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end
