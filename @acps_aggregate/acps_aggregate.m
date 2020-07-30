@@ -81,16 +81,103 @@ classdef acps_aggregate < acp_aggregate% & acps_model
             end
 
             %% nodal power balance
-            SS = C * S;
+            if nargin > 3 && fdpf
+                SS = C * S ./ abs(v_);  %% for fast-decoupled formulation
+            else
+                SS = C * S;
+            end
             f = [real(SS(pvq)); imag(SS(ad.pq))];
         end
 
         function add_pf_node_balance_constraints(obj, om, mpc, mpopt)
+            alg = mpopt.pf.alg;
             ad = om.get_userdata('power_flow_aux_data');
             
             %% power balance constraints
-            fcn = @(x)power_flow_equations(obj, x, ad);
+            switch alg
+                case  {'FDXB', 'FDBX'}
+                    fcn = @(x)power_flow_equations(obj, x, ad, 1);
+                otherwise
+                    fcn = @(x)power_flow_equations(obj, x, ad);
+            end
             om.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
+        end
+
+        function JJ = fd_jac_approx(obj, om, mpc, mpopt)
+            alg = mpopt.pf.alg;
+            
+            %% define named indices into bus, branch matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
+                TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
+                ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
+
+            %% modify data model to form Bp (B prime)
+            mpc1 = mpc;
+            mpc1.bus(:, BS) = 0;            %% zero out shunts at buses
+            mpc2 = mpc1;
+            mpc1.branch(:, BR_B) = 0;       %% zero out line charging shunts
+            mpc1.branch(:, TAP) = 1;        %% cancel out taps
+            if strcmp(alg, 'FDXB')          %% if XB method
+                mpc1.branch(:, BR_R) = 0;   %% zero out line resistance
+            end
+
+            %% modify data model to form Bpp (B double prime)
+            mpc2.branch(:, SHIFT) = 0;      %% zero out phase shifters
+            if strcmp(alg, 'FDBX')          %% if BX method
+                mpc2.branch(:, BR_R) = 0;   %% zero out line resistance
+            end
+
+            %% build network models and get admittance matrices
+            nm1 = feval(class(obj)).create_model(mpc1, mpopt);
+            nm2 = feval(class(obj)).create_model(mpc2, mpopt);
+            [Y1, L, M] = nm1.get_params([], {'Y', 'L', 'M'});
+            Y2 = nm2.get_params();
+            if any(any(L)) || any(any(M))
+                error('acps_fdpf_aggregate/df_jac_approx: fast-decoupled Jacobian approximation not implemented for models with non-zero L and/or M matrices.')
+            end
+
+            %% form full Bp and Bpp matrices
+            ad = om.get_userdata('power_flow_aux_data');
+            Cp  = nm1.C([ad.pv; ad.pq], :);
+            Cpp = nm2.C(ad.pq, :);
+            Bp  = -imag( Cp  * Y1 * Cp' );
+            Bpp = -imag( Cpp * Y2 * Cpp' );
+            JJ = {Bp, Bpp};
+        end
+
+        function x = gs_x_update(obj, x, f, om, mpc, mpopt);
+            alg = mpopt.pf.alg;
+            ad = om.get_userdata('power_flow_aux_data');
+
+            %% get model state ([v_; z_]) from power flow state (x)
+            [v_, z_] = obj.pfx2vz(x, ad);
+
+            C = obj.C;
+            Y = C * obj.get_params([], 'Y') * C';
+            SS = zeros(size(C, 1), 1);
+            SS(ad.pv) = f(1:ad.npv);
+            SS(ad.pq) = f(ad.npv+1:ad.npv+ad.npq) + ...
+                    1j * f(ad.npv+ad.npq+1:ad.npv+2*ad.npq);
+%            SS = C * obj.port_inj_power([v_; z_], 1);
+            S0 = v_ .* conj(Y * v_) - SS;
+
+            %% update voltage
+            %% at PQ buses
+            for k = ad.pq'
+                v_(k) = v_(k) + (conj(S0(k)/v_(k)) - Y(k,:) * v_) / Y(k, k);
+            end
+
+            %% at PV buses
+            if ad.npv
+                for k = ad.pv'
+                    S0(k) = real(S0(k)) + 1j * imag( v_(k) * conj(Y(k,:) * v_) );
+                    v_(k) = v_(k) + (conj(S0(k)/v_(k)) - Y(k,:) * v_) / Y(k, k);
+                end
+            end
+
+            x = [angle(v_([ad.pv; ad.pq])); abs(v_(ad.pq))];
         end
 
 

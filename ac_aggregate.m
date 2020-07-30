@@ -348,9 +348,26 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             om = obj.setup_power_flow(mpc, mpopt);
 
             %% solve it
-            opt = mpopt2nleqopt(mpopt, om.problem_type(), 'DEFAULT');
-%             opt = mpopt2nleqopt(mpopt, om.problem_type(), 'NEWTON');
-%             opt = mpopt2nleqopt(mpopt, om.problem_type(), 'FSOLVE');
+            alg = 'DEFAULT';
+            switch mpopt.pf.alg
+                case 'DEFAULT'
+                    opt = mpopt2nleqopt(mpopt, om.problem_type(), 'DEFAULT');
+                case {'NR', 'NR-SP', 'NR-SC', 'NR-SH', 'NR-IP', 'NR-IC', 'NR-IH'}
+                    opt = mpopt2nleqopt(mpopt, om.problem_type(), 'NEWTON');
+                case {'FDXB', 'FDBX'}
+                    opt = mpopt2nleqopt(mpopt, om.problem_type(), 'FD');
+                    opt.fd_opt.jac_approx_fcn = @()obj.fd_jac_approx(om, mpc, mpopt);
+                    opt.fd_opt.labels = {'P', 'Q'};
+                case 'FSOLVE'
+                    opt = mpopt2nleqopt(mpopt, om.problem_type(), 'FSOLVE');
+                case 'GS'
+                    opt = mpopt2nleqopt(mpopt, om.problem_type(), 'GS');
+                    opt.gs_opt.x_update_fcn = ...
+                        @(x, f)obj.gs_x_update(x, f, om, mpc, mpopt);
+                otherwise
+                    error('ac_aggregate/solve_power_flow: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
+            end
+            opt.verbose = mpopt.verbose;
 
 %             [x, f, eflag, output, J] = om.solve(opt);
             [x, f, eflag, output] = om.solve(opt);
