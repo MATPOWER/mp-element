@@ -1,4 +1,4 @@
-classdef acc_nln_branch < acc_branch & ac_nln_wrapper
+classdef acc_nln_branch < acc_branch & mpe_wrapper_ac_nln
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -15,7 +15,7 @@ classdef acc_nln_branch < acc_branch & ac_nln_wrapper
     methods
         function obj = acc_nln_branch()
             obj@acc_branch();
-            obj.ac_nln_wrapper_init();
+            obj.mpe_wrapper_ac_nln_init();
         end
 
         function build_params(obj, nm, mpc)

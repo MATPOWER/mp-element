@@ -1,4 +1,4 @@
-classdef ac_nln_wrapper < handle
+classdef mpe_wrapper_ac_nln < handle
 
 %   MATPOWER
 %   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
@@ -13,7 +13,7 @@ classdef ac_nln_wrapper < handle
     end
     
     methods
-        function obj = ac_nln_wrapper_init(obj)
+        function obj = mpe_wrapper_ac_nln_init(obj)
             obj.mpe = obj.mpe_class();      %% construct wrapped class
             
             %% copy base field values from wrapped object

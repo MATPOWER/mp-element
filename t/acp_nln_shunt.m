@@ -1,4 +1,4 @@
-classdef acp_nln_shunt < acp_shunt & ac_nln_wrapper
+classdef acp_nln_shunt < acp_shunt & mpe_wrapper_ac_nln
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -15,7 +15,7 @@ classdef acp_nln_shunt < acp_shunt & ac_nln_wrapper
     methods
         function obj = acp_nln_shunt()
             obj@acp_shunt();
-            obj.ac_nln_wrapper_init();
+            obj.mpe_wrapper_ac_nln_init();
         end
 
         function build_params(obj, nm, mpc)
