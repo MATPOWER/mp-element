@@ -1,4 +1,4 @@
-classdef mp_gizmo < mp_element
+classdef mpe_gizmo < mp_element
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef mp_gizmo < mp_element
     
     methods
         %% constructor
-        function obj = mp_gizmo()
+        function obj = mpe_gizmo()
             obj@mp_element();
             obj.name = 'gizmo';
             obj.mpc_field = 'gizmo';

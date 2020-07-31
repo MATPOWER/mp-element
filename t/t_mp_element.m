@@ -672,9 +672,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'acp_gizmo : '; k = 5;
+t = 'mpe_gizmo_acp : '; k = 5;
 t_ok(strcmp(mpe{k}.name, 'gizmo'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'acp_gizmo'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_gizmo_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);

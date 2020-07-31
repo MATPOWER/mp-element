@@ -1,4 +1,4 @@
-classdef ac_gizmo < mp_gizmo% & mp_model_ac
+classdef mpe_gizmo_ac < mpe_gizmo% & mp_model_ac
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -32,7 +32,7 @@ classdef ac_gizmo < mp_gizmo% & mp_model_ac
         end
 
         function obj = build_params(obj, nm, mpc)
-            build_params@mp_gizmo(obj, nm, mpc);   %% call parent
+            build_params@mpe_gizmo(obj, nm, mpc);   %% call parent
             nk = obj.nk;
 
             %% collect parameters from mpc

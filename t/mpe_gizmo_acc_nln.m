@@ -1,4 +1,4 @@
-classdef acc_nln_gizmo < acc_gizmo & mpe_wrapper_ac_nln
+classdef mpe_gizmo_acc_nln < mpe_gizmo_acc & mpe_wrapper_ac_nln
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -9,23 +9,23 @@ classdef acc_nln_gizmo < acc_gizmo & mpe_wrapper_ac_nln
 %   See https://matpower.org for more info.
 
     properties
-        mpe_class = @acc_gizmo;
+        mpe_class = @mpe_gizmo_acc;
     end
 
     methods
-        function obj = acc_nln_gizmo()
-            obj@acc_gizmo();
+        function obj = mpe_gizmo_acc_nln()
+            obj@mpe_gizmo_acc();
             obj.mpe_wrapper_ac_nln_init();
         end
 
         function build_params(obj, nm, mpc)
-            build_params@acc_gizmo(obj, nm, mpc);
+            build_params@mpe_gizmo_acc(obj, nm, mpc);
             obj.build_nln_params(nm, mpc);
         end
 
         function nk = count(obj, mpc)
             obj.count_nln(mpc);
-            nk = count@acc_gizmo(obj, mpc);
+            nk = count@mpe_gizmo_acc(obj, mpc);
         end
     end     %% methods
 end         %% classdef

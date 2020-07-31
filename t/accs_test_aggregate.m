@@ -12,7 +12,7 @@ classdef accs_test_aggregate < accs_aggregate
         %% constructor
         function obj = accs_test_aggregate()
             obj@accs_aggregate();
-            obj.element_classes{end+1} = @acc_gizmo;
+            obj.element_classes{end+1} = @mpe_gizmo_acc;
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager
                                         %% constructor, if not for:
