@@ -79,9 +79,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'dc_gen : '; k = 2;
+t = 'mpe_gen_dc : '; k = 2;
 t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'dc_gen'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_gen_dc'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'DC model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'dc'), [t 'model tag']);
@@ -181,7 +181,7 @@ t_is(P2, eP([3;1]), 8, t);
 t = 'dc.mpe_by_name(''gen'') : ';
 gen = dc.mpe_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(gen), 'dc_gen'), [t 'class']);
+t_ok(strcmp(class(gen), 'mpe_gen_dc'), [t 'class']);
 
 t = 'gen.port_inj_power(x, 1)';
 Pg = gen.port_inj_power(x, 1);
@@ -257,9 +257,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'acp_gen : '; k = 2;
+t = 'mpe_gen_acp : '; k = 2;
 t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'acp_gen'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_gen_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -387,7 +387,7 @@ t_is(Szi1, Szi([3;2;1], :), 12, [t 'Szi']);
 t = 'ac.mpe_by_name(''gen'') : ';
 gen = ac.mpe_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(gen), 'acp_gen'), [t 'class']);
+t_ok(strcmp(class(gen), 'mpe_gen_acp'), [t 'class']);
 
 t = 'S = gen.port_inj_power(x_, 1)';
 Sg = gen.port_inj_power(x_, 1);
@@ -592,9 +592,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'acp_gen : '; k = 2;
+t = 'mpe_gen_acp : '; k = 2;
 t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'acp_gen'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_gen_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -774,7 +774,7 @@ t_is(Szi1, Szi([3;2;1], :), 12, [t 'Szi']);
 t = 'ac.mpe_by_name(''gen'') : ';
 gen = ac.mpe_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(gen), 'acp_gen'), [t 'class']);
+t_ok(strcmp(class(gen), 'mpe_gen_acp'), [t 'class']);
 
 t = 'S = gen.port_inj_power(x_, 1)';
 Sg = gen.port_inj_power(x_, 1);

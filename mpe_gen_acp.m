@@ -1,4 +1,4 @@
-classdef acc_gen < ac_gen & mp_model_acc
+classdef mpe_gen_acp < mpe_gen_ac & mp_model_acp
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

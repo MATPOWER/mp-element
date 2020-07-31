@@ -1,4 +1,4 @@
-classdef mp_gen < mp_element
+classdef mpe_gen < mp_element
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -15,7 +15,7 @@ classdef mp_gen < mp_element
     
     methods
         %% constructor
-        function obj = mp_gen()
+        function obj = mpe_gen()
             obj@mp_element();
             obj.name = 'gen';
             obj.mpc_field = 'gen';

@@ -1,4 +1,4 @@
-classdef ac_gen < mp_gen% & mp_model_ac
+classdef mpe_gen_ac < mpe_gen% & mp_model_ac
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -31,7 +31,7 @@ classdef ac_gen < mp_gen% & mp_model_ac
         end
 
         function obj = build_params(obj, nm, mpc)
-            build_params@mp_gen(obj, nm, mpc);     %% call parent
+            build_params@mpe_gen(obj, nm, mpc);     %% call parent
             ng = obj.nk;
             obj.N = -speye(ng);
         end
@@ -44,7 +44,7 @@ classdef ac_gen < mp_gen% & mp_model_ac
             end
 
             %% call parent (with pcost) to handle active power costs
-            build_gen_cost_params@mp_gen(obj, mpc, mpopt, pcost);
+            build_gen_cost_params@mpe_gen(obj, mpc, mpopt, pcost);
             
             %% find/prepare polynomial generator costs for reactive power
             obj.cost_poly_q.have_quad_cost = 0;
@@ -106,12 +106,12 @@ classdef ac_gen < mp_gen% & mp_model_ac
             end
 
             %% call parent
-            add_opf_constraints@mp_gen(obj, nm, om, mpc, mpopt);
+            add_opf_constraints@mpe_gen(obj, nm, om, mpc, mpopt);
         end
 
         function add_opf_costs(obj, nm, om, mpc, mpopt)
             %% call parent
-            add_opf_costs@mp_gen(obj, nm, om, mpc, mpopt);
+            add_opf_costs@mpe_gen(obj, nm, om, mpc, mpopt);
 
             %% (quadratic) polynomial costs on Qg
             if obj.cost_poly_q.have_quad_cost
