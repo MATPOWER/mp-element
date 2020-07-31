@@ -1,4 +1,4 @@
-classdef mp_shunt < mp_element
+classdef mpe_shunt < mp_element
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef mp_shunt < mp_element
 
     methods
         %% constructor
-        function obj = mp_shunt()
+        function obj = mpe_shunt()
             obj@mp_element();
             obj.name = 'shunt';
             obj.mpc_field = 'bus';

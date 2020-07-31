@@ -1,4 +1,4 @@
-classdef acc_nln_shunt < acc_shunt & mpe_wrapper_ac_nln
+classdef mpe_shunt_acp_nln < mpe_shunt_acp & mpe_wrapper_ac_nln
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -9,23 +9,23 @@ classdef acc_nln_shunt < acc_shunt & mpe_wrapper_ac_nln
 %   See https://matpower.org for more info.
 
     properties
-        mpe_class = @acc_shunt;
+        mpe_class = @mpe_shunt_acp;
     end
 
     methods
-        function obj = acc_nln_shunt()
-            obj@acc_shunt();
+        function obj = mpe_shunt_acp_nln()
+            obj@mpe_shunt_acp();
             obj.mpe_wrapper_ac_nln_init();
         end
 
         function build_params(obj, nm, mpc)
-            build_params@acc_shunt(obj, nm, mpc);
+            build_params@mpe_shunt_acp(obj, nm, mpc);
             obj.build_nln_params(nm, mpc);
         end
 
         function nk = count(obj, mpc)
             obj.count_nln(mpc);
-            nk = count@acc_shunt(obj, mpc);
+            nk = count@mpe_shunt_acp(obj, mpc);
         end
     end     %% methods
 end         %% classdef

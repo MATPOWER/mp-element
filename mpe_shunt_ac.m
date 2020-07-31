@@ -1,4 +1,4 @@
-classdef ac_shunt < mp_shunt% & mp_model_ac
+classdef mpe_shunt_ac < mpe_shunt% & mp_model_ac
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -26,7 +26,7 @@ classdef ac_shunt < mp_shunt% & mp_model_ac
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-            build_params@mp_shunt(obj, nm, mpc);    %% call parent
+            build_params@mpe_shunt(obj, nm, mpc);   %% call parent
 
             nsh = obj.nk;
             Ysh = (mpc.bus(obj.busidx, GS) + ...
