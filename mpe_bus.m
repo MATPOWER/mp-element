@@ -1,4 +1,4 @@
-classdef mp_bus < mp_element
+classdef mpe_bus < mp_element
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef mp_bus < mp_element
 
     methods
         %% constructor
-        function obj = mp_bus()
+        function obj = mpe_bus()
             obj@mp_element();
             obj.name = 'bus';
             obj.mpc_field = 'bus';

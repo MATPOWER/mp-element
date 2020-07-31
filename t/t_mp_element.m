@@ -61,9 +61,9 @@ t_is(dc.nv, 9, 12, [t 'nv']);
 t_is(length(dc.mpe_list), 4, 12, [t '# of element types']);
 
 mpe = dc.mpe_list;
-t = 'dc_bus : '; k = 1;
+t = 'mpe_bus_dc : '; k = 1;
 t_ok(strcmp(mpe{k}.name, 'bus'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'dc_bus'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_bus_dc'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'DC model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'dc'), [t 'model tag']);
@@ -236,9 +236,9 @@ t_is(ac.nv, 18, 12, [t 'nv']);
 t_is(length(ac.mpe_list), 4, 12, [t '# of element types']);
 
 mpe = ac.mpe_list;
-t = 'acp_bus : '; k = 1;
+t = 'mpe_bus_acp : '; k = 1;
 t_ok(strcmp(mpe{k}.name, 'bus'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'acp_bus'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_bus_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -571,9 +571,9 @@ t_is(ac.nv, 18, 12, [t 'nv']);
 t_is(length(ac.mpe_list), 5, 12, [t '# of element types']);
 
 mpe = ac.mpe_list;
-t = 'acp_bus : '; k = 1;
+t = 'mpe_bus_acp : '; k = 1;
 t_ok(strcmp(mpe{k}.name, 'bus'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'acp_bus'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_bus_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);

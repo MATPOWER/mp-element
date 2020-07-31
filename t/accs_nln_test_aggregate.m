@@ -17,7 +17,7 @@ classdef accs_nln_test_aggregate < acc_aggregate% & mp_model_accs
         function obj = accs_nln_test_aggregate()
             obj@acc_aggregate();
             obj.element_classes = ...
-                { @acc_bus, @mpe_gen_acc_nln, @mpe_load_acc_nln, @acc_nln_branch, @mpe_shunt_acc_nln, @mpe_gizmo_acc_nln };
+                { @mpe_bus_acc, @mpe_gen_acc_nln, @mpe_load_acc_nln, @acc_nln_branch, @mpe_shunt_acc_nln, @mpe_gizmo_acc_nln };
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager
                                         %% constructor, if not for:

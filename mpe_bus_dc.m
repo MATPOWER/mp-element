@@ -1,4 +1,4 @@
-classdef dc_bus < mp_bus & mp_model_dc
+classdef mpe_bus_dc < mpe_bus & mp_model_dc
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
