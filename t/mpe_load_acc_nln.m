@@ -1,4 +1,4 @@
-classdef acc_nln_load < acc_load & mpe_wrapper_ac_nln
+classdef mpe_load_acc_nln < mpe_load_acc & mpe_wrapper_ac_nln
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -9,23 +9,23 @@ classdef acc_nln_load < acc_load & mpe_wrapper_ac_nln
 %   See https://matpower.org for more info.
 
     properties
-        mpe_class = @acc_load;
+        mpe_class = @mpe_load_acc;
     end
 
     methods
-        function obj = acc_nln_load()
-            obj@acc_load();
+        function obj = mpe_load_acc_nln()
+            obj@mpe_load_acc();
             obj.mpe_wrapper_ac_nln_init();
         end
 
         function build_params(obj, nm, mpc)
-            build_params@acc_load(obj, nm, mpc);
+            build_params@mpe_load_acc(obj, nm, mpc);
             obj.build_nln_params(nm, mpc);
         end
 
         function nk = count(obj, mpc)
             obj.count_nln(mpc);
-            nk = count@acc_load(obj, mpc);
+            nk = count@mpe_load_acc(obj, mpc);
         end
     end     %% methods
 end         %% classdef

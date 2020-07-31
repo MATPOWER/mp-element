@@ -97,9 +97,9 @@ t_is(mpe{k}.D, speye(3), 12, [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'dc_load : '; k = 3;
+t = 'mpe_load_dc : '; k = 3;
 t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'dc_load'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_load_dc'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'DC model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'dc'), [t 'model tag']);
@@ -278,9 +278,9 @@ t_is(mpe{k}.D, speye(3), 12, [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'acp_load : '; k = 3;
+t = 'mpe_load_acp : '; k = 3;
 t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'acp_load'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_load_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -613,9 +613,9 @@ t_is(mpe{k}.D, sparse(1:3, 1:3, 1, 7, 3), 12, [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'acp_load : '; k = 3;
+t = 'mpe_load_acp : '; k = 3;
 t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'acp_load'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_load_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);

@@ -1,4 +1,4 @@
-classdef acp_load < ac_load & mp_model_acp
+classdef mpe_load_acc < mpe_load_ac & mp_model_acc
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

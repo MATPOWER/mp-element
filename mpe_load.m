@@ -1,4 +1,4 @@
-classdef mp_load < mp_element
+classdef mpe_load < mp_element
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef mp_load < mp_element
 
     methods
         %% constructor
-        function obj = mp_load()
+        function obj = mpe_load()
             obj@mp_element();
             obj.name = 'load';
             obj.mpc_field = 'bus';

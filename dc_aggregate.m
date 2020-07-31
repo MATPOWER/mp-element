@@ -17,7 +17,7 @@ classdef dc_aggregate < mp_aggregate & mp_model_dc
         %% constructor
         function obj = dc_aggregate()
             obj@mp_aggregate();
-            obj.element_classes = { @dc_bus, @dc_gen, @dc_load, @dc_branch, @mpe_shunt_dc };
+            obj.element_classes = { @dc_bus, @dc_gen, @mpe_load_dc, @dc_branch, @mpe_shunt_dc };
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager
                                         %% constructor, if not for:
