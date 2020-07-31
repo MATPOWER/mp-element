@@ -1,4 +1,4 @@
-classdef acp_bus < mp_bus & acp_model
+classdef acp_bus < mp_bus & mp_model_acp
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

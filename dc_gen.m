@@ -1,4 +1,4 @@
-classdef dc_gen < mp_gen & dc_model
+classdef dc_gen < mp_gen & mp_model_dc
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)

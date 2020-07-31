@@ -1,4 +1,4 @@
-classdef acc_branch < ac_branch & acc_model
+classdef acc_branch < ac_branch & mp_model_acc
 
 %   MATPOWER
 %   Copyright (c) 2018-2020, Power Systems Engineering Research Center (PSERC)

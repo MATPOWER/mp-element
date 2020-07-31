@@ -1,4 +1,4 @@
-classdef acci_aggregate < acc_aggregate% & acci_model
+classdef acci_aggregate < acc_aggregate% & mp_model_acci
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

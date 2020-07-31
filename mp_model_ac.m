@@ -1,5 +1,5 @@
-classdef ac_model < mp_model
-%AC_MODEL  MATPOWER Model base class for AC models.
+classdef mp_model_ac < mp_model
+%MP_MODEL_AC  MATPOWER Model base class for AC models.
 %   Each concrete MATPOWER Element class must inherit, at least indirectly,
 %   from both MP_ELEMENT and MP_MODEL.
 %
@@ -7,7 +7,7 @@ classdef ac_model < mp_model
 %   MP_MODEL provides properties and methods related to the specific
 %   model and formulation (e.g. DC version, AC polar power version, etc.)
 %
-%   AC_MODEL defines:
+%   MP_MODEL_AC defines:
 %       linear current injection       = Y v_ + L z_ + i
 %       linear complex power injection = M v_ + N z_ + s
 %

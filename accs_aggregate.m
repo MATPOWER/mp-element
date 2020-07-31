@@ -1,4 +1,4 @@
-classdef accs_aggregate < acc_aggregate% & accs_model
+classdef accs_aggregate < acc_aggregate% & mp_model_accs
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

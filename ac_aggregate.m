@@ -1,6 +1,6 @@
-classdef ac_aggregate < mp_aggregate% & ac_model
+classdef ac_aggregate < mp_aggregate% & mp_model_ac
 %AC_AGGREGATE Abstract class, explicitly a subclass of mp_aggregate and
-%             implicitly assumed to be subclasses of ac_model as well
+%             implicitly assumed to be subclasses of MP_MODEL_AC as well
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

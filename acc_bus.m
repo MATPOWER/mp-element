@@ -1,4 +1,4 @@
-classdef acc_bus < mp_bus & acc_model
+classdef acc_bus < mp_bus & mp_model_acc
 
 %   MATPOWER
 %   Copyright (c) 2018-2020, Power Systems Engineering Research Center (PSERC)

@@ -1,4 +1,4 @@
-classdef dc_load < mp_load & dc_model
+classdef dc_load < mp_load & mp_model_dc
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

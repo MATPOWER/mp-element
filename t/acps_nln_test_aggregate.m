@@ -1,4 +1,4 @@
-classdef acps_nln_test_aggregate < acp_aggregate% & acps_model
+classdef acps_nln_test_aggregate < acp_aggregate% & mp_model_acps
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

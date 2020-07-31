@@ -89,7 +89,7 @@ classdef mp_gen < mp_element
             %% find/prepare piecewise linear generator costs
             ipwl = find(mpc.gencost(:, MODEL) == PW_LINEAR);  %% piece-wise linear costs
             ny = size(ipwl, 1);   %% number of piece-wise linear cost vars
-            if isa(obj, 'dc_model')
+            if isa(obj, 'mp_model_dc')
                 nq = 0;    %% number of Qg variables
                 q1 = [];
             else

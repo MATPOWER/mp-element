@@ -1,4 +1,4 @@
-classdef ac_gizmo < mp_gizmo% & ac_model
+classdef ac_gizmo < mp_gizmo% & mp_model_ac
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)

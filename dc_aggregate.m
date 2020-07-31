@@ -1,4 +1,4 @@
-classdef dc_aggregate < mp_aggregate & dc_model
+classdef dc_aggregate < mp_aggregate & mp_model_dc
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

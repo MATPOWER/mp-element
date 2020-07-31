@@ -1,4 +1,4 @@
-classdef acc_shunt < ac_shunt & acc_model
+classdef acc_shunt < ac_shunt & mp_model_acc    
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
