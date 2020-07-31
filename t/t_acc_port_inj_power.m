@@ -26,10 +26,10 @@ casefile = 't_case9_gizmo';
 
 mpopt = mpoption('out.all', 0, 'verbose', 0);
 
-%% create aggregate system object
+%% create network model object
 mpc = ext2int(loadcase(casefile));
 mpc = rmfield(mpc, 'order');
-ac = accs_test_aggregate().create_model(mpc);
+ac = mpe_network_accs_test().create_model(mpc);
 C = ac.C;
 D = ac.D;
 np = ac.np;

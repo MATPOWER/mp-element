@@ -1,4 +1,4 @@
-classdef acps_aggregate < acp_aggregate% & mp_model_acps
+classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -135,7 +135,7 @@ classdef acps_aggregate < acp_aggregate% & mp_model_acps
             [Y1, L, M] = nm1.get_params([], {'Y', 'L', 'M'});
             Y2 = nm2.get_params();
             if any(any(L)) || any(any(M))
-                error('acps_fdpf_aggregate/df_jac_approx: fast-decoupled Jacobian approximation not implemented for models with non-zero L and/or M matrices.')
+                error('mpe_network_acps_fdpf/df_jac_approx: fast-decoupled Jacobian approximation not implemented for models with non-zero L and/or M matrices.')
             end
 
             %% form full Bp and Bpp matrices

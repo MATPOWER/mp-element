@@ -1,4 +1,4 @@
-classdef dc_aggregate < mp_aggregate & mp_model_dc
+classdef mpe_network_dc < mpe_network & mp_model_dc
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -15,8 +15,8 @@ classdef dc_aggregate < mp_aggregate & mp_model_dc
     
     methods
         %% constructor
-        function obj = dc_aggregate()
-            obj@mp_aggregate();
+        function obj = mpe_network_dc()
+            obj@mpe_network();
             obj.element_classes = { @mpe_bus_dc, @mpe_gen_dc, @mpe_load_dc, @mpe_branch_dc, @mpe_shunt_dc };
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager
@@ -25,14 +25,14 @@ classdef dc_aggregate < mp_aggregate & mp_model_dc
         end
 
         function obj = def_set_types(obj)
-            def_set_types@mp_aggregate(obj);        %% call parent first
+            def_set_types@mpe_network(obj);     %% call parent first
             obj.set_types.va = 'VOLTAGE VARS (va)';
             obj.set_types.z  = 'NON-VOLTAGE VARS (z)';
         end
 
         function obj = build_params(obj, nm, mpc)
             %% call parent to build individual element parameters
-            build_params@mp_aggregate(obj, nm, mpc);
+            build_params@mpe_network(obj, nm, mpc);
 
             %% aggregate parameters from individual elements
             obj.B = obj.stack_matrix_params('B', 1);

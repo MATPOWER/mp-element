@@ -1,7 +1,7 @@
-classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
-%MP_AGGREGATE Abstract class, explicitly a subclass of mp_element and
-%             mp_idx_manager and implicitly assumed to be subclasses of
-%             mp_model as well
+classdef mpe_network < mp_element & mp_idx_manager% & mp_model
+%MPE_NETWORK  Abstract class, explicitly a subclass of MP_ELEMENT and
+%             MP_IDX_MANAGER and implicitly assumed to be a subclass of
+%             MP_MODEL as well
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -25,9 +25,9 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
     
     methods
         %% constructor
-        function obj = mp_aggregate()
+        function obj = mpe_network()
             obj@mp_element();
-            obj.name = 'aggregate';
+            obj.name = 'network';
             obj.mpc_field = '';
             obj.np = 0;     %% unknown number of ports at this point, init to 0
             obj.nk = 1;
@@ -242,7 +242,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             if nargs >= 1;
                 idx2ID = args{1};
                 if length(idx2ID) ~= N
-                    error('mp_aggregate/add_node: length of IDs vector (%d) must equal N (%d) ', length(idx2ID), N);
+                    error('mpe_network/add_node: length of IDs vector (%d) must equal N (%d) ', length(idx2ID), N);
                 end
             end
             if isempty(idx2ID)
@@ -287,7 +287,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             if nargs >= 1;
                 idx2ID = args{1};
                 if length(idx2ID) ~= N
-                    error('mp_aggregate/add_state: length of IDs vector (%d) must equal N (%d) ', length(idx2ID), N);
+                    error('mpe_network/add_state: length of IDs vector (%d) must equal N (%d) ', length(idx2ID), N);
                 end
             end
             if isempty(idx2ID)
@@ -477,13 +477,13 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             if nlin
                 nz = size(mpc.A, 2) - nx; %% number of user z variables
                 if nz < 0
-                    error('mp_aggregate/add_opf_legacy_user_vars: user supplied A matrix must have at least %d columns.', nx);
+                    error('mpe_network/add_opf_legacy_user_vars: user supplied A matrix must have at least %d columns.', nx);
                 end
             else
                 nz = 0;               %% number of user z variables
                 if nw                 %% still need to check number of columns of N
                     if size(mpc.N, 2) ~= nx;
-                        error('mp_aggregate/add_opf_legacy_user_vars: user supplied N matrix must have %d columns.', nx);
+                        error('mpe_network/add_opf_legacy_user_vars: user supplied N matrix must have %d columns.', nx);
                     end
                 end
             end
@@ -542,10 +542,10 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
                 if any(cp.dd ~= 1) || any(cp.kk)    %% not simple quadratic form
                     if dc                           %% (includes "dead zone" or
                         if any(cp.dd ~= 1)          %%  quadratic "penalty")
-                            error('mp_aggregate/add_opf_legacy_user_costs: DC OPF can only handle legacy user-defined costs with d = 1');
+                            error('mpe_network/add_opf_legacy_user_costs: DC OPF can only handle legacy user-defined costs with d = 1');
                         end
                         if any(cp.kk)
-                            error('mp_aggregate/add_opf_legacy_user_costs: DC OPF can only handle legacy user-defined costs with no "dead zone", i.e. k = 0');
+                            error('mpe_network/add_opf_legacy_user_costs: DC OPF can only handle legacy user-defined costs with no "dead zone", i.e. k = 0');
                         end
                     else
                         %% use general nonlinear cost to implement legacy user cost

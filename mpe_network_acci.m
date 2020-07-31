@@ -1,4 +1,4 @@
-classdef acci_aggregate < acc_aggregate% & mp_model_acci
+classdef mpe_network_acci < mpe_network_acc% & mp_model_acci
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -17,7 +17,7 @@ classdef acci_aggregate < acc_aggregate% & mp_model_acci
         %%-----  PF methods  -----
         function ad = power_flow_aux_data(obj, mpc, mpopt)
             %% call parent method
-            ad = power_flow_aux_data@ac_aggregate(obj, mpc, mpopt);
+            ad = power_flow_aux_data@mpe_network_ac(obj, mpc, mpopt);
 
             %% build additional aux data
             g = obj.mpe_by_name('gen');

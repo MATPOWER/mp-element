@@ -155,23 +155,23 @@ end
 
 %% choose network model class
 if dc
-    netmodel = @dc_aggregate;
+    netmodel = @mpe_network_dc;
 else
     if vcart
         if mpopt.opf.current_balance
-            netmodel = @acci_aggregate;
+            netmodel = @mpe_network_acci;
         else
-%             netmodel = @accs_nln_test_aggregate;
-%             netmodel = @accs_test_aggregate;
-            netmodel = @accs_aggregate;
+%             netmodel = @mpe_network_accs_test_nln;
+%             netmodel = @mpe_network_accs_test;
+            netmodel = @mpe_network_accs;
         end
     else
         if mpopt.opf.current_balance
-            netmodel = @acpi_aggregate;
+            netmodel = @mpe_network_acpi;
         else
-%             netmodel = @acps_nln_test_aggregate;
-%             netmodel = @acps_test_aggregate;
-            netmodel = @acps_aggregate;
+%             netmodel = @mpe_network_acps_test_nln;
+%             netmodel = @mpe_network_acps_test;
+            netmodel = @mpe_network_acps;
         end
     end
 end

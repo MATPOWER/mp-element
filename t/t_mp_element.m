@@ -27,10 +27,10 @@ casefile = 't_case9_gizmo';
 mpopt = mpoption('out.all', 0, 'verbose', 0);
 
 %%-----  DC model  -----
-t = 'dc_aggregate() : ';
-dc = dc_aggregate();
-t_ok(strcmp(dc.name, 'aggregate'), [t 'name']);
-t_ok(strcmp(class(dc), 'dc_aggregate'), [t 'class']);
+t = 'mpe_network_dc() : ';
+dc = mpe_network_dc();
+t_ok(strcmp(dc.name, 'network'), [t 'name']);
+t_ok(strcmp(class(dc), 'mpe_network_dc'), [t 'class']);
 t_ok(strcmp(dc.find_model_class(), 'mp_model_dc'), [t 'model class']);
 t_ok(strcmp(dc.model_name, 'DC model'), [t 'model name']);
 t_ok(strcmp(dc.model_tag, 'dc'), [t 'model tag']);
@@ -197,10 +197,10 @@ Pg2 = gen.port_inj_power(x, 1, 2);
 t_is(Pg2, ePg(2), 12, t);
 
 %%-----  AC model  -----
-t = 'acps_aggregate() : ';
-ac = acps_aggregate();
-t_ok(strcmp(ac.name, 'aggregate'), [t 'name']);
-t_ok(strcmp(class(ac), 'acps_aggregate'), [t 'class']);
+t = 'mpe_network_acps() : ';
+ac = mpe_network_acps();
+t_ok(strcmp(ac.name, 'network'), [t 'name']);
+t_ok(strcmp(class(ac), 'mpe_network_acps'), [t 'class']);
 t_ok(strcmp(ac.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(ac.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(ac.model_tag, 'acp'), [t 'model tag']);
@@ -503,7 +503,7 @@ t_is(Igzi, Izi(2, :), 12, [t 'Izi']);
 t = '[x, success, i] = ac.solve_power_flow(mpc, mpopt) : ';
 mpc = ext2int(loadcase(casefile));
 % mpc = rmfield(mpc, 'order');
-ac = acps_aggregate().create_model(mpc);
+ac = mpe_network_acps().create_model(mpc);
 [v_, success, i] = ac.solve_power_flow(mpc, mpopt);
 ev_ = [1 0.985795245 0.996534978 0.986136280 0.973075428 1.002808832 0.985586887 0.993996115 0.954862527]' + ...
  1j * [0 0.167951584 0.083174736 -0.041445908 -0.068338709 0.033715184 0.010692065 0.066005818 -0.072633402]';
@@ -512,10 +512,10 @@ t_is(success, 1, 12, [t 'success']);
 t_is(i, 4, 12, [t 'i']);
 
 %%-----  AC gizmo test model  -----
-t = 'acps_test_aggregate() : ';
-ac = acps_test_aggregate();
-t_ok(strcmp(ac.name, 'aggregate'), [t 'name']);
-t_ok(strcmp(class(ac), 'acps_test_aggregate'), [t 'class']);
+t = 'mpe_network_acps_test() : ';
+ac = mpe_network_acps_test();
+t_ok(strcmp(ac.name, 'network'), [t 'name']);
+t_ok(strcmp(class(ac), 'mpe_network_acps_test'), [t 'class']);
 t_ok(strcmp(ac.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(ac.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(ac.model_tag, 'acp'), [t 'model tag']);
@@ -551,7 +551,7 @@ npq = length(pq);
 % Qg = mpc.gen(:, QG)
 mpc.gen(ref, PG) = 1.7165997325858 * mpc.baseMVA;
 mpc.gen(:, QG) = [0.2570733353840 0.0079004398259 -0.1749046999314].' * mpc.baseMVA;
-ac = acps_test_aggregate().create_model(mpc);
+ac = mpe_network_acps_test().create_model(mpc);
 % mpopt = mpoption(mpopt, 'verbose', 2);
 [v_, success, i] = ac.solve_power_flow(mpc, mpopt);
 ev_ = [1 0.997294645 0.995662368 0.990141911 0.968051969 0.991260416 0.959080764 0.986861859 0.962323832]' + ...
@@ -563,7 +563,7 @@ t_is(i, 4, 12, [t 'i']);
 t = 'ac.create_model(mpc) : ';
 mpc.bus(:, VA) = angle(v_) * 180/pi;
 mpc.bus(:, VM) = abs(v_);
-ac = acps_test_aggregate().create_model(mpc);
+ac = mpe_network_acps_test().create_model(mpc);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);
 t_is(ac.nz, 7, 12, [t 'nz']);

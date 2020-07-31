@@ -1,4 +1,4 @@
-classdef accs_nln_test_aggregate < acc_aggregate% & mp_model_accs
+classdef mpe_network_accs < mpe_network_acc% & mp_model_accs
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -14,17 +14,6 @@ classdef accs_nln_test_aggregate < acc_aggregate% & mp_model_accs
 %     end
     
     methods
-        function obj = accs_nln_test_aggregate()
-            obj@acc_aggregate();
-            obj.element_classes = ...
-                { @mpe_bus_acc, @mpe_gen_acc_nln, @mpe_load_acc_nln, @mpe_branch_acc_nln, @mpe_shunt_acc_nln, @mpe_gizmo_acc_nln };
-            if isempty(obj.node)    %% skip if constructed from existing object
-                obj.init_set_types();   %% should be called in mp_idx_manager
-                                        %% constructor, if not for:
-            end                         %% https://savannah.gnu.org/bugs/?52614
-        end
-
-
         %%-----  PF methods  -----
         function add_pf_vars(obj, nm, om, mpc, mpopt)
             %% get model variables

@@ -1,4 +1,4 @@
-classdef acpi_aggregate < acp_aggregate% & mp_model_acpi
+classdef mpe_network_acps_test_nln < mpe_network_acp% & mp_model_acps
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -14,28 +14,18 @@ classdef acpi_aggregate < acp_aggregate% & mp_model_acpi
 %     end
     
     methods
-        %%-----  PF methods  -----
-        function ad = power_flow_aux_data(obj, mpc, mpopt)
-            %% call parent method
-            ad = power_flow_aux_data@ac_aggregate(obj, mpc, mpopt);
-
-            %% build additional aux data
-            g = obj.mpe_by_name('gen');
-            i = obj.mpe_z_map(obj.mpe_map.gen, :);  %% 1st-last z-idx for gens
-            N = g.C(ad.pv, :) * g.N;%% z coefficients for all gens @ PV nodes
-            [ii, jj, ss] = find(N); %% deconstruct and recreate with
-            [~, ia] = unique(ii);   %% only 1st non-zero in each row
-            N = sparse(ii(ia), jj(ia), ss(ia), ad.npv, size(N, 2));
-            j = find(any(N, 1));    %% indices of PV node gen z-vars (in gen z)
-            k = j + i(1) - 1;       %% indices of PV node gen z-vars (in sys z)
-            N = N(:,j) * g.D(k,j)'; %% coefficients for zi(k)
-
-            %% save additional aux data
-            ad.N = N;               %% coefficients for zi(k) corrsp to PV node gens
-            ad.invN = inv(N);       %% inverse of N, typically equal to N = -eye()
-            ad.k = k;               %% indices of PV node gen z-vars (in sys z)
+        function obj = mpe_network_acps_test_nln()
+            obj@mpe_network_acp();
+            obj.element_classes = ...
+                { @mpe_bus_acp, @mpe_gen_acp_nln, @mpe_load_acp_nln, @mpe_branch_acp_nln, @mpe_shunt_acp_nln, @mpe_gizmo_acp_nln };
+            if isempty(obj.node)    %% skip if constructed from existing object
+                obj.init_set_types();   %% should be called in mp_idx_manager
+                                        %% constructor, if not for:
+            end                         %% https://savannah.gnu.org/bugs/?52614
         end
 
+
+        %%-----  PF methods  -----
         function add_pf_vars(obj, nm, om, mpc, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
@@ -56,13 +46,6 @@ classdef acpi_aggregate < acp_aggregate% & mp_model_acpi
                 end
             end
 
-            %% reactive injections
-            v_ = ad.v1 + 1j * ad.v2;
-            z_ = ad.zr + 1j * ad.zi;
-            Qpv = obj.C(ad.pv, :) * imag( obj.port_inj_power([v_; z_], 1) );
-            Qg_pv = Qpv - ad.N * ad.zi(ad.k);
-            om.add_var('Qg_pv', ad.npv, Qg_pv);
-
             %% voltage magnitudes
             st = obj.(vvars{2});
             for k = 1:st.NS
@@ -78,11 +61,9 @@ classdef acpi_aggregate < acp_aggregate% & mp_model_acpi
 
         function [v_, z_] = pfx2vz(obj, x, ad)
             %% update v_, z_ from x
-            iN = ad.npv + ad.npq;           ad.v1([ad.pv; ad.pq]) = x(1:iN);%% va
-            i1 = iN+1;  iN = iN + ad.npv;   Qg_pv = x(i1:iN);
-            i1 = iN+1;  iN = iN + ad.npq;   ad.v2(ad.pq) = x(i1:iN);        %% vm
+            ad.v1([ad.pv; ad.pq]) = x(1:ad.npv+ad.npq);         %% va
+            ad.v2(ad.pq)          = x(ad.npv+ad.npq+1:end);     %% vm
             v_ = ad.v2 .* exp(1j * ad.v1);
-            ad.zi(ad.k) = -ad.N \ Qg_pv;
             z_ = ad.zr + 1j * ad.zi;
         end
 
@@ -99,31 +80,27 @@ classdef acpi_aggregate < acp_aggregate% & mp_model_acpi
             %% Jacobian
             if nargout > 1
                 %% get port power injections with derivatives
-                [I, Iva, Ivm, Izr, Izi] = obj.port_inj_current([v_; z_], 1);
+                [S, Sva, Svm] = obj.port_inj_power([v_; z_], 1);
 
-                IIva = C * Iva;
-                IIvm = C * Ivm;
-                IIzi = C * Izi;
-                IIvm(:, ad.pv) = -IIzi(:, ad.k) * ad.invN;  %% dImis_dQg
-
-                J = [   real(IIva(pvq, pvq))    real(IIvm(pvq, pvq));
-                        imag(IIva(pvq, pvq))    imag(IIvm(pvq, pvq))    ];
+                SSva = C * Sva;
+                SSvm = C * Svm;
+                J = [   real(SSva(pvq,   pvq))  real(SSvm(pvq,   ad.pq));
+                        imag(SSva(ad.pq, pvq))  imag(SSvm(ad.pq, ad.pq))    ];
             else
                 %% get port power injections (w/o derivatives)
-                I = obj.port_inj_current([v_; z_], 1);
+                S = obj.port_inj_power([v_; z_], 1);
             end
 
             %% nodal power balance
-            II = C * I;
-            f = [real(II(pvq)); imag(II(pvq))];
+            SS = C * S;
+            f = [real(SS(pvq)); imag(SS(ad.pq))];
         end
 
         function add_pf_node_balance_constraints(obj, om, mpc, mpopt)
             %% power balance constraints
             ad = om.get_userdata('power_flow_aux_data');
-            npvq = ad.npv+ad.npq;
             fcn = @(x)power_flow_equations(obj, x, ad);
-            om.add_nln_constraint({'Irmis', 'Iimis'}, [npvq;npvq], 1, fcn, []);
+            om.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end
 
 
@@ -131,9 +108,9 @@ classdef acpi_aggregate < acp_aggregate% & mp_model_acpi
         function add_opf_node_balance_constraints(obj, om)
             %% power balance constraints
             nn = obj.node.N;            %% number of nodes
-            fcn_mis = @(x)opf_current_balance_fcn(obj, x);
-            hess_mis = @(x, lam)opf_current_balance_hess(obj, x, lam);
-            om.add_nln_constraint({'rImis', 'iImis'}, [nn;nn], 1, fcn_mis, hess_mis);
+            fcn_mis = @(x)opf_power_balance_fcn(obj, x);
+            hess_mis = @(x, lam)opf_power_balance_hess(obj, x, lam);
+            om.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
     end     %% methods
 end         %% classdef

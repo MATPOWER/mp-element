@@ -1,4 +1,4 @@
-classdef acc_aggregate < ac_aggregate & mp_model_acc
+classdef mpe_network_acc < mpe_network_ac & mp_model_acc
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -14,8 +14,8 @@ classdef acc_aggregate < ac_aggregate & mp_model_acc
     end
     
     methods
-        function obj = acc_aggregate()
-            obj@ac_aggregate();
+        function obj = mpe_network_acc()
+            obj@mpe_network_ac();
             obj.element_classes = ...
                 { @mpe_bus_acc, @mpe_gen_acc, @mpe_load_acc, @mpe_branch_acc, @mpe_shunt_acc };
             if isempty(obj.node)    %% skip if constructed from existing object
@@ -25,7 +25,7 @@ classdef acc_aggregate < ac_aggregate & mp_model_acc
         end
 
         function obj = def_set_types(obj)
-            def_set_types@ac_aggregate(obj);        %% call parent first
+            def_set_types@mpe_network_ac(obj);      %% call parent first
             obj.set_types.vr = 'REAL VOLTAGE VARS (vr)';
             obj.set_types.vi = 'IMAG VOLTAGE VARS (vi)';
         end

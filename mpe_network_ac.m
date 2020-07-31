@@ -1,6 +1,6 @@
-classdef ac_aggregate < mp_aggregate% & mp_model_ac
-%AC_AGGREGATE Abstract class, explicitly a subclass of mp_aggregate and
-%             implicitly assumed to be subclasses of MP_MODEL_AC as well
+classdef mpe_network_ac < mpe_network% & mp_model_ac
+%MPE_NETWORK_AC Abstract class, explicitly a subclass of MPE_NETWORK and
+%               implicitly assumed to be subclasses of MP_MODEL_AC as well
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -21,14 +21,14 @@ classdef ac_aggregate < mp_aggregate% & mp_model_ac
     
     methods
         function obj = def_set_types(obj)
-            def_set_types@mp_aggregate(obj);        %% call parent first
+            def_set_types@mpe_network(obj);     %% call parent first
             obj.set_types.zr = 'NON-VOLTAGE VARS REAL (zr)';
             obj.set_types.zi = 'NON-VOLTAGE VARS IMAG (zi)';
         end
 
         function obj = build_params(obj, nm, mpc)
             %% call parent to build individual element parameters
-            build_params@mp_aggregate(obj, nm, mpc);
+            build_params@mpe_network(obj, nm, mpc);
 
             %% aggregate parameters from individual elements
             obj.Y = obj.stack_matrix_params('Y', 1);
@@ -365,7 +365,7 @@ classdef ac_aggregate < mp_aggregate% & mp_model_ac
                     opt.gs_opt.x_update_fcn = ...
                         @(x, f)obj.gs_x_update(x, f, om, mpc, mpopt);
                 otherwise
-                    error('ac_aggregate/solve_power_flow: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
+                    error('mpe_network_ac/solve_power_flow: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
             end
             opt.verbose = mpopt.verbose;
 
@@ -492,7 +492,7 @@ classdef ac_aggregate < mp_aggregate% & mp_model_ac
 
         function add_opf_legacy_user_constraints(obj, om, mpc, mpopt)
             %% call parent
-            add_opf_legacy_user_constraints@mp_aggregate(obj, om, mpc, mpopt);
+            add_opf_legacy_user_constraints@mpe_network(obj, om, mpc, mpopt);
 
             %% check for user-defined nonlinear constraints
             nnle = 0;   %% number of nonlinear user-defined equality cons

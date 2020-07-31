@@ -1,4 +1,4 @@
-classdef acps_test_aggregate < acps_aggregate
+classdef mpe_network_accs_test < mpe_network_accs
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -10,9 +10,9 @@ classdef acps_test_aggregate < acps_aggregate
 
     methods
         %% constructor
-        function obj = acps_test_aggregate()
-            obj@acps_aggregate();
-            obj.element_classes{end+1} = @mpe_gizmo_acp;
+        function obj = mpe_network_accs_test()
+            obj@mpe_network_accs();
+            obj.element_classes{end+1} = @mpe_gizmo_acc;
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager
                                         %% constructor, if not for:
