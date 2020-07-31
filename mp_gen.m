@@ -23,24 +23,24 @@ classdef mp_gen < mp_element
             obj.nz = 1;
         end
 
-        function obj = add_states(obj, asm, mpc)
+        function obj = add_states(obj, nm, mpc)
 %             %% define constants
 %             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
 
             ng = obj.nk;            %% number of gens
-            asm.add_state(obj.name, ng);
+            nm.add_state(obj.name, ng);
         end
 
-        function obj = build_params(obj, asm, mpc)
+        function obj = build_params(obj, nm, mpc)
             %% define constants
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
 
             %% incidence matrices
             IDs = mpc.gen(:, GEN_BUS);                  %% bus IDs
-            nidx = asm.node.data.ID2idx.bus(IDs);       %% node indexes
-            sidx = asm.state.data.ID2idx.(obj.name);    %% state indexes
-            obj.C = obj.incidence_matrix(asm.getN('node'), nidx);
-            obj.D = obj.incidence_matrix(asm.getN('state'), sidx);
+            nidx = nm.node.data.ID2idx.bus(IDs);        %% node indexes
+            sidx = nm.state.data.ID2idx.(obj.name);     %% state indexes
+            obj.C = obj.incidence_matrix(nm.getN('node'), nidx);
+            obj.D = obj.incidence_matrix(nm.getN('state'), sidx);
         end
 
         %%-----  OPF methods  -----
@@ -100,7 +100,7 @@ classdef mp_gen < mp_element
             obj.cost_pwl = struct('ny', ny, 'ipwl', ipwl, 'Ay', Ay, 'by', by);
         end
         
-        function add_opf_vars(obj, asm, om, mpc, mpopt)
+        function add_opf_vars(obj, nm, om, mpc, mpopt)
             %% collect/construct all generator cost parameters
             obj.build_gen_cost_params(mpc, mpopt);
 
@@ -110,7 +110,7 @@ classdef mp_gen < mp_element
             end
         end
 
-        function add_opf_costs(obj, asm, om, mpc, mpopt)
+        function add_opf_costs(obj, nm, om, mpc, mpopt)
             %% (quadratic) polynomial costs on Pg
             if obj.cost_poly_p.have_quad_cost
                 om.add_quad_cost('polPg', obj.cost_poly_p.Qpg, obj.cost_poly_p.cpg, obj.cost_poly_p.kpg, {'Pg'});

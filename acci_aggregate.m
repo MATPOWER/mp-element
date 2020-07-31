@@ -36,7 +36,7 @@ classdef acci_aggregate < acc_aggregate% & acci_model
             ad.k = k;               %% indices of PV node gen z-vars (in sys z)
         end
 
-        function add_pf_vars(obj, asm, om, mpc, mpopt)
+        function add_pf_vars(obj, nm, om, mpc, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 

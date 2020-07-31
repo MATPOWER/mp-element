@@ -9,9 +9,9 @@ classdef acp_branch < ac_branch & acp_model
 %   See https://matpower.org for more info.
 
     methods
-        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, mpc, mpopt)
             %% call parent
-            add_opf_constraints@ac_branch(obj, asm, om, mpc, mpopt);
+            add_opf_constraints@ac_branch(obj, nm, om, mpc, mpopt);
 
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...

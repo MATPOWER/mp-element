@@ -14,7 +14,7 @@ classdef acc_bus < mp_bus & acc_model
 %     end
     
     methods
-        function obj = add_vvars(obj, asm, mpc, idx)
+        function obj = add_vvars(obj, nm, mpc, idx)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
@@ -22,8 +22,8 @@ classdef acc_bus < mp_bus & acc_model
             nb = obj.nk;
             v0 = mpc.bus(:, VM) .* exp(1j * mpc.bus(:, VA) * pi/180);
             vclim = 1.1 * mpc.bus(:, VMAX);
-            asm.add_var('vr', 'Vr', nb, real(v0), -vclim, vclim);
-            asm.add_var('vi', 'Vi', nb, imag(v0), -vclim, vclim);
+            nm.add_var('vr', 'Vr', nb, real(v0), -vclim, vclim);
+            nm.add_var('vi', 'Vi', nb, imag(v0), -vclim, vclim);
         end
 
         function [g, dg] = va_fcn(obj, xx, idx, lim)
@@ -134,7 +134,7 @@ classdef acc_bus < mp_bus & acc_model
             d2G = [dlam zz; zz dlam];
         end
 
-        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, mpc, mpopt)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;

@@ -13,7 +13,7 @@ classdef ac_gizmo < mp_gizmo% & ac_model
 %     end
     
     methods
-        function obj = add_zvars(obj, asm, mpc, idx)
+        function obj = add_zvars(obj, nm, mpc, idx)
             nk = obj.nk;
             switch idx{:}
                 case 1
@@ -27,12 +27,12 @@ classdef ac_gizmo < mp_gizmo% & ac_model
             end
             vname_r = sprintf('Zr%d_gizmo', idx{:});
             vname_i = sprintf('Zi%d_gizmo', idx{:});
-            asm.add_var('zr', vname_r, nk, Zr, -Zmax, Zmax);
-            asm.add_var('zi', vname_i, nk, Zi, -Zmax, Zmax);
+            nm.add_var('zr', vname_r, nk, Zr, -Zmax, Zmax);
+            nm.add_var('zi', vname_i, nk, Zi, -Zmax, Zmax);
         end
 
-        function obj = build_params(obj, asm, mpc)
-            build_params@mp_gizmo(obj, asm, mpc);  %% call parent
+        function obj = build_params(obj, nm, mpc)
+            build_params@mp_gizmo(obj, nm, mpc);   %% call parent
             nk = obj.nk;
 
             %% collect parameters from mpc

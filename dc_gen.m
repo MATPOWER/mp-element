@@ -13,7 +13,7 @@ classdef dc_gen < mp_gen & dc_model
 %     end
     
     methods
-        function obj = add_zvars(obj, asm, mpc, idx)
+        function obj = add_zvars(obj, nm, mpc, idx)
             %% define constants
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
@@ -23,23 +23,23 @@ classdef dc_gen < mp_gen & dc_model
             Pg   = mpc.gen(:, PG) / mpc.baseMVA;
             Pmin = mpc.gen(:, PMIN) / mpc.baseMVA;
             Pmax = mpc.gen(:, PMAX) / mpc.baseMVA;
-            asm.add_var('z', 'Pg', ng, Pg, Pmin, Pmax);
+            nm.add_var('z', 'Pg', ng, Pg, Pmin, Pmax);
         end
 
-        function obj = build_params(obj, asm, mpc)
-            build_params@mp_gen(obj, asm, mpc);     %% call parent
+        function obj = build_params(obj, nm, mpc)
+            build_params@mp_gen(obj, nm, mpc);      %% call parent
             ng = obj.nk;
             obj.K = -speye(ng);
         end
 
-        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, mpc, mpopt)
             %% piecewise linear costs
             if obj.cost_pwl.ny
                 om.add_lin_constraint('ycon', obj.cost_pwl.Ay, [], obj.cost_pwl.by, {'Pg', 'y'});
             end
 
             %% call parent
-            add_opf_constraints@mp_gen(obj, asm, om, mpc, mpopt);
+            add_opf_constraints@mp_gen(obj, nm, om, mpc, mpopt);
         end
     end     %% methods
 end         %% classdef

@@ -13,7 +13,7 @@ classdef ac_gen < mp_gen% & ac_model
     end
     
     methods
-        function obj = add_zvars(obj, asm, mpc, idx)
+        function obj = add_zvars(obj, nm, mpc, idx)
             %% define constants
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
@@ -26,12 +26,12 @@ classdef ac_gen < mp_gen% & ac_model
             Qg   = mpc.gen(:, QG) / mpc.baseMVA;
             Qmin = mpc.gen(:, QMIN) / mpc.baseMVA;
             Qmax = mpc.gen(:, QMAX) / mpc.baseMVA;
-            asm.add_var('zr', 'Pg', ng, Pg, Pmin, Pmax);
-            asm.add_var('zi', 'Qg', ng, Qg, Qmin, Qmax);
+            nm.add_var('zr', 'Pg', ng, Pg, Pmin, Pmax);
+            nm.add_var('zi', 'Qg', ng, Qg, Qmin, Qmax);
         end
 
-        function obj = build_params(obj, asm, mpc)
-            build_params@mp_gen(obj, asm, mpc);     %% call parent
+        function obj = build_params(obj, nm, mpc)
+            build_params@mp_gen(obj, nm, mpc);     %% call parent
             ng = obj.nk;
             obj.N = -speye(ng);
         end
@@ -87,7 +87,7 @@ classdef ac_gen < mp_gen% & ac_model
             end
         end
 
-        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, mpc, mpopt)
             %% generator PQ capability curve constraints
             [Apqh, ubpqh, Apql, ubpql, Apqdata] = makeApq(mpc.baseMVA, mpc.gen);
             om.add_lin_constraint('PQh', Apqh, [], ubpqh, {'Pg', 'Qg'});      %% npqh
@@ -106,12 +106,12 @@ classdef ac_gen < mp_gen% & ac_model
             end
 
             %% call parent
-            add_opf_constraints@mp_gen(obj, asm, om, mpc, mpopt);
+            add_opf_constraints@mp_gen(obj, nm, om, mpc, mpopt);
         end
 
-        function add_opf_costs(obj, asm, om, mpc, mpopt)
+        function add_opf_costs(obj, nm, om, mpc, mpopt)
             %% call parent
-            add_opf_costs@mp_gen(obj, asm, om, mpc, mpopt);
+            add_opf_costs@mp_gen(obj, nm, om, mpc, mpopt);
 
             %% (quadratic) polynomial costs on Qg
             if obj.cost_poly_q.have_quad_cost

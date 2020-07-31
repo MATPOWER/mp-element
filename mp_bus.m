@@ -21,16 +21,16 @@ classdef mp_bus < mp_element
             obj.np = 0;             %% this is a 0 port element
         end
 
-        function obj = add_nodes(obj, asm, mpc)
+        function obj = add_nodes(obj, nm, mpc)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I] = idx_bus;
     
             nb = obj.nk;            %% number of buses
-            asm.add_node(obj.name, nb, mpc.bus(:, BUS_I));
+            nm.add_node(obj.name, nb, mpc.bus(:, BUS_I));
         end
 
         %%-----  PF methods  -----
-        function ntv = power_flow_node_types(obj, asm, mpc, idx)
+        function ntv = power_flow_node_types(obj, nm, mpc, idx)
             %% define constants
             [PQ, PV, REF, NONE] = idx_bus;
 

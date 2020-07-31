@@ -387,9 +387,9 @@ classdef ac_model < mp_model
             end
         end
 
-        function [h, dh] = port_apparent_power_lim_fcn(obj, x, asm, idx, hmax)
+        function [h, dh] = port_apparent_power_lim_fcn(obj, x, nm, idx, hmax)
             %% branch squared apparent power flow constraints
-            x_ = asm.x2x_(x);           %% convert real to complex x
+            x_ = nm.x2x_(x);            %% convert real to complex x
 
             %% get port power injections with derivatives
             if nargout > 1
@@ -404,9 +404,9 @@ classdef ac_model < mp_model
             h = conj(S) .* S - hmax;
         end
 
-        function [h, dh] = port_active_power_lim_fcn(obj, x, asm, idx, hmax)
+        function [h, dh] = port_active_power_lim_fcn(obj, x, nm, idx, hmax)
             %% branch active power flow constraints
-            x_ = asm.x2x_(x);           %% convert real to complex x
+            x_ = nm.x2x_(x);            %% convert real to complex x
 
             %% get port power injections with derivatives
             if nargout > 1
@@ -419,9 +419,9 @@ classdef ac_model < mp_model
             h = P - hmax;
         end
 
-        function [h, dh] = port_active_power2_lim_fcn(obj, x, asm, idx, hmax)
+        function [h, dh] = port_active_power2_lim_fcn(obj, x, nm, idx, hmax)
             %% branch squared active power flow constraints
-            x_ = asm.x2x_(x);           %% convert real to complex x
+            x_ = nm.x2x_(x);            %% convert real to complex x
 
             %% get port power injections with derivatives
             if nargout > 1
@@ -437,9 +437,9 @@ classdef ac_model < mp_model
             h = P .* P - hmax;
         end
 
-        function [h, dh] = port_current_lim_fcn(obj, x, asm, idx, hmax)
+        function [h, dh] = port_current_lim_fcn(obj, x, nm, idx, hmax)
             %% branch squared current constraints
-            x_ = asm.x2x_(x);           %% convert real to complex x
+            x_ = nm.x2x_(x);            %% convert real to complex x
 
             %% get port current injections with derivatives
             if nargout > 1
@@ -454,9 +454,9 @@ classdef ac_model < mp_model
             h = conj(I) .* I - hmax;
         end
 
-        function d2H = port_apparent_power_lim_hess(obj, x, lam, asm, idx)
+        function d2H = port_apparent_power_lim_hess(obj, x, lam, nm, idx)
             %% branch squared apparent power flow Hessian
-            x_ = asm.x2x_(x);           %% convert real to complex x
+            x_ = nm.x2x_(x);            %% convert real to complex x
             nlam = length(lam);
 
             [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1, idx);
@@ -469,16 +469,16 @@ classdef ac_model < mp_model
                         Sx.' * dlam * conj(Sx) );
         end
 
-        function d2H = port_active_power_lim_hess(obj, x, lam, asm, idx)
+        function d2H = port_active_power_lim_hess(obj, x, lam, nm, idx)
             %% branch active power flow Hessian
-            x_ = asm.x2x_(x);           %% convert real to complex x
+            x_ = nm.x2x_(x);            %% convert real to complex x
 
             d2H = real( obj.port_inj_power_hess(x_, lam, 1, idx) );
         end
 
-        function d2H = port_active_power2_lim_hess(obj, x, lam, asm, idx)
+        function d2H = port_active_power2_lim_hess(obj, x, lam, nm, idx)
             %% branch squared active power flow Hessian
-            x_ = asm.x2x_(x);           %% convert real to complex x
+            x_ = nm.x2x_(x);            %% convert real to complex x
             nlam = length(lam);
 
             [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1, idx);
@@ -491,9 +491,9 @@ classdef ac_model < mp_model
                         Px.' * dlam * Px );
         end
 
-        function d2H = port_current_lim_hess(obj, x, lam, asm, idx)
+        function d2H = port_current_lim_hess(obj, x, lam, nm, idx)
             %% branch squared current Hessian
-            x_ = asm.x2x_(x);           %% convert real to complex x
+            x_ = nm.x2x_(x);            %% convert real to complex x
             nlam = length(lam);
 
             [I, Iv1, Iv2, Izr, Izi] = obj.port_inj_current(x_, 1, idx);

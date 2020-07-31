@@ -58,9 +58,9 @@ classdef acc_branch < ac_branch & acc_model
                     h_ri -h_rr ];
         end
 
-        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, mpc, mpopt)
             %% call parent
-            add_opf_constraints@ac_branch(obj, asm, om, mpc, mpopt);
+            add_opf_constraints@ac_branch(obj, nm, om, mpc, mpopt);
 
             %% branch angle difference limits
             nb = size(mpc.bus, 1);

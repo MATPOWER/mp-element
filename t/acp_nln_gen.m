@@ -18,9 +18,9 @@ classdef acp_nln_gen < acp_gen & ac_nln_wrapper
             obj.ac_nln_wrapper_init();
         end
 
-        function build_params(obj, asm, mpc)
-            build_params@acp_gen(obj, asm, mpc);
-            obj.build_nln_params(asm, mpc);
+        function build_params(obj, nm, mpc)
+            build_params@acp_gen(obj, nm, mpc);
+            obj.build_nln_params(nm, mpc);
         end
 
         function nk = count(obj, mpc)

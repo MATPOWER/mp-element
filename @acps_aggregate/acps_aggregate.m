@@ -15,7 +15,7 @@ classdef acps_aggregate < acp_aggregate% & acps_model
     
     methods
         %%-----  PF methods  -----
-        function add_pf_vars(obj, asm, om, mpc, mpopt)
+        function add_pf_vars(obj, nm, om, mpc, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 

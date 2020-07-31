@@ -26,7 +26,7 @@ classdef accs_nln_test_aggregate < acc_aggregate% & accs_model
 
 
         %%-----  PF methods  -----
-        function add_pf_vars(obj, asm, om, mpc, mpopt)
+        function add_pf_vars(obj, nm, om, mpc, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 

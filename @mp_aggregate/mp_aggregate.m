@@ -78,7 +78,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             mpe = obj.mpe_list{obj.mpe_map.(name)};
         end
 
-        function obj = add_nodes(obj, asm, mpc)
+        function obj = add_nodes(obj, nm, mpc)
             %% each element adds its nodes
             for mpe = obj.mpe_list
                 mpe{1}.add_nodes(obj, mpc);
@@ -88,7 +88,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             obj.add_vvars(obj, mpc);
         end
 
-        function obj = add_states(obj, asm, mpc)
+        function obj = add_states(obj, nm, mpc)
             %% each element adds its states
             for mpe = obj.mpe_list
                 mpe{1}.add_states(obj, mpc);
@@ -98,7 +98,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             obj.add_zvars(obj, mpc);
         end
 
-        function obj = build_params(obj, asm, mpc)
+        function obj = build_params(obj, nm, mpc)
             %% each element builds parameters, aggregate incidence matrices
             C = {};
             D = {};
@@ -170,7 +170,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             v = vertcat(vv{:});
         end
 
-        function obj = add_vvars(obj, asm, mpc, idx)
+        function obj = add_vvars(obj, nm, mpc, idx)
             for k = 1:length(obj.node.order)
                 mpe = obj.mpe_by_name(obj.node.order(k).name);
                 mpe.add_vvars(obj, mpc, obj.state.order(k).idx);
@@ -180,7 +180,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             end
         end
 
-        function obj = add_zvars(obj, asm, mpc, idx)
+        function obj = add_zvars(obj, nm, mpc, idx)
             for k = 1:length(obj.state.order)
                 mpe = obj.mpe_by_name(obj.state.order(k).name);
                 mpe.add_zvars(obj, mpc, obj.state.order(k).idx);
@@ -394,7 +394,7 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
         
         [x, success, i] = solve_opf(obj, mpc, mpopt)
         
-        function add_opf_vars(obj, asm, om, mpc, mpopt)
+        function add_opf_vars(obj, nm, om, mpc, mpopt)
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars
                 st = obj.(vtype{1});    %% set type
@@ -411,30 +411,30 @@ classdef mp_aggregate < mp_element & mp_idx_manager% & mp_model
             
             %% each element adds its OPF variables
             for mpe = obj.mpe_list
-                mpe{1}.add_opf_vars(asm, om, mpc, mpopt);
+                mpe{1}.add_opf_vars(nm, om, mpc, mpopt);
             end
             
             %% legacy user-defined variables
             obj.add_opf_legacy_user_vars(om, mpc, mpopt);
         end
 
-        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, mpc, mpopt)
             %% system constraints
             obj.add_opf_system_constraints(om, mpc, mpopt);
             
             %% each element adds its OPF constraints
             for mpe = obj.mpe_list
-                mpe{1}.add_opf_constraints(asm, om, mpc, mpopt);
+                mpe{1}.add_opf_constraints(nm, om, mpc, mpopt);
             end
         end
 
-        function add_opf_costs(obj, asm, om, mpc, mpopt)
+        function add_opf_costs(obj, nm, om, mpc, mpopt)
             %% system costs
             obj.add_opf_system_costs(om, mpc, mpopt);
             
             %% each element adds its OPF costs
             for mpe = obj.mpe_list
-                mpe{1}.add_opf_costs(asm, om, mpc, mpopt);
+                mpe{1}.add_opf_costs(nm, om, mpc, mpopt);
             end
         end
 

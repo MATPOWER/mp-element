@@ -13,7 +13,7 @@ classdef acp_bus < mp_bus & acp_model
 %     end
     
     methods
-        function obj = add_vvars(obj, asm, mpc, idx)
+        function obj = add_vvars(obj, nm, mpc, idx)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
@@ -28,8 +28,8 @@ classdef acp_bus < mp_bus & acp_model
             Vamin(k) = Va0(k);
             Vmin = mpc.bus(:, VMIN);
             Vmax = mpc.bus(:, VMAX);
-            asm.add_var('va', 'Va', nb, Va0, Vamin, Vamax);
-            asm.add_var('vm', 'Vm', nb, Vm0, Vmin, Vmax);
+            nm.add_var('va', 'Va', nb, Va0, Vamin, Vamax);
+            nm.add_var('vm', 'Vm', nb, Vm0, Vmin, Vmax);
         end
     end     %% methods
 end         %% classdef

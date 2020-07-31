@@ -13,8 +13,8 @@ classdef ac_branch < mp_branch% & ac_model
 %     end
     
     methods
-        function obj = build_params(obj, asm, mpc)
-            build_params@mp_branch(obj, asm, mpc);  %% call parent
+        function obj = build_params(obj, nm, mpc)
+            build_params@mp_branch(obj, nm, mpc);  %% call parent
 
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
@@ -43,7 +43,7 @@ classdef ac_branch < mp_branch% & ac_model
                 [Yff; Yft; Ytf; Ytt], 2*nl, 2*nl );
         end
 
-        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, mpc, mpopt)
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
                 TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
@@ -64,21 +64,21 @@ classdef ac_branch < mp_branch% & ac_model
                 %% branch flow constraints
                 lim_type = upper(mpopt.opf.flow_lim(1));
                 if lim_type == 'S'
-                    fcn_flow = @(x)port_apparent_power_lim_fcn(obj, x, asm, idx, ...
+                    fcn_flow = @(x)port_apparent_power_lim_fcn(obj, x, nm, idx, ...
                                                     [flow_max; flow_max] .^ 2);
-                    hess_flow = @(x, lam)port_apparent_power_lim_hess(obj, x, lam, asm, idx);
+                    hess_flow = @(x, lam)port_apparent_power_lim_hess(obj, x, lam, nm, idx);
                 elseif lim_type == 'P'
-                    fcn_flow = @(x)port_active_power_lim_fcn(obj, x, asm, idx, ...
+                    fcn_flow = @(x)port_active_power_lim_fcn(obj, x, nm, idx, ...
                                                     [flow_max; flow_max]);
-                    hess_flow = @(x, lam)port_active_power_lim_hess(obj, x, lam, asm, idx);
+                    hess_flow = @(x, lam)port_active_power_lim_hess(obj, x, lam, nm, idx);
                 elseif lim_type == '2' || lim_type == 'P'
-                    fcn_flow = @(x)port_active_power2_lim_fcn(obj, x, asm, idx, ...
+                    fcn_flow = @(x)port_active_power2_lim_fcn(obj, x, nm, idx, ...
                                                     [flow_max; flow_max] .^ 2);
-                    hess_flow = @(x, lam)port_active_power2_lim_hess(obj, x, lam, asm, idx);
+                    hess_flow = @(x, lam)port_active_power2_lim_hess(obj, x, lam, nm, idx);
                 elseif lim_type == 'I'
-                    fcn_flow = @(x)port_current_lim_fcn(obj, x, asm, idx, ...
+                    fcn_flow = @(x)port_current_lim_fcn(obj, x, nm, idx, ...
                                                     [flow_max; flow_max] .^ 2);
-                    hess_flow = @(x, lam)port_current_lim_hess(obj, x, lam, asm, idx);
+                    hess_flow = @(x, lam)port_current_lim_hess(obj, x, lam, nm, idx);
                 else
                     error('ac_branch/add_opf_constraints: MPOPT.opf.flow_lim = ''%s'' not yet implemented.', mpopt.opf.flow_lim);
                 end

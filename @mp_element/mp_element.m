@@ -18,7 +18,7 @@ classdef mp_element < handle
 %       add_states() - add state, state variables
 %           
 %       build_params() - build model parameters from data model
-%           params = mpe.build_params(asm, mpc)
+%           params = mpe.build_params(nm, mpc)
 %       count() - returns the number of elements of this type in mpc, sets mpe.nk
 %           nk = mpe.count(mpc)
 %
@@ -85,19 +85,19 @@ classdef mp_element < handle
             end
         end
 
-        function obj = add_nodes(obj, asm, mpc)
+        function obj = add_nodes(obj, nm, mpc)
         end
 
-        function obj = add_states(obj, asm, mpc)
+        function obj = add_states(obj, nm, mpc)
         end
 
-        function obj = add_vvars(obj, asm, mpc, idx)
+        function obj = add_vvars(obj, nm, mpc, idx)
         end
 
-        function obj = add_zvars(obj, asm, mpc, idx)
+        function obj = add_zvars(obj, nm, mpc, idx)
         end
 
-        function obj = build_params(obj, asm, mpc)
+        function obj = build_params(obj, nm, mpc)
         end
 
         function nv_ = get_nv_(obj, sysx);
@@ -224,21 +224,21 @@ classdef mp_element < handle
         end
 
         %%-----  PF methods  -----
-%         function add_pf_vars(obj, asm, om, mpc, mpopt)
+%         function add_pf_vars(obj, nm, om, mpc, mpopt)
 %         end
 % 
-%         function add_pf_constraints(obj, asm, om, ad, mpc, mpopt)
+%         function add_pf_constraints(obj, nm, om, ad, mpc, mpopt)
 %         end
 
 
         %%-----  OPF methods  -----
-        function add_opf_vars(obj, asm, om, mpc, mpopt)
+        function add_opf_vars(obj, nm, om, mpc, mpopt)
         end
 
-        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, mpc, mpopt)
         end
 
-        function add_opf_costs(obj, asm, om, mpc, mpopt)
+        function add_opf_costs(obj, nm, om, mpc, mpopt)
         end
     end     %% methods
 end         %% classdef

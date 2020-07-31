@@ -13,7 +13,7 @@ classdef dc_bus < mp_bus & dc_model
 %     end
     
     methods
-        function obj = add_vvars(obj, asm, mpc, idx)
+        function obj = add_vvars(obj, nm, mpc, idx)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
@@ -23,7 +23,7 @@ classdef dc_bus < mp_bus & dc_model
             Vamax = Inf(nb, 1);
             k = find(mpc.bus(:, BUS_TYPE) == REF);
             Vamax(k) = Va0(k);
-            asm.add_var('va', 'Va', nb, Va0, -Vamax, Vamax);
+            nm.add_var('va', 'Va', nb, Va0, -Vamax, Vamax);
         end
     end     %% methods
 end         %% classdef

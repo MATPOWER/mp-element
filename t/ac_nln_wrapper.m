@@ -23,9 +23,9 @@ classdef ac_nln_wrapper < handle
             obj.nz = obj.mpe.nz;
         end
         
-        function build_nln_params(obj, asm, mpc)
+        function build_nln_params(obj, nm, mpc)
             %% build params for wrapped object
-            obj.mpe.build_params(asm, mpc);
+            obj.mpe.build_params(nm, mpc);
             
             %% remove other params
             obj.Y = [];

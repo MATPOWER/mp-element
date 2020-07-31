@@ -21,12 +21,12 @@ classdef dc_shunt < mp_shunt & dc_model
             k = find(mpc.bus(:, GS));
         end
 
-        function obj = build_params(obj, asm, mpc)
+        function obj = build_params(obj, nm, mpc)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-            build_params@mp_shunt(obj, asm, mpc);   %% call parent
+            build_params@mp_shunt(obj, nm, mpc);    %% call parent
 
             obj.p = mpc.bus(obj.busidx, GS) / mpc.baseMVA;  %% vector of shunt conductances
         end

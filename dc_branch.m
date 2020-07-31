@@ -13,8 +13,8 @@ classdef dc_branch < mp_branch & dc_model
 %     end
     
     methods
-        function obj = build_params(obj, asm, mpc)
-            build_params@mp_branch(obj, asm, mpc);  %% call parent
+        function obj = build_params(obj, nm, mpc)
+            build_params@mp_branch(obj, nm, mpc);   %% call parent
 
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
@@ -40,7 +40,7 @@ classdef dc_branch < mp_branch & dc_model
             obj.p = [Pfinj; -Pfinj];
         end
 
-        function add_opf_constraints(obj, asm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, mpc, mpopt)
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
                 TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
@@ -58,7 +58,7 @@ classdef dc_branch < mp_branch & dc_model
                 [B, K, p] = obj.get_params(il);
                 Af = B * obj.C';
                 om.add_lin_constraint('Pf', Af, -p-flow_max, -p+flow_max, ...
-                    {asm.va.order(:).name});
+                    {nm.va.order(:).name});
             end
 
             %% branch voltage angle difference limits

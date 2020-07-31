@@ -31,16 +31,16 @@ classdef mp_load < mp_element
             end
         end
 
-        function obj = build_params(obj, asm, mpc)
+        function obj = build_params(obj, nm, mpc)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
             %% incidence matrices
             IDs = mpc.bus(obj.busidx, BUS_I);       %% bus IDs
-            nidx = asm.node.data.ID2idx.bus(IDs);   %% node indexes
-            obj.C = obj.incidence_matrix(asm.getN('node'), nidx);
-            obj.D = obj.incidence_matrix(asm.getN('state'));
+            nidx = nm.node.data.ID2idx.bus(IDs);    %% node indexes
+            obj.C = obj.incidence_matrix(nm.getN('node'), nidx);
+            obj.D = obj.incidence_matrix(nm.getN('state'));
         end
     end     %% methods
 end         %% classdef

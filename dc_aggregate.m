@@ -30,9 +30,9 @@ classdef dc_aggregate < mp_aggregate & dc_model
             obj.set_types.z  = 'NON-VOLTAGE VARS (z)';
         end
 
-        function obj = build_params(obj, asm, mpc)
+        function obj = build_params(obj, nm, mpc)
             %% call parent to build individual element parameters
-            build_params@mp_aggregate(obj, asm, mpc);
+            build_params@mp_aggregate(obj, nm, mpc);
 
             %% aggregate parameters from individual elements
             obj.B = obj.stack_matrix_params('B', 1);

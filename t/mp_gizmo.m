@@ -22,32 +22,32 @@ classdef mp_gizmo < mp_element
             obj.nz = 2;             %% each with 2 state variables
         end
 
-        function obj = add_states(obj, asm, mpc)
+        function obj = add_states(obj, nm, mpc)
             if obj.nz > 1
-                asm.init_indexed_name('state', obj.name, {obj.nz});
+                nm.init_indexed_name('state', obj.name, {obj.nz});
                 for k = 1:obj.nz
-                    asm.add_state(obj.name, {k}, obj.nk);
+                    nm.add_state(obj.name, {k}, obj.nk);
                 end
             elseif obj.nz == 1
-                asm.add_state(obj.name, obj.nk);
+                nm.add_state(obj.name, obj.nk);
             end
         end
 
-        function obj = build_params(obj, asm, mpc)
+        function obj = build_params(obj, nm, mpc)
             gizmo = mpc.gizmo;
             nk = obj.nk;
 
             %% incidence matrices
-            nn = asm.getN('node');
-            ID2idx = asm.node.data.ID2idx.bus;
+            nn = nm.getN('node');
+            ID2idx = nm.node.data.ID2idx.bus;
             idx1 = ID2idx(mpc.gizmo(:, 1)); %% port 1 node indexes
             idx2 = ID2idx(mpc.gizmo(:, 2)); %% port 2 node indexes
             idx3 = ID2idx(mpc.gizmo(:, 3)); %% port 3 node indexes
-            ss = asm.get_idx('state');
+            ss = nm.get_idx('state');
             sidx1 = ss.i1.(obj.name)(1):ss.iN.(obj.name)(1);
             sidx2 = ss.i1.(obj.name)(2):ss.iN.(obj.name)(2);
-            obj.C = obj.incidence_matrix(asm.getN('node'), idx1, idx2, idx3);
-            obj.D = obj.incidence_matrix(asm.getN('state'), sidx1, sidx2);
+            obj.C = obj.incidence_matrix(nm.getN('node'), idx1, idx2, idx3);
+            obj.D = obj.incidence_matrix(nm.getN('state'), sidx1, sidx2);
         end
     end     %% methods
 end         %% classdef

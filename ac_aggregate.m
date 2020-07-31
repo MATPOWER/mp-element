@@ -26,9 +26,9 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             obj.set_types.zi = 'NON-VOLTAGE VARS IMAG (zi)';
         end
 
-        function obj = build_params(obj, asm, mpc)
+        function obj = build_params(obj, nm, mpc)
             %% call parent to build individual element parameters
-            build_params@mp_aggregate(obj, asm, mpc);
+            build_params@mp_aggregate(obj, nm, mpc);
 
             %% aggregate parameters from individual elements
             obj.Y = obj.stack_matrix_params('Y', 1);
@@ -239,8 +239,8 @@ classdef ac_aggregate < mp_aggregate% & ac_model
 
 
         %%-----  PF methods  -----
-        function ntv = power_flow_node_types(obj, asm, mpc, idx)
-%         function [ntv, nts] = power_flow_node_types(obj, asm, mpc, idx)
+        function ntv = power_flow_node_types(obj, nm, mpc, idx)
+%         function [ntv, nts] = power_flow_node_types(obj, nm, mpc, idx)
             %% create empty cell array for node type vectors
             tt = cell(length(obj.node.order), 1);
             
@@ -299,13 +299,13 @@ classdef ac_aggregate < mp_aggregate% & ac_model
             );
         end
 
-        function add_pf_constraints(obj, asm, om, mpc, mpopt)
+        function add_pf_constraints(obj, nm, om, mpc, mpopt)
             %% system constraints
             obj.add_pf_system_constraints(om, mpc, mpopt);
             
 %             %% each element adds its PF constraints
 %             for mpe = obj.mpe_list
-%                 mpe{1}.add_pf_constraints(asm, om, mpc, mpopt);
+%                 mpe{1}.add_pf_constraints(nm, om, mpc, mpopt);
 %             end
         end
 
