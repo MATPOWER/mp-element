@@ -1,4 +1,4 @@
-classdef dc_branch < mp_branch & mp_model_dc
+classdef mpe_branch_dc < mpe_branch & mp_model_dc
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef dc_branch < mp_branch & mp_model_dc
     
     methods
         function obj = build_params(obj, nm, mpc)
-            build_params@mp_branch(obj, nm, mpc);   %% call parent
+            build_params@mpe_branch(obj, nm, mpc);  %% call parent
 
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...

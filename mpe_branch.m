@@ -1,4 +1,4 @@
-classdef mp_branch < mp_element
+classdef mpe_branch < mp_element
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef mp_branch < mp_element
     
     methods
         %% constructor
-        function obj = mp_branch()
+        function obj = mpe_branch()
             obj@mp_element();
             obj.name = 'branch';
             obj.mpc_field = 'branch';

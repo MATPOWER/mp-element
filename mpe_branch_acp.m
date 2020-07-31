@@ -1,4 +1,4 @@
-classdef acp_branch < ac_branch & mp_model_acp
+classdef mpe_branch_acp < mpe_branch_ac & mp_model_acp
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -11,7 +11,7 @@ classdef acp_branch < ac_branch & mp_model_acp
     methods
         function add_opf_constraints(obj, nm, om, mpc, mpopt)
             %% call parent
-            add_opf_constraints@ac_branch(obj, nm, om, mpc, mpopt);
+            add_opf_constraints@mpe_branch_ac(obj, nm, om, mpc, mpopt);
 
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...

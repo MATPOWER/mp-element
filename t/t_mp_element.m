@@ -116,9 +116,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'dc_branch : '; k = 4;
+t = 'mpe_branch_dc : '; k = 4;
 t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'dc_branch'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_branch_dc'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'DC model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'dc'), [t 'model tag']);
@@ -300,9 +300,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'acp_branch : '; k = 4;
+t = 'mpe_branch_acp : '; k = 4;
 t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'acp_branch'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_branch_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -635,9 +635,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'acp_branch : '; k = 4;
+t = 'mpe_branch_acp : '; k = 4;
 t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'acp_branch'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'mpe_branch_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);

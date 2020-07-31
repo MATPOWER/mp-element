@@ -17,7 +17,7 @@ classdef acc_aggregate < ac_aggregate & mp_model_acc
         function obj = acc_aggregate()
             obj@ac_aggregate();
             obj.element_classes = ...
-                { @mpe_bus_acc, @mpe_gen_acc, @mpe_load_acc, @acc_branch, @mpe_shunt_acc };
+                { @mpe_bus_acc, @mpe_gen_acc, @mpe_load_acc, @mpe_branch_acc, @mpe_shunt_acc };
             if isempty(obj.node)    %% skip if constructed from existing object
                 obj.init_set_types();   %% should be called in mp_idx_manager
                                         %% constructor, if not for:
