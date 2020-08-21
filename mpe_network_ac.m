@@ -239,33 +239,6 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
 
 
         %%-----  PF methods  -----
-        function ntv = power_flow_node_types(obj, nm, mpc, idx)
-%         function [ntv, nts] = power_flow_node_types(obj, nm, mpc, idx)
-            %% create empty cell array for node type vectors
-            tt = cell(length(obj.node.order), 1);
-            
-            %% get node type vector from each node-creating MPE
-            for k = 1:length(obj.node.order)
-                mpe = obj.mpe_by_name(obj.node.order(k).name);
-                tt{k} = mpe.power_flow_node_types(obj, mpc, obj.state.order(k).idx);
-            end
-
-            %% concatenate into a single node type vector
-            ntv = vertcat(tt{:});
-
-%             %% create node type struct
-%             if nargout > 1
-%                 %% define constants
-%                 [PQ, PV, REF, NONE] = idx_bus;
-% 
-%                 ref = find(ntv == REF);     %% reference node indices
-%                 pv  = find(ntv == PV );     %% PV node indices
-%                 pq  = find(ntv == PQ );     %% PQ node indices
-%                 nts = struct('ref', ref, 'pv', pv, 'pq', pq, ...
-%                     'nref', length(ref), 'npv', length(pv), 'npq', length(pq));
-%             end
-        end
-
         function ad = power_flow_aux_data(obj, mpc, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
@@ -299,56 +272,7 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
             );
         end
 
-        function add_pf_constraints(obj, nm, om, mpc, mpopt)
-            %% system constraints
-            obj.add_pf_system_constraints(om, mpc, mpopt);
-            
-%             %% each element adds its PF constraints
-%             for mpe = obj.mpe_list
-%                 mpe{1}.add_pf_constraints(nm, om, mpc, mpopt);
-%             end
-        end
-
-        function add_pf_system_constraints(obj, om, mpc, mpopt)
-            %% can be overridden to add additional system constraints
-
-            %% node balance constraints
-            obj.add_pf_node_balance_constraints(om, mpc, mpopt);
-        end
-
-        function om = setup_power_flow(obj, mpc, mpopt)
-            %% MATPOWER options
-            if nargin < 3
-                mpopt = mpoption;
-            end
-
-            %% create mathematical model
-            om = opt_model();
-
-            %% construct power flow auxiliary data, save in MP-Opt-Model
-            om.userdata.power_flow_aux_data = ...
-                obj.power_flow_aux_data(mpc, mpopt);
-
-            %% add variables and constraints
-            if obj.np ~= 0      %% skip for empty model
-                obj.add_pf_vars(obj, om, mpc, mpopt);
-                obj.add_pf_constraints(obj, om, mpc, mpopt);
-            end
-        end
-
-        function [v_, success, i, data] = solve_power_flow(obj, mpc, mpopt)
-            %% MATPOWER options
-            if nargin < 3
-                mpopt = mpoption;
-            end
-
-            if mpopt.verbose, fprintf('-----  solve_power_flow()  -----\n'); end
-
-            %% create MP-Opt-Model object
-            om = obj.setup_power_flow(mpc, mpopt);
-
-            %% solve it
-            alg = 'DEFAULT';
+        function opt = solve_opts_power_flow(obj, om, mpc, mpopt)
             switch mpopt.pf.alg
                 case 'DEFAULT'
                     opt = mpopt2nleqopt(mpopt, om.problem_type(), 'DEFAULT');
@@ -368,24 +292,6 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
                     error('mpe_network_ac/solve_power_flow: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
             end
             opt.verbose = mpopt.verbose;
-
-%             [x, f, eflag, output, J] = om.solve(opt);
-            [x, f, eflag, output] = om.solve(opt);
-            success = (eflag > 0);
-
-% om
-% vv = om.get_idx('var');
-% x(vv.i1.Pg:vv.iN.Pg) * mpc.baseMVA
-% keyboard
-
-            if isfield(output, 'iterations')
-                i = output.iterations;
-            else
-                i = -1;
-            end
-
-            %% convert back to complex voltage vector
-            [v_, z_] = obj.pfx2vz(x, om.get_userdata('power_flow_aux_data'));
         end
 
 

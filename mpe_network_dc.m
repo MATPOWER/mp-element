@@ -42,44 +42,60 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
 
 
         %%-----  PF methods  -----
-        function [va, success, i, data] = solve_power_flow(obj, mpc, mpopt)
-            %% MATPOWER options
-            if nargin < 3
-                mpopt = mpoption;
-            end
+        function ad = power_flow_aux_data(obj, mpc, mpopt)
+            %% get model variables
+            vvars = obj.model_vvars();
+            zvars = obj.model_zvars();
+            va = obj.params_var(vvars{1});
+            z = obj.params_var(zvars{1});
 
-            if mpopt.verbose, fprintf('-----  solve_power_flow()  -----\n'); end
+            %% define constants
+            [PQ, PV, REF, NONE] = idx_bus;
 
-            %% get bus index lists of each type of bus
-            [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
-            npv = length(pv);
-            npq = length(pq);
-
-            %% create x0 for Newton power flow
-            va = obj.params_var('va');
-            z = obj.params_var('z');
-
-            %% constant
-            va_threshold = 1e5;     %% arbitrary threshold on |va| for declaring failure
-            i = 1;                  %% not iterative
-
-            %% set up to trap non-singular matrix warnings
-            [lastmsg, lastid] = lastwarn;
-            lastwarn('');
+            %% get node types
+            ntv = obj.power_flow_node_types(obj, mpc);
+            ref = find(ntv == REF);     %% reference node indices
+            pv  = find(ntv == PV );     %% PV node indices
+            pq  = find(ntv == PQ );     %% PQ node indices
 
             %% get parameters
             [B, K, p] = obj.get_params();
             BB = obj.C * B * obj.C';
             pbus = -(obj.C * K * obj.D' * z + obj.C * p);
+            branch_mpe = obj.mpe_by_name('branch');
+            [Bf, pf] = branch_mpe.get_params(1:branch_mpe.nk, {'B', 'p'});
 
-            %% update angles for non-reference buses
-            va([pv; pq]) = BB([pv; pq], [pv; pq]) \ ...
-                            (pbus([pv; pq]) - BB([pv; pq], ref) * va(ref));
+            %% create aux_data struct
+            ad = struct( ...
+                'va', va, ...               %% initial value of va
+                'z', z, ...                 %% initial value of z
+                'ref',  ref, ...            %% REF node indices
+                'nref', length(ref), ...    %% number of REF nodes
+                'pv',   pv, ...             %% PV node indices
+                'npv',  length(pv), ...     %% number of PV nodes
+                'pq',   pq, ...             %% PQ node indices
+                'npq',  length(pq), ...     %% number of PQ nodes
+                'B',    BB, ...
+                'Bf',   Bf * branch_mpe.C', ...
+                'Pbus', pbus, ...
+                'Pfinj',pf  ...
+            );
+        end
+
+        function [va, success, i, ad] = solve_power_flow(obj, mpc, mpopt)
+            %% constant
+            va_threshold = 1e5;     %% arbitrary threshold on |va| for declaring failure
+
+            %% set up to trap non-singular matrix warnings
+            [lastmsg, lastid] = lastwarn;
+            lastwarn('');
+
+            %% call parent
+            [va, success, i, ad] = solve_power_flow@mpe_network(obj, mpc, mpopt);
 
             [msg, id] = lastwarn;
             %% Octave is not consistent in assigning proper warning id, so we'll just
             %% check for presence of *any* warning
-            success = 1;    %% successful by default
             if ~isempty(msg) || max(abs(va)) > va_threshold
                 success = 0;
             end
@@ -87,14 +103,45 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
             %% restore warning state
             lastwarn(lastmsg, lastid);
 
-            branch_mpe = obj.mpe_by_name('branch');
-            [Bf, pf] = branch_mpe.get_params(1:branch_mpe.nk, {'B', 'p'});
-            data = struct( ...
-                    'B', BB, ...
-                    'Bf', Bf * branch_mpe.C', ...
-                    'Pbus', pbus, ...
-                    'Pfinj', pf  ...
-                );
+            i = 1;                  %% not iterative
+        end
+
+        function add_pf_vars(obj, nm, om, mpc, mpopt)
+            %% get model variables
+            vvars = obj.model_vvars();
+
+            %% index vectors
+            ad = om.get_userdata('power_flow_aux_data');
+            pvq = [ad.pv; ad.pq];
+
+            %% voltage angles
+            st = obj.(vvars{1});
+            for k = 1:st.NS
+                name = st.order(k).name;
+                if isempty(st.order(k).idx)
+                    d = st.data;
+                    om.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
+                else
+                    error('handling of indexed sets not implmented here (yet)');
+                end
+            end
+        end
+
+        function [va, z] = pfx2vz(obj, x, ad)
+            %% update v_, z_ from x
+            va = ad.va;
+            va([ad.pv; ad.pq]) = x(1:ad.npv+ad.npq);        %% va
+            z = ad.z;
+        end
+
+        function add_pf_node_balance_constraints(obj, om, mpc, mpopt)
+            ad = om.get_userdata('power_flow_aux_data');
+            pvq = [ad.pv; ad.pq];
+
+            %% power balance constraints
+            A = ad.B(pvq, pvq);
+            b = (ad.Pbus(pvq) - ad.B(pvq, ad.ref) * ad.va(ad.ref));
+            om.add_lin_constraint('Pmis', A, b, b);
         end
 
 
