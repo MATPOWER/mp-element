@@ -22,6 +22,15 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
             switch mpopt.pf.alg
                 case 'GS'
                     ad.Y = obj.C * obj.get_params([], 'Y') * obj.C';
+                case 'ZG'
+                    pvq = [ad.pv; ad.pq];
+                    Y = obj.C * obj.get_params([], 'Y') * obj.C';
+                    Y21 = Y(pvq, ad.ref);
+                    Y22 = Y(pvq, pvq);
+                    [L, U, p, q] = lu(Y22, 'vector');
+                    [junk, iq] = sort(q);
+                    [ad.Y, ad.Y21, ad.L, ad.U, ad.p, ad.iq] = ...
+                        deal(Y, Y21, L, U, p, iq);
             end
         end
 
@@ -190,6 +199,110 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
             end
 
             x = [angle(v_([pv; pq])); abs(v_(pq))];
+        end
+
+
+        function x = zg_x_update(obj, x, f, om, mpc, mpopt);
+            alg = mpopt.pf.alg;
+            ad = om.get_userdata('power_flow_aux_data');
+
+            %% get model state ([v_; z_]) from power flow state (x)
+            [v_, z_] = obj.pfx2vz(x, ad);
+
+            [pv, pq, ref, npv, npq] = deal(ad.pv, ad.pq, ad.ref, ad.npv, ad.npq);
+            pvq = [pv; pq];
+
+            %% build and cache S0 and Y21_v1
+            if isfield(ad, 'S0')
+                [Y21_v1, S0] = deal(ad.Y21_v1, ad.S0);
+            else
+                Y21_v1 = ad.Y21 * v_(ref);
+                SS = zeros(size(v_));
+                SS(pv) = f(1:npv);
+                SS(pq) = f(npv+1:npv+npq) + 1j * f(npv+npq+1:npv+2*npq);
+    %            SS = C * obj.port_inj_power([v_; z_], 1);
+
+                %% complex net nodal injection (from all but constant Z elements)
+                S0 = v_ .* conj(ad.Y * v_) - SS;
+                S0(ref) = 0;
+
+                %% cache 'em
+                [ad.Y21_v1, ad.S0] = deal(Y21_v1, S0);
+                om.userdata.power_flow_aux_data = ad;
+            end
+
+            if npv  %% update Q injections at PV buses based on vm mismatch
+                %% compute and cache initial vm at PV buses and
+                %% factored fast-decoupled Bpp matrix
+                if isfield(ad, 'vmpv0')
+                    [vmpv, vmpv0, Bpp, LBpp, UBpp, pBpp, iqBpp] = ...
+                        deal(ad.vmpv, ad.vmpv0, ad.Bpp, ad.LBpp, ad.UBpp, ad.pBpp, ad.iqBpp);
+                else
+                    vmpv0 = abs(v_(pv));
+                    vmpv = vmpv0;
+
+                    %% define named indices into bus, branch matrices
+                    [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+                        VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+                    [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
+                        TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
+                        ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
+
+                    %% modify data model to form Bpp (B double prime)
+                    mpc2 = mpc;
+                    mpc2.bus(:, BS) = 0;        %% zero out shunts at buses
+                    mpc2.branch(:, SHIFT) = 0;  %% zero out phase shifters
+                    mpc2.branch(:, BR_R) = 0;   %% zero out line resistance
+
+                    %% build network models and get admittance matrices
+                    nm = feval(class(obj)).create_model(mpc2, mpopt);
+                    [Y2, L, M] = nm.get_params([], {'Y', 'L', 'M'});
+                    if any(any(L)) || any(any(M))
+                        error('mpe_network_acps/zg_x_update: B matrix for Z-bus Gauss w/PV buses not implemented for models with non-zero L and/or M matrices.')
+                    end
+                    Bpp = -nm.C * imag(Y2) * nm.C';
+
+                    [LBpp, UBpp, pBpp, qBpp] = lu(Bpp(pq, pq), 'vector');
+                    [junk, iqBpp] = sort(qBpp);
+
+                    %% cache 'em
+                    [ad.vmpv, ad.vmpv0, ad.Bpp, ad.LBpp, ad.UBpp, ad.pBpp, ad.iqBpp] = ...
+                        deal(vmpv, vmpv0, Bpp, LBpp, UBpp, pBpp, iqBpp);
+                    om.userdata.power_flow_aux_data = ad;
+                end
+
+                %% compute voltage mismatches at PV buses
+                v_(pv) = vmpv .* v_(pv) ./ abs(v_(pv));
+                dV = vmpv0 - vmpv;
+%                 [max_dV, k] = max(abs(dV));
+%                 fprintf('       %10.3e', max_dV)
+
+                %% compute Q injection at current V
+                %% (sometimes improves convergence)
+                Qpv = imag( v_(pv) .* conj(ad.Y(pv, :) * v_) );
+                S0(pv) = S0(pv) + 1j * (Qpv - imag(S0(pv)));
+
+                % dVpq = Bpp(pq, pq) \ (-Bpp(pq, pv) * dV);
+                dVpq = UBpp \  (LBpp \ (-Bpp(pq(pBpp), pv) * dV));
+                dVpq = dVpq(iqBpp);
+                dQ = Bpp(pv, pq) * dVpq + Bpp(pv, pv) * dV;
+
+                %% update S0
+                S0(pv) = S0(pv) + 1j * dQ;
+                ad.S0 = S0;
+            end
+
+            %% complex current injections
+            I2 = conj(S0(pvq) ./ v_(pvq));
+
+            V2 = ad.U \  (ad.L \ (I2(ad.p) - Y21_v1(ad.p)));
+            V2 = V2(ad.iq);
+
+            v_(pv) = V2(1:npv);
+            v_(pq) = V2(npv+1:npv+npq);
+            om.userdata.power_flow_aux_data.vmpv = abs(v_(pv));
+
+            x = [angle(v_(pvq)); abs(v_(pq))];
         end
 
 
