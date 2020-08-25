@@ -15,6 +15,16 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
     
     methods
         %%-----  PF methods  -----
+        function ad = power_flow_aux_data(obj, mpc, mpopt)
+            %% call parent method
+            ad = power_flow_aux_data@mpe_network_ac(obj, mpc, mpopt);
+
+            switch mpopt.pf.alg
+                case 'GS'
+                    ad.Y = obj.C * obj.get_params([], 'Y') * obj.C';
+            end
+        end
+
         function add_pf_vars(obj, nm, om, mpc, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
@@ -135,10 +145,10 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
             [Y1, L, M] = nm1.get_params([], {'Y', 'L', 'M'});
             Y2 = nm2.get_params();
             if any(any(L)) || any(any(M))
-                error('mpe_network_acps_fdpf/df_jac_approx: fast-decoupled Jacobian approximation not implemented for models with non-zero L and/or M matrices.')
+                error('mpe_network_acps/df_jac_approx: fast-decoupled Jacobian approximation not implemented for models with non-zero L and/or M matrices.')
             end
 
-            %% form full Bp and Bpp matrices
+            %% form reduced Bp and Bpp matrices
             ad = om.get_userdata('power_flow_aux_data');
             Cp  = nm1.C([ad.pv; ad.pq], :);
             Cpp = nm2.C(ad.pq, :);
@@ -154,30 +164,32 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
             %% get model state ([v_; z_]) from power flow state (x)
             [v_, z_] = obj.pfx2vz(x, ad);
 
-            C = obj.C;
-            Y = C * obj.get_params([], 'Y') * C';
-            SS = zeros(size(C, 1), 1);
-            SS(ad.pv) = f(1:ad.npv);
-            SS(ad.pq) = f(ad.npv+1:ad.npv+ad.npq) + ...
-                    1j * f(ad.npv+ad.npq+1:ad.npv+2*ad.npq);
+            [pv, pq, npv, npq, Y] = deal(ad.pv, ad.pq, ad.npv, ad.npq, ad.Y);
+            
+            %% total nodal complex bus power extractions
+            SS = zeros(size(v_));
+            SS(pv) = f(1:npv);
+            SS(pq) = f(npv+1:npv+npq) + 1j * f(npv+npq+1:npv+2*npq);
 %            SS = C * obj.port_inj_power([v_; z_], 1);
+
+            %% complex net nodal injection (from all but constant Z elements)
             S0 = v_ .* conj(Y * v_) - SS;
 
             %% update voltage
             %% at PQ buses
-            for k = ad.pq'
+            for k = pq'
                 v_(k) = v_(k) + (conj(S0(k)/v_(k)) - Y(k,:) * v_) / Y(k, k);
             end
 
             %% at PV buses
-            if ad.npv
-                for k = ad.pv'
+            if npv
+                for k = pv'
                     S0(k) = real(S0(k)) + 1j * imag( v_(k) * conj(Y(k,:) * v_) );
                     v_(k) = v_(k) + (conj(S0(k)/v_(k)) - Y(k,:) * v_) / Y(k, k);
                 end
             end
 
-            x = [angle(v_([ad.pv; ad.pq])); abs(v_(ad.pq))];
+            x = [angle(v_([pv; pq])); abs(v_(pq))];
         end
 
 
