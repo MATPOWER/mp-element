@@ -20,10 +20,12 @@ classdef mpe_bus_dc < mpe_bus & mp_model_dc
 
             nb = obj.nk;
             Va0   = mpc.bus(:, VA) * pi/180;
-            Vamax = Inf(nb, 1);
+            Vamin = -Inf(nb, 1);
+            Vamax =  Inf(nb, 1);
             k = find(mpc.bus(:, BUS_TYPE) == REF);
+            Vamin(k) = Va0(k);
             Vamax(k) = Va0(k);
-            nm.add_var('va', 'Va', nb, Va0, -Vamax, Vamax);
+            nm.add_var('va', 'Va', nb, Va0, Vamin, Vamax);
         end
     end     %% methods
 end         %% classdef

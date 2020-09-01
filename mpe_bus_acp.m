@@ -21,11 +21,11 @@ classdef mpe_bus_acp < mpe_bus & mp_model_acp
             nb = obj.nk;
             Va0   = mpc.bus(:, VA) * pi/180;
             Vm0   = mpc.bus(:, VM);
-            Vamax = Inf(nb, 1);
             Vamin = -Inf(nb, 1);
+            Vamax =  Inf(nb, 1);
             k = find(mpc.bus(:, BUS_TYPE) == REF);
-            Vamax(k) = Va0(k);
             Vamin(k) = Va0(k);
+            Vamax(k) = Va0(k);
             Vmin = mpc.bus(:, VMIN);
             Vmax = mpc.bus(:, VMAX);
             nm.add_var('va', 'Va', nb, Va0, Vamin, Vamax);

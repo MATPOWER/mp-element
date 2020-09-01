@@ -298,7 +298,7 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
                         'need_jac',         0, ...
                         'update_fcn',       zg_x_update  );
                 otherwise
-                    error('mpe_network_ac/solve_power_flow: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
+                    error('mpe_network_ac/solve_opts_power_flow: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
             end
             opt.verbose = mpopt.verbose;
         end
