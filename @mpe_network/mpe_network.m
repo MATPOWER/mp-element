@@ -455,7 +455,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             end
         end
 
-        function [v_, success, i, ad] = solve_power_flow(obj, mpc, mpopt)
+        function [v_, success, i, om] = solve_power_flow(obj, mpc, mpopt)
             %% MATPOWER options
             if nargin < 3
                 mpopt = mpoption;

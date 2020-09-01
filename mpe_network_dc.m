@@ -82,7 +82,7 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
             );
         end
 
-        function [va, success, i, ad] = solve_power_flow(obj, mpc, mpopt)
+        function [va, success, i, om] = solve_power_flow(obj, mpc, mpopt)
             %% constant
             va_threshold = 1e5;     %% arbitrary threshold on |va| for declaring failure
 
@@ -91,7 +91,7 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
             lastwarn('');
 
             %% call parent
-            [va, success, i, ad] = solve_power_flow@mpe_network(obj, mpc, mpopt);
+            [va, success, i, om] = solve_power_flow@mpe_network(obj, mpc, mpopt);
 
             [msg, id] = lastwarn;
             %% Octave is not consistent in assigning proper warning id, so we'll just
