@@ -1,59 +1,40 @@
 classdef mp_element < handle
 %MP_ELEMENT  MATPOWER Element abstract base class.
-%   MPE = MP_ELEMENT(FORMULATION, MPC)
-%   MPE = MP_ELEMENT(MPE0)
-%   MPE = MP_ELEMENT(S)
+%   MPE = MP_ELEMENT()
+%
+%   Each concrete sub-class must also inherit from a sub-class of MP_MODEL.
 %
 %   Properties
+%       name : name of element type (constant across forumations)
+%       mpc_field : name of field in mpc to be checked for this element type
 %       np : number of ports per element
 %       nz : number of non-voltage state variables per element
 %       nk : number of elements
 %       C : cell array of sparse element-node incidence matrices,
 %           where C{j}(i,k) is 1 if port j of element k is connected to node i
 %       D : cell array of sparse incidence matrices for Z variables,
-%           where D{j} is for Z variable j
+%           where D{j}(i,k) is 1 if j-th Z variable for element k corresponds
+%           to element i of system Z
 %
 %   Methods
-%       add_nodes() - add node, voltage variables, and node to element ID mappings
-%       add_states() - add state, state variables
-%           
-%       build_params() - build model parameters from data model
-%           params = mpe.build_params(nm, mpc)
 %       count() - returns the number of elements of this type in mpc, sets mpe.nk
-%           nk = mpe.count(mpc)
+%       get_nv_()
+%       x2vz()
+%       incidence_matrix()
+%       display()
 %
-%       S = mpe.port_inj_power(x_, idx)
-%       [S, dS] = mpe.port_inj_power(x_, idx)
-%       I = mpe.port_inj_current(x_, idx)
-%       [I, dI] = mpe.port_inj_current(x_, idx)
-
-%       [nn, n2b, b2n] = mpe.nodes()
-%           nn  : number of nodes
-%           n2b : (internal) node number to (external) bus number mapping
-%           b2n : (external) bus number to (internal) node number mapping
-%
-%       [params, varsets] = mpe.power_balance(form)
-%           form : polar vs. rectangular
-%           params : struct of parameters needed to compute power balance
-%               depending on form
-%               e.g. polar form g_s(x) = S_bus(V) + C*x + d + g_u(x)
-%                    where S_bus(V) = diag(V) * conj(sum_over_k(Ybus_k)*V)
-%               Ybus_k : Ybus term from this mpe
-%               C_k : C term from this mpe
-%               d_k : d term from this mpe
-%               g_k : g_u term from this mpe
-%               dg_k : Jacobian of g_u term from this mpe
-%               d2G_k : Hessian of g_u term from this mpe
-%           varsets : variable sets corresponding to C_k and g_k, etc.
-%
-%       newvars = mpe.variables()
-%           newvars
-%               name
-%               N
-%               type : state vs. control?
+%   Abstract Methods
+%       add_nodes()
+%       add_states()
+%       add_vvars()
+%       add_zvars()
+%       build_params() - build model parameters from data model
+%       add_opf_vars()
+%       add_opf_constraints()
+%       add_opf_costs()
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -64,8 +45,8 @@ classdef mp_element < handle
         name = 'mp_element';
         mpc_field = '';     %% field checked for presence of this element type
         np = 0;             %% number of ports per element
-        nk = 0;             %% number of elements of this type loaded
         nz = 0;             %% number of non-voltage states per element (possibly complex)
+        nk = 0;             %% number of elements of this type loaded
         C = [];             %% stacked element-node incidence matrices,
                             %% where C(i,kk) is 1 if port j of element k is
                             %% connected to node i, and kk = k + (j-1)*np
@@ -185,7 +166,7 @@ classdef mp_element < handle
 %         end
         
         function display(obj)
-%             if have_fcn('octave')
+%             if have_feature('octave')
 %                 struct(obj)
 %             else
 %                 display@handle(obj)

@@ -13,9 +13,12 @@ classdef mp_model < handle
 %       model_name() - returns string w/name of model/formulation
 %       model_tag() - returns string w/short label for model/formulation
 %       model_params() - cell array of names of model parameters
+%       get_params() - 
+%       find_model_class() - 
+%       superclass_tab() - 
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -144,7 +147,7 @@ classdef mp_model < handle
                 prefix = repmat(' ', 1, 4*level);
                 fprintf('%s %s\n', prefix, mcls.Name);
             end
-            if have_fcn('octave')
+            if have_feature('octave')
                 sclist = mcls.SuperClassList;
             else
                 sclist = {};
