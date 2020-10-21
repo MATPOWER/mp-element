@@ -9,8 +9,8 @@ into the core MATPOWER code.
 
 System Requirements
 -------------------
-*   [MATLAB][2] version 7.5 (R2007b) or later, or
-*   [GNU Octave][3] version 4 or later
+*   [MATLAB][2] version 9.1 (R2016b) or later, or
+*   [GNU Octave][3] version 4.4 or later
 *   A development version of [MATPOWER][1] that explicitly includes support
     for MP-Element
 
