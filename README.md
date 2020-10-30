@@ -12,7 +12,9 @@ System Requirements
 *   [MATLAB][2] version 9.1 (R2016b) or later, or
 *   [GNU Octave][3] version 4.4 or later
 *   A development version of [MATPOWER][1] that explicitly includes support
-    for MP-Element
+    for MP-Element  
+    _See the [`mp-element`][8] branch of the MATPOWER GitHub repository,
+    including the corresponding [CHANGES][9] file._
 
 
 Installation
@@ -98,3 +100,5 @@ author(s) and do not necessarily reflect the views of the funding agencies.
 [5]: https://matpower.org/docs/TN5-MP-Element.pdf
 [6]: https://doi.org/10.5281/zenodo.4110676
 [7]: LICENSE
+[8]: https://github.com/MATPOWER/matpower/tree/mp-element
+[9]: https://github.com/MATPOWER/matpower/blob/mp-element/CHANGES.md
