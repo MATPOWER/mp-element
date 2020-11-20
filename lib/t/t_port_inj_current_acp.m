@@ -38,7 +38,7 @@ mpopt = mpoption('out.all', 0, 'verbose', 0);
 
 for c = 1:length(tc)
     %% create network model object
-    dm = mp_data_mpc2(casefile, @dme_gizmo_mpc2);
+    dm = mp_data_mpc2().modify_element_classes(@dme_gizmo_mpc2).build(casefile);
     mpc = dm.mpc;
     ac = mp_network_acps().modify_element_classes(@nme_gizmo_acp).build(dm);
     C = ac.C;

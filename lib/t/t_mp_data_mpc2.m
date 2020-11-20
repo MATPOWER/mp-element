@@ -26,7 +26,7 @@ end
 
 casefile = 't_case_ext';
 mpc = loadcase(casefile);
-dm0 = mp_data_mpc2(mpc);
+dm0 = mp_data_mpc2().build(mpc);
 nb = size(mpc.bus, 1);
 ID2i = zeros(2, 1);     %% initialize as col vector
 ID2i(mpc.bus(:, BUS_I)) = (1:nb);
@@ -47,8 +47,8 @@ for k = 1:nt
         tests{k}{2}.mpc = [];
         tests{k}{2}.elm_list{1}.ID = [];
     else
-        t = sprintf('mp_data_mpc2(%s) : ', tests{k}{1});
-        dm = mp_data_mpc2(tests{k}{2});
+        t = sprintf('mp_data_mpc2().build(%s) : ', tests{k}{1});
+        dm = mp_data_mpc2().build(tests{k}{2});
     end
     t_ok(strcmp(dm.mpc.version, '2'), [t 'mpc version']);
     t_ok(iscell(dm.element_classes), [t 'iscell(dm.element_classes)']);

@@ -51,7 +51,7 @@ t_ok(strcmp(dc.set_types.z, 'NON-VOLTAGE VARS (z)'), [t 'set_types.z']);
 t_is(length(dc.elm_list), 0, 12, [t '# of element types']);
 
 t = 'dc.build(dm) : ';
-dm = mp_data_mpc2(rundcpf(loadcase(casefile), mpopt));
+dm = mp_data_mpc2().build(rundcpf(loadcase(casefile), mpopt));
 mpc = dm.mpc;
 t_ok(mpc.success, [t 'solved power flow']);
 dc.build(dm);
@@ -227,7 +227,7 @@ t_ok(strcmp(ac.set_types.zi, 'NON-VOLTAGE VARS IMAG (zi)'), [t 'set_types.zi']);
 t_is(length(ac.elm_list), 0, 12, [t '# of element types']);
 
 t = 'ac.build(dm) : ';
-dm = mp_data_mpc2(runpf(loadcase(casefile), mpopt));
+dm = mp_data_mpc2().build(runpf(loadcase(casefile), mpopt));
 mpc = dm.mpc;
 t_ok(mpc.success, [t 'solved power flow']);
 ac.build(dm);
@@ -555,7 +555,7 @@ mpc.gen(:, QG) = [0.2570733353840 0.0079004398259 -0.1749046999314].' * mpc.base
 % mpopt = mpoption(mpopt, 'verbose', 2);
 pf = mp_task_pf();
 mpopt.exp.network_model_class = @mp_network_acps_test;
-dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2);
+dm = mp_data_mpc2().modify_element_classes(@dme_gizmo_mpc2).build(mpc);
 warn_id = 'pf_update_z:multiple_nodes';
 s1 = warning('query', warn_id);
 warning('off', warn_id);
@@ -573,7 +573,7 @@ t_is(i, 4, 12, [t 'i']);
 t = 'ac.build(dm) : ';
 mpc.bus(:, VA) = angle(v_) * 180/pi;
 mpc.bus(:, VM) = abs(v_);
-dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2);
+dm = mp_data_mpc2().modify_element_classes(@dme_gizmo_mpc2).build(mpc);
 ac = mp_network_acps_test().build(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);

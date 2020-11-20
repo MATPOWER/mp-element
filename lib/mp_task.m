@@ -41,11 +41,11 @@ classdef mp_task < handle
 
     methods
         %%-----  task methods  -----
-        function obj = run(obj, m, mpopt)
-            [m, mpopt] = obj.run_pre(m, mpopt);
+        function obj = run(obj, d, mpopt)
+            [d, mpopt] = obj.run_pre(d, mpopt);
 
             %% create models
-            dm = obj.data_model_build(m, mpopt);
+            dm = obj.data_model_build(d, mpopt);
             nm = obj.network_model_build(dm, mpopt);
             mm = obj.math_model_build(nm, dm, mpopt);
 
@@ -84,9 +84,9 @@ classdef mp_task < handle
             end
         end
 
-        function [m, mpopt] = run_pre(obj, m, mpopt)
-            if ~isa(m, 'mp_data')
-                m = loadcase(m);
+        function [d, mpopt] = run_pre(obj, d, mpopt)
+            if ~isa(d, 'mp_data')
+                d = loadcase(d);
 
                 %% Handle experimental system-wide ZIP loads (for backward
                 %% compatibility), by moving data from
@@ -97,7 +97,7 @@ classdef mp_task < handle
                         isfield(mpopt.exp, 'sys_wide_zip_loads') && ...
                         (~isempty(mpopt.exp.sys_wide_zip_loads.pw) || ...
                          ~isempty(mpopt.exp.sys_wide_zip_loads.qw))
-                    m.sys_wide_zip_loads = mpopt.exp.sys_wide_zip_loads;
+                    d.sys_wide_zip_loads = mpopt.exp.sys_wide_zip_loads;
                 end
             end
         end
@@ -115,7 +115,7 @@ classdef mp_task < handle
         end
 
         %%-----  data model methods  -----
-        function dm_class = data_model_class(obj, m, mpopt)
+        function dm_class = data_model_class(obj, d, mpopt)
             if isfield(mpopt.exp, 'data_model_class') && ...
                     ~isempty(mpopt.exp.data_model_class)
                 dm_class = mpopt.exp.data_model_class;
@@ -124,24 +124,30 @@ classdef mp_task < handle
             end
         end
 
-        function dm = data_model_create(obj, m, mpopt)
-            dm_class = obj.data_model_class(m, mpopt);
-            if isfield(mpopt.exp, 'dm_element_classes')
-                dm = dm_class(m, mpopt.exp.dm_element_classes);
-            else
-                dm = dm_class(m);
-            end
+        function dm = data_model_create(obj, d, mpopt)
+            dm_class = obj.data_model_class(d, mpopt);
+            dm = dm_class();
             obj.dm = dm;
         end
 
-        function dm = data_model_build(obj, m, mpopt)
-            if isa(m, 'mp_data')
-                dm = m;
+        function dm = data_model_build(obj, d, mpopt)
+            if isa(d, 'mp_data')
+                dm = d;
                 obj.dm = dm;
             else
-                dm = obj.data_model_create(m, mpopt);
+                dm = obj.data_model_create(d, mpopt);
+                dm = obj.data_model_build_pre(dm, mpopt);
+                dm.build(d);
+                dm = obj.data_model_build_post(dm, mpopt);
             end
-            dm = obj.data_model_build_post(dm, mpopt);
+        end
+
+        function dm = data_model_build_pre(obj, dm, mpopt)
+            %% add user-supplied elements to dm.element_classes
+            if isfield(mpopt.exp, 'dm_element_classes') && ...
+                    ~isempty(mpopt.exp.dm_element_classes)
+                dm.modify_element_classes(mpopt.exp.dm_element_classes);
+            end
         end
 
         function dm = data_model_build_post(obj, dm, mpopt)

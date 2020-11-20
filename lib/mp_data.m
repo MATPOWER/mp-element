@@ -34,7 +34,7 @@ classdef mp_data < mpe_container
             end
         end
 
-        function obj = build(obj)
+        function obj = build(obj, d)
             %% create element objects for each class
             i = 0;
             for c = obj.element_classes

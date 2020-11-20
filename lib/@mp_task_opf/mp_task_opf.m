@@ -31,8 +31,8 @@ classdef mp_task_opf < mp_task
         end
 
         %%-----  task methods  -----
-        function [m, mpopt] = run_pre(obj, m, mpopt)
-            [m, mpopt] = run_pre@mp_task(obj, m, mpopt);     %% call parent
+        function [d, mpopt] = run_pre(obj, d, mpopt)
+            [d, mpopt] = run_pre@mp_task(obj, d, mpopt);     %% call parent
 
             %% cache DC model flag
             obj.dc = strcmp(upper(mpopt.model), 'DC');

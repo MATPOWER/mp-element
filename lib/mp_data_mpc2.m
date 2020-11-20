@@ -16,21 +16,17 @@ classdef mp_data_mpc2 < mp_data
 
     methods
         %% constructor
-        function obj = mp_data_mpc2(mpc, class_list)
+        function obj = mp_data_mpc2()
             %% call parent constructor
             obj@mp_data();
             obj.element_classes = ...
                 { @dme_bus_mpc2, @dme_gen_mpc2, @dme_load_mpc2, ...
                     @dme_branch_mpc2, @dme_shunt_mpc2 };
+        end
 
-            if nargin
-                if nargin > 1
-                    obj.modify_element_classes(class_list);
-                end
-                %% load case and create mappings
-                obj.mpc = loadcase(mpc);
-                obj.build();
-            end
+        function obj = build(obj, mpc)
+            obj.mpc = loadcase(mpc);
+            build@mp_data(obj, mpc);
         end
 
         function ref = node_type_ref(obj, node_type)
@@ -113,7 +109,7 @@ classdef mp_data_mpc2 < mp_data
                 if strcmp(alg, 'FDXB')          %% if XB method
                     mpc1.branch(:, BR_R) = 0;   %% zero out line resistance
                 end
-                dm1 = feval(class(obj), mpc1);
+                dm1 = feval(class(obj)).build(mpc1);
             else
                 mpc2 = obj.mpc;
             end
@@ -125,9 +121,9 @@ classdef mp_data_mpc2 < mp_data
             end
 
             if nargout > 1      %% for both Bp and Bpp
-                dm2 = feval(class(obj), mpc2);
+                dm2 = feval(class(obj)).build(mpc2);
             else                %% for just Bpp
-                dm1 = feval(class(obj), mpc2);
+                dm1 = feval(class(obj)).build(mpc2);
             end
         end
 
