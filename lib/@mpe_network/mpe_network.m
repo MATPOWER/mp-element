@@ -32,9 +32,30 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             obj.np = 0;     %% unknown number of ports at this point, init to 0
             obj.nk = 1;
             obj.nz = 0;     %% unknown number of z_ vars at this point, init to 0
+
+            %% Due to a bug related to inheritance in constructors in
+            %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
+            %% INIT_SET_TYPES() cannot be called directly in the
+            %% MP_IDX_MANAGER constructor, as desired.
+            %%
+            %% WORKAROUND:  INIT_SET_TYPES() is called explicitly as needed
+            %%              (if obj.node is empty) in CREATE_MODEL() and
+            %%              DISPLAY(), after object construction, but before
+            %%              object use.
         end
 
         function obj = create_model(obj, mpc, mpopt)
+            %% Due to a bug related to inheritance in constructors in
+            %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
+            %% INIT_SET_TYPES() cannot be called directly in the
+            %% MP_IDX_MANAGER constructor, as desired.
+            %%
+            %% WORKAROUND:  Initialize MP_IDX_MANAGER fields here, if needed,
+            %%              after object construction, but before object use.
+            if isempty(obj.node)        %% only if not already initialized
+                obj.init_set_types();
+            end
+
             %%-----  HACK ALERT  -----
             %% This is a hack to deal with experimental
             %% mpopt.exp.sys_wide_zip_loads.pw/qw. MPOPT should be removed

@@ -13,6 +13,17 @@ function display(obj)
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
+%% Due to a bug related to inheritance in constructors in
+%% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
+%% init_set_types() cannot be called directly in the
+%% MP_IDX_MANAGER constructor, as desired.
+%%
+%% WORKAROUND:  Initialize MP_IDX_MANAGER fields here, if needed,
+%%              after object construction, but before object use.
+if isempty(obj.node)        %% only if not already initialized
+    obj.init_set_types();
+end
+
 %% base element info
 display@mp_element(obj)
 fprintf('\n');

@@ -13,10 +13,16 @@ classdef mpe_network_accs_test < mpe_network_accs
         function obj = mpe_network_accs_test()
             obj@mpe_network_accs();
             obj.element_classes{end+1} = @mpe_gizmo_acc;
-            if isempty(obj.node)    %% skip if constructed from existing object
-                obj.init_set_types();   %% should be called in mp_idx_manager
-                                        %% constructor, if not for:
-            end                         %% https://savannah.gnu.org/bugs/?52614
+
+            %% Due to a bug related to inheritance in constructors in
+            %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
+            %% INIT_SET_TYPES() cannot be called directly in the
+            %% MP_IDX_MANAGER constructor, as desired.
+            %%
+            %% WORKAROUND:  INIT_SET_TYPES() is called explicitly as needed
+            %%              (if obj.node is empty) in CREATE_MODEL() and
+            %%              DISPLAY(), after object construction, but before
+            %%              object use.
         end
     end     %% methods
 end         %% classdef
