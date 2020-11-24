@@ -44,7 +44,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             %%              object use.
         end
 
-        function obj = create_model(obj, mpc, mpopt)
+        function obj = create_model(obj, dm, mpopt)
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
             %% INIT_SET_TYPES() cannot be called directly in the
@@ -54,6 +54,12 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             %%              after object construction, but before object use.
             if isempty(obj.node)        %% only if not already initialized
                 obj.init_set_types();
+            end
+
+            if isa(dm, 'mp_data')
+                mpc = dm.mpc;
+            else
+                mpc = dm;
             end
 
             %%-----  HACK ALERT  -----
