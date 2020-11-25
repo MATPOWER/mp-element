@@ -54,6 +54,7 @@ classdef mp_element < handle
                             %% Z variables, where D(i,kk) is 1 if z-variable j
                             %% of element k is the i-th system z-variable
                             %% and kk = k + (j-1)*nz
+        soln                %% struct for storing solved states, quantities
     end
     
     methods
