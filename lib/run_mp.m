@@ -9,6 +9,8 @@ if nargin < 5
         end
     end
 end
+
+%% create task object
 switch upper(tag)
     case 'PF'
         mp_task_class = @mp_task_pf;
@@ -17,27 +19,15 @@ switch upper(tag)
     case 'OPF'
         mp_task_class = @mp_task_opf;
 end
-
 task = mp_task_class();
 
-dm = task.create_data_model(m, mpopt);
-nm = task.create_network_model(dm, mpopt);
-mm = task.create_math_model(nm, dm, mpopt);
+%% run task
+task.run(m, mpopt);
 
-success = task.run(mm, nm, dm, mpopt);
+%% pretty-print results to console & possibly to file
+task.print_soln(fname);
 
-if success
-    %% update network model with math model solution
-    task.mm2nm(mm, nm);
-
-    %% update data model with network model solution
-    task.nm2dm(nm, dm, mpopt);
-
-    %% pretty-print results to console & possibly to file
-    task.print_soln(fname);
-
-    %% save solved case
-    if ~isempty(solvedcase)
-        task.save_soln(solvedcase);
-    end
+%% save solved case
+if ~isempty(solvedcase) && task.success
+    task.save_soln(solvedcase);
 end

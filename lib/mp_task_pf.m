@@ -20,7 +20,7 @@ classdef mp_task_pf < mp_task
 %     end
     
     methods
-        %% constructor
+        %%-----  constructor  -----
         function obj = mp_task_pf()
             %% call parent constructor
             obj@mp_task();
@@ -29,67 +29,62 @@ classdef mp_task_pf < mp_task
             obj.name = 'Power Flow';
         end
 
+        %%-----  data model methods  -----
+        function dm = data_model_update(obj, mm, nm, dm, mpopt)
+            %% e.g. update data model with network model solution
+            if mpopt.verbose, fprintf('-- %s data_model_update()\n', obj.tag); end
+        end
+
+        %%-----  network model methods  -----
         function nm_class = network_model_class(obj, dm, mpopt)
-            switch upper(mpopt.model)
-                case 'AC'
-                    if mpopt.pf.v_cartesian
-                        if mpopt.pf.current_balance
-                            nm_class = @mpe_network_acci;
+            nm_class = obj.network_model_class_override(dm, mpopt);
+            if isempty(nm_class)
+                switch upper(mpopt.model)
+                    case 'AC'
+                        if mpopt.pf.v_cartesian
+                            if mpopt.pf.current_balance
+                                nm_class = @mpe_network_acci;
+                            else
+                                nm_class = @mpe_network_accs;
+%                                nm_class = @mpe_network_accs_test_nln;
+                            end
                         else
-                            nm_class = @mpe_network_accs;
-        %                    nm_class = @mpe_network_accs_test_nln;
+                            if mpopt.pf.current_balance
+                                nm_class = @mpe_network_acpi;
+                            else
+                                nm_class = @mpe_network_acps;
+%                                nm_class = @mpe_network_acps_test_nln;
+                            end
                         end
-                    else
-                        if mpopt.pf.current_balance
-                            nm_class = @mpe_network_acpi;
-                        else
-                            nm_class = @mpe_network_acps;
-        %                    nm_class = @mpe_network_acps_test_nln;
-                        end
-                    end
-                case 'DC'
-                    nm_class = @mpe_network_dc;
+                    case 'DC'
+                        nm_class = @mpe_network_dc;
+                end
             end
         end
 
-        function ad = add_aux_data(obj, mm, nm, dm, mpopt)
+        function nm = network_model_update(obj, mm, nm)
+            %% convert back to complex voltage vector
+            ad = mm.get_userdata('power_flow_aux_data');
+            [nm.soln.v, nm.soln.z] = nm.pfx2vz(mm.soln.x, ad);
+        end
+
+        %%-----  mathematical model methods  -----
+        function mm = math_model_create_pre(obj, mm, nm, dm, mpopt)
             ad = nm.power_flow_aux_data(dm.mpc, mpopt);
             mm.userdata.power_flow_aux_data = ad;
         end
 
-        function obj = add_vars(obj, mm, nm, dm, mpopt)
+        function obj = math_model_add_vars(obj, mm, nm, dm, mpopt)
             nm.add_pf_vars(nm, mm, dm.mpc, mpopt);
         end
 
-        function obj = add_constraints(obj, mm, nm, dm, mpopt)
+        function obj = math_model_add_constraints(obj, mm, nm, dm, mpopt)
             nm.add_pf_constraints(nm, mm, dm.mpc, mpopt);
         end
 
-        function opt = add_mm_opt(obj, mpopt)
-            mm_opt = struct('verbose', mpopt.verbose);
-            %% more to be added here
-
-            obj.mm_opt = mm_opt;
-        end
-
-        function nm = mm2nm(obj, mm, nm)
-            fprintf('-- mp_task_pf.mm2nm()\n');
-
-            %% convert back to complex voltage vector
-            x = mm.soln.x;
-            out = mm.soln.output;
-            ad = mm.get_userdata('power_flow_aux_data');
-            [v_, z_] = nm.pfx2vz(x, ad);
-
-            if isfield(out, 'iterations')
-                i = out.iterations;
-            else
-                i = -1;
-            end
-        end
-
-        function dm = nm2dm(obj, nm, dm, mpopt)
-            fprintf('-- mp_task_pf.nm2dm()\n');
+        function opt = math_model_opt(obj, mm, nm, dm, mpopt)
+            opt = nm.solve_opts_power_flow(mm, dm.mpc, mpopt);
+            obj.mm_opt = opt;
         end
     end     %% methods
 end         %% classdef

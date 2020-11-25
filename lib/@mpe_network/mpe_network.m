@@ -467,62 +467,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             obj.add_pf_node_balance_constraints(om, mpc, mpopt);
         end
 
-        function opt = solve_opts_power_flow(obj, om, mpc, mpopt)
-            opt = struct('verbose', mpopt.verbose);
-        end
-
-        function om = setup_power_flow(obj, mpc, mpopt)
-            %% MATPOWER options
-            if nargin < 3
-                mpopt = mpoption;
-            end
-
-            %% create mathematical model
-            om = opt_model();
-
-            %% construct power flow auxiliary data, save in MP-Opt-Model
-            om.userdata.power_flow_aux_data = ...
-                obj.power_flow_aux_data(mpc, mpopt);
-
-            %% add variables and constraints
-            if obj.np ~= 0      %% skip for empty model
-                obj.add_pf_vars(obj, om, mpc, mpopt);
-                obj.add_pf_constraints(obj, om, mpc, mpopt);
-            end
-        end
-
-        function [v_, success, i, om] = solve_power_flow(obj, mpc, mpopt)
-            %% MATPOWER options
-            if nargin < 3
-                mpopt = mpoption;
-            end
-
-            if mpopt.verbose, fprintf('-----  solve_power_flow()  -----\n'); end
-
-            %% create MP-Opt-Model object
-            om = obj.setup_power_flow(mpc, mpopt);
-
-            %% solve it
-            opt = obj.solve_opts_power_flow(om, mpc, mpopt);
-%             [x, f, eflag, output, J] = om.solve(opt);
-            [x, f, eflag, output] = om.solve(opt);
-            success = (eflag > 0);
-
-% om
-% vv = om.get_idx('var');
-% x(vv.i1.Pg:vv.iN.Pg) * mpc.baseMVA
-% keyboard
-
-            if isfield(output, 'iterations')
-                i = output.iterations;
-            else
-                i = -1;
-            end
-
-            %% convert back to complex voltage vector
-            ad = om.get_userdata('power_flow_aux_data');
-            [v_, z_] = obj.pfx2vz(x, ad);
-        end
+        opt = solve_opts_power_flow(obj, om, mpc, mpopt)
 
 
         %%-----  OPF methods  -----

@@ -88,28 +88,12 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
             );
         end
 
-        function [va, success, i, om] = solve_power_flow(obj, mpc, mpopt)
-            %% constant
-            va_threshold = 1e5;     %% arbitrary threshold on |va| for declaring failure
-
-            %% set up to trap non-singular matrix warnings
-            [lastmsg, lastid] = lastwarn;
-            lastwarn('');
-
-            %% call parent
-            [va, success, i, om] = solve_power_flow@mpe_network(obj, mpc, mpopt);
-
-            [msg, id] = lastwarn;
-            %% Octave is not consistent in assigning proper warning id, so we'll just
-            %% check for presence of *any* warning
-            if ~isempty(msg) || max(abs(va)) > va_threshold
-                success = 0;
-            end
-
-            %% restore warning state
-            lastwarn(lastmsg, lastid);
-
-            i = 1;                  %% not iterative
+        function opt = solve_opts_power_flow(obj, om, mpc, mpopt)
+            %% TO DO: move pf.alg to pf.ac.solver and add a
+            %%        pf.dc.solver to set the 'leq_opt.solver' option here
+            opt = struct( ...
+                'verbose',  mpopt.verbose, ...
+                'leq_opt',  struct('thresh', 1e5)   );
         end
 
         function add_pf_vars(obj, nm, om, mpc, mpopt)
