@@ -2,7 +2,7 @@ function obj = t_mp_element(quiet, out_ac)
 %T_MP_ELEMENT  Tests for MP_ELEMENT.
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -914,5 +914,3 @@ if nargout
         obj = dc;
     end
 end
-
-return;

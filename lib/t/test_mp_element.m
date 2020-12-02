@@ -32,13 +32,9 @@ tests = {};
 %% MATPOWER base test
 tests{end+1} = 't_mp_element';
 tests{end+1} = 't_port_inj_current_acc';
-tests{end+1} = 't_port_inj_current_acc_nln';
 tests{end+1} = 't_port_inj_current_acp';
-tests{end+1} = 't_port_inj_current_acp_nln';
 tests{end+1} = 't_port_inj_power_acc';
-tests{end+1} = 't_port_inj_power_acc_nln';
 tests{end+1} = 't_port_inj_power_acp';
-tests{end+1} = 't_port_inj_power_acp_nln';
 
 %% run the tests
 all_ok = t_run_tests( tests, verbose );
