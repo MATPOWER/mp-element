@@ -25,11 +25,16 @@ end
 casefile = 't_case9_gizmo';
 
 mpopt = mpoption('out.all', 0, 'verbose', 0);
+cl = {  {@mpe_gen_acc_nln, 'mpe_gen'}, ...
+        {@mpe_load_acc_nln, 'mpe_load'}, ...
+        {@mpe_branch_acc_nln, 'mpe_branch'}, ...
+        {@mpe_shunt_acc_nln, 'mpe_shunt'}, ...
+        @mpe_gizmo_acc_nln };
 
 %% create network model object
 mpc = ext2int(loadcase(casefile));
 mpc = rmfield(mpc, 'order');
-ac = mpe_network_accs_test_nln().create_model(mpc);
+ac = mpe_network_accs().modify_element_classes(cl).create_model(mpc);
 C = ac.C;
 D = ac.D;
 np = ac.np;

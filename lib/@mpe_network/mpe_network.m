@@ -44,6 +44,32 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             %%              object use.
         end
 
+        function obj = modify_element_classes(obj, class_list)
+            %% each element in class_list is either:
+            %%  1 - a handle to a constructor to be appended to
+            %%      obj.element_classes, or
+            %%  2 - a 2-element cell array {A,B} where A is a handle to
+            %%      a constructor to replace any element E in the list for
+            %%      which isa(E(), B) is true, i.e. B is a char array
+            if ~iscell(class_list)
+                class_list = {class_list};
+            end
+            ec = obj.element_classes;   %% list to be updated
+            ec0 = {ec{:}};              %% unmodified copy of original list
+            for k = 1:length(class_list)
+                c = class_list{k};
+                if iscell(c)        %% it's a 2-d cell array
+                    i = find(cellfun(@(e)isa(e(), c{2}), ec0)); %% find c{2}
+                    if ~isempty(i)
+                        ec{i} = c{1};                   %% replace with c{1}
+                    end
+                else                %% it's a single function handle
+                    ec{end+1} = c;  %%      append it
+                end
+            end
+            obj.element_classes = ec;
+        end
+
         function obj = create_model(obj, dm, mpopt)
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),

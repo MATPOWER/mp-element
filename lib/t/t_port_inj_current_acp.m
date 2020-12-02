@@ -29,7 +29,7 @@ mpopt = mpoption('out.all', 0, 'verbose', 0);
 %% create network model object
 mpc = ext2int(loadcase(casefile));
 mpc = rmfield(mpc, 'order');
-ac = mpe_network_acps_test().create_model(mpc);
+ac = mpe_network_acps().modify_element_classes(@mpe_gizmo_acp).create_model(mpc);
 C = ac.C;
 D = ac.D;
 np = ac.np;
