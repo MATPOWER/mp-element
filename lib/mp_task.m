@@ -132,7 +132,11 @@ classdef mp_task < handle
         end
         
         function nm = network_model_create_pre(obj, nm, dm, mpopt)
-            %% e.g. for adding user-supplied elements to nm.element_classes
+            %% add user-supplied elements to nm.element_classes
+            if isfield(mpopt.exp, 'mpe_element_classes') && ...
+                    ~isempty(mpopt.exp.mpe_element_classes)
+                nm.modify_element_classes(mpopt.exp.mpe_element_classes);
+            end
         end
 
         function nm = network_model_create_post(obj, nm, dm, mpopt)
