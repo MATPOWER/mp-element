@@ -18,7 +18,7 @@ classdef mpe_wrapper_ac_nln < handle
             
             %% copy base field values from wrapped object
             obj.name = obj.mpe.name;
-            obj.mpc_field = obj.mpe.mpc_field;
+            obj.dm_table = obj.mpe.dm_table;
             obj.np = obj.mpe.np;
             obj.nz = obj.mpe.nz;
         end

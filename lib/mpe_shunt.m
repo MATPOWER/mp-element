@@ -17,12 +17,12 @@ classdef mpe_shunt < mp_element
         function obj = mpe_shunt()
             obj@mp_element();
             obj.name = 'shunt';
-            obj.mpc_field = 'bus';
+            obj.dm_table = 'bus';
             obj.np = 1;             %% this is a 1 port element
         end
 
         function nk = count(obj, mpc)
-            if isfield(mpc, obj.mpc_field) && ~isempty(mpc.(obj.mpc_field))
+            if isfield(mpc, obj.dm_table) && ~isempty(mpc.(obj.dm_table))
                 obj.busidx = obj.shunt_bus(mpc);
                 nk = length(obj.busidx);
                 obj.nk = nk;    %% update the count stored internally

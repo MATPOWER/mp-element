@@ -17,7 +17,7 @@ classdef mpe_gizmo < mp_element
         function obj = mpe_gizmo()
             obj@mp_element();
             obj.name = 'gizmo';
-            obj.mpc_field = 'gizmo';
+            obj.dm_table = 'gizmo';
             obj.np = 3;             %% this is a 3 port element
             obj.nz = 2;             %% each with 2 state variables
         end

@@ -6,7 +6,8 @@ classdef mp_element < handle
 %
 %   Properties
 %       name : name of element type (constant across forumations)
-%       mpc_field : name of field in mpc to be checked for this element type
+%       dm_table : name of table in data model to be checked for this
+%           element type
 %       np : number of ports per element
 %       nz : number of non-voltage state variables per element
 %       nk : number of elements
@@ -43,7 +44,8 @@ classdef mp_element < handle
 
     properties
         name = 'mp_element';
-        mpc_field = '';     %% field checked for presence of this element type
+        dm_table = '';      %% name of table in dm to be checked for presence
+                            %% of this element type
         np = 0;             %% number of ports per element
         nz = 0;             %% number of non-voltage states per element (possibly complex)
         nk = 0;             %% number of elements of this type loaded
@@ -59,8 +61,8 @@ classdef mp_element < handle
     
     methods
         function nk = count(obj, mpc)
-            if isfield(mpc, obj.mpc_field) && ~isempty(mpc.(obj.mpc_field))
-                nk = size(mpc.(obj.mpc_field), 1);
+            if isfield(mpc, obj.dm_table) && ~isempty(mpc.(obj.dm_table))
+                nk = size(mpc.(obj.dm_table), 1);
                 obj.nk = nk;    %% update the count stored internally
             else
                 nk = 0;

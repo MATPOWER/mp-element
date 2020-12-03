@@ -28,7 +28,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
         function obj = mpe_network()
             obj@mp_element();
             obj.name = 'network';
-            obj.mpc_field = '';
+            obj.dm_table = '';
             obj.np = 0;     %% unknown number of ports at this point, init to 0
             obj.nk = 1;
             obj.nz = 0;     %% unknown number of z_ vars at this point, init to 0
