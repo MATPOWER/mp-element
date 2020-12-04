@@ -45,7 +45,11 @@ classdef mpe_container < handle
         end
 
         function elm = elm_by_name(obj, name)
-            elm = obj.elm_list{obj.elm_map.(name)};
+            if isfield(obj.elm_map, name)
+                elm = obj.elm_list{obj.elm_map.(name)};
+            else
+                elm = [];
+            end
         end
     end     %% methods
 end         %% classdef
