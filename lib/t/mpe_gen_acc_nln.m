@@ -24,7 +24,7 @@ classdef mpe_gen_acc_nln < mpe_gen_acc & mpe_wrapper_ac_nln
         end
 
         function nk = count(obj, dm)
-            obj.count_nln(dm);
+            obj.mpe.count(dm);
             nk = count@mpe_gen_acc(obj, dm);
         end
     end     %% methods

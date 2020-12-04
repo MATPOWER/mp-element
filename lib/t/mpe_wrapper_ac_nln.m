@@ -41,9 +41,5 @@ classdef mpe_wrapper_ac_nln < handle
             obj.inln_hess = @(x_, lam, sysx, idx)port_inj_current_hess(obj.mpe, x_, lam, sysx, idx);
             obj.snln_hess = @(x_, lam, sysx, idx)port_inj_power_hess(obj.mpe, x_, lam, sysx, idx);
         end
-
-        function nk = count_nln(obj, dm)
-            obj.mpe.count(dm);
-        end
     end     %% methods
 end         %% classdef

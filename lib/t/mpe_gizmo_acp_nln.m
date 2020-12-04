@@ -24,7 +24,7 @@ classdef mpe_gizmo_acp_nln < mpe_gizmo_acp & mpe_wrapper_ac_nln
         end
 
         function nk = count(obj, dm)
-            obj.count_nln(dm);
+            obj.mpe.count(dm);
             nk = count@mpe_gizmo_acp(obj, dm);
         end
     end     %% methods

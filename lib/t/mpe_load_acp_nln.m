@@ -24,7 +24,7 @@ classdef mpe_load_acp_nln < mpe_load_acp & mpe_wrapper_ac_nln
         end
 
         function nk = count(obj, dm)
-            obj.count_nln(dm);
+            obj.mpe.count(dm);
             nk = count@mpe_load_acp(obj, dm);
         end
     end     %% methods
