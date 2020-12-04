@@ -1,4 +1,4 @@
-function obj = t_mp_data(quiet, out_ac)
+function obj = t_mp_data(quiet)
 %T_MP_DATA  Tests for MP_DATA.
 
 %   MATPOWER
@@ -44,6 +44,7 @@ for k = 1:nt
     if isa(tests{k}{2}, 'mp_data')
         t = sprintf('%s.copy() : ', tests{k}{1});
         dm = tests{k}{2}.copy();
+        tests{k}{2}.tab(1) = [];
     else
         t = sprintf('mp_data_mpc2(%s) : ', tests{k}{1});
         dm = mp_data_mpc2(tests{k}{2});

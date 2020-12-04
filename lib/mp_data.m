@@ -50,7 +50,7 @@ classdef mp_data < handle
             end
         end
 
-        function obj = create_mappings(obj)
+        function obj = create_model(obj)
             for k = 1:length(obj.tab)
                 tab = obj.tab(k);
 
@@ -80,6 +80,8 @@ classdef mp_data < handle
                         'off',      [] ...      %% indices of offline elements
                     );
             end
+            
+            obj.update_status();
         end
 
         function obj = update_status(obj)
