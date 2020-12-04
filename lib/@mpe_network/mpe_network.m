@@ -1,7 +1,7 @@
-classdef mpe_network < mp_element & mp_idx_manager% & mp_model
-%MPE_NETWORK  Abstract class, explicitly a subclass of MP_ELEMENT and
-%             MP_IDX_MANAGER and implicitly assumed to be a subclass of
-%             MP_MODEL as well
+classdef mpe_network < mp_element & mpe_container & mp_idx_manager% & mp_model
+%MPE_NETWORK  Abstract base class for MATPOWER network model
+%   Explicitly a subclass of MP_ELEMENT, MP_IDX_MANAGER and MPE_CONTAINER,
+%   and implicitly assumed to be a subclass of MP_MODEL as well.
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -12,10 +12,6 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
 %   See https://matpower.org for more info.
 
     properties
-        element_classes = {};   %% classes for individual element types
-                                %% filled in by subclass constructor
-        mpe_list = {};          %% cell array of mp_element objects
-        mpe_map  = struct();    %% key = element name, val = index into mpe_list
         mpe_port_map = [];      %% mpe_port_map(k, 1:2), indices of 1st & last port for element k
         mpe_z_map = [];         %% mpe_z_map(k, 1:2), indices of 1st & last z var for element k
         nv = 0;                 %% total number of (real) v variables
@@ -42,32 +38,6 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             %%              (if obj.node is empty) in CREATE_MODEL() and
             %%              DISPLAY(), after object construction, but before
             %%              object use.
-        end
-
-        function obj = modify_element_classes(obj, class_list)
-            %% each element in class_list is either:
-            %%  1 - a handle to a constructor to be appended to
-            %%      obj.element_classes, or
-            %%  2 - a 2-element cell array {A,B} where A is a handle to
-            %%      a constructor to replace any element E in the list for
-            %%      which isa(E(), B) is true, i.e. B is a char array
-            if ~iscell(class_list)
-                class_list = {class_list};
-            end
-            ec = obj.element_classes;   %% list to be updated
-            ec0 = {ec{:}};              %% unmodified copy of original list
-            for k = 1:length(class_list)
-                c = class_list{k};
-                if iscell(c)        %% it's a 2-d cell array
-                    i = find(cellfun(@(e)isa(e(), c{2}), ec0)); %% find c{2}
-                    if ~isempty(i)
-                        ec{i} = c{1};                   %% replace with c{1}
-                    end
-                else                %% it's a single function handle
-                    ec{end+1} = c;  %%      append it
-                end
-            end
-            obj.element_classes = ec;
         end
 
         function obj = create_model(obj, dm, mpopt)
@@ -102,8 +72,8 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
                 mpe = c{1}();       %% element constructor
                 if mpe.count(dm)
                     i = i + 1;
-                    obj.mpe_list{i} = mpe;
-                    obj.mpe_map.(mpe.name) = i;
+                    obj.elm_list{i} = mpe;
+                    obj.elm_map.(mpe.name) = i;
                     obj.np = obj.np + mpe.np * mpe.nk;  %% number of ports
                     obj.nz = obj.nz + mpe.nz * mpe.nk;  %% number of z_ vars
                 end
@@ -121,13 +91,9 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             end
         end
 
-        function mpe = mpe_by_name(obj, name)
-            mpe = obj.mpe_list{obj.mpe_map.(name)};
-        end
-
         function obj = add_nodes(obj, nm, dm)
             %% each element adds its nodes
-            for mpe = obj.mpe_list
+            for mpe = obj.elm_list
                 mpe{1}.add_nodes(obj, dm);
             end
             
@@ -137,7 +103,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
 
         function obj = add_states(obj, nm, dm)
             %% each element adds its states
-            for mpe = obj.mpe_list
+            for mpe = obj.elm_list
                 mpe{1}.add_states(obj, dm);
             end
             
@@ -150,12 +116,12 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             C = {};
             D = {};
             %% initialize mpe_port_map, mpe_z_map
-            obj.mpe_port_map = zeros(length(obj.mpe_list), 2);
-            obj.mpe_z_map    = zeros(length(obj.mpe_list), 2);
+            obj.mpe_port_map = zeros(length(obj.elm_list), 2);
+            obj.mpe_z_map    = zeros(length(obj.elm_list), 2);
             pk = 1;     %% port counter
             zk = 1;     %% z-var counter
-            for k = 1:length(obj.mpe_list)
-                mpe = obj.mpe_list{k};
+            for k = 1:length(obj.elm_list)
+                mpe = obj.elm_list{k};
                 obj.mpe_port_map(k, 1) = pk;        %% starting port index
                 obj.mpe_z_map(k, 1) = zk;           %% starting z-var index
                 mpe.build_params(obj, dm);
@@ -182,7 +148,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             ss = {};
             last_i = 0;
             last_j = 0;
-            for mpe = obj.mpe_list
+            for mpe = obj.elm_list
                 Mk = mpe{1}.(name);
                 if ~isempty(Mk)
                     [i, j, s] = find(Mk);
@@ -207,7 +173,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             nn = obj.getN('node');
             vv = {};
 
-            for mpe = obj.mpe_list
+            for mpe = obj.elm_list
                 vk = mpe{1}.(name);
                 if isempty(vk)
                     vk = zeros(mpe{1}.nk * mpe{1}.np, 1);
@@ -219,7 +185,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
 
         function obj = add_vvars(obj, nm, dm, idx)
             for k = 1:length(obj.node.order)
-                mpe = obj.mpe_by_name(obj.node.order(k).name);
+                mpe = obj.elm_by_name(obj.node.order(k).name);
                 mpe.add_vvars(obj, dm, obj.state.order(k).idx);
             end
             for vtype = obj.model_vvars
@@ -229,7 +195,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
 
         function obj = add_zvars(obj, nm, dm, idx)
             for k = 1:length(obj.state.order)
-                mpe = obj.mpe_by_name(obj.state.order(k).name);
+                mpe = obj.elm_by_name(obj.state.order(k).name);
                 mpe.add_zvars(obj, dm, obj.state.order(k).idx);
             end
         end
@@ -450,7 +416,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             
             %% get node type vector from each node-creating MPE
             for k = 1:length(obj.node.order)
-                mpe = obj.mpe_by_name(obj.node.order(k).name);
+                mpe = obj.elm_by_name(obj.node.order(k).name);
                 tt{k} = mpe.power_flow_node_types(obj, dm, obj.state.order(k).idx);
             end
 
@@ -475,7 +441,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             obj.add_pf_system_constraints(om, dm, mpopt);
             
 %             %% each element adds its PF constraints
-%             for mpe = obj.mpe_list
+%             for mpe = obj.elm_list
 %                 mpe{1}.add_pf_constraints(nm, om, dm, mpopt);
 %             end
         end
@@ -511,7 +477,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             end
             
             %% each element adds its OPF variables
-            for mpe = obj.mpe_list
+            for mpe = obj.elm_list
                 mpe{1}.add_opf_vars(nm, om, dm, mpopt);
             end
             
@@ -524,7 +490,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             obj.add_opf_system_constraints(om, dm, mpopt);
             
             %% each element adds its OPF constraints
-            for mpe = obj.mpe_list
+            for mpe = obj.elm_list
                 mpe{1}.add_opf_constraints(nm, om, dm, mpopt);
             end
         end
@@ -534,7 +500,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             obj.add_opf_system_costs(om, dm, mpopt);
             
             %% each element adds its OPF costs
-            for mpe = obj.mpe_list
+            for mpe = obj.elm_list
                 mpe{1}.add_opf_costs(nm, om, dm, mpopt);
             end
         end

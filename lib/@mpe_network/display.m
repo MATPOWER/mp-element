@@ -48,8 +48,8 @@ fprintf('ELEMENTS\n')
 fprintf('========\n')
 fprintf('       name          N      np    nz    class, param(m,n))\n');
 fprintf('  ------------   --------  ----  ----  --------------------\n');
-for k = 1:length(obj.mpe_list)
-    mpe = obj.mpe_list{k};
+for k = 1:length(obj.elm_list)
+    mpe = obj.elm_list{k};
     fprintf(' %11s %11d %5d %5d    %s', mpe.name, mpe.nk, mpe.np, mpe.nz, class(mpe));
     
     for j = 1:length(model_params)

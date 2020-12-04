@@ -39,16 +39,16 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
             obj.s = obj.stack_vector_params('s');
 
             %% add general nonlinear function if any element has one defined
-            for k = 1:length(obj.mpe_list)
-                if ~isempty(obj.mpe_list{k}.inln)
+            for k = 1:length(obj.elm_list)
+                if ~isempty(obj.elm_list{k}.inln)
                     obj.inln_list{end+1} = k;
-                    if ~isempty(obj.mpe_list{k}.inln_hess)
+                    if ~isempty(obj.elm_list{k}.inln_hess)
                         obj.inln_hess_list{end+1} = k;
                     end
                 end
-                if ~isempty(obj.mpe_list{k}.snln)
+                if ~isempty(obj.elm_list{k}.snln)
                     obj.snln_list{end+1} = k;
-                    if ~isempty(obj.mpe_list{k}.snln_hess)
+                    if ~isempty(obj.elm_list{k}.snln_hess)
                         obj.snln_hess_list{end+1} = k;
                     end
                 end
@@ -98,8 +98,8 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
 
             %% loop through elements w/gen nonlin fcns, evaluate them
             for kk = obj.(fcn_list)
-                k = kk{1};      %% index into obj.mpe_list
-                mpe = obj.mpe_list{k};
+                k = kk{1};      %% index into obj.elm_list
+                mpe = obj.elm_list{k};
                 i1 = obj.mpe_port_map(k, 1);    %% starting aggregate port index
                 iN = obj.mpe_port_map(k, 2);    %% ending aggregate port index
 
@@ -192,8 +192,8 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
 
             %% loop through elements w/gen nonlin Hessians, evaluate them
             for kk = obj.(fcn_list)
-                k = kk{1};      %% index into obj.mpe_list
-                mpe = obj.mpe_list{k};
+                k = kk{1};      %% index into obj.elm_list
+                mpe = obj.elm_list{k};
                 i1 = obj.mpe_port_map(k, 1);    %% starting aggregate port index
                 iN = obj.mpe_port_map(k, 2);    %% ending aggregate port index
 

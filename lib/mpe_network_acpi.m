@@ -20,8 +20,8 @@ classdef mpe_network_acpi < mpe_network_acp% & mp_model_acpi
             ad = power_flow_aux_data@mpe_network_ac(obj, dm, mpopt);
 
             %% build additional aux data
-            g = obj.mpe_by_name('gen');
-            i = obj.mpe_z_map(obj.mpe_map.gen, :);  %% 1st-last z-idx for gens
+            g = obj.elm_by_name('gen');
+            i = obj.mpe_z_map(obj.elm_map.gen, :);  %% 1st-last z-idx for gens
             N = g.C(ad.pv, :) * g.N;%% z coefficients for all gens @ PV nodes
             [ii, jj, ss] = find(N); %% deconstruct and recreate with
             [~, ia] = unique(ii);   %% only 1st non-zero in each row

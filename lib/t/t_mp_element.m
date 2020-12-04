@@ -48,7 +48,7 @@ t_ok(strcmp(dc.set_types.node, 'NODES'), [t 'set_types.node']);
 t_ok(strcmp(dc.set_types.state, 'STATES'), [t 'set_types.state']);
 t_ok(strcmp(dc.set_types.va, 'VOLTAGE VARS (va)'), [t 'set_types.va']);
 t_ok(strcmp(dc.set_types.z, 'NON-VOLTAGE VARS (z)'), [t 'set_types.z']);
-t_is(length(dc.mpe_list), 0, 12, [t '# of element types']);
+t_is(length(dc.elm_list), 0, 12, [t '# of element types']);
 
 t = 'dc.create_model(dm) : ';
 dm = mp_data_mpc2(rundcpf(loadcase(casefile), mpopt)).ext2int(mpopt);
@@ -59,9 +59,9 @@ t_is(dc.nk, 1, 12, [t 'nk']);
 t_is(dc.np, 24, 12, [t 'np']);
 t_is(dc.nz, 3, 12, [t 'nz']);
 t_is(dc.nv, 9, 12, [t 'nv']);
-t_is(length(dc.mpe_list), 4, 12, [t '# of element types']);
+t_is(length(dc.elm_list), 4, 12, [t '# of element types']);
 
-mpe = dc.mpe_list;
+mpe = dc.elm_list;
 t = 'mpe_bus_dc : '; k = 1;
 t_ok(strcmp(mpe{k}.name, 'bus'), [t 'name']);
 t_ok(strcmp(class(mpe{k}), 'mpe_bus_dc'), [t 'class']);
@@ -179,8 +179,8 @@ t = 'dc.port_inj_power(x, 1, [3;1])';
 P2  = dc.port_inj_power(x, 1, [3;1]);
 t_is(P2, eP([3;1]), 8, t);
 
-t = 'dc.mpe_by_name(''gen'') : ';
-gen = dc.mpe_by_name('gen');
+t = 'dc.elm_by_name(''gen'') : ';
+gen = dc.elm_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
 t_ok(strcmp(class(gen), 'mpe_gen_dc'), [t 'class']);
 
@@ -224,7 +224,7 @@ t_ok(strcmp(ac.set_types.va, 'VOLTAGE ANG VARS (va)'), [t 'set_types.va']);
 t_ok(strcmp(ac.set_types.vm, 'VOLTAGE MAG VARS (vm)'), [t 'set_types.vm']);
 t_ok(strcmp(ac.set_types.zr, 'NON-VOLTAGE VARS REAL (zr)'), [t 'set_types.zr']);
 t_ok(strcmp(ac.set_types.zi, 'NON-VOLTAGE VARS IMAG (zi)'), [t 'set_types.zi']);
-t_is(length(ac.mpe_list), 0, 12, [t '# of element types']);
+t_is(length(ac.elm_list), 0, 12, [t '# of element types']);
 
 t = 'ac.create_model(dm) : ';
 dm = mp_data_mpc2(runpf(loadcase(casefile), mpopt)).ext2int(mpopt);
@@ -235,9 +235,9 @@ t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 24, 12, [t 'np']);
 t_is(ac.nz, 3, 12, [t 'nz']);
 t_is(ac.nv, 18, 12, [t 'nv']);
-t_is(length(ac.mpe_list), 4, 12, [t '# of element types']);
+t_is(length(ac.elm_list), 4, 12, [t '# of element types']);
 
-mpe = ac.mpe_list;
+mpe = ac.elm_list;
 t = 'mpe_bus_acp : '; k = 1;
 t_ok(strcmp(mpe{k}.name, 'bus'), [t 'name']);
 t_ok(strcmp(class(mpe{k}), 'mpe_bus_acp'), [t 'class']);
@@ -386,8 +386,8 @@ t_is(Svm1, Svm([3;2;1], :), 12, [t 'Svm']);
 t_is(Szr1, Szr([3;2;1], :), 12, [t 'Szr']);
 t_is(Szi1, Szi([3;2;1], :), 12, [t 'Szi']);
 
-t = 'ac.mpe_by_name(''gen'') : ';
-gen = ac.mpe_by_name('gen');
+t = 'ac.elm_by_name(''gen'') : ';
+gen = ac.elm_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
 t_ok(strcmp(class(gen), 'mpe_gen_acp'), [t 'class']);
 
@@ -545,7 +545,7 @@ t_ok(strcmp(ac.set_types.va, 'VOLTAGE ANG VARS (va)'), [t 'set_types.va']);
 t_ok(strcmp(ac.set_types.vm, 'VOLTAGE MAG VARS (vm)'), [t 'set_types.vm']);
 t_ok(strcmp(ac.set_types.zr, 'NON-VOLTAGE VARS REAL (zr)'), [t 'set_types.zr']);
 t_ok(strcmp(ac.set_types.zi, 'NON-VOLTAGE VARS IMAG (zi)'), [t 'set_types.zi']);
-t_is(length(ac.mpe_list), 0, 12, [t '# of element types']);
+t_is(length(ac.elm_list), 0, 12, [t '# of element types']);
 
 %% AC Newton power flow
 % t = '[x, success, i] = ac.solve_power_flow(dm, mpopt) : ';
@@ -582,9 +582,9 @@ t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);
 t_is(ac.nz, 7, 12, [t 'nz']);
 t_is(ac.nv, 18, 12, [t 'nv']);
-t_is(length(ac.mpe_list), 5, 12, [t '# of element types']);
+t_is(length(ac.elm_list), 5, 12, [t '# of element types']);
 
-mpe = ac.mpe_list;
+mpe = ac.elm_list;
 t = 'mpe_bus_acp : '; k = 1;
 t_ok(strcmp(mpe{k}.name, 'bus'), [t 'name']);
 t_ok(strcmp(class(mpe{k}), 'mpe_bus_acp'), [t 'class']);
@@ -785,8 +785,8 @@ t_is(Svm1, Svm([3;2;1], :), 12, [t 'Svm']);
 t_is(Szr1, Szr([3;2;1], :), 12, [t 'Szr']);
 t_is(Szi1, Szi([3;2;1], :), 12, [t 'Szi']);
 
-t = 'ac.mpe_by_name(''gen'') : ';
-gen = ac.mpe_by_name('gen');
+t = 'ac.elm_by_name(''gen'') : ';
+gen = ac.elm_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
 t_ok(strcmp(class(gen), 'mpe_gen_acp'), [t 'class']);
 

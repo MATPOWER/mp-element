@@ -68,7 +68,7 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
             [B, K, p] = obj.get_params();
             BB = obj.C * B * obj.C';
             pbus = -(obj.C * K * obj.D' * z + obj.C * p);
-            branch_mpe = obj.mpe_by_name('branch');
+            branch_mpe = obj.elm_by_name('branch');
             [Bf, pf] = branch_mpe.get_params(1:branch_mpe.nk, {'B', 'p'});
 
             %% create aux_data struct
@@ -147,7 +147,7 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
                                 {obj.va.order(:).name obj.z.order(:).name});
 
             %% user data
-            branch_mpe = obj.mpe_by_name('branch');
+            branch_mpe = obj.elm_by_name('branch');
             [Bbr, pbr] = branch_mpe.get_params(1:branch_mpe.nk, {'B', 'p'});
             om.userdata.Bf = Bbr * branch_mpe.C';
             om.userdata.Pfinj = pbr;
