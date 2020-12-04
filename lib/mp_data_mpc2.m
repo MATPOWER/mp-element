@@ -18,6 +18,8 @@ classdef mp_data_mpc2 < mp_data
         function obj = mp_data_mpc2(m)
             %% call parent constructor
             obj@mp_data();
+            obj.element_classes = ...
+                { @dme_bus_mpc2, @dme_gen_mpc2, @dme_branch_mpc2 };
 
             if nargin
                 %% define constants

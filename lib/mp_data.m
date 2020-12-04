@@ -1,4 +1,4 @@
-classdef mp_data < handle
+classdef mp_data < mpe_container
 %MP_DATA  Abstract base class for MATPOWER data model
 
 %   MATPOWER
@@ -35,7 +35,7 @@ classdef mp_data < handle
 
     methods
         function new_obj = copy(obj)
-            %% make shallow copy of object
+            %% start with shallow copy of object
             new_obj = eval(class(obj));  %% create new object
             if have_feature('octave')
                 s1 = warning('query', 'Octave:classdef-to-struct');
@@ -48,9 +48,35 @@ classdef mp_data < handle
             for k = 1:length(props)
                 new_obj.(props{k}) = obj.(props{k});
             end
+
+            %% make copies of each individual element
+            for k = 1:length(obj.elm_list)
+                obj.elm_list{k} = obj.elm_list{k}.copy();
+            end
         end
 
         function obj = create_model(obj)
+            %% create element objects for each class
+            i = 0;
+            for c = obj.element_classes
+                dme = c{1}();       %% element constructor
+                if dme.count(obj)
+                    i = i + 1;
+                    obj.elm_list{i} = dme;
+                    obj.elm_map.(dme.name) = i;
+                end
+            end
+
+            %% load the data for each element type
+            for dme = obj.elm_list
+                dme{1}.create_model(obj);
+            end
+
+            %% update status after initial creation
+            for dme = obj.elm_list
+                dme{1}.update_status(obj);
+            end
+
             for k = 1:length(obj.tab)
                 tab = obj.tab(k);
 

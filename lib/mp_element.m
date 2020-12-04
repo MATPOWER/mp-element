@@ -1,5 +1,5 @@
 classdef mp_element < handle
-%MP_ELEMENT  MATPOWER Element abstract base class.
+%MP_ELEMENT  Abstract base class for MATPOWER network model elements
 %   MPE = MP_ELEMENT()
 %
 %   Each concrete sub-class must also inherit from a sub-class of MP_MODEL.
