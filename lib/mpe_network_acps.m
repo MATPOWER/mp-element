@@ -133,22 +133,20 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
             %% modify data model to form Bp (B prime)
-            mpc1 = dm.mpc;
-            mpc1.bus(:, BS) = 0;            %% zero out shunts at buses
-            mpc2 = mpc1;
-            mpc1.branch(:, BR_B) = 0;       %% zero out line charging shunts
-            mpc1.branch(:, TAP) = 1;        %% cancel out taps
+            dm1 = dm.copy();
+            dm1.mpc.bus(:, BS) = 0;         %% zero out shunts at buses
+            dm2 = dm1.copy();
+            dm1.mpc.branch(:, BR_B) = 0;    %% zero out line charging shunts
+            dm1.mpc.branch(:, TAP) = 1;     %% cancel out taps
             if strcmp(alg, 'FDXB')          %% if XB method
-                mpc1.branch(:, BR_R) = 0;   %% zero out line resistance
+                dm1.mpc.branch(:, BR_R) = 0;%% zero out line resistance
             end
-            dm1 = mp_data_mpc2(mpc1);
 
             %% modify data model to form Bpp (B double prime)
-            mpc2.branch(:, SHIFT) = 0;      %% zero out phase shifters
+            dm2.mpc.branch(:, SHIFT) = 0;   %% zero out phase shifters
             if strcmp(alg, 'FDBX')          %% if BX method
-                mpc2.branch(:, BR_R) = 0;   %% zero out line resistance
+                dm2.mpc.branch(:, BR_R) = 0;%% zero out line resistance
             end
-            dm2 = mp_data_mpc2(mpc2);
 
             %% build network models and get admittance matrices
             nm1 = feval(class(obj)).create_model(dm1, mpopt);
@@ -251,11 +249,10 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
                         ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
                     %% modify data model to form Bpp (B double prime)
-                    mpc2 = dm.mpc;
-                    mpc2.bus(:, BS) = 0;        %% zero out shunts at buses
-                    mpc2.branch(:, SHIFT) = 0;  %% zero out phase shifters
-                    mpc2.branch(:, BR_R) = 0;   %% zero out line resistance
-                    dm2 = mp_data_mpc2(mpc2);
+                    dm2 = dm.copy();
+                    dm2.mpc.bus(:, BS) = 0;         %% zero out shunts at buses
+                    dm2.mpc.branch(:, SHIFT) = 0;   %% zero out phase shifters
+                    dm2.mpc.branch(:, BR_R) = 0;    %% zero out line resistance
 
                     %% build network models and get admittance matrices
                     nm = feval(class(obj)).create_model(dm2, mpopt);
