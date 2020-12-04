@@ -97,5 +97,15 @@ classdef mp_data < handle
                 end
             end
         end
+
+        function n = online(obj, tab_name)
+            if isfield(obj.map, tab_name)
+                n = obj.map.(tab_name).n;
+            elseif isfield(obj.mpc, tab_name)
+                n = size(obj.mpc.(tab_name), 1);
+            else
+                n = 0;
+            end
+        end
     end     %% methods
 end         %% classdef

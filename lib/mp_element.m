@@ -61,13 +61,8 @@ classdef mp_element < handle
     
     methods
         function nk = count(obj, dm)
-            mpc = dm.mpc;
-            if isfield(mpc, obj.dm_table) && ~isempty(mpc.(obj.dm_table))
-                nk = size(mpc.(obj.dm_table), 1);
-                obj.nk = nk;    %% update the count stored internally
-            else
-                nk = 0;
-            end
+            nk = dm.online(obj.dm_table);
+            obj.nk = nk;    %% update the count stored internally
         end
 
         function obj = add_nodes(obj, nm, dm)
