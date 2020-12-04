@@ -21,7 +21,8 @@ classdef mpe_load < mp_element
             obj.np = 1;             %% this is a 1 port element
         end
 
-        function nk = count(obj, mpc)
+        function nk = count(obj, dm)
+            mpc = dm.mpc;
             if isfield(mpc, obj.dm_table) && ~isempty(mpc.(obj.dm_table))
                 obj.busidx = obj.load_bus(mpc);
                 nk = length(obj.busidx);
@@ -31,13 +32,13 @@ classdef mpe_load < mp_element
             end
         end
 
-        function obj = build_params(obj, nm, mpc)
+        function obj = build_params(obj, nm, dm)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
             %% incidence matrices
-            IDs = mpc.bus(obj.busidx, BUS_I);       %% bus IDs
+            IDs = dm.mpc.bus(obj.busidx, BUS_I);    %% bus IDs
             nidx = nm.node.data.ID2idx.bus(IDs);    %% node indexes
             obj.C = obj.incidence_matrix(nm.getN('node'), nidx);
             obj.D = obj.incidence_matrix(nm.getN('state'));

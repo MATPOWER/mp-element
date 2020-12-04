@@ -21,13 +21,14 @@ classdef mpe_load_ac < mpe_load% & mp_model_ac
             k = find(mpc.bus(:, PD) | mpc.bus(:, QD));
         end
 
-        function obj = build_params(obj, nm, mpc)
+        function obj = build_params(obj, nm, dm)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-            build_params@mpe_load(obj, nm, mpc);    %% call parent
+            build_params@mpe_load(obj, nm, dm);     %% call parent
 
+            mpc = dm.mpc;
             obj.s = (mpc.bus(obj.busidx, PD) + ...
                 1j * mpc.bus(obj.busidx, QD)) / mpc.baseMVA;    %% vector of complex power demand
 

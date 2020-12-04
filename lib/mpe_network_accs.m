@@ -15,7 +15,7 @@ classdef mpe_network_accs < mpe_network_acc% & mp_model_accs
     
     methods
         %%-----  PF methods  -----
-        function add_pf_vars(obj, nm, om, mpc, mpopt)
+        function add_pf_vars(obj, nm, om, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
@@ -90,7 +90,7 @@ classdef mpe_network_accs < mpe_network_acc% & mp_model_accs
             f = [real(SS(pqv)); imag(SS(ad.pq)); vmm];
         end
 
-        function add_pf_node_balance_constraints(obj, om, mpc, mpopt)
+        function add_pf_node_balance_constraints(obj, om, dm, mpopt)
             %% power balance constraints
             ad = om.get_userdata('power_flow_aux_data');
             fcn = @(x)power_flow_equations(obj, x, ad);

@@ -50,10 +50,11 @@ t_ok(strcmp(dc.set_types.va, 'VOLTAGE VARS (va)'), [t 'set_types.va']);
 t_ok(strcmp(dc.set_types.z, 'NON-VOLTAGE VARS (z)'), [t 'set_types.z']);
 t_is(length(dc.mpe_list), 0, 12, [t '# of element types']);
 
-t = 'dc.create_model(mpc) : ';
-mpc = ext2int(rundcpf(loadcase(casefile), mpopt));
+t = 'dc.create_model(dm) : ';
+dm = mp_data_mpc2(rundcpf(loadcase(casefile), mpopt)).ext2int(mpopt);
+mpc = dm.mpc;
 t_ok(mpc.success, [t 'solved power flow']);
-dc.create_model(mpc);
+dc.create_model(dm);
 t_is(dc.nk, 1, 12, [t 'nk']);
 t_is(dc.np, 24, 12, [t 'np']);
 t_is(dc.nz, 3, 12, [t 'nz']);
@@ -225,10 +226,11 @@ t_ok(strcmp(ac.set_types.zr, 'NON-VOLTAGE VARS REAL (zr)'), [t 'set_types.zr']);
 t_ok(strcmp(ac.set_types.zi, 'NON-VOLTAGE VARS IMAG (zi)'), [t 'set_types.zi']);
 t_is(length(ac.mpe_list), 0, 12, [t '# of element types']);
 
-t = 'ac.create_model(mpc) : ';
-mpc = ext2int(runpf(loadcase(casefile), mpopt));
+t = 'ac.create_model(dm) : ';
+dm = mp_data_mpc2(runpf(loadcase(casefile), mpopt)).ext2int(mpopt);
+mpc = dm.mpc;
 t_ok(mpc.success, [t 'solved power flow']);
-ac.create_model(mpc);
+ac.create_model(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 24, 12, [t 'np']);
 t_is(ac.nz, 3, 12, [t 'nz']);
@@ -500,12 +502,11 @@ t_is(Igzr, Izr(2, :), 12, [t 'Izr']);
 t_is(Igzi, Izi(2, :), 12, [t 'Izi']);
 
 %% AC Newton power flow
-% t = '[x, success, i] = ac.solve_power_flow(mpc, mpopt) : ';
 t = 'mp_task_pf().run(mpc, mpopt) : ';
 mpc = ext2int(loadcase(casefile));
 % mpc = rmfield(mpc, 'order');
-% ac = mpe_network_acps().create_model(mpc);
-% [v_, success, i] = ac.solve_power_flow(mpc, mpopt);
+% ac = mpe_network_acps().create_model(dm);
+% [v_, success, i] = ac.solve_power_flow(dm, mpopt);
 pf = mp_task_pf();
 success = pf.run(mpc, mpopt);
 v_ = pf.nm.soln.v;
@@ -547,7 +548,7 @@ t_ok(strcmp(ac.set_types.zi, 'NON-VOLTAGE VARS IMAG (zi)'), [t 'set_types.zi']);
 t_is(length(ac.mpe_list), 0, 12, [t '# of element types']);
 
 %% AC Newton power flow
-% t = '[x, success, i] = ac.solve_power_flow(mpc, mpopt) : ';
+% t = '[x, success, i] = ac.solve_power_flow(dm, mpopt) : ';
 t = 'mp_task_pf().run(mpc, mpopt) : ';
 mpc = ext2int(loadcase(casefile));
 [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
@@ -573,10 +574,10 @@ t_is(v_, ev_, 8, [t 'x']);
 t_is(success, 1, 12, [t 'success']);
 t_is(i, 4, 12, [t 'i']);
 
-t = 'ac.create_model(mpc) : ';
+t = 'ac.create_model(dm) : ';
 mpc.bus(:, VA) = angle(v_) * 180/pi;
 mpc.bus(:, VM) = abs(v_);
-ac = mpe_network_acps_test().create_model(mpc);
+ac = mpe_network_acps_test().create_model(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);
 t_is(ac.nz, 7, 12, [t 'nz']);

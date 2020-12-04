@@ -26,9 +26,9 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
             obj.set_types.zi = 'NON-VOLTAGE VARS IMAG (zi)';
         end
 
-        function obj = build_params(obj, nm, mpc)
+        function obj = build_params(obj, nm, dm)
             %% call parent to build individual element parameters
-            build_params@mpe_network(obj, nm, mpc);
+            build_params@mpe_network(obj, nm, dm);
 
             %% aggregate parameters from individual elements
             obj.Y = obj.stack_matrix_params('Y', 1);
@@ -239,7 +239,7 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
 
 
         %%-----  PF methods  -----
-        function ad = power_flow_aux_data(obj, mpc, mpopt)
+        function ad = power_flow_aux_data(obj, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
             zvars = obj.model_zvars();
@@ -252,7 +252,7 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
             [PQ, PV, REF, NONE] = idx_bus;
 
             %% get node types
-            ntv = obj.power_flow_node_types(obj, mpc);
+            ntv = obj.power_flow_node_types(obj, dm);
             ref = find(ntv == REF);     %% reference node indices
             pv  = find(ntv == PV );     %% PV node indices
             pq  = find(ntv == PQ );     %% PQ node indices
@@ -272,7 +272,7 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
             );
         end
 
-        function opt = solve_opts_power_flow(obj, om, mpc, mpopt)
+        function opt = solve_opts_power_flow(obj, om, dm, mpopt)
             switch mpopt.pf.alg
                 case 'DEFAULT'
                     opt = mpopt2nleqopt(mpopt, om.problem_type(), 'DEFAULT');
@@ -280,17 +280,17 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
                     opt = mpopt2nleqopt(mpopt, om.problem_type(), 'NEWTON');
                 case {'FDXB', 'FDBX'}
                     opt = mpopt2nleqopt(mpopt, om.problem_type(), 'FD');
-                    opt.fd_opt.jac_approx_fcn = @()obj.fd_jac_approx(om, mpc, mpopt);
+                    opt.fd_opt.jac_approx_fcn = @()obj.fd_jac_approx(om, dm, mpopt);
                     opt.fd_opt.labels = {'P', 'Q'};
                 case 'FSOLVE'
                     opt = mpopt2nleqopt(mpopt, om.problem_type(), 'FSOLVE');
                 case 'GS'
                     opt = mpopt2nleqopt(mpopt, om.problem_type(), 'GS');
                     opt.gs_opt.x_update_fcn = ...
-                        @(x, f)obj.gs_x_update(x, f, om, mpc, mpopt);
+                        @(x, f)obj.gs_x_update(x, f, om, dm, mpopt);
                 case 'ZG'
                     opt = mpopt2nleqopt(mpopt, om.problem_type(), 'ZG');
-                    zg_x_update = @(x, f)obj.zg_x_update(x, f, om, mpc, mpopt);
+                    zg_x_update = @(x, f)obj.zg_x_update(x, f, om, dm, mpopt);
                     opt.core_sp = struct(...
                         'alg',              'ZG', ...
                         'name',             'Implicit Z-bus Gauss', ...
@@ -405,9 +405,11 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
             d2G = real(d2Gr) + imag(d2Gi);
         end
 
-        function add_opf_legacy_user_constraints(obj, om, mpc, mpopt)
+        function add_opf_legacy_user_constraints(obj, om, dm, mpopt)
+            mpc = dm.mpc;
+
             %% call parent
-            add_opf_legacy_user_constraints@mpe_network(obj, om, mpc, mpopt);
+            add_opf_legacy_user_constraints@mpe_network(obj, om, dm, mpopt);
 
             %% check for user-defined nonlinear constraints
             nnle = 0;   %% number of nonlinear user-defined equality cons

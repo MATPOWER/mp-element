@@ -9,9 +9,9 @@ classdef mpe_branch_acp < mpe_branch_ac & mp_model_acp
 %   See https://matpower.org for more info.
 
     methods
-        function add_opf_constraints(obj, nm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, dm, mpopt)
             %% call parent
-            add_opf_constraints@mpe_branch_ac(obj, nm, om, mpc, mpopt);
+            add_opf_constraints@mpe_branch_ac(obj, nm, om, dm, mpopt);
 
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
@@ -19,6 +19,7 @@ classdef mpe_branch_acp < mpe_branch_ac & mp_model_acp
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
             %% branch voltage angle difference limits
+            mpc = dm.mpc;
             nb = size(mpc.bus, 1);      %% number of buses
             [Aang, lang, uang, iang] = makeAang(mpc.baseMVA, mpc.branch, nb, mpopt);
             om.add_lin_constraint('ang', Aang, lang, uang, {'Va'});

@@ -15,9 +15,9 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
     
     methods
         %%-----  PF methods  -----
-        function ad = power_flow_aux_data(obj, mpc, mpopt)
+        function ad = power_flow_aux_data(obj, dm, mpopt)
             %% call parent method
-            ad = power_flow_aux_data@mpe_network_ac(obj, mpc, mpopt);
+            ad = power_flow_aux_data@mpe_network_ac(obj, dm, mpopt);
 
             switch mpopt.pf.alg
                 case 'GS'
@@ -34,7 +34,7 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
             end
         end
 
-        function add_pf_vars(obj, nm, om, mpc, mpopt)
+        function add_pf_vars(obj, nm, om, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
@@ -108,7 +108,7 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
             f = [real(SS(pvq)); imag(SS(ad.pq))];
         end
 
-        function add_pf_node_balance_constraints(obj, om, mpc, mpopt)
+        function add_pf_node_balance_constraints(obj, om, dm, mpopt)
             alg = mpopt.pf.alg;
             ad = om.get_userdata('power_flow_aux_data');
             
@@ -122,7 +122,7 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
             om.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end
 
-        function JJ = fd_jac_approx(obj, om, mpc, mpopt)
+        function JJ = fd_jac_approx(obj, om, dm, mpopt)
             alg = mpopt.pf.alg;
             
             %% define named indices into bus, branch matrices
@@ -133,7 +133,7 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
             %% modify data model to form Bp (B prime)
-            mpc1 = mpc;
+            mpc1 = dm.mpc;
             mpc1.bus(:, BS) = 0;            %% zero out shunts at buses
             mpc2 = mpc1;
             mpc1.branch(:, BR_B) = 0;       %% zero out line charging shunts
@@ -141,16 +141,18 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
             if strcmp(alg, 'FDXB')          %% if XB method
                 mpc1.branch(:, BR_R) = 0;   %% zero out line resistance
             end
+            dm1 = mp_data_mpc2(mpc1);
 
             %% modify data model to form Bpp (B double prime)
             mpc2.branch(:, SHIFT) = 0;      %% zero out phase shifters
             if strcmp(alg, 'FDBX')          %% if BX method
                 mpc2.branch(:, BR_R) = 0;   %% zero out line resistance
             end
+            dm2 = mp_data_mpc2(mpc2);
 
             %% build network models and get admittance matrices
-            nm1 = feval(class(obj)).create_model(mpc1, mpopt);
-            nm2 = feval(class(obj)).create_model(mpc2, mpopt);
+            nm1 = feval(class(obj)).create_model(dm1, mpopt);
+            nm2 = feval(class(obj)).create_model(dm2, mpopt);
             [Y1, L, M] = nm1.get_params([], {'Y', 'L', 'M'});
             Y2 = nm2.get_params();
             if any(any(L)) || any(any(M))
@@ -166,7 +168,7 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
             JJ = {Bp, Bpp};
         end
 
-        function x = gs_x_update(obj, x, f, om, mpc, mpopt);
+        function x = gs_x_update(obj, x, f, om, dm, mpopt);
             alg = mpopt.pf.alg;
             ad = om.get_userdata('power_flow_aux_data');
 
@@ -202,7 +204,7 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
         end
 
 
-        function x = zg_x_update(obj, x, f, om, mpc, mpopt);
+        function x = zg_x_update(obj, x, f, om, dm, mpopt);
             alg = mpopt.pf.alg;
             ad = om.get_userdata('power_flow_aux_data');
 
@@ -249,13 +251,14 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
                         ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
                     %% modify data model to form Bpp (B double prime)
-                    mpc2 = mpc;
+                    mpc2 = dm.mpc;
                     mpc2.bus(:, BS) = 0;        %% zero out shunts at buses
                     mpc2.branch(:, SHIFT) = 0;  %% zero out phase shifters
                     mpc2.branch(:, BR_R) = 0;   %% zero out line resistance
+                    dm2 = mp_data_mpc2(mpc2);
 
                     %% build network models and get admittance matrices
-                    nm = feval(class(obj)).create_model(mpc2, mpopt);
+                    nm = feval(class(obj)).create_model(dm2, mpopt);
                     [Y2, L, M] = nm.get_params([], {'Y', 'L', 'M'});
                     if any(any(L)) || any(any(M))
                         error('mpe_network_acps/zg_x_update: B matrix for Z-bus Gauss w/PV buses not implemented for models with non-zero L and/or M matrices.')

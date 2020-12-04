@@ -21,21 +21,21 @@ classdef mpe_bus < mp_element
             obj.np = 0;             %% this is a 0 port element
         end
 
-        function obj = add_nodes(obj, nm, mpc)
+        function obj = add_nodes(obj, nm, dm)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I] = idx_bus;
     
             nb = obj.nk;            %% number of buses
-            nm.add_node(obj.name, nb, mpc.bus(:, BUS_I));
+            nm.add_node(obj.name, nb, dm.mpc.bus(:, BUS_I));
         end
 
         %%-----  PF methods  -----
-        function ntv = power_flow_node_types(obj, nm, mpc, idx)
+        function ntv = power_flow_node_types(obj, nm, dm, idx)
             %% define constants
             [PQ, PV, REF, NONE] = idx_bus;
 
             nb = obj.nk;            %% number of buses
-            [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
+            [ref, pv, pq] = bustypes(dm.mpc.bus, dm.mpc.gen);
             ntv = zeros(nb, 1);
             ntv(ref) = REF;
             ntv(pv)  = PV;

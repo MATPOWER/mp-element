@@ -1,4 +1,4 @@
-function om = setup_opf(obj, mpc, mpopt)
+function om = setup_opf(obj, dm, mpopt)
 %SETUP_OPF  Build the OPF optimization model for this network model
 %   OM = OBJ.SETUP_OPF(MPC, MPOPT)
 %
@@ -27,11 +27,12 @@ end
 
 %% create optimization model
 % om = opt_model();
+mpc = dm.mpc;
 om = opf_model(mpc);    %% switch back to simple opt_model, if possible
 if obj.np ~= 0      %% skip for empty model
-    obj.add_opf_vars(obj, om, mpc, mpopt);
-    obj.add_opf_constraints(obj, om, mpc, mpopt);
-    obj.add_opf_costs(obj, om, mpc, mpopt);
+    obj.add_opf_vars(obj, om, dm, mpopt);
+    obj.add_opf_constraints(obj, om, dm, mpopt);
+    obj.add_opf_costs(obj, om, dm, mpopt);
     
     %% execute userfcn callbacks for 'formulation' stage
     if isfield(mpc, 'userfcn')

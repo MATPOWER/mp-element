@@ -1,4 +1,4 @@
-function [x, success, i] = solve_opf(obj, mpc, mpopt)
+function [x, success, i] = solve_opf(obj, dm, mpopt)
 %SOLVE_OPF  Solves AC OPF
 %   SUCCESS = SOLVE_OPF(OBJ, MPC)
 %
@@ -26,7 +26,7 @@ if nargin < 3
 end
 
 %% create MP-Opt-Model object
-om = obj.setup_opf(mpc, mpopt);
+om = obj.setup_opf(dm, mpopt);
 
 %% solve it
 if strcmp(om.problem_type(), 'NLP')
@@ -39,7 +39,7 @@ success = (eflag > 0);
 
 % om
 % vv = om.get_idx('var');
-% x(vv.i1.Pg:vv.iN.Pg) * mpc.baseMVA
+% x(vv.i1.Pg:vv.iN.Pg) * dm.mpc.baseMVA
 % keyboard
 
 if isfield(output, 'iterations')

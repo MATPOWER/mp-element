@@ -21,13 +21,14 @@ classdef mpe_shunt_ac < mpe_shunt% & mp_model_ac
             k = find(mpc.bus(:, GS) | mpc.bus(:, BS));
         end
 
-        function obj = build_params(obj, nm, mpc)
+        function obj = build_params(obj, nm, dm)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-            build_params@mpe_shunt(obj, nm, mpc);   %% call parent
+            build_params@mpe_shunt(obj, nm, dm);   %% call parent
 
+            mpc = dm.mpc;
             nsh = obj.nk;
             Ysh = (mpc.bus(obj.busidx, GS) + ...
                 1j * mpc.bus(obj.busidx, BS)) / mpc.baseMVA;    %% vector of shunt admittances

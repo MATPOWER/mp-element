@@ -13,16 +13,16 @@ classdef mpe_bus_dc < mpe_bus & mp_model_dc
 %     end
     
     methods
-        function obj = add_vvars(obj, nm, mpc, idx)
+        function obj = add_vvars(obj, nm, dm, idx)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
             nb = obj.nk;
-            Va0   = mpc.bus(:, VA) * pi/180;
+            Va0   = dm.mpc.bus(:, VA) * pi/180;
             Vamin = -Inf(nb, 1);
             Vamax =  Inf(nb, 1);
-            k = find(mpc.bus(:, BUS_TYPE) == REF);
+            k = find(dm.mpc.bus(:, BUS_TYPE) == REF);
             Vamin(k) = Va0(k);
             Vamax(k) = Va0(k);
             nm.add_var('va', 'Va', nb, Va0, Vamin, Vamax);

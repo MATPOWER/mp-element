@@ -13,12 +13,13 @@ classdef mpe_gen_ac < mpe_gen% & mp_model_ac
     end
     
     methods
-        function obj = add_zvars(obj, nm, mpc, idx)
+        function obj = add_zvars(obj, nm, dm, idx)
             %% define constants
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
+            mpc = dm.mpc;
             ng = obj.nk;
             Pg   = mpc.gen(:, PG) / mpc.baseMVA;
             Pmin = mpc.gen(:, PMIN) / mpc.baseMVA;
@@ -30,8 +31,8 @@ classdef mpe_gen_ac < mpe_gen% & mp_model_ac
             nm.add_var('zi', 'Qg', ng, Qg, Qmin, Qmax);
         end
 
-        function obj = build_params(obj, nm, mpc)
-            build_params@mpe_gen(obj, nm, mpc);     %% call parent
+        function obj = build_params(obj, nm, dm)
+            build_params@mpe_gen(obj, nm, dm);      %% call parent
             ng = obj.nk;
             obj.N = -speye(ng);
         end
@@ -87,7 +88,8 @@ classdef mpe_gen_ac < mpe_gen% & mp_model_ac
             end
         end
 
-        function add_opf_constraints(obj, nm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, dm, mpopt)
+            mpc = dm.mpc;
             %% generator PQ capability curve constraints
             [Apqh, ubpqh, Apql, ubpql, Apqdata] = makeApq(mpc.baseMVA, mpc.gen);
             om.add_lin_constraint('PQh', Apqh, [], ubpqh, {'Pg', 'Qg'});      %% npqh
@@ -106,12 +108,12 @@ classdef mpe_gen_ac < mpe_gen% & mp_model_ac
             end
 
             %% call parent
-            add_opf_constraints@mpe_gen(obj, nm, om, mpc, mpopt);
+            add_opf_constraints@mpe_gen(obj, nm, om, dm, mpopt);
         end
 
-        function add_opf_costs(obj, nm, om, mpc, mpopt)
+        function add_opf_costs(obj, nm, om, dm, mpopt)
             %% call parent
-            add_opf_costs@mpe_gen(obj, nm, om, mpc, mpopt);
+            add_opf_costs@mpe_gen(obj, nm, om, dm, mpopt);
 
             %% (quadratic) polynomial costs on Qg
             if obj.cost_poly_q.have_quad_cost
@@ -120,8 +122,8 @@ classdef mpe_gen_ac < mpe_gen% & mp_model_ac
 
             %% (order 3 and higher) polynomial costs on Qg
             if ~isempty(obj.cost_poly_q.iq3)
-                [pcost qcost] = pqcost(mpc.gencost, obj.nk);
-                cost_Qg = @(xx)opf_gen_cost_fcn(xx, mpc.baseMVA, qcost, obj.cost_poly_q.iq3, mpopt);
+                [pcost qcost] = pqcost(dm.mpc.gencost, obj.nk);
+                cost_Qg = @(xx)opf_gen_cost_fcn(xx, dm.mpc.baseMVA, qcost, obj.cost_poly_q.iq3, mpopt);
                 om.add_nln_cost('polQg', 1, cost_Qg, {'Qg'});
             end
         end

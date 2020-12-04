@@ -82,12 +82,6 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
                 obj.init_set_types();
             end
 
-            if isa(dm, 'mp_data')
-                mpc = dm.mpc;
-            else
-                mpc = dm;
-            end
-
             %%-----  HACK ALERT  -----
             %% This is a hack to deal with experimental
             %% mpopt.exp.sys_wide_zip_loads.pw/qw. MPOPT should be removed
@@ -98,7 +92,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
                     isfield(mpopt.exp, 'sys_wide_zip_loads') && ...
                     (~isempty(mpopt.exp.sys_wide_zip_loads.pw) || ...
                      ~isempty(mpopt.exp.sys_wide_zip_loads.qw))
-                mpc.sys_wide_zip_loads = mpopt.exp.sys_wide_zip_loads;
+                dm.mpc.sys_wide_zip_loads = mpopt.exp.sys_wide_zip_loads;
             end
             %%-----  end of HACK  -----
 
@@ -106,7 +100,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             i = 0;
             for c = obj.element_classes
                 mpe = c{1}();       %% element constructor
-                if mpe.count(mpc)
+                if mpe.count(dm)
                     i = i + 1;
                     obj.mpe_list{i} = mpe;
                     obj.mpe_map.(mpe.name) = i;
@@ -117,13 +111,13 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             
             if obj.np ~= 0      %% skip for empty model
                 %% create nodes and node voltage state variables
-                obj.add_nodes(obj, mpc);
+                obj.add_nodes(obj, dm);
             
                 %% create non-voltage states and corresponding state variables
-                obj.add_states(obj, mpc);
+                obj.add_states(obj, dm);
             
                 %% build params
-                obj.build_params(obj, mpc);
+                obj.build_params(obj, dm);
             end
         end
 
@@ -131,27 +125,27 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             mpe = obj.mpe_list{obj.mpe_map.(name)};
         end
 
-        function obj = add_nodes(obj, nm, mpc)
+        function obj = add_nodes(obj, nm, dm)
             %% each element adds its nodes
             for mpe = obj.mpe_list
-                mpe{1}.add_nodes(obj, mpc);
+                mpe{1}.add_nodes(obj, dm);
             end
             
             %% add voltage variables for each node
-            obj.add_vvars(obj, mpc);
+            obj.add_vvars(obj, dm);
         end
 
-        function obj = add_states(obj, nm, mpc)
+        function obj = add_states(obj, nm, dm)
             %% each element adds its states
             for mpe = obj.mpe_list
-                mpe{1}.add_states(obj, mpc);
+                mpe{1}.add_states(obj, dm);
             end
             
             %% add state variables for each node
-            obj.add_zvars(obj, mpc);
+            obj.add_zvars(obj, dm);
         end
 
-        function obj = build_params(obj, nm, mpc)
+        function obj = build_params(obj, nm, dm)
             %% each element builds parameters, aggregate incidence matrices
             C = {};
             D = {};
@@ -164,7 +158,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
                 mpe = obj.mpe_list{k};
                 obj.mpe_port_map(k, 1) = pk;        %% starting port index
                 obj.mpe_z_map(k, 1) = zk;           %% starting z-var index
-                mpe.build_params(obj, mpc);
+                mpe.build_params(obj, dm);
                 C = horzcat(C, {mpe.C});
                 D = horzcat(D, {mpe.D});
                 pk = pk + mpe.np * mpe.nk;          %% increment port counter
@@ -223,20 +217,20 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             v = vertcat(vv{:});
         end
 
-        function obj = add_vvars(obj, nm, mpc, idx)
+        function obj = add_vvars(obj, nm, dm, idx)
             for k = 1:length(obj.node.order)
                 mpe = obj.mpe_by_name(obj.node.order(k).name);
-                mpe.add_vvars(obj, mpc, obj.state.order(k).idx);
+                mpe.add_vvars(obj, dm, obj.state.order(k).idx);
             end
             for vtype = obj.model_vvars
                 obj.nv = obj.nv + obj.getN(vtype{1});
             end
         end
 
-        function obj = add_zvars(obj, nm, mpc, idx)
+        function obj = add_zvars(obj, nm, dm, idx)
             for k = 1:length(obj.state.order)
                 mpe = obj.mpe_by_name(obj.state.order(k).name);
-                mpe.add_zvars(obj, mpc, obj.state.order(k).idx);
+                mpe.add_zvars(obj, dm, obj.state.order(k).idx);
             end
         end
 
@@ -449,15 +443,15 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
 
 
         %%-----  PF methods  -----
-        function ntv = power_flow_node_types(obj, nm, mpc, idx)
-%         function [ntv, nts] = power_flow_node_types(obj, nm, mpc, idx)
+        function ntv = power_flow_node_types(obj, nm, dm, idx)
+%         function [ntv, nts] = power_flow_node_types(obj, nm, dm, idx)
             %% create empty cell array for node type vectors
             tt = cell(length(obj.node.order), 1);
             
             %% get node type vector from each node-creating MPE
             for k = 1:length(obj.node.order)
                 mpe = obj.mpe_by_name(obj.node.order(k).name);
-                tt{k} = mpe.power_flow_node_types(obj, mpc, obj.state.order(k).idx);
+                tt{k} = mpe.power_flow_node_types(obj, dm, obj.state.order(k).idx);
             end
 
             %% concatenate into a single node type vector
@@ -476,32 +470,32 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
 %             end
         end
 
-        function add_pf_constraints(obj, nm, om, mpc, mpopt)
+        function add_pf_constraints(obj, nm, om, dm, mpopt)
             %% system constraints
-            obj.add_pf_system_constraints(om, mpc, mpopt);
+            obj.add_pf_system_constraints(om, dm, mpopt);
             
 %             %% each element adds its PF constraints
 %             for mpe = obj.mpe_list
-%                 mpe{1}.add_pf_constraints(nm, om, mpc, mpopt);
+%                 mpe{1}.add_pf_constraints(nm, om, dm, mpopt);
 %             end
         end
 
-        function add_pf_system_constraints(obj, om, mpc, mpopt)
+        function add_pf_system_constraints(obj, om, dm, mpopt)
             %% can be overridden to add additional system constraints
 
             %% node balance constraints
-            obj.add_pf_node_balance_constraints(om, mpc, mpopt);
+            obj.add_pf_node_balance_constraints(om, dm, mpopt);
         end
 
-        opt = solve_opts_power_flow(obj, om, mpc, mpopt)
+        opt = solve_opts_power_flow(obj, om, dm, mpopt)
 
 
         %%-----  OPF methods  -----
-        om = setup_opf(obj, mpc, mpopt)
+        om = setup_opf(obj, dm, mpopt)
         
-        [x, success, i] = solve_opf(obj, mpc, mpopt)
+        [x, success, i] = solve_opf(obj, dm, mpopt)
         
-        function add_opf_vars(obj, nm, om, mpc, mpopt)
+        function add_opf_vars(obj, nm, om, dm, mpopt)
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars
                 st = obj.(vtype{1});    %% set type
@@ -518,52 +512,53 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             
             %% each element adds its OPF variables
             for mpe = obj.mpe_list
-                mpe{1}.add_opf_vars(nm, om, mpc, mpopt);
+                mpe{1}.add_opf_vars(nm, om, dm, mpopt);
             end
             
             %% legacy user-defined variables
-            obj.add_opf_legacy_user_vars(om, mpc, mpopt);
+            obj.add_opf_legacy_user_vars(om, dm, mpopt);
         end
 
-        function add_opf_constraints(obj, nm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, dm, mpopt)
             %% system constraints
-            obj.add_opf_system_constraints(om, mpc, mpopt);
+            obj.add_opf_system_constraints(om, dm, mpopt);
             
             %% each element adds its OPF constraints
             for mpe = obj.mpe_list
-                mpe{1}.add_opf_constraints(nm, om, mpc, mpopt);
+                mpe{1}.add_opf_constraints(nm, om, dm, mpopt);
             end
         end
 
-        function add_opf_costs(obj, nm, om, mpc, mpopt)
+        function add_opf_costs(obj, nm, om, dm, mpopt)
             %% system costs
-            obj.add_opf_system_costs(om, mpc, mpopt);
+            obj.add_opf_system_costs(om, dm, mpopt);
             
             %% each element adds its OPF costs
             for mpe = obj.mpe_list
-                mpe{1}.add_opf_costs(nm, om, mpc, mpopt);
+                mpe{1}.add_opf_costs(nm, om, dm, mpopt);
             end
         end
 
-        function add_opf_system_constraints(obj, om, mpc, mpopt)
+        function add_opf_system_constraints(obj, om, dm, mpopt)
             %% can be overridden to add additional system constraints
 
             %% node balance constraints
             obj.add_opf_node_balance_constraints(om);
 
             %% legacy user-defined constraints
-            obj.add_opf_legacy_user_constraints(om, mpc, mpopt);
+            obj.add_opf_legacy_user_constraints(om, dm, mpopt);
         end
 
-        function add_opf_system_costs(obj, om, mpc, mpopt)
+        function add_opf_system_costs(obj, om, dm, mpopt)
             %% can be overridden to add additional system costs
 
             %% legacy user-defined costs
             obj.add_opf_legacy_user_costs(om, mpopt);
         end
 
-        function add_opf_legacy_user_vars(obj, om, mpc, mpopt)
+        function add_opf_legacy_user_vars(obj, om, dm, mpopt)
             %% create (read-only) copies of individual fields for convenience
+            mpc = dm.mpc;
             [baseMVA, bus, gen, branch, gencost, Au, lbu, ubu, mpopt, ...
                 N, fparm, H, Cw, z0, zl, zu, userfcn] = opf_args(mpc, mpopt);
 
@@ -614,7 +609,7 @@ classdef mpe_network < mp_element & mp_idx_manager% & mp_model
             end
         end
 
-        function add_opf_legacy_user_constraints(obj, om, mpc, mpopt)
+        function add_opf_legacy_user_constraints(obj, om, dm, mpopt)
             %% user-defined linear constraints
             if om.userdata.nlin
                 om.add_lin_constraint('usr', om.userdata.A, om.userdata.l, ...

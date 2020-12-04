@@ -13,7 +13,7 @@ classdef mpe_bus_acp < mpe_bus & mp_model_acp
 %     end
     
     methods
-        function obj = add_vvars(obj, nm, mpc, idx)
+        function obj = add_vvars(obj, nm, dm, idx)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
@@ -21,6 +21,7 @@ classdef mpe_bus_acp < mpe_bus & mp_model_acp
                MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
+            mpc = dm.mpc;
             nb = obj.nk;
             Va0   = mpc.bus(:, VA) * pi/180;
             Vm0   = mpc.bus(:, VM);

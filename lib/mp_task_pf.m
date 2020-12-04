@@ -70,20 +70,20 @@ classdef mp_task_pf < mp_task
 
         %%-----  mathematical model methods  -----
         function mm = math_model_create_pre(obj, mm, nm, dm, mpopt)
-            ad = nm.power_flow_aux_data(dm.mpc, mpopt);
+            ad = nm.power_flow_aux_data(dm, mpopt);
             mm.userdata.power_flow_aux_data = ad;
         end
 
         function obj = math_model_add_vars(obj, mm, nm, dm, mpopt)
-            nm.add_pf_vars(nm, mm, dm.mpc, mpopt);
+            nm.add_pf_vars(nm, mm, dm, mpopt);
         end
 
         function obj = math_model_add_constraints(obj, mm, nm, dm, mpopt)
-            nm.add_pf_constraints(nm, mm, dm.mpc, mpopt);
+            nm.add_pf_constraints(nm, mm, dm, mpopt);
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)
-            opt = nm.solve_opts_power_flow(mm, dm.mpc, mpopt);
+            opt = nm.solve_opts_power_flow(mm, dm, mpopt);
             obj.mm_opt = opt;
         end
     end     %% methods

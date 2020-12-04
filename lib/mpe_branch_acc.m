@@ -58,11 +58,12 @@ classdef mpe_branch_acc < mpe_branch_ac & mp_model_acc
                     h_ri -h_rr ];
         end
 
-        function add_opf_constraints(obj, nm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, dm, mpopt)
             %% call parent
-            add_opf_constraints@mpe_branch_ac(obj, nm, om, mpc, mpopt);
+            add_opf_constraints@mpe_branch_ac(obj, nm, om, dm, mpopt);
 
             %% branch angle difference limits
+            mpc = dm.mpc;
             nb = size(mpc.bus, 1);
             [Aang, lang, uang, iang]  = makeAang(mpc.baseMVA, mpc.branch, nb, mpopt);
             nang = length(iang);

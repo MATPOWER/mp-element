@@ -15,9 +15,9 @@ classdef mpe_network_acpi < mpe_network_acp% & mp_model_acpi
     
     methods
         %%-----  PF methods  -----
-        function ad = power_flow_aux_data(obj, mpc, mpopt)
+        function ad = power_flow_aux_data(obj, dm, mpopt)
             %% call parent method
-            ad = power_flow_aux_data@mpe_network_ac(obj, mpc, mpopt);
+            ad = power_flow_aux_data@mpe_network_ac(obj, dm, mpopt);
 
             %% build additional aux data
             g = obj.mpe_by_name('gen');
@@ -36,7 +36,7 @@ classdef mpe_network_acpi < mpe_network_acp% & mp_model_acpi
             ad.k = k;               %% indices of PV node gen z-vars (in sys z)
         end
 
-        function add_pf_vars(obj, nm, om, mpc, mpopt)
+        function add_pf_vars(obj, nm, om, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
@@ -118,7 +118,7 @@ classdef mpe_network_acpi < mpe_network_acp% & mp_model_acpi
             f = [real(II(pvq)); imag(II(pvq))];
         end
 
-        function add_pf_node_balance_constraints(obj, om, mpc, mpopt)
+        function add_pf_node_balance_constraints(obj, om, dm, mpopt)
             %% power balance constraints
             ad = om.get_userdata('power_flow_aux_data');
             npvq = ad.npv+ad.npq;

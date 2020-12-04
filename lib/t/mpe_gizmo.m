@@ -22,7 +22,7 @@ classdef mpe_gizmo < mp_element
             obj.nz = 2;             %% each with 2 state variables
         end
 
-        function obj = add_states(obj, nm, mpc)
+        function obj = add_states(obj, nm, dm)
             if obj.nz > 1
                 nm.init_indexed_name('state', obj.name, {obj.nz});
                 for k = 1:obj.nz
@@ -33,7 +33,8 @@ classdef mpe_gizmo < mp_element
             end
         end
 
-        function obj = build_params(obj, nm, mpc)
+        function obj = build_params(obj, nm, dm)
+            mpc = dm.mpc;
             gizmo = mpc.gizmo;
             nk = obj.nk;
 

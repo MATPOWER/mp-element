@@ -36,9 +36,9 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
             obj.set_types.z  = 'NON-VOLTAGE VARS (z)';
         end
 
-        function obj = build_params(obj, nm, mpc)
+        function obj = build_params(obj, nm, dm)
             %% call parent to build individual element parameters
-            build_params@mpe_network(obj, nm, mpc);
+            build_params@mpe_network(obj, nm, dm);
 
             %% aggregate parameters from individual elements
             obj.B = obj.stack_matrix_params('B', 1);
@@ -48,7 +48,7 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
 
 
         %%-----  PF methods  -----
-        function ad = power_flow_aux_data(obj, mpc, mpopt)
+        function ad = power_flow_aux_data(obj, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
             zvars = obj.model_zvars();
@@ -59,7 +59,7 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
             [PQ, PV, REF, NONE] = idx_bus;
 
             %% get node types
-            ntv = obj.power_flow_node_types(obj, mpc);
+            ntv = obj.power_flow_node_types(obj, dm);
             ref = find(ntv == REF);     %% reference node indices
             pv  = find(ntv == PV );     %% PV node indices
             pq  = find(ntv == PQ );     %% PQ node indices
@@ -88,7 +88,7 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
             );
         end
 
-        function opt = solve_opts_power_flow(obj, om, mpc, mpopt)
+        function opt = solve_opts_power_flow(obj, om, dm, mpopt)
             %% TO DO: move pf.alg to pf.ac.solver and add a
             %%        pf.dc.solver to set the 'leq_opt.solver' option here
             opt = struct( ...
@@ -96,7 +96,7 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
                 'leq_opt',  struct('thresh', 1e5)   );
         end
 
-        function add_pf_vars(obj, nm, om, mpc, mpopt)
+        function add_pf_vars(obj, nm, om, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
@@ -124,7 +124,7 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
             z = ad.z;
         end
 
-        function add_pf_node_balance_constraints(obj, om, mpc, mpopt)
+        function add_pf_node_balance_constraints(obj, om, dm, mpopt)
             ad = om.get_userdata('power_flow_aux_data');
             pvq = [ad.pv; ad.pq];
 

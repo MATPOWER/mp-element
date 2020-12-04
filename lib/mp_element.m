@@ -18,7 +18,7 @@ classdef mp_element < handle
 %           to element i of system Z
 %
 %   Methods
-%       count() - returns the number of elements of this type in mpc, sets mpe.nk
+%       count() - returns the number of elements of this type in dm, sets mpe.nk
 %       get_nv_()
 %       x2vz()
 %       incidence_matrix()
@@ -60,7 +60,8 @@ classdef mp_element < handle
     end
     
     methods
-        function nk = count(obj, mpc)
+        function nk = count(obj, dm)
+            mpc = dm.mpc;
             if isfield(mpc, obj.dm_table) && ~isempty(mpc.(obj.dm_table))
                 nk = size(mpc.(obj.dm_table), 1);
                 obj.nk = nk;    %% update the count stored internally
@@ -69,19 +70,19 @@ classdef mp_element < handle
             end
         end
 
-        function obj = add_nodes(obj, nm, mpc)
+        function obj = add_nodes(obj, nm, dm)
         end
 
-        function obj = add_states(obj, nm, mpc)
+        function obj = add_states(obj, nm, dm)
         end
 
-        function obj = add_vvars(obj, nm, mpc, idx)
+        function obj = add_vvars(obj, nm, dm, idx)
         end
 
-        function obj = add_zvars(obj, nm, mpc, idx)
+        function obj = add_zvars(obj, nm, dm, idx)
         end
 
-        function obj = build_params(obj, nm, mpc)
+        function obj = build_params(obj, nm, dm)
         end
 
         function nv_ = get_nv_(obj, sysx);
@@ -208,21 +209,21 @@ classdef mp_element < handle
         end
 
         %%-----  PF methods  -----
-%         function add_pf_vars(obj, nm, om, mpc, mpopt)
+%         function add_pf_vars(obj, nm, om, dm, mpopt)
 %         end
 % 
-%         function add_pf_constraints(obj, nm, om, ad, mpc, mpopt)
+%         function add_pf_constraints(obj, nm, om, ad, dm, mpopt)
 %         end
 
 
         %%-----  OPF methods  -----
-        function add_opf_vars(obj, nm, om, mpc, mpopt)
+        function add_opf_vars(obj, nm, om, dm, mpopt)
         end
 
-        function add_opf_constraints(obj, nm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, dm, mpopt)
         end
 
-        function add_opf_costs(obj, nm, om, mpc, mpopt)
+        function add_opf_costs(obj, nm, om, dm, mpopt)
         end
     end     %% methods
 end         %% classdef

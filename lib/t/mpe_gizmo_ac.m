@@ -13,7 +13,8 @@ classdef mpe_gizmo_ac < mpe_gizmo% & mp_model_ac
 %     end
     
     methods
-        function obj = add_zvars(obj, nm, mpc, idx)
+        function obj = add_zvars(obj, nm, dm, idx)
+            mpc = dm.mpc;
             nk = obj.nk;
             switch idx{:}
                 case 1
@@ -31,9 +32,10 @@ classdef mpe_gizmo_ac < mpe_gizmo% & mp_model_ac
             nm.add_var('zi', vname_i, nk, Zi, -Zmax, Zmax);
         end
 
-        function obj = build_params(obj, nm, mpc)
-            build_params@mpe_gizmo(obj, nm, mpc);   %% call parent
+        function obj = build_params(obj, nm, dm)
+            build_params@mpe_gizmo(obj, nm, dm);   %% call parent
             nk = obj.nk;
+            mpc = dm.mpc;
 
             %% collect parameters from mpc
             y1 = mpc.gizmo(:,  4) + 1j * mpc.gizmo(:,  5);

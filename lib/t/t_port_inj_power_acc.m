@@ -38,9 +38,10 @@ mpopt = mpoption('out.all', 0, 'verbose', 0);
 
 for c = 1:length(tc)
     %% create network model object
-    mpc = ext2int(loadcase(casefile));
+    dm = mp_data_mpc2(casefile).ext2int();
+    mpc = dm.mpc;
     mpc = rmfield(mpc, 'order');
-    ac = mpe_network_accs().modify_element_classes(tc(c).ec).create_model(mpc);
+    ac = mpe_network_accs().modify_element_classes(tc(c).ec).create_model(dm);
     C = ac.C;
     D = ac.D;
     np = ac.np;

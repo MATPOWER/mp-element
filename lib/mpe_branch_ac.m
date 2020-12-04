@@ -13,15 +13,15 @@ classdef mpe_branch_ac < mpe_branch% & mp_model_ac
 %     end
     
     methods
-        function obj = build_params(obj, nm, mpc)
-            build_params@mpe_branch(obj, nm, mpc);  %% call parent
+        function obj = build_params(obj, nm, dm)
+            build_params@mpe_branch(obj, nm, dm);   %% call parent
 
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
                 TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
-            branch = mpc.branch;
+            branch = dm.mpc.branch;
             nl = obj.nk;
 
             stat = branch(:, BR_STATUS);    %% ones at in-service branches
@@ -43,13 +43,14 @@ classdef mpe_branch_ac < mpe_branch% & mp_model_ac
                 [Yff; Yft; Ytf; Ytt], 2*nl, 2*nl );
         end
 
-        function add_opf_constraints(obj, nm, om, mpc, mpopt)
+        function add_opf_constraints(obj, nm, om, dm, mpopt)
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
                 TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
             %% find branches with flow limits
+            mpc = dm.mpc;
             il = find(mpc.branch(:, RATE_A) ~= 0 & mpc.branch(:, RATE_A) < 1e10);
             nl2 = length(il);         %% number of constrained lines
 

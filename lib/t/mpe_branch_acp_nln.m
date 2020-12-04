@@ -18,14 +18,14 @@ classdef mpe_branch_acp_nln < mpe_branch_acp & mpe_wrapper_ac_nln
             obj.mpe_wrapper_ac_nln_init();
         end
 
-        function build_params(obj, nm, mpc)
-            build_params@mpe_branch_acp(obj, nm, mpc);
-            obj.build_nln_params(nm, mpc);
+        function build_params(obj, nm, dm)
+            build_params@mpe_branch_acp(obj, nm, dm);
+            obj.build_nln_params(nm, dm);
         end
 
-        function nk = count(obj, mpc)
-            obj.count_nln(mpc);
-            nk = count@mpe_branch_acp(obj, mpc);
+        function nk = count(obj, dm)
+            obj.count_nln(dm);
+            nk = count@mpe_branch_acp(obj, dm);
         end
     end     %% methods
 end         %% classdef

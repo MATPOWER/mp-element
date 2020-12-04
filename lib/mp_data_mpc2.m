@@ -86,7 +86,11 @@ classdef mp_data_mpc2 < mp_data
 
         function obj = ext2int(obj, mpopt)
             if ~isfield(obj.mpc, 'order') || obj.mpc.order.state == 'e'
-                obj.mpc = ext2int(obj.mpc, mpopt);
+                if nargin > 1
+                    obj.mpc = ext2int(obj.mpc, mpopt);
+                else
+                    obj.mpc = ext2int(obj.mpc);
+                end
             else
 %                 warning('mp_data_mpc2/ext2int: data model already in internal format');
             end
@@ -94,7 +98,11 @@ classdef mp_data_mpc2 < mp_data
 
         function obj = int2ext(obj, mpopt)
             if isfield(obj.mpc, 'order') && obj.mpc.order.state == 'i'
-                obj.mpc = int2ext(obj.mpc, mpopt);
+                if nargin > 1
+                    obj.mpc = int2ext(obj.mpc, mpopt);
+                else
+                    obj.mpc = int2ext(obj.mpc);
+                end
             else
 %                 warning('mp_data_mpc2/int2ext: data model already in external format');
             end

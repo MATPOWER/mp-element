@@ -38,9 +38,10 @@ mpopt = mpoption('out.all', 0, 'verbose', 0);
 
 for c = 1:length(tc)
     %% create network model object
-    mpc = ext2int(loadcase(casefile));
+    dm = mp_data_mpc2(casefile).ext2int();
+    mpc = dm.mpc;
     mpc = rmfield(mpc, 'order');
-    ac = mpe_network_acps().modify_element_classes(@mpe_gizmo_acp).create_model(mpc);
+    ac = mpe_network_acps().modify_element_classes(@mpe_gizmo_acp).create_model(dm);
     C = ac.C;
     D = ac.D;
     np = ac.np;
@@ -72,7 +73,7 @@ for c = 1:length(tc)
 
     % %% do one Newton step to get voltages that are not solution but not flat start
     % mpopt1 = mpoption(mpopt, 'pf.nr.max_it', 1);
-    % [xpf, success, i] = ac.solve_power_flow(mpc, mpopt1);
+    % [xpf, success, i] = ac.solve_power_flow(dm, mpopt1);
     % sv1([pv; pq]) = xpf(1:npvq);
     % sv2(pq)       = xpf(npvq+(1:npq));
 

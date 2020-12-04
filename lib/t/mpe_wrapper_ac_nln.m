@@ -23,9 +23,9 @@ classdef mpe_wrapper_ac_nln < handle
             obj.nz = obj.mpe.nz;
         end
         
-        function build_nln_params(obj, nm, mpc)
+        function build_nln_params(obj, nm, dm)
             %% build params for wrapped object
-            obj.mpe.build_params(nm, mpc);
+            obj.mpe.build_params(nm, dm);
             
             %% remove other params
             obj.Y = [];
@@ -42,8 +42,8 @@ classdef mpe_wrapper_ac_nln < handle
             obj.snln_hess = @(x_, lam, sysx, idx)port_inj_power_hess(obj.mpe, x_, lam, sysx, idx);
         end
 
-        function nk = count_nln(obj, mpc)
-            obj.mpe.count(mpc);
+        function nk = count_nln(obj, dm)
+            obj.mpe.count(dm);
         end
     end     %% methods
 end         %% classdef

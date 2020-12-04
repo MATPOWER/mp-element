@@ -23,7 +23,7 @@ classdef mpe_gen < mp_element
             obj.nz = 1;
         end
 
-        function obj = add_states(obj, nm, mpc)
+        function obj = add_states(obj, nm, dm)
 %             %% define constants
 %             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
 
@@ -31,12 +31,12 @@ classdef mpe_gen < mp_element
             nm.add_state(obj.name, ng);
         end
 
-        function obj = build_params(obj, nm, mpc)
+        function obj = build_params(obj, nm, dm)
             %% define constants
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
 
             %% incidence matrices
-            IDs = mpc.gen(:, GEN_BUS);                  %% bus IDs
+            IDs = dm.mpc.gen(:, GEN_BUS);               %% bus IDs
             nidx = nm.node.data.ID2idx.bus(IDs);        %% node indexes
             sidx = nm.state.data.ID2idx.(obj.name);     %% state indexes
             obj.C = obj.incidence_matrix(nm.getN('node'), nidx);
@@ -100,9 +100,9 @@ classdef mpe_gen < mp_element
             obj.cost_pwl = struct('ny', ny, 'ipwl', ipwl, 'Ay', Ay, 'by', by);
         end
         
-        function add_opf_vars(obj, nm, om, mpc, mpopt)
+        function add_opf_vars(obj, nm, om, dm, mpopt)
             %% collect/construct all generator cost parameters
-            obj.build_gen_cost_params(mpc, mpopt);
+            obj.build_gen_cost_params(dm.mpc, mpopt);
 
             %% piecewise linear costs
             if obj.cost_pwl.ny
@@ -110,7 +110,7 @@ classdef mpe_gen < mp_element
             end
         end
 
-        function add_opf_costs(obj, nm, om, mpc, mpopt)
+        function add_opf_costs(obj, nm, om, dm, mpopt)
             %% (quadratic) polynomial costs on Pg
             if obj.cost_poly_p.have_quad_cost
                 om.add_quad_cost('polPg', obj.cost_poly_p.Qpg, obj.cost_poly_p.cpg, obj.cost_poly_p.kpg, {'Pg'});
@@ -118,8 +118,8 @@ classdef mpe_gen < mp_element
 
             %% (order 3 and higher) polynomial costs on Pg
             if ~isempty(obj.cost_poly_p.ip3)
-                [pcost qcost] = pqcost(mpc.gencost, obj.nk);
-                cost_Pg = @(xx)opf_gen_cost_fcn(xx, mpc.baseMVA, pcost, obj.cost_poly_p.ip3, mpopt);
+                [pcost qcost] = pqcost(dm.mpc.gencost, obj.nk);
+                cost_Pg = @(xx)opf_gen_cost_fcn(xx, dm.mpc.baseMVA, pcost, obj.cost_poly_p.ip3, mpopt);
                 om.add_nln_cost('polPg', 1, cost_Pg, {'Pg'});
             end
 
