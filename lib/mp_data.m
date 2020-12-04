@@ -1,4 +1,14 @@
 classdef mp_data < handle
+%MP_DATA  Abstract base class for MATPOWER data model
+
+%   MATPOWER
+%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   by Ray Zimmerman, PSERC Cornell
+%
+%   This file is part of MATPOWER.
+%   Covered by the 3-clause BSD License (see LICENSE file for details).
+%   See https://matpower.org for more info.
+
     properties
         tab         %% struct array with fields 'name', 'id_col', 'st_col'
                     %% corresponding to the name of the data table, the column
@@ -24,6 +34,22 @@ classdef mp_data < handle
     end     %% properties
 
     methods
+        function new_obj = copy(obj)
+            %% make shallow copy of object
+            new_obj = eval(class(obj));  %% create new object
+            if have_feature('octave')
+                s1 = warning('query', 'Octave:classdef-to-struct');
+                warning('off', 'Octave:classdef-to-struct');
+            end
+            props = fieldnames(obj);
+            if have_feature('octave')
+                warning(s1.state, 'Octave:classdef-to-struct');
+            end
+            for k = 1:length(props)
+                new_obj.(props{k}) = obj.(props{k});
+            end
+        end
+
         function obj = create_mappings(obj)
             for k = 1:length(obj.tab)
                 tab = obj.tab(k);

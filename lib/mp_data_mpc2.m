@@ -1,4 +1,14 @@
 classdef mp_data_mpc2 < mp_data
+%MP_DATA_MPC2  Implementation of MATPOWER data model for MATPOWER case format v2
+
+%   MATPOWER
+%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   by Ray Zimmerman, PSERC Cornell
+%
+%   This file is part of MATPOWER.
+%   Covered by the 3-clause BSD License (see LICENSE file for details).
+%   See https://matpower.org for more info.
+
     properties
         mpc
     end     %% properties
@@ -9,23 +19,25 @@ classdef mp_data_mpc2 < mp_data
             %% call parent constructor
             obj@mp_data();
 
-            %% define constants
-            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE] = idx_bus;
-            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
-            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
-                TAP, SHIFT, BR_STATUS] = idx_brch;
+            if nargin
+                %% define constants
+                [PQ, PV, REF, NONE, BUS_I, BUS_TYPE] = idx_bus;
+                [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
+                [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
+                    TAP, SHIFT, BR_STATUS] = idx_brch;
 
-            %% assign table names, id and status columns
-            obj.tab = struct( ...
-                    'name',     {'bus', 'gen', 'branch'}, ...
-                    'id_col',   {BUS_I, 0, 0}, ...
-                    'st_col',   {BUS_TYPE, GEN_STATUS, BR_STATUS} ...
-                );
+                %% assign table names, id and status columns
+                obj.tab = struct( ...
+                        'name',     {'bus', 'gen', 'branch'}, ...
+                        'id_col',   {BUS_I, 0, 0}, ...
+                        'st_col',   {BUS_TYPE, GEN_STATUS, BR_STATUS} ...
+                    );
 
-            %% load case and create mappings
-            obj.mpc = loadcase(m);
-            obj.create_mappings();
-            obj.update_status();
+                %% load case and create mappings
+                obj.mpc = loadcase(m);
+                obj.create_mappings();
+                obj.update_status();
+            end
         end
 
         function [ids, N, M] = get_ids(obj, tab_name, id_col)

@@ -26,21 +26,28 @@ end
 
 casefile = 't_case_ext';
 mpc = loadcase(casefile);
+dm0 = mp_data_mpc2(mpc);
 nb = size(mpc.bus, 1);
 id2di = zeros(2, 1);    %% initialize as col vector
 id2di(mpc.bus(:, BUS_I)) = (1:nb);
 
 tests = {
     {'filename', casefile},
-    {'mpc', mpc}
+    {'mpc', mpc},
+    {'dm', dm0}
 };
 nt = length(tests);
 
 t_begin(32*nt, quiet);
 
 for k = 1:nt
-    t = sprintf('mp_data_mpc2(%s) : ', tests{k}{1});
-    dm = mp_data_mpc2(tests{k}{2});
+    if isa(tests{k}{2}, 'mp_data')
+        t = sprintf('%s.copy() : ', tests{k}{1});
+        dm = tests{k}{2}.copy();
+    else
+        t = sprintf('mp_data_mpc2(%s) : ', tests{k}{1});
+        dm = mp_data_mpc2(tests{k}{2});
+    end
     t_ok(strcmp(dm.mpc.version, '2'), [t 'mpc version']);
     t_ok(isfield(dm.tab, 'name'), [t 'dm.tab.name exists']);
     t_ok(isfield(dm.tab, 'id_col'), [t 'dm.tab.id_col exists']);
