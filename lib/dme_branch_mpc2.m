@@ -35,6 +35,8 @@ classdef dme_branch_mpc2 < dme_branch & dm_format_mpc2
             tab = obj.get_table(dm);
             obj.status = obj.status & bs(b2i(tab(:, F_BUS))) & ...
                                       bs(b2i(tab(:, T_BUS)));
+            obj.fbusID = tab(:, F_BUS);
+            obj.tbusID = tab(:, T_BUS);
 
             %% call parent to fill in on/off
             update_status@dme_branch(obj);

@@ -33,6 +33,7 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             %% update status of gens at isolated/offline buses
             tab = obj.get_table(dm);
             obj.status = obj.status & bs(b2i(tab(:, GEN_BUS)));
+            obj.busID = tab(:, GEN_BUS);
 
             %% call parent to fill in on/off
             update_status@dme_gen(obj);

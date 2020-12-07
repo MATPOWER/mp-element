@@ -9,24 +9,19 @@ classdef mpe_load_ac < mpe_load% & mp_model_ac
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'load';
-%     end
+%     end     %% properties
 
     methods
         function obj = build_params(obj, nm, dm)
-            %% define constants
-            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-
             build_params@mpe_load(obj, nm, dm);     %% call parent
 
-            mpc = dm.mpc;
-            obj.s = (mpc.bus(obj.busidx, PD) + ...
-                1j * mpc.bus(obj.busidx, QD)) / mpc.baseMVA;    %% vector of complex power demand
+            dme = obj.data_model_element(dm);
+            obj.s = dme.Pd(dme.on) + 1j * dme.Qd(dme.on);   %% complex power demand
 
             %%-----  HACK ALERT  -----
             %% This is a hack to deal with experimental
             %% mpopt.exp.sys_wide_zip_loads.pw/qw.
+            mpc = dm.mpc;
             if isfield(mpc, 'sys_wide_zip_loads')
                 pw = mpc.sys_wide_zip_loads.pw;
                 qw = mpc.sys_wide_zip_loads.qw;
@@ -47,8 +42,8 @@ classdef mpe_load_ac < mpe_load% & mp_model_ac
                     end
                 end
 
-                Pd = mpc.bus(obj.busidx, PD) / mpc.baseMVA;
-                Qd = mpc.bus(obj.busidx, QD) / mpc.baseMVA;
+                Pd = dme.Pd(dme.on);
+                Qd = dme.Qd(dme.on);
                 nd = length(Pd);
 
                 obj.s = pw(1) * Pd + 1j * qw(1) * Qd;

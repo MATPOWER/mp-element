@@ -9,18 +9,14 @@ classdef mpe_shunt_dc < mpe_shunt & mp_model_dc
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'shunt';
-%     end
+%     end     %% properties
 
     methods
         function obj = build_params(obj, nm, dm)
-            %% define constants
-            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-
             build_params@mpe_shunt(obj, nm, dm);   %% call parent
 
-            obj.p = dm.mpc.bus(obj.busidx, GS) / dm.mpc.baseMVA;    %% vector of shunt conductances
+            dme = obj.data_model_element(dm);
+            obj.p = dme.Gs(dme.on);     %% vector of shunt conductances
         end
     end     %% methods
 end         %% classdef

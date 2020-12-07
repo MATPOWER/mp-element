@@ -51,7 +51,7 @@ t_ok(strcmp(dc.set_types.z, 'NON-VOLTAGE VARS (z)'), [t 'set_types.z']);
 t_is(length(dc.elm_list), 0, 12, [t '# of element types']);
 
 t = 'dc.create_model(dm) : ';
-dm = mp_data_mpc2(rundcpf(loadcase(casefile), mpopt)).ext2int(mpopt);
+dm = mp_data_mpc2(rundcpf(loadcase(casefile), mpopt));
 mpc = dm.mpc;
 t_ok(mpc.success, [t 'solved power flow']);
 dc.create_model(dm);

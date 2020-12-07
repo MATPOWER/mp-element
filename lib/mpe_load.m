@@ -8,9 +8,8 @@ classdef mpe_load < mp_element
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-    properties
-        busidx = [];
-    end
+%     properties
+%     end     %% properties
 
     methods
         %% constructor
@@ -21,14 +20,10 @@ classdef mpe_load < mp_element
         end
 
         function obj = build_params(obj, nm, dm)
-            %% define constants
-            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-
-            obj.busidx = obj.data_model_element(dm).busidx;
+            dme = obj.data_model_element(dm);
 
             %% incidence matrices
-            IDs = dm.mpc.bus(obj.busidx, BUS_I);    %% bus IDs
+            IDs = dme.busID(dme.on);                %% bus IDs
             nidx = nm.node.data.ID2idx.bus(IDs);    %% node indexes
             obj.C = obj.incidence_matrix(nm.getN('node'), nidx);
             obj.D = obj.incidence_matrix(nm.getN('state'));

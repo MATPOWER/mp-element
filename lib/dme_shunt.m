@@ -9,6 +9,12 @@ classdef dme_shunt < dm_element
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
+    properties
+        busID
+        Gs
+        Bs
+    end     %% properties
+
     methods
         %% constructor
         function obj = dme_shunt()

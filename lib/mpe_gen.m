@@ -23,19 +23,15 @@ classdef mpe_gen < mp_element
         end
 
         function obj = add_states(obj, nm, dm)
-%             %% define constants
-%             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
-
             ng = obj.nk;            %% number of gens
             nm.add_state(obj.name, ng);
         end
 
         function obj = build_params(obj, nm, dm)
-            %% define constants
-            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
+            dme = obj.data_model_element(dm);
 
             %% incidence matrices
-            IDs = dm.mpc.gen(:, GEN_BUS);               %% bus IDs
+            IDs = dme.busID(dme.on);                    %% bus IDs
             nidx = nm.node.data.ID2idx.bus(IDs);        %% node indexes
             sidx = nm.state.data.ID2idx.(obj.name);     %% state indexes
             obj.C = obj.incidence_matrix(nm.getN('node'), nidx);

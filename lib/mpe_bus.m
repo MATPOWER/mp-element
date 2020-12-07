@@ -21,11 +21,8 @@ classdef mpe_bus < mp_element
         end
 
         function obj = add_nodes(obj, nm, dm)
-            %% define constants
-            [PQ, PV, REF, NONE, BUS_I] = idx_bus;
-    
-            nb = obj.nk;            %% number of buses
-            nm.add_node(obj.name, nb, dm.mpc.bus(:, BUS_I));
+            dme = obj.data_model_element(dm);
+            nm.add_node(obj.name, obj.nk, dme.ID(dme.on));
         end
 
         %%-----  PF methods  -----

@@ -9,18 +9,14 @@ classdef mpe_load_dc < mpe_load & mp_model_dc
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'load';
-%     end
+%     end     %% properties
 
     methods
         function obj = build_params(obj, nm, dm)
-            %% define constants
-            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-
             build_params@mpe_load(obj, nm, dm);     %% call parent
 
-            obj.p = dm.mpc.bus(obj.busidx, PD) / dm.mpc.baseMVA;    %% vector of active power demand
+            dme = obj.data_model_element(dm);
+            obj.p = dme.Pd(dme.on);     %% vector of active power demand
         end
     end     %% methods
 end         %% classdef
