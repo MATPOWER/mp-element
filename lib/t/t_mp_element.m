@@ -564,7 +564,8 @@ mpc.gen(:, QG) = [0.2570733353840 0.0079004398259 -0.1749046999314].' * mpc.base
 % [v_, success, i] = ac.solve_power_flow(mpc, mpopt);
 pf = mp_task_pf();
 mpopt.exp.network_model_class = @mpe_network_acps_test;
-success = pf.run(mpc, mpopt);
+dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2).ext2int(mpopt);
+success = pf.run(dm, mpopt);
 v_ = pf.nm.soln.v;
 success = pf.mm.soln.eflag > 0;
 i = pf.mm.soln.output.iterations;
@@ -577,6 +578,7 @@ t_is(i, 4, 12, [t 'i']);
 t = 'ac.create_model(dm) : ';
 mpc.bus(:, VA) = angle(v_) * 180/pi;
 mpc.bus(:, VM) = abs(v_);
+dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2).ext2int(mpopt);
 ac = mpe_network_acps_test().create_model(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);

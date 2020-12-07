@@ -38,7 +38,7 @@ tests = {
 };
 nt = length(tests);
 
-t_begin(42*nt, quiet);
+t_begin(66*nt, quiet);
 
 for k = 1:nt
     if isa(tests{k}{2}, 'mp_data')
@@ -52,16 +52,20 @@ for k = 1:nt
     end
     t_ok(strcmp(dm.mpc.version, '2'), [t 'mpc version']);
     t_ok(iscell(dm.element_classes), [t 'iscell(dm.element_classes)']);
-    t_is(length(dm.element_classes), 3, 12, [t 'length(dm.element_classes)']);
+    t_is(length(dm.element_classes), 5, 12, [t 'length(dm.element_classes)']);
     t_ok(iscell(dm.elm_list), [t 'iscell(dm.elm_list)']);
-    t_is(length(dm.elm_list), 3, 12, [t 'length(dm.elm_list)']);
+    t_is(length(dm.elm_list), 5, 12, [t 'length(dm.elm_list)']);
     t_ok(isstruct(dm.elm_map), [t 'isstruct(dm.elm_map)']);
     t_ok(isfield(dm.elm_map, 'bus'), [t 'dm.elm_map.bus exists']);
     t_ok(isfield(dm.elm_map, 'gen'), [t 'dm.elm_map.gen exists']);
+    t_ok(isfield(dm.elm_map, 'load'), [t 'dm.elm_map.load exists']);
     t_ok(isfield(dm.elm_map, 'branch'), [t 'dm.elm_map.branch exists']);
+    t_ok(isfield(dm.elm_map, 'shunt'), [t 'dm.elm_map.shunt exists']);
     t_is(dm.elm_map.bus, 1, 12, [t 'dm.elm_map.bus']);
     t_is(dm.elm_map.gen, 2, 12, [t 'dm.elm_map.gen']);
-    t_is(dm.elm_map.branch, 3, 12, [t 'dm.elm_map.branch']);
+    t_is(dm.elm_map.load, 3, 12, [t 'dm.elm_map.load']);
+    t_is(dm.elm_map.branch, 4, 12, [t 'dm.elm_map.branch']);
+    t_is(dm.elm_map.shunt, 5, 12, [t 'dm.elm_map.shunt']);
 
     bus = dm.elm_by_name('bus');
     t_ok(isa(bus, 'dme_bus_mpc2'), [t 'bus class']);
@@ -87,6 +91,18 @@ for k = 1:nt
     t_is(gen.on, [1;2;4], 12, [t 'gen.on']);
     t_is(gen.off, 3, 12, [t 'gen.off']);
 
+    ld = dm.elm_by_name('load');
+    t_ok(isa(ld, 'dme_load_mpc2'), [t 'load class']);
+    t_ok(isa(ld, 'dm_element'), [t 'ld isa dm_element']);
+    t_ok(strcmp(ld.name, 'load'), [t 'ld.name']);
+    t_is(ld.nr, 3, 12, [t 'ld.nr']);
+    t_is(ld.n, 3, 12, [t 'ld.n']);
+    t_ok(isempty(ld.ID), [t 'ld.ID']);
+    t_ok(isempty(ld.ID2i), [t 'ld.ID2i']);
+    t_is(ld.status, [1;1;1], 12, [t 'ld.status']);
+    t_is(ld.on, [1;2;3], 12, [t 'ld.on']);
+    t_ok(isempty(ld.off), [t 'ld.off']);
+
     branch = dm.elm_by_name('branch');
     t_ok(isa(branch, 'dme_branch_mpc2'), [t 'branch class']);
     t_ok(isa(branch, 'dm_element'), [t 'branch isa dm_element']);
@@ -98,6 +114,18 @@ for k = 1:nt
     t_is(branch.status, [1;1;1;1;1;1;0;1;1;1], 12, [t 'branch.status']);
     t_is(branch.on, [1;2;3;4;5;6;8;9;10], 12, [t 'branch.on']);
     t_is(branch.off, 7, 12, [t 'branch.off']);
+
+    shunt = dm.elm_by_name('shunt');
+    t_ok(isa(shunt, 'dme_shunt_mpc2'), [t 'shunt class']);
+    t_ok(isa(shunt, 'dm_element'), [t 'shunt isa dm_element']);
+    t_ok(strcmp(shunt.name, 'shunt'), [t 'shunt.name']);
+    t_is(shunt.nr, 2, 12, [t 'shunt.nr']);
+    t_is(shunt.n, 2, 12, [t 'shunt.n']);
+    t_ok(isempty(shunt.ID), [t 'shunt.ID']);
+    t_ok(isempty(shunt.ID2i), [t 'shunt.ID2i']);
+    t_is(shunt.status, [1;1], 12, [t 'shunt.status']);
+    t_is(shunt.on, [1;2], 12, [t 'shunt.on']);
+    t_ok(isempty(shunt.off), [t 'shunt.off']);
 end
 
 t_end;

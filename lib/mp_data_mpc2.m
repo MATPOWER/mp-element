@@ -32,18 +32,6 @@ classdef mp_data_mpc2 < mp_data
             end
         end
 
-        %%-----  HACK ALERT  -----
-        %% This should not be necessary once we get all of the elements
-        %% (e.g. loads, shunts, etc.) defined in their own classes
-        function n = online(obj, name, tab_name)
-            n = online@mp_data(obj, name);      %% call parent
-            
-            if n == 0 && isfield(obj.mpc, tab_name)
-                n = size(obj.mpc.(tab_name), 1);
-            end
-        end
-        %%-----  end of HACK  -----
-
         function obj = ext2int(obj, mpopt)
             if ~isfield(obj.mpc, 'order') || obj.mpc.order.state == 'e'
                 if nargin > 1

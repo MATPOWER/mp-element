@@ -13,14 +13,6 @@ classdef mpe_shunt_dc < mpe_shunt & mp_model_dc
 %     end
 
     methods
-        function k = shunt_bus(obj, mpc)
-            %% define constants
-            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-
-            k = find(mpc.bus(:, GS));
-        end
-
         function obj = build_params(obj, nm, dm)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...

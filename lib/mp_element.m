@@ -61,12 +61,7 @@ classdef mp_element < handle
     
     methods
         function nk = count(obj, dm)
-            % nk = dm.online(obj.name);
-            %%-----  HACK ALERT  -----
-            %% This should not be necessary once we get all of the elements
-            %% (e.g. loads, shunts, etc.) defined in their own classes
-            nk = dm.online(obj.name, obj.dm_table);
-            %%-----  end of HACK  -----
+            nk = dm.online(obj.name);
             obj.nk = nk;    %% update the count stored internally
         end
 

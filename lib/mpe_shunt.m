@@ -21,21 +21,12 @@ classdef mpe_shunt < mp_element
             obj.np = 1;             %% this is a 1 port element
         end
 
-        function nk = count(obj, dm)
-            mpc = dm.mpc;
-            if isfield(mpc, obj.dm_table) && ~isempty(mpc.(obj.dm_table))
-                obj.busidx = obj.shunt_bus(mpc);
-                nk = length(obj.busidx);
-                obj.nk = nk;    %% update the count stored internally
-            else
-                nk = 0;
-            end
-        end
-
         function obj = build_params(obj, nm, dm)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+
+            obj.busidx = dm.elm_by_name(obj.name).busidx;
 
             %% incidence matrices
             IDs = dm.mpc.bus(obj.busidx, BUS_I);    %% bus IDs

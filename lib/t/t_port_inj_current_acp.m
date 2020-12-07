@@ -33,14 +33,16 @@ else
 end
 
 casefile = 't_case9_gizmo';
+mpc = ext2int(loadcase(casefile));
+mpc = rmfield(mpc, 'order');
 
 mpopt = mpoption('out.all', 0, 'verbose', 0);
 
 for c = 1:length(tc)
     %% create network model object
-    dm = mp_data_mpc2(casefile).ext2int();
+%    dm = mp_data_mpc2(casefile, @dme_gizmo_mpc2);
+    dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2);
     mpc = dm.mpc;
-    mpc = rmfield(mpc, 'order');
     ac = mpe_network_acps().modify_element_classes(@mpe_gizmo_acp).create_model(dm);
     C = ac.C;
     D = ac.D;
