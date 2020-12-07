@@ -83,7 +83,7 @@ classdef dm_element < handle
             if obj.st_col
                 status = tab(:, obj.st_col);
             else
-                status = [];
+                status = ones(obj.nr, 1);
             end
             obj.status = status;
         end
