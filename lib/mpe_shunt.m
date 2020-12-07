@@ -17,7 +17,6 @@ classdef mpe_shunt < mp_element
         function obj = mpe_shunt()
             obj@mp_element();
             obj.name = 'shunt';
-            obj.dm_table = 'bus';
             obj.np = 1;             %% this is a 1 port element
         end
 

@@ -18,7 +18,6 @@ classdef mpe_gen < mp_element
         function obj = mpe_gen()
             obj@mp_element();
             obj.name = 'gen';
-            obj.dm_table = 'gen';
             obj.np = 1;             %% this is a 1 port element
             obj.nz = 1;
         end

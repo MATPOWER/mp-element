@@ -17,7 +17,6 @@ classdef mpe_branch < mp_element
         function obj = mpe_branch()
             obj@mp_element();
             obj.name = 'branch';
-            obj.dm_table = 'branch';
             obj.np = 2;             %% this is a 2 port element
         end
 

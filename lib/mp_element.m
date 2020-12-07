@@ -6,8 +6,6 @@ classdef mp_element < handle
 %
 %   Properties
 %       name : name of element type (constant across forumations)
-%       dm_table : name of table in data model to be checked for this
-%           element type
 %       np : number of ports per element
 %       nz : number of non-voltage state variables per element
 %       nk : number of elements
@@ -44,8 +42,6 @@ classdef mp_element < handle
 
     properties
         name = 'mp_element';
-        dm_table = '';      %% name of table in dm to be checked for presence
-                            %% of this element type
         np = 0;             %% number of ports per element
         nz = 0;             %% number of non-voltage states per element (possibly complex)
         nk = 0;             %% number of elements of this type loaded

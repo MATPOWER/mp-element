@@ -17,7 +17,6 @@ classdef mpe_bus < mp_element
         function obj = mpe_bus()
             obj@mp_element();
             obj.name = 'bus';
-            obj.dm_table = 'bus';
             obj.np = 0;             %% this is a 0 port element
         end
 
