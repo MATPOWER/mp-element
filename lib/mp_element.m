@@ -56,6 +56,13 @@ classdef mp_element < handle
     end
     
     methods
+        function dme = data_model_element(obj, dm, name)
+            if nargin < 3
+                name = obj.name;
+            end
+            dme = dm.elm_by_name(name);
+        end
+
         function nk = count(obj, dm)
             nk = dm.online(obj.name);
             obj.nk = nk;    %% update the count stored internally

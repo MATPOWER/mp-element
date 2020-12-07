@@ -25,7 +25,7 @@ classdef mpe_shunt < mp_element
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-            obj.busidx = dm.elm_by_name(obj.name).busidx;
+            obj.busidx = obj.data_model_element(dm).busidx;
 
             %% incidence matrices
             IDs = dm.mpc.bus(obj.busidx, BUS_I);    %% bus IDs
