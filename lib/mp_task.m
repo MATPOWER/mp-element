@@ -90,7 +90,11 @@ classdef mp_task < handle
         function dm = data_model_create(obj, m, mpopt)
             if ~isa(m, 'mp_data')
                 dm_class = obj.data_model_class(m, mpopt);
-                dm = dm_class(m);
+                if isfield(mpopt.exp, 'dm_element_classes')
+                    dm = dm_class(m, mpopt.exp.dm_element_classes);
+                else
+                    dm = dm_class(m);
+                end
             else
                 dm = m;
             end
@@ -133,9 +137,9 @@ classdef mp_task < handle
         
         function nm = network_model_create_pre(obj, nm, dm, mpopt)
             %% add user-supplied elements to nm.element_classes
-            if isfield(mpopt.exp, 'mpe_element_classes') && ...
-                    ~isempty(mpopt.exp.mpe_element_classes)
-                nm.modify_element_classes(mpopt.exp.mpe_element_classes);
+            if isfield(mpopt.exp, 'nm_element_classes') && ...
+                    ~isempty(mpopt.exp.nm_element_classes)
+                nm.modify_element_classes(mpopt.exp.nm_element_classes);
             end
         end
 
