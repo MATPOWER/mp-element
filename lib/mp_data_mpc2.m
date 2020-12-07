@@ -15,13 +15,17 @@ classdef mp_data_mpc2 < mp_data
 
     methods
         %% constructor
-        function obj = mp_data_mpc2(m)
+        function obj = mp_data_mpc2(m, class_list)
             %% call parent constructor
             obj@mp_data();
             obj.element_classes = ...
-                { @dme_bus_mpc2, @dme_gen_mpc2, @dme_branch_mpc2 };
+                { @dme_bus_mpc2, @dme_gen_mpc2, @dme_load_mpc2, ...
+                    @dme_branch_mpc2, @dme_shunt_mpc2 };
 
             if nargin
+                if nargin > 1
+                    obj.modify_element_classes(class_list);
+                end
                 %% load case and create mappings
                 obj.mpc = loadcase(m);
                 obj.create_model();
