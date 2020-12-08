@@ -103,7 +103,7 @@ classdef mp_task < handle
         end
 
         function dm = data_model_create_post(obj, dm, mpopt)
-            dm.ext2int(mpopt);
+%             dm.ext2int(mpopt);
         end
 
 %         function dm = data_model_update(obj, mm, nm, dm, mpopt)
@@ -111,8 +111,8 @@ classdef mp_task < handle
 %         end
 
         function dm = data_model_update_post(obj, mm, nm, dm, mpopt)
-            if mpopt.verbose, fprintf('-- %s data_model_update_post()\n', obj.tag); end
-            dm.int2ext(mpopt);
+%             if mpopt.verbose, fprintf('-- %s data_model_update_post()\n', obj.tag); end
+%             dm.int2ext(mpopt);
         end
 
         %%-----  network model methods  -----

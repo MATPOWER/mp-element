@@ -248,14 +248,8 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
             zr = obj.params_var(zvars{1});
             zi = obj.params_var(zvars{2});
 
-            %% define constants
-            [PQ, PV, REF, NONE] = idx_bus;
-
             %% get node types
-            ntv = obj.power_flow_node_types(obj, dm);
-            ref = find(ntv == REF);     %% reference node indices
-            pv  = find(ntv == PV );     %% PV node indices
-            pq  = find(ntv == PQ );     %% PQ node indices
+            [ref, pv, pq] = obj.node_types(obj, dm);
 
             %% create aux_data struct
             ad = struct( ...

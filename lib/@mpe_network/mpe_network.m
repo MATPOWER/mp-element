@@ -372,34 +372,27 @@ classdef mpe_network < mp_element & mpe_container & mp_idx_manager% & mp_model
             end
         end
 
-        %%-----  PF methods  -----
-        function ntv = power_flow_node_types(obj, nm, dm, idx)
-%         function [ntv, nts] = power_flow_node_types(obj, nm, dm, idx)
-            %% create empty cell array for node type vectors
-            tt = cell(length(obj.node.order), 1);
-            
+        function [ref, pv, pq] = node_types(obj, nm, dm)
+            %%           ntv = node_types(obj, nm, dm)
+            %% [ref, pv, pq] = node_types(obj, nm, dm)
             %% get node type vector from each node-creating MPE
+            tt = cell(length(obj.node.order), 1);
             for k = 1:length(obj.node.order)
                 mpe = obj.elm_by_name(obj.node.order(k).name);
-                tt{k} = mpe.power_flow_node_types(obj, dm, obj.state.order(k).idx);
+                tt{k} = mpe.node_types(obj, dm);
             end
+            ntv = vertcat(tt{:});       %% concatenate into a single vector
 
-            %% concatenate into a single node type vector
-            ntv = vertcat(tt{:});
-
-%             %% create node type struct
-%             if nargout > 1
-%                 %% define constants
-%                 [PQ, PV, REF, NONE] = idx_bus;
-% 
-%                 ref = find(ntv == REF);     %% reference node indices
-%                 pv  = find(ntv == PV );     %% PV node indices
-%                 pq  = find(ntv == PQ );     %% PQ node indices
-%                 nts = struct('ref', ref, 'pv', pv, 'pq', pq, ...
-%                     'nref', length(ref), 'npv', length(pv), 'npq', length(pq));
-%             end
+            if nargout > 1
+                ref = dm.node_type_ref(ntv);    %% reference node indices
+                pv  = dm.node_type_pv(ntv);     %% PV node indices
+                pq  = dm.node_type_pq(ntv);     %% PQ node indices
+            else
+                ref = ntv;
+            end
         end
 
+        %%-----  PF methods  -----
         function add_pf_constraints(obj, nm, om, dm, mpopt)
             %% system constraints
             obj.add_pf_system_constraints(om, dm, mpopt);

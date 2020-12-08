@@ -34,6 +34,8 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
                 error('dme_bus_mpc2/get_status: bus %d has an invalid BUS_TYPE', err);
             end
             obj.isref = (bt == REF);    %% bus is ref?
+            obj.ispv  = (bt == PV);     %% bus is PV?
+            obj.ispq  = (bt == PQ);     %% bus is PQ?
             status = (bt ~= NONE);      %% bus status
             obj.status = status;
         end
@@ -67,6 +69,40 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             obj.Va0 = Va(obj.on);
             obj.Vmin = bus(obj.on, VMIN);
             obj.Vmax = bus(obj.on, VMAX);
+        end
+
+        function btv = bus_types(obj, dm)
+            %% define constants
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+
+            gen_dme = dm.elm_by_name('gen');
+            ng = gen_dme.n;
+
+            %% generator connection matrix
+            %% element i, j is 1 if, generator j at bus i is ON
+            Cg = sparse(gen_dme.bus, (1:ng)', gen_dme.status, obj.n, ng);
+
+            %% number of generators at each bus that are ON
+            bus_gen_status = Cg * ones(ng, 1);
+
+            isref = obj.isref & bus_gen_status;
+            ispv  = obj.ispv  & bus_gen_status;
+            ispq  = obj.ispq | ~bus_gen_status;
+
+            %% pick a new reference bus if for some reason there is none
+            %% (may have been shut down)
+            if ~any(isref)
+                k = find(ispv, 1);  %% find the first PV bus ...
+                if isempty(k)
+                    error('dme_bus_mpc2/bus_types: must have at least one REF or PV bus');
+                end
+                ispv(k)  = 0;       %% ...and change it to a REF bus
+                isref(k) = 1;
+            end
+
+            %% package up bus type vector
+            btv = isref * REF + ispv * PV + ispq * PQ;
         end
     end     %% methods
 end         %% classdef

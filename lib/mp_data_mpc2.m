@@ -32,6 +32,27 @@ classdef mp_data_mpc2 < mp_data
             end
         end
 
+        function ref = node_type_ref(obj, node_type)
+            %% define constants
+            [PQ, PV, REF, NONE] = idx_bus;
+
+            ref = find(node_type == REF);
+        end
+
+        function pv = node_type_pv(obj, node_type)
+            %% define constants
+            [PQ, PV, REF, NONE] = idx_bus;
+
+            pv = find(node_type == PV);
+        end
+
+        function pq = node_type_pq(obj, node_type)
+            %% define constants
+            [PQ, PV, REF, NONE] = idx_bus;
+
+            pq = find(node_type == PQ);
+        end
+
         function obj = ext2int(obj, mpopt)
             if ~isfield(obj.mpc, 'order') || obj.mpc.order.state == 'e'
                 if nargin > 1

@@ -25,17 +25,16 @@ classdef mpe_bus < mp_element
             nm.add_node(obj.name, obj.nk);
         end
 
-        %%-----  PF methods  -----
-        function ntv = power_flow_node_types(obj, nm, dm, idx)
-            %% define constants
-            [PQ, PV, REF, NONE] = idx_bus;
-
-            nb = obj.nk;            %% number of buses
-            [ref, pv, pq] = bustypes(dm.mpc.bus, dm.mpc.gen);
-            ntv = zeros(nb, 1);
-            ntv(ref) = REF;
-            ntv(pv)  = PV;
-            ntv(pq)  = PQ;
+        function ntv = node_types(obj, nm, dm)
+            dme = obj.data_model_element(dm);
+            ntv = dme.bus_types(dm);
+            if nargout > 1
+                ref = dm.node_type_ref(ntv);    %% reference node indices
+                pv  = dm.node_type_pv(ntv);     %% PV node indices
+                pq  = dm.node_type_pq(ntv);     %% PQ node indices
+            else
+                ref = ntv;
+            end
         end
     end     %% methods
 end         %% classdef

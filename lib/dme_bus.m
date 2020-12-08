@@ -11,6 +11,8 @@ classdef dme_bus < dm_element
 
     properties
         isref   %% ref bus indicator vector for buses that are on
+        ispv    %% PV bus indicator vector for buses that are on
+        ispq    %% PQ bus indicator vector for buses that are on
         Vm0     %% initial voltage magnitudes (p.u.) for buses that are on
         Va0     %% initial voltage angles (radians) for buses that are on
         Vmin    %% voltage magnitude lower bounds for buses that are on
