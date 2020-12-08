@@ -39,21 +39,33 @@ classdef mp_data < mpe_container
             i = 0;
             for c = obj.element_classes
                 dme = c{1}();       %% element constructor
-                if dme.count(obj)
+                if dme.count(obj)   %% set nr
                     i = i + 1;
                     obj.elm_list{i} = dme;
                     obj.elm_map.(dme.name) = i;
                 end
             end
 
-            %% load the data for each element type
-            for dme = obj.elm_list
-                dme{1}.create_model(obj);
-            end
+            obj.initialize();       %% get IDs, self status
+            obj.update_status();    %% update status wrt connectivity, define on/off
+            obj.build_params();     %% get parameters
+        end
 
-            %% update status after initial creation
+        function obj = initialize(obj, dm)
+            for dme = obj.elm_list
+                dme{1}.initialize(obj);
+            end
+        end
+
+        function obj = update_status(obj, dm)
             for dme = obj.elm_list
                 dme{1}.update_status(obj);
+            end
+        end
+
+        function obj = build_params(obj, dm)
+            for dme = obj.elm_list
+                dme{1}.build_params(obj);
             end
         end
 

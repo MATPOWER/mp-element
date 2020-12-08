@@ -46,7 +46,7 @@ classdef dm_element < handle
             end
         end
 
-        function obj = create_model(obj, dm)
+        function obj = initialize(obj, dm)
             %% set the IDs
             ID = obj.get_ID(dm);
 
@@ -88,12 +88,15 @@ classdef dm_element < handle
             obj.status = status;
         end
 
-        function status = update_status(obj, tab)
+        function obj = update_status(obj, dm)
             if ~isempty(obj.status)
                 obj.on  = find(  obj.status );
                 obj.off = find( ~obj.status );
                 obj.n   = length(obj.on);
             end
+        end
+
+        function obj = build_params(obj, dm)
         end
     end     %% methods
 end         %% classdef

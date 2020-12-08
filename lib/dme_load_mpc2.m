@@ -29,8 +29,8 @@ classdef dme_load_mpc2 < dme_load & dm_format_mpc2
             obj.nr = nr;
         end
 
-        function obj = create_model(obj, dm)
-            obj = create_model@dme_load(obj, dm);   %% call parent
+        function obj = initialize(obj, dm)
+            obj = initialize@dme_load(obj, dm);     %% call parent
 
             dme_bus = dm.elm_by_name('bus');
             obj.busID = dme_bus.ID(obj.busID);      %% convert bus idx to ID
