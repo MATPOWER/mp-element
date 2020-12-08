@@ -22,7 +22,7 @@ classdef mpe_bus < mp_element
 
         function obj = add_nodes(obj, nm, dm)
             dme = obj.data_model_element(dm);
-            nm.add_node(obj.name, obj.nk, dme.ID(dme.on));
+            nm.add_node(obj.name, obj.nk);
         end
 
         %%-----  PF methods  -----

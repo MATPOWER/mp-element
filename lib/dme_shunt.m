@@ -10,7 +10,7 @@ classdef dme_shunt < dm_element
 %   See https://matpower.org for more info.
 
     properties
-        busidx
+        bus         %% bus index vector
         Gs
         Bs
     end     %% properties

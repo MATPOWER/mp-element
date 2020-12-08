@@ -10,7 +10,7 @@ classdef dme_gen < dm_element
 %   See https://matpower.org for more info.
 
     properties
-        busID
+        bus         %% bus index vector
     end     %% properties
 
     methods

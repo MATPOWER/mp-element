@@ -21,23 +21,24 @@ classdef dme_gizmo_mpc2 < dme_gizmo & dm_format_mpc2
             BUS2 = 2;
             BUS3 = 3;
 
-            %% set busIDs for connectivity
+            %% get bus mapping info
+            b2i = dm.elm_by_name('bus').ID2i;   %% bus num to idx mapping
+
+            %% set bus index vectors for port connectivity
             tab = obj.get_table(dm);
-            obj.bus1ID = tab(:, BUS1);
-            obj.bus2ID = tab(:, BUS2);
-            obj.bus3ID = tab(:, BUS3);
+            obj.bus1 = b2i(tab(:, BUS1));
+            obj.bus2 = b2i(tab(:, BUS2));
+            obj.bus3 = b2i(tab(:, BUS3));
         end
 
         function obj = update_status(obj, dm)
-            %% get bus status/mapping info
-            dme_bus = dm.elm_by_name('bus');
-            bs = dme_bus.status;    %% bus status
-            b2i = dme_bus.ID2i;     %% bus num to idx mapping
+            %% get bus status info
+            bs = dm.elm_by_name('bus').status;  %% bus status
 
             %% update status of gizmoes connected to isolated/offline buses
-            obj.status = obj.status & bs(b2i(obj.bus1ID)) & ...
-                                      bs(b2i(obj.bus2ID)) & ...
-                                      bs(b2i(obj.bus3ID));
+            obj.status = obj.status & bs(obj.bus1) & ...
+                                      bs(obj.bus2) & ...
+                                      bs(obj.bus3);
 
             %% call parent to fill in on/off
             update_status@dme_gizmo(obj, dm);

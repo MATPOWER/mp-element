@@ -19,11 +19,22 @@ classdef dme_shunt_mpc2 < dme_shunt & dm_format_mpc2
 
             %% get bus indices
             tab = obj.get_table(dm);
-            obj.busidx = find(tab(:, GS) | tab(:, BS));
+            obj.bus = find(tab(:, GS) | tab(:, BS));
 
             %% number of shunts
-            nr = length(obj.busidx);
+            nr = length(obj.bus);
             obj.nr = nr;
+        end
+
+        function obj = update_status(obj, dm)
+            %% get bus status info
+            bs = dm.elm_by_name('bus').status;  %% bus status
+
+            %% update status of gens at isolated/offline buses
+            obj.status = obj.status & bs(obj.bus);
+
+            %% call parent to fill in on/off
+            update_status@dme_shunt(obj, dm);
         end
 
         function obj = build_params(obj, dm)
@@ -32,8 +43,8 @@ classdef dme_shunt_mpc2 < dme_shunt & dm_format_mpc2
             baseMVA = dm.mpc.baseMVA;
 
             tab = obj.get_table(dm);
-            obj.Gs = tab(obj.busidx, GS) / baseMVA;
-            obj.Bs = tab(obj.busidx, BS) / baseMVA;
+            obj.Gs = tab(obj.bus, GS) / baseMVA;
+            obj.Bs = tab(obj.bus, BS) / baseMVA;
         end
     end     %% methods
 end         %% classdef

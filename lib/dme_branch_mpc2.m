@@ -29,21 +29,22 @@ classdef dme_branch_mpc2 < dme_branch & dm_format_mpc2
             %% define constants
             [F_BUS, T_BUS] = idx_brch;
 
-            %% set busIDs for connectivity
+            %% get bus mapping info
+            b2i = dm.elm_by_name('bus').ID2i;   %% bus num to idx mapping
+
+            %% set bus index vectors for port connectivity
             tab = obj.get_table(dm);
-            obj.fbusID = tab(:, F_BUS);
-            obj.tbusID = tab(:, T_BUS);
+            obj.fbus = b2i(tab(:, F_BUS));
+            obj.tbus = b2i(tab(:, T_BUS));
         end
 
         function obj = update_status(obj, dm)
-            %% get bus status/mapping info
-            dme_bus = dm.elm_by_name('bus');
-            bs = dme_bus.status;    %% bus status
-            b2i = dme_bus.ID2i;     %% bus num to idx mapping
+            %% get bus status info
+            bs = dm.elm_by_name('bus').status;  %% bus status
 
             %% update status of branches connected to isolated/offline buses
-            obj.status = obj.status & bs(b2i(obj.fbusID)) & ...
-                                      bs(b2i(obj.tbusID));
+            obj.status = obj.status & bs(obj.fbus) & ...
+                                      bs(obj.tbus);
 
             %% call parent to fill in on/off
             update_status@dme_branch(obj, dm);

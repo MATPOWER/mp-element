@@ -10,9 +10,9 @@ classdef dme_gizmo < dm_element
 %   See https://matpower.org for more info.
 
     properties
-        bus1ID
-        bus2ID
-        bus3ID
+        bus1        %% bus index vector for port 1
+        bus2        %% bus index vector for port 2
+        bus3        %% bus index vector for port 3
     end     %% properties
 
     methods

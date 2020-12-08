@@ -30,7 +30,7 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             bt = tab(:, obj.st_col);
             err = find(~(bt == PQ | bt == PV | bt == REF | bt == NONE));
             if ~isempty(err)
-                error('dme_bus_mpc/get_status: bus %d has an invalid BUS_TYPE', err);
+                error('dme_bus_mpc2/get_status: bus %d has an invalid BUS_TYPE', err);
             end
             status = (bt ~= NONE);       %% bus status
             obj.status = status;

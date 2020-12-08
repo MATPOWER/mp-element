@@ -217,13 +217,6 @@ classdef mpe_network < mp_element & mpe_container & mp_idx_manager% & mp_model
             
             %% finish initializing data structures for each type
             es = struct();                          %% empty struct
-            obj.node.data = struct( ...             %% node type
-                'idx2ID', es, ...
-                'ID2idx', es );
-
-            obj.state.data = struct( ...            %% state type
-                'idx2ID', es, ...
-                'ID2idx', es );
                                                     %% variable types
             for vtype = horzcat(obj.model_vvars(), obj.model_zvars())
                 assert(isfield(obj.set_types, vtype{1}), ...
@@ -236,94 +229,28 @@ classdef mpe_network < mp_element & mpe_container & mp_idx_manager% & mp_model
             end
         end
 
-        function add_node(obj, name, idx, varargin)
-            %   obj.add_node(name, N, IDs)
+        function add_node(obj, name, idx, N)
             %   obj.add_node(name, N)
-            %   obj.add_node(name, idx_list, N, IDs)
             %   obj.add_node(name, idx_list, N)
-            if iscell(idx)
-                N = varargin{1};
-                args = varargin(2:end);
-            else
+            if ~iscell(idx)
                 N = idx;
                 idx = {};
-                args = varargin;
             end
-            nargs = length(args);
-            idx2ID = [];
-            if nargs >= 1;
-                idx2ID = args{1};
-                if length(idx2ID) ~= N
-                    error('mpe_network/add_node: length of IDs vector (%d) must equal N (%d) ', length(idx2ID), N);
-                end
-            end
-            if isempty(idx2ID)
-                idx2ID = [1:N]';
-            end
-
-            %% create reverse mapping
-            ID2idx = sparse(idx2ID, ones(N, 1), 1:N, max(idx2ID), 1);
 
             %% add the named node set
             obj.add_named_set('node', name, idx, N);
-            
-            %% add type-specific data for nodes (idx2ID, ID2idx)
-            if isempty(idx)
-                obj.node.data.idx2ID.(name) = idx2ID;
-                obj.node.data.ID2idx.(name) = ID2idx;
-            else
-                %% calls to substruct() are relatively expensive, so we
-                %% pre-build the struct for addressing cell array fields
-                %% sc = substruct('.', name, '{}', idx);
-                sc = struct('type', {'.', '{}'}, 'subs', {name, idx});  %% cell array field
-                obj.node.data.idx2ID = subsasgn(obj.node.data.idx2ID, sc, idx2ID);
-                obj.node.data.ID2idx = subsasgn(obj.node.data.ID2idx, sc, ID2idx);
-            end
         end
 
-        function add_state(obj, name, idx, varargin)
-            %   obj.add_state(name, N, IDs)
+        function add_state(obj, name, idx, N)
             %   obj.add_state(name, N)
-            %   obj.add_state(name, idx_list, N, IDs)
             %   obj.add_state(name, idx_list, N)
-            if iscell(idx)
-                N = varargin{1};
-                args = varargin(2:end);
-            else
+            if ~iscell(idx)
                 N = idx;
                 idx = {};
-                args = varargin;
             end
-            nargs = length(args);
-            idx2ID = [];
-            if nargs >= 1;
-                idx2ID = args{1};
-                if length(idx2ID) ~= N
-                    error('mpe_network/add_state: length of IDs vector (%d) must equal N (%d) ', length(idx2ID), N);
-                end
-            end
-            if isempty(idx2ID)
-                idx2ID = [1:N]';
-            end
-
-            %% create reverse mapping
-            ID2idx = sparse(idx2ID, ones(N, 1), 1:N, max(idx2ID), 1);
 
             %% add the named state set
             obj.add_named_set('state', name, idx, N);
-            
-            %% add type-specific data for states (idx2ID, ID2idx)
-            if isempty(idx)
-                obj.state.data.idx2ID.(name) = idx2ID;
-                obj.state.data.ID2idx.(name) = ID2idx;
-            else
-                %% calls to substruct() are relatively expensive, so we
-                %% pre-build the struct for addressing cell array fields
-                %% sc = substruct('.', name, '{}', idx);
-                sc = struct('type', {'.', '{}'}, 'subs', {name, idx});  %% cell array field
-                obj.state.data.idx2ID = subsasgn(obj.state.data.idx2ID, sc, idx2ID);
-                obj.state.data.ID2idx = subsasgn(obj.state.data.ID2idx, sc, ID2idx);
-            end
         end
 
         function add_var(obj, vtype, name, idx, varargin)
@@ -406,6 +333,44 @@ classdef mpe_network < mp_element & mpe_container & mp_idx_manager% & mp_model
             obj.(vtype).data = d;
         end
 
+        function varargout = get_node_idx(obj, name)
+            %% [i1 iN] = obj.get_node_idx(name)
+            %% nidx = obj.get_node_idx(name), where
+            %%      nidx = [i1:iN]' or
+            %%      nidx = {[i1(1):iN(1)]', ..., [i1(n):iN(n)]'}
+            [varargout{1:nargout}] = obj.get_node_state_idx('node', name);
+        end
+
+        function varargout = get_state_idx(obj, name)
+            %% [i1 iN] = obj.get_state_idx(name)
+            %% nidx = obj.get_state_idx(name), where
+            %%      nidx = [i1:iN]' or
+            %%      nidx = {[i1(1):iN(1)]', ..., [i1(n):iN(n)]'}
+            [varargout{1:nargout}] = obj.get_node_state_idx('state', name);
+        end
+
+        function [i1, iN] = get_node_state_idx(obj, node_state, name)
+            %% private method
+            %% [i1 iN] = obj.get_node_state_idx(node_state, name)
+            %% nidx = obj.get_node_state_idx(node_state, name), where
+            %%      nidx = [i1:iN]' or
+            %%      nidx = {[i1(1):iN(1)]', ..., [i1(n):iN(n)]'}
+            idx = obj.get_idx(node_state);
+            i1 = idx.i1.(name);
+            iN = idx.iN.(name);
+            if nargout == 1
+                N = length(i1);
+                if N == 1
+                    i1 = (i1:iN)';
+                else
+                    t = cell(1, N);
+                    for k = 1:N
+                        t{k} = (i1(k):iN(k))';
+                    end
+                    i1 = t;
+                end
+            end
+        end
 
         %%-----  PF methods  -----
         function ntv = power_flow_node_types(obj, nm, dm, idx)

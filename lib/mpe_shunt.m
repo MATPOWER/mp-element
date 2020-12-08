@@ -20,13 +20,12 @@ classdef mpe_shunt < mp_element
         end
 
         function obj = build_params(obj, nm, dm)
-            dme_bus = obj.data_model_element(dm, 'bus');
-            dme     = obj.data_model_element(dm);
+            dme = obj.data_model_element(dm);
 
             %% incidence matrices
-            IDs = dme_bus.ID(dme.busidx(dme.on));   %% bus IDs
-            nidx = nm.node.data.ID2idx.bus(IDs);    %% node indexes
-            obj.C = obj.incidence_matrix(nm.getN('node'), nidx);
+            nidx = nm.get_node_idx('bus');  %% node indices for 'bus'
+            idx = nidx(dme.bus);            %% node indices for shunts
+            obj.C = obj.incidence_matrix(nm.getN('node'), idx);
             obj.D = obj.incidence_matrix(nm.getN('state'));
         end
     end     %% methods

@@ -33,21 +33,16 @@ classdef mpe_gizmo < mp_element
         end
 
         function obj = build_params(obj, nm, dm)
-            mpc = dm.mpc;
-            gizmo = mpc.gizmo;
-            nk = obj.nk;
+            dme = obj.data_model_element(dm);
 
             %% incidence matrices
-            nn = nm.getN('node');
-            ID2idx = nm.node.data.ID2idx.bus;
-            idx1 = ID2idx(mpc.gizmo(:, 1)); %% port 1 node indexes
-            idx2 = ID2idx(mpc.gizmo(:, 2)); %% port 2 node indexes
-            idx3 = ID2idx(mpc.gizmo(:, 3)); %% port 3 node indexes
-            ss = nm.get_idx('state');
-            sidx1 = ss.i1.(obj.name)(1):ss.iN.(obj.name)(1);
-            sidx2 = ss.i1.(obj.name)(2):ss.iN.(obj.name)(2);
+            nidx = nm.get_node_idx('bus');      %% node indices for 'bus'
+            sidx = nm.get_state_idx(obj.name);  %% state indices for 'gizmo'
+            idx1 = nidx(dme.bus1);              %% gizmo port 1 node indices
+            idx2 = nidx(dme.bus2);              %% gizmo port 2 node indices
+            idx3 = nidx(dme.bus3);              %% gizmo port 3 node indices
             obj.C = obj.incidence_matrix(nm.getN('node'), idx1, idx2, idx3);
-            obj.D = obj.incidence_matrix(nm.getN('state'), sidx1, sidx2);
+            obj.D = obj.incidence_matrix(nm.getN('state'), sidx{1}, sidx{2});
         end
     end     %% methods
 end         %% classdef

@@ -24,10 +24,9 @@ classdef mpe_branch < mp_element
             dme = obj.data_model_element(dm);
 
             %% incidence matrices
-            fIDs = dme.fbusID(dme.on);              %% "from" bus IDs
-            tIDs = dme.tbusID(dme.on);              %% "to" bus IDs
-            fidx = nm.node.data.ID2idx.bus(fIDs);   %% "from" node indexes
-            tidx = nm.node.data.ID2idx.bus(tIDs);   %% "to" node indexes
+            nidx = nm.get_node_idx('bus');  %% node indices for 'bus'
+            fidx = nidx(dme.fbus);          %% branch "from" port node indices
+            tidx = nidx(dme.tbus);          %% branch "to" port node indices
             obj.C = obj.incidence_matrix(nm.getN('node'), fidx, tidx);
             obj.D = obj.incidence_matrix(nm.getN('state'));
         end

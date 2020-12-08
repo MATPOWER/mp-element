@@ -19,11 +19,22 @@ classdef dme_load_mpc2 < dme_load & dm_format_mpc2
 
             %% get bus indices
             tab = obj.get_table(dm);
-            obj.busidx = find(tab(:, PD) | tab(:, QD));
+            obj.bus = find(tab(:, PD) | tab(:, QD));
 
             %% number of loads
-            nr = length(obj.busidx);
+            nr = length(obj.bus);
             obj.nr = nr;
+        end
+
+        function obj = update_status(obj, dm)
+            %% get bus status info
+            bs = dm.elm_by_name('bus').status;  %% bus status
+
+            %% update status of gens at isolated/offline buses
+            obj.status = obj.status & bs(obj.bus);
+
+            %% call parent to fill in on/off
+            update_status@dme_load(obj, dm);
         end
 
         function obj = build_params(obj, dm)
@@ -32,8 +43,8 @@ classdef dme_load_mpc2 < dme_load & dm_format_mpc2
             baseMVA = dm.mpc.baseMVA;
 
             tab = obj.get_table(dm);
-            obj.Pd = tab(obj.busidx, PD) / baseMVA;
-            obj.Qd = tab(obj.busidx, QD) / baseMVA;
+            obj.Pd = tab(obj.bus, PD) / baseMVA;
+            obj.Qd = tab(obj.bus, QD) / baseMVA;
         end
     end     %% methods
 end         %% classdef

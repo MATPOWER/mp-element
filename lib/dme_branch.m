@@ -10,8 +10,8 @@ classdef dme_branch < dm_element
 %   See https://matpower.org for more info.
 
     properties
-        fbusID
-        tbusID
+        fbus        %% bus index vector for "from" port (port 1)
+        tbus        %% bus index vector for "to" port (port 2)
     end     %% properties
 
     methods

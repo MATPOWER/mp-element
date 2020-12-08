@@ -31,10 +31,10 @@ classdef mpe_gen < mp_element
             dme = obj.data_model_element(dm);
 
             %% incidence matrices
-            IDs = dme.busID(dme.on);                    %% bus IDs
-            nidx = nm.node.data.ID2idx.bus(IDs);        %% node indexes
-            sidx = nm.state.data.ID2idx.(obj.name);     %% state indexes
-            obj.C = obj.incidence_matrix(nm.getN('node'), nidx);
+            nidx = nm.get_node_idx('bus');      %% node indices for 'bus'
+            sidx = nm.get_state_idx(obj.name);  %% state indices for 'gen'
+            idx = nidx(dme.bus);                %% node indices for gens
+            obj.C = obj.incidence_matrix(nm.getN('node'), idx);
             obj.D = obj.incidence_matrix(nm.getN('state'), sidx);
         end
 
