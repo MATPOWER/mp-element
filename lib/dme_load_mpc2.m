@@ -16,24 +16,24 @@ classdef dme_load_mpc2 < dme_load & dm_format_mpc2
         function nr = count(obj, dm)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD] = idx_bus;
-            baseMVA = dm.mpc.baseMVA;
 
+            %% get bus indices
             tab = obj.get_table(dm);
-            busidx = find(tab(:, PD) | tab(:, QD));
-            obj.Pd = tab(busidx, PD) / baseMVA;
-            obj.Qd = tab(busidx, QD) / baseMVA;
-            %% temporarily store bus indices, until all indexing is
-            %% finished and we can convert back to IDs
-            obj.busID = busidx;
-            nr = length(busidx);
+            obj.busidx = find(tab(:, PD) | tab(:, QD));
+
+            %% number of loads
+            nr = length(obj.busidx);
             obj.nr = nr;
         end
 
-        function obj = initialize(obj, dm)
-            obj = initialize@dme_load(obj, dm);     %% call parent
+        function obj = build_params(obj, dm)
+            %% define constants
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD] = idx_bus;
+            baseMVA = dm.mpc.baseMVA;
 
-            dme_bus = dm.elm_by_name('bus');
-            obj.busID = dme_bus.ID(obj.busID);      %% convert bus idx to ID
+            tab = obj.get_table(dm);
+            obj.Pd = tab(obj.busidx, PD) / baseMVA;
+            obj.Qd = tab(obj.busidx, QD) / baseMVA;
         end
     end     %% methods
 end         %% classdef

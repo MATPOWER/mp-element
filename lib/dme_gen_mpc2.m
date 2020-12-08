@@ -22,21 +22,28 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             obj.st_col = GEN_STATUS;
         end
 
-        function obj = update_status(obj, dm)
+        function obj = initialize(obj, dm)
+            initialize@dme_gen(obj, dm);    %% call parent
+
             %% define constants
             [GEN_BUS] = idx_gen;
-            
-            dm_bus = dm.elm_by_name('bus');
-            bs = dm_bus.status;     %% bus status
-            b2i = dm_bus.ID2i;      %% bus num to idx mapping
+
+            %% set busIDs for connectivity
+            tab = obj.get_table(dm);
+            obj.busID = tab(:, GEN_BUS);
+        end
+
+        function obj = update_status(obj, dm)
+            %% get bus status/mapping info
+            dme_bus = dm.elm_by_name('bus');
+            bs = dme_bus.status;    %% bus status
+            b2i = dme_bus.ID2i;     %% bus num to idx mapping
 
             %% update status of gens at isolated/offline buses
-            tab = obj.get_table(dm);
-            obj.status = obj.status & bs(b2i(tab(:, GEN_BUS)));
-            obj.busID = tab(:, GEN_BUS);
+            obj.status = obj.status & bs(b2i(obj.busID));
 
             %% call parent to fill in on/off
-            update_status@dme_gen(obj);
+            update_status@dme_gen(obj, dm);
         end
     end     %% methods
 end         %% classdef

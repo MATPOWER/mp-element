@@ -16,24 +16,24 @@ classdef dme_shunt_mpc2 < dme_shunt & dm_format_mpc2
         function nr = count(obj, dm)
             %% define constants
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS] = idx_bus;
-            baseMVA = dm.mpc.baseMVA;
 
+            %% get bus indices
             tab = obj.get_table(dm);
-            busidx = find(tab(:, GS) | tab(:, BS));
-            obj.Gs = tab(busidx, GS) / baseMVA;
-            obj.Bs = tab(busidx, BS) / baseMVA;
-            %% temporarily store bus indices, until all indexing is
-            %% finished and we can convert back to IDs
-            obj.busID = busidx;
-            nr = length(busidx);
+            obj.busidx = find(tab(:, GS) | tab(:, BS));
+
+            %% number of shunts
+            nr = length(obj.busidx);
             obj.nr = nr;
         end
 
-        function obj = initialize(obj, dm)
-            obj = initialize@dme_shunt(obj, dm);    %% call parent
+        function obj = build_params(obj, dm)
+            %% define constants
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS] = idx_bus;
+            baseMVA = dm.mpc.baseMVA;
 
-            dme_bus = dm.elm_by_name('bus');
-            obj.busID = dme_bus.ID(obj.busID);      %% convert bus idx to ID
+            tab = obj.get_table(dm);
+            obj.Gs = tab(obj.busidx, GS) / baseMVA;
+            obj.Bs = tab(obj.busidx, BS) / baseMVA;
         end
     end     %% methods
 end         %% classdef

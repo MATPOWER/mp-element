@@ -10,7 +10,7 @@ classdef dme_load < dm_element
 %   See https://matpower.org for more info.
 
     properties
-        busID
+        busidx
         Pd
         Qd
     end     %% properties

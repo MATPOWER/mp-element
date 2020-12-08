@@ -13,24 +13,34 @@ classdef dme_gizmo_mpc2 < dme_gizmo & dm_format_mpc2
 %     end     %% properties
 
     methods
-        function obj = update_status(obj, dm)
+        function obj = initialize(obj, dm)
+            initialize@dme_gizmo(obj, dm);      %% call parent
+
             %% define constants
             BUS1 = 1;
             BUS2 = 2;
             BUS3 = 3;
-            
-            dm_bus = dm.elm_by_name('bus');
-            bs = dm_bus.status;     %% bus status
-            b2i = dm_bus.ID2i;      %% bus num to idx mapping
+
+            %% set busIDs for connectivity
+            tab = obj.get_table(dm);
+            obj.bus1ID = tab(:, BUS1);
+            obj.bus2ID = tab(:, BUS2);
+            obj.bus3ID = tab(:, BUS3);
+        end
+
+        function obj = update_status(obj, dm)
+            %% get bus status/mapping info
+            dme_bus = dm.elm_by_name('bus');
+            bs = dme_bus.status;    %% bus status
+            b2i = dme_bus.ID2i;     %% bus num to idx mapping
 
             %% update status of gizmoes connected to isolated/offline buses
-            tab = obj.get_table(dm);
-            obj.status = obj.status & bs(b2i(tab(:, BUS1))) & ...
-                                      bs(b2i(tab(:, BUS2))) & ...
-                                      bs(b2i(tab(:, BUS3)));
+            obj.status = obj.status & bs(b2i(obj.bus1ID)) & ...
+                                      bs(b2i(obj.bus2ID)) & ...
+                                      bs(b2i(obj.bus3ID));
 
             %% call parent to fill in on/off
-            update_status@dme_gizmo(obj);
+            update_status@dme_gizmo(obj, dm);
         end
     end     %% methods
 end         %% classdef
