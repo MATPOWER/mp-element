@@ -227,7 +227,7 @@ t_ok(strcmp(ac.set_types.zi, 'NON-VOLTAGE VARS IMAG (zi)'), [t 'set_types.zi']);
 t_is(length(ac.elm_list), 0, 12, [t '# of element types']);
 
 t = 'ac.create_model(dm) : ';
-dm = mp_data_mpc2(runpf(loadcase(casefile), mpopt)).ext2int(mpopt);
+dm = mp_data_mpc2(runpf(loadcase(casefile), mpopt));
 mpc = dm.mpc;
 t_ok(mpc.success, [t 'solved power flow']);
 ac.create_model(dm);
@@ -503,8 +503,7 @@ t_is(Igzi, Izi(2, :), 12, [t 'Izi']);
 
 %% AC Newton power flow
 t = 'mp_task_pf().run(mpc, mpopt) : ';
-mpc = ext2int(loadcase(casefile));
-% mpc = rmfield(mpc, 'order');
+mpc = loadcase(casefile);
 % ac = mpe_network_acps().create_model(dm);
 % [v_, success, i] = ac.solve_power_flow(dm, mpopt);
 pf = mp_task_pf();
@@ -548,23 +547,15 @@ t_ok(strcmp(ac.set_types.zi, 'NON-VOLTAGE VARS IMAG (zi)'), [t 'set_types.zi']);
 t_is(length(ac.elm_list), 0, 12, [t '# of element types']);
 
 %% AC Newton power flow
-% t = '[x, success, i] = ac.solve_power_flow(dm, mpopt) : ';
 t = 'mp_task_pf().run(mpc, mpopt) : ';
-mpc = ext2int(loadcase(casefile));
-[ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
-npv = length(pv);
-npq = length(pq);
-% mpc.gen(:, GEN_BUS)
-% Pg = mpc.gen(ref, PG)
-% Qg = mpc.gen(:, QG)
+mpc = loadcase(casefile);
+ref = find(mpc.bus(:, BUS_TYPE) == REF);
 mpc.gen(ref, PG) = 1.7165997325858 * mpc.baseMVA;
 mpc.gen(:, QG) = [0.2570733353840 0.0079004398259 -0.1749046999314].' * mpc.baseMVA;
 % mpopt = mpoption(mpopt, 'verbose', 2);
-% ac = mpe_network_acps_test().create_model(mpc);
-% [v_, success, i] = ac.solve_power_flow(mpc, mpopt);
 pf = mp_task_pf();
 mpopt.exp.network_model_class = @mpe_network_acps_test;
-dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2).ext2int(mpopt);
+dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2);
 success = pf.run(dm, mpopt);
 v_ = pf.nm.soln.v;
 success = pf.mm.soln.eflag > 0;
@@ -578,7 +569,7 @@ t_is(i, 4, 12, [t 'i']);
 t = 'ac.create_model(dm) : ';
 mpc.bus(:, VA) = angle(v_) * 180/pi;
 mpc.bus(:, VM) = abs(v_);
-dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2).ext2int(mpopt);
+dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2);
 ac = mpe_network_acps_test().create_model(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);

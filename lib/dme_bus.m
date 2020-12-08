@@ -9,6 +9,14 @@ classdef dme_bus < dm_element
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
+    properties
+        isref   %% ref bus indicator vector for buses that are on
+        Vm0     %% initial voltage magnitudes (p.u.) for buses that are on
+        Va0     %% initial voltage angles (radians) for buses that are on
+        Vmin    %% voltage magnitude lower bounds for buses that are on
+        Vmax    %% voltage magnitude upper bounds for buses that are on
+    end     %% properties
+
     methods
         %% constructor
         function obj = dme_bus()

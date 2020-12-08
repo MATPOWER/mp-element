@@ -1,7 +1,7 @@
 classdef mpe_bus_dc < mpe_bus & mp_model_dc
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -14,18 +14,17 @@ classdef mpe_bus_dc < mpe_bus & mp_model_dc
     
     methods
         function obj = add_vvars(obj, nm, dm, idx)
-            %% define constants
-            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-
+            dme = obj.data_model_element(dm);
             nb = obj.nk;
-            Va0   = dm.mpc.bus(:, VA) * pi/180;
+
+            %% prepare angle bounds for ref buses
             Vamin = -Inf(nb, 1);
             Vamax =  Inf(nb, 1);
-            k = find(dm.mpc.bus(:, BUS_TYPE) == REF);
-            Vamin(k) = Va0(k);
-            Vamax(k) = Va0(k);
-            nm.add_var('va', 'Va', nb, Va0, Vamin, Vamax);
+            k = find(dme.isref(dme.on));
+            Vamin(k) = dme.Va0(k);
+            Vamax(k) = dme.Va0(k);
+
+            nm.add_var('va', 'Va', nb, dme.Va0, Vamin, Vamax);
         end
     end     %% methods
 end         %% classdef

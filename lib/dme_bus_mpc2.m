@@ -23,6 +23,7 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
         end
 
         function status = get_status(obj, dm)
+            %% overrides dm_element/get_status()
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE] = idx_bus;
 
             %% check that all buses have a valid BUS_TYPE
@@ -32,8 +33,40 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             if ~isempty(err)
                 error('dme_bus_mpc2/get_status: bus %d has an invalid BUS_TYPE', err);
             end
-            status = (bt ~= NONE);       %% bus status
+            obj.isref = (bt == REF);    %% bus is ref?
+            status = (bt ~= NONE);      %% bus status
             obj.status = status;
+        end
+
+        function obj = build_params(obj, dm)
+            %% define constants
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
+               MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
+               QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
+
+            gen_dme = dm.elm_by_name('gen');
+            bus = obj.get_table(dm);
+            gen = gen_dme.get_table(dm);
+
+            %% initialize voltage from bus table
+            Va = bus(:, VA) * pi/180;
+            Vm = bus(:, VM);
+
+            %% pull PV bus voltage magnitudes from mpc.gen(:, VG)
+            gbus = gen_dme.bus(gen_dme.on);     %% buses of online gens
+            vcb = ones(obj.nr, 1);  %% create mask of voltage-controlled buses
+            vcb(bus(:, BUS_TYPE) == PQ) = 0;    %% exclude PQ buses
+            %% find indices of online at online v-c buses
+            k = find(obj.status(gbus) & vcb(gbus));
+            Vm(gbus(k)) = gen(gen_dme.on(k), VG);
+
+            %% set initialize 
+            obj.Vm0 = Vm(obj.on);
+            obj.Va0 = Va(obj.on);
+            obj.Vmin = bus(obj.on, VMIN);
+            obj.Vmax = bus(obj.on, VMAX);
         end
     end     %% methods
 end         %% classdef

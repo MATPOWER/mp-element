@@ -33,15 +33,12 @@ else
 end
 
 casefile = 't_case9_gizmo';
-mpc = ext2int(loadcase(casefile));
-mpc = rmfield(mpc, 'order');
 
 mpopt = mpoption('out.all', 0, 'verbose', 0);
 
 for c = 1:length(tc)
     %% create network model object
-%    dm = mp_data_mpc2(casefile, @dme_gizmo_mpc2);
-    dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2);
+    dm = mp_data_mpc2(casefile, @dme_gizmo_mpc2);
     mpc = dm.mpc;
     ac = mpe_network_accs().modify_element_classes(tc(c).ec).create_model(dm);
     C = ac.C;
@@ -60,24 +57,12 @@ for c = 1:length(tc)
     e0 = zeros(np, 1);
     e1 = ones(np, 1);
 
-    %% get bus index lists of each type of bus
-    [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
-    npv = length(pv);
-    npq = length(pq);
-    npvq = npv + npq;
-
     %% construct initial system v1, v2, zr, zi, v_, z_, x_
     t = sprintf('%s : construct initial system v_, z_', tc(c).name);
     sv1 = ac.params_var('vr');
     sv2 = ac.params_var('vi');
     szr = ac.params_var('zr');
     szi = ac.params_var('zi');
-
-    % %% do one Newton step to get voltages that are not solution but not flat start
-    % mpopt1 = mpoption(mpopt, 'pf.nr.max_it', 1);
-    % [xpf, success, i] = ac.solve_power_flow(mpc, mpopt1);
-    % sv1([pv; pq]) = xpf(1:npvq);
-    % sv2(pq)       = xpf(npvq+(1:npq));
 
     %% randomize voltages a bit
     sv1 = sv1 + (0.06*rand(size(sv1)) - 0.03);  %sv1(ref) = 0;
