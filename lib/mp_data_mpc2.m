@@ -53,6 +53,42 @@ classdef mp_data_mpc2 < mp_data
             pq = find(node_type == PQ);
         end
 
+        function obj = ext2int(obj, mpopt)
+            if ~isfield(obj.mpc, 'order') || obj.mpc.order.state == 'e'
+                if nargin > 1
+                    obj.mpc = ext2int(obj.mpc, mpopt);
+                else
+                    obj.mpc = ext2int(obj.mpc);
+                end
+            else
+%                 warning('mp_data_mpc2/ext2int: data model already in internal format');
+            end
+        end
+
+        function obj = int2ext(obj, mpopt)
+            if isfield(obj.mpc, 'order') && obj.mpc.order.state == 'i'
+                if nargin > 1
+                    obj.mpc = int2ext(obj.mpc, mpopt);
+                else
+                    obj.mpc = int2ext(obj.mpc);
+                end
+            else
+%                 warning('mp_data_mpc2/int2ext: data model already in external format');
+            end
+        end
+
+        function display(obj)
+            fprintf('Data Model class : %s\n', class(obj));
+            mpc = obj.mpc
+        end
+
+        function print_soln(obj, fname)
+        end
+
+        function save_soln(obj, fname)
+        end
+
+        %%-----  PF methods  -----
         function [dm1, dm2] = fdpf_B_matrix_models(obj, alg)
             %% [dmp, dmpp] = obj.fdpf_B_matrix_models(alg)
             %% dmpp = obj.fdpf_B_matrix_models(alg)
@@ -91,39 +127,13 @@ classdef mp_data_mpc2 < mp_data
             end
         end
 
-        function obj = ext2int(obj, mpopt)
-            if ~isfield(obj.mpc, 'order') || obj.mpc.order.state == 'e'
-                if nargin > 1
-                    obj.mpc = ext2int(obj.mpc, mpopt);
-                else
-                    obj.mpc = ext2int(obj.mpc);
-                end
-            else
-%                 warning('mp_data_mpc2/ext2int: data model already in internal format');
-            end
-        end
-
-        function obj = int2ext(obj, mpopt)
-            if isfield(obj.mpc, 'order') && obj.mpc.order.state == 'i'
-                if nargin > 1
-                    obj.mpc = int2ext(obj.mpc, mpopt);
-                else
-                    obj.mpc = int2ext(obj.mpc);
-                end
-            else
-%                 warning('mp_data_mpc2/int2ext: data model already in external format');
-            end
-        end
-
-        function display(obj)
-            fprintf('Data Model class : %s\n', class(obj));
-            mpc = obj.mpc
-        end
-
-        function print_soln(obj, fname)
-        end
-
-        function save_soln(obj, fname)
+        %%-----  OPF methods  -----
+        function [A, l, u, i] = branch_angle_diff_constraint(obj, ignore);
+            baseMVA = obj.mpc.baseMVA;
+            branch = obj.elm_by_name('branch').get_table(obj);
+            nb = obj.elm_by_name('bus').n;
+            mpopt = struct('opf', struct('ignore_angle_lim', ignore));
+            [A, l, u, i]  = makeAang(baseMVA, branch, nb, mpopt);
         end
     end     %% methods
 end         %% classdef
