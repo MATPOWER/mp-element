@@ -152,5 +152,17 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
                     'Q', Qg ...
                 );
         end
+
+        %%-----  OPF methods  -----
+        function [A, l, u] = disp_load_constant_pf_constraint(obj, dm);
+            %%-----  HACK ALERT  -----
+            %% create a mpc with only online gens to call makeAvl
+            mpc = dm.mpc;
+            mpc.gen = mpc.gen(obj.on, :);
+            %%-----  end of HACK  -----
+
+            %% this should give incorrect results if mpc is not in 
+            [A, l, u] = makeAvl(mpc);
+        end
     end     %% methods
 end         %% classdef

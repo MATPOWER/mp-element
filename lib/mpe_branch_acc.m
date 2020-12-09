@@ -63,9 +63,8 @@ classdef mpe_branch_acc < mpe_branch_ac & mp_model_acc
             add_opf_constraints@mpe_branch_ac(obj, nm, om, dm, mpopt);
 
             %% branch angle difference limits
-            mpc = dm.mpc;
-            nb = size(mpc.bus, 1);
-            [Aang, lang, uang, iang]  = makeAang(mpc.baseMVA, mpc.branch, nb, mpopt);
+            [Aang, lang, uang, iang] = ...
+                dm.branch_angle_diff_constraint(mpopt.opf.ignore_angle_lim);
             nang = length(iang);
             if nang
                 fcn_ang = @(xx)ang_diff_fcn(obj, xx, Aang, lang, uang);

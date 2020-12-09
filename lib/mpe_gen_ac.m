@@ -26,15 +26,14 @@ classdef mpe_gen_ac < mpe_gen% & mp_model_ac
         end
 
         function add_opf_constraints(obj, nm, om, dm, mpopt)
-            mpc = dm.mpc;
             %% generator PQ capability curve constraints
-            [Apqh, ubpqh, Apql, ubpql, Apqdata] = makeApq(mpc.baseMVA, mpc.gen);
+            [Apqh, ubpqh, Apql, ubpql, Apqdata] = dm.gen_pq_capability_constraint();
             om.add_lin_constraint('PQh', Apqh, [], ubpqh, {'Pg', 'Qg'});      %% npqh
             om.add_lin_constraint('PQl', Apql, [], ubpql, {'Pg', 'Qg'});      %% npql
             om.userdata.Apqdata = Apqdata;
 
             %% dispatchable load constant power factor constraint
-            [Avl, lvl, uvl]  = makeAvl(mpc);
+            [Avl, lvl, uvl] = dm.elm_by_name('gen').disp_load_constant_pf_constraint(dm);
             if ~isempty(Avl)
                 om.add_lin_constraint('vl',  Avl, lvl, uvl,   {'Pg', 'Qg'});    %% nvl
             end

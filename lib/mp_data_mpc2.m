@@ -138,5 +138,13 @@ classdef mp_data_mpc2 < mp_data
             mpopt = struct('opf', struct('ignore_angle_lim', ignore));
             [A, l, u, i]  = makeAang(baseMVA, branch, nb, mpopt);
         end
+
+        function [Ah, uh, Al, ul, data] = gen_pq_capability_constraint(obj);
+            baseMVA = obj.mpc.baseMVA;
+            gen_dme = obj.elm_by_name('gen');
+            gen = gen_dme.get_table(obj);
+
+            [Ah, uh, Al, ul, data] = makeApq(baseMVA, gen(gen_dme.on, :));
+        end
     end     %% methods
 end         %% classdef
