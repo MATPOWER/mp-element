@@ -135,34 +135,30 @@ classdef mpe_bus_acc < mpe_bus & mp_model_acc
         end
 
         function add_opf_constraints(obj, nm, om, dm, mpopt)
-            %% define constants
-            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-
             %% voltage angle reference constraint
-            mpc = dm.mpc;
-            refs = find(mpc.bus(:, BUS_TYPE) == REF);
-            varef = mpc.bus(refs, VA) * pi/180;
-            fcn_vref = @(xx)va_fcn(obj, xx, refs, varef);
-            hess_vref = @(xx, lam)va_hess(obj, xx, lam, refs);
-            om.add_nln_constraint('Vref', length(refs), 1, fcn_vref, hess_vref, {'Vr', 'Vi'});
+            dme = obj.data_model_element(dm);
+            ref = dm.node_type_ref(obj.node_types(nm, dm));
+            varef = dme.Va0(ref);
+            fcn_vref = @(xx)va_fcn(obj, xx, ref, varef);
+            hess_vref = @(xx, lam)va_hess(obj, xx, lam, ref);
+            om.add_nln_constraint('Vref', length(ref), 1, fcn_vref, hess_vref, {'Vr', 'Vi'});
 
             %% fixed voltage magnitudes
-            veq = find(mpc.bus(:, VMIN) == mpc.bus(:, VMAX));
+            veq = find(dme.Vmin == dme.Vmax);
             nveq = length(veq);
             if nveq
-                fcn_vm2eq = @(xx)vm2_fcn(obj, xx, veq, mpc.bus(veq, VMAX).^2);
+                fcn_vm2eq = @(xx)vm2_fcn(obj, xx, veq, dme.Vmax(veq).^2);
                 hess_vm2eq = @(xx, lam)vm2_hess(obj, xx, lam, veq);
                 om.add_nln_constraint('Veq', nveq, 1, fcn_vm2eq, hess_vm2eq, {'Vr', 'Vi'});
             end
             om.userdata.veq = veq;
 
             %% voltage magnitude limits
-            viq = find(mpc.bus(:, VMIN) ~= mpc.bus(:, VMAX));
+            viq = find(dme.Vmin ~= dme.Vmax);
             nviq = length(viq);
             if nviq
                 fcn_vlim = @(xx)vm2_fcn(obj, xx, viq, ...
-                        {mpc.bus(viq, VMIN).^2, mpc.bus(viq, VMAX).^2} );
+                        {dme.Vmin(viq).^2, dme.Vmax(viq).^2} );
                 hess_vlim = @(xx, lam)vm2_hess(obj, xx, lam, viq);
                 om.add_nln_constraint({'Vmin', 'Vmax'}, [nviq;nviq], 0, fcn_vlim, hess_vlim, {'Vr', 'Vi'});
             end

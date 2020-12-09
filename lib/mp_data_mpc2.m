@@ -53,6 +53,44 @@ classdef mp_data_mpc2 < mp_data
             pq = find(node_type == PQ);
         end
 
+        function [dm1, dm2] = fdpf_B_matrix_models(obj, alg)
+            %% [dmp, dmpp] = obj.fdpf_B_matrix_models(alg)
+            %% dmpp = obj.fdpf_B_matrix_models(alg)
+            %% returns copies of dm used for building B prime, B double prime
+            %% for fast-decoupled power flow
+
+            %% define named indices into bus, branch matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
+                TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
+                ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
+
+            %% modify data model to form Bp (B prime)
+            if nargout > 1
+                dm1 = obj.copy();
+                dm1.mpc.bus(:, BS) = 0;         %% zero out shunts at buses
+                dm2 = dm1.copy();
+                dm1.mpc.branch(:, BR_B) = 0;    %% zero out line charging shunts
+                dm1.mpc.branch(:, TAP) = 1;     %% cancel out taps
+                if strcmp(alg, 'FDXB')          %% if XB method
+                    dm1.mpc.branch(:, BR_R) = 0;%% zero out line resistance
+                end
+            else
+                dm2 = obj.copy();
+            end
+
+            %% modify data model to form Bpp (B double prime)
+            dm2.mpc.branch(:, SHIFT) = 0;   %% zero out phase shifters
+            if strcmp(alg, 'FDBX')          %% if BX method
+                dm2.mpc.branch(:, BR_R) = 0;%% zero out line resistance
+            end
+
+            if nargout == 1
+                dm1 = dm2;
+            end
+        end
+
         function obj = ext2int(obj, mpopt)
             if ~isfield(obj.mpc, 'order') || obj.mpc.order.state == 'e'
                 if nargin > 1

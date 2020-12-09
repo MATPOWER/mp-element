@@ -64,7 +64,6 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             k = find(obj.status(gbus) & vcb(gbus));
             Vm(gbus(k)) = gen(gen_dme.on(k), VG);
 
-            %% set initialize 
             obj.Vm0 = Vm(obj.on);
             obj.Va0 = Va(obj.on);
             obj.Vmin = bus(obj.on, VMIN);

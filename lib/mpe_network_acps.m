@@ -124,29 +124,9 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
 
         function JJ = fd_jac_approx(obj, om, dm, mpopt)
             alg = mpopt.pf.alg;
-            
-            %% define named indices into bus, branch matrices
-            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
-                TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
-                ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
-            %% modify data model to form Bp (B prime)
-            dm1 = dm.copy();
-            dm1.mpc.bus(:, BS) = 0;         %% zero out shunts at buses
-            dm2 = dm1.copy();
-            dm1.mpc.branch(:, BR_B) = 0;    %% zero out line charging shunts
-            dm1.mpc.branch(:, TAP) = 1;     %% cancel out taps
-            if strcmp(alg, 'FDXB')          %% if XB method
-                dm1.mpc.branch(:, BR_R) = 0;%% zero out line resistance
-            end
-
-            %% modify data model to form Bpp (B double prime)
-            dm2.mpc.branch(:, SHIFT) = 0;   %% zero out phase shifters
-            if strcmp(alg, 'FDBX')          %% if BX method
-                dm2.mpc.branch(:, BR_R) = 0;%% zero out line resistance
-            end
+            %% create copies of data model for building B prime, B double prime
+            [dm1, dm2] = dm.fdpf_B_matrix_models(alg);
 
             %% build network models and get admittance matrices
             nm1 = feval(class(obj)).create_model(dm1, mpopt);
@@ -241,18 +221,8 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
                     vmpv0 = abs(v_(pv));
                     vmpv = vmpv0;
 
-                    %% define named indices into bus, branch matrices
-                    [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                        VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-                    [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
-                        TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
-                        ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
-
                     %% modify data model to form Bpp (B double prime)
-                    dm2 = dm.copy();
-                    dm2.mpc.bus(:, BS) = 0;         %% zero out shunts at buses
-                    dm2.mpc.branch(:, SHIFT) = 0;   %% zero out phase shifters
-                    dm2.mpc.branch(:, BR_R) = 0;    %% zero out line resistance
+                    dm2 = dm.fdpf_B_matrix_models('FDBX');
 
                     %% build network models and get admittance matrices
                     nm = feval(class(obj)).create_model(dm2, mpopt);
