@@ -27,8 +27,8 @@ classdef mpe_gen_dc < mpe_gen & mp_model_dc
 
         function add_opf_constraints(obj, nm, om, dm, mpopt)
             %% piecewise linear costs
-            if obj.cost_pwl.ny
-                om.add_lin_constraint('ycon', obj.cost_pwl.Ay, [], obj.cost_pwl.by, {'Pg', 'y'});
+            if obj.cost.pwl.n
+                om.add_lin_constraint('ycon', obj.cost.pwl.A, [], obj.cost.pwl.b, {'Pg', 'y'});
             end
 
             %% call parent

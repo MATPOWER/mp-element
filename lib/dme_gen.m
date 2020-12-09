@@ -17,6 +17,8 @@ classdef dme_gen < dm_element
         Pmax    %% active power upper bound (p.u.) for gens that are on
         Qmin    %% reactive power lower bound (p.u.) for gens that are on
         Qmax    %% reactive power upper bound (p.u.) for gens that are on
+        pcost   %% active power cost parameters for gens that are on
+        qcost   %% reactive power cost parameters for gens that are on
     end     %% properties
 
     methods

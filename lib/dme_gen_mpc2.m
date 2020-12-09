@@ -62,6 +62,95 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             obj.Qg0  = gen(obj.on, QG) / baseMVA;
             obj.Qmin = gen(obj.on, QMIN) / baseMVA;
             obj.Qmax = gen(obj.on, QMAX) / baseMVA;
+
+            if isfield(dm.mpc, 'gencost') && ~isempty(dm.mpc.gencost)
+                [pcost, qcost] = pqcost(dm.mpc.gencost, obj.nr);
+                obj.pcost = pcost(obj.on, :);
+                if isempty(qcost)
+                    obj.qcost = qcost;
+                else
+                    obj.qcost = qcost(obj.on, :);
+                end
+            end
+        end
+
+        function cost = build_gen_cost_params(obj, dm, dc)
+            mpc = dm.mpc;
+            baseMVA = dm.mpc.baseMVA;
+
+            poly_p = obj.gen_cost_poly_params(baseMVA, obj.pcost);
+            if dc || isempty(obj.qcost)
+                poly_q = [];
+                pwl = obj.gen_cost_pwl_params(baseMVA, obj.pcost, obj.n, dc);
+            else
+                poly_q = obj.gen_cost_poly_params(baseMVA, obj.qcost);
+                pwl = obj.gen_cost_pwl_params(baseMVA, ...
+                            [obj.pcost; obj.qcost], obj.n, dc);
+            end
+
+            cost = struct( ...
+                    'poly_p',   poly_p, ...
+                    'poly_q',   poly_q, ...
+                    'pwl',      pwl ...
+                );
+        end
+
+        function p = gen_cost_pwl_params(obj, baseMVA, cost, ng, dc)
+            %% define named indices into data matrices
+            [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
+
+            ipwl = find(cost(:, MODEL) == PW_LINEAR);   %% piece-wise linear costs
+            ny = size(ipwl, 1);   %% number of piece-wise linear cost vars
+            if dc
+                nq = 0;    %% number of Qg variables
+                q1 = [];
+            else
+                nq = ng;    %% number of Qg variables
+                q1 = 1+ng;
+            end
+            [Ay, by] = makeAy(baseMVA, ng, cost, 1, q1, 1+ng+nq);
+            p = struct('n', ny, 'i', ipwl, 'A', Ay, 'b', by);
+        end
+
+        function p = gen_cost_poly_params(obj, baseMVA, cost)
+            %% define named indices into data matrices
+            [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
+            
+            ng = size(cost, 1);
+            have_quad_cost = 0;
+            kg = []; cg = []; Qg = [];
+            i0 = find(cost(:, MODEL) == POLYNOMIAL & cost(:, NCOST) == 1);   %% constant
+            i1 = find(cost(:, MODEL) == POLYNOMIAL & cost(:, NCOST) == 2);   %% linear
+            i2 = find(cost(:, MODEL) == POLYNOMIAL & cost(:, NCOST) == 3);   %% quadratic
+            i3 = find(cost(:, MODEL) == POLYNOMIAL & cost(:, NCOST) > 3);    %% cubic or greater
+            if ~isempty(i2) || ~isempty(i1) || ~isempty(i0)
+                have_quad_cost = 1;
+                kg = zeros(ng, 1);
+                cg = zeros(ng, 1);
+                if ~isempty(i2)
+                    Qg = zeros(ng, 1);
+                    Qg(i2) = 2 * cost(i2, COST) * baseMVA^2;
+                    cg(i2) = cg(i2) + cost(i2, COST+1) * baseMVA;
+                    kg(i2) = kg(i2) + cost(i2, COST+2);
+                end
+                if ~isempty(i1)
+                    cg(i1) = cg(i1) + cost(i1, COST) * baseMVA;
+                    kg(i1) = kg(i1) + cost(i1, COST+1);
+                end
+                if ~isempty(i0)
+                    kg(i0) = kg(i0) + cost(i0, COST);
+                end
+            end
+            p = struct( ...
+                    'have_quad_cost', have_quad_cost, ...
+                    'i0', i0, ...
+                    'i1', i1, ...
+                    'i2', i2, ...
+                    'i3', i3, ...
+                    'k', kg, ...
+                    'c', cg, ...
+                    'Q', Qg ...
+                );
         end
     end     %% methods
 end         %% classdef
