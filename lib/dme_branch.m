@@ -10,8 +10,14 @@ classdef dme_branch < dm_element
 %   See https://matpower.org for more info.
 
     properties
-        fbus        %% bus index vector for "from" port (port 1)
-        tbus        %% bus index vector for "to" port (port 2)
+        fbus    %% bus index vector for "from" port (port 1) (all branches)
+        tbus    %% bus index vector for "to" port (port 2) (all branches)
+        R       %% series resistance (p.u.) for branches that are on
+        X       %% series reactance (p.u.) for branches that are on
+        B       %% series reactance (p.u.) for branches that are on
+        tap     %% transformer off-nominal turns ratio for branches that are on
+        shift   %% xformer phase-shift angle (radians) for branches that are on
+        rate_a  %% long term flow limit (p.u.) for branches that are on
     end     %% properties
 
     methods

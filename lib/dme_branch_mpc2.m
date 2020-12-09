@@ -49,5 +49,22 @@ classdef dme_branch_mpc2 < dme_branch & dm_format_mpc2
             %% call parent to fill in on/off
             update_status@dme_branch(obj, dm);
         end
+
+        function obj = build_params(obj, dm)
+            %% define named indices into data matrices
+            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
+                TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
+                ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
+            baseMVA = dm.mpc.baseMVA;
+
+            branch = obj.get_table(dm);
+
+            obj.R  = branch(obj.on, BR_R);
+            obj.X  = branch(obj.on, BR_X);
+            obj.B  = branch(obj.on, BR_B);
+            obj.tap    = branch(obj.on, TAP);
+            obj.shift  = branch(obj.on, SHIFT) * pi/180;
+            obj.rate_a = branch(obj.on, RATE_A) / baseMVA;
+        end
     end     %% methods
 end         %% classdef
