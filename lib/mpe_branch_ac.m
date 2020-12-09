@@ -16,22 +16,16 @@ classdef mpe_branch_ac < mpe_branch% & mp_model_ac
         function obj = build_params(obj, nm, dm)
             build_params@mpe_branch(obj, nm, dm);   %% call parent
 
-            %% define named indices into data matrices
-            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
-                TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
-                ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
-
-            branch = dm.mpc.branch;
+            dme = obj.data_model_element(dm);
             nl = obj.nk;
 
-            stat = branch(:, BR_STATUS);    %% ones at in-service branches
-            tap = ones(nl, 1);              %% default tap ratio = 1
-            i = find(branch(:, TAP));       %% indices of non-zero tap ratios
-            tap(i) = branch(i, TAP);        %% assign non-zero tap ratios
+            tap = ones(nl, 1);          %% default tap ratio = 1
+            i = find(dme.tap);          %% indices of non-zero tap ratios
+            tap(i) = dme.tap(i);        %% assign non-zero tap ratios
+            tap = tap .* exp(1j * dme.shift);   %% add phase shifters
 
-            tap = tap .* exp(1j*pi/180 * branch(:, SHIFT)); %% add phase shifters
-            Ys = stat ./ (branch(:, BR_R) + 1j * branch(:, BR_X));  %% series admittance
-            Bc = stat .* branch(:, BR_B);   %% line charging susceptance
+            Ys = 1 ./ (dme.R + 1j * dme.X);     %% series admittance
+            Bc = dme.B;                         %% line charging susceptance
             Ytt = Ys + 1j*Bc/2;
             Yff = Ytt ./ (tap .* conj(tap));
             Yft = - Ys ./ conj(tap);
@@ -44,15 +38,10 @@ classdef mpe_branch_ac < mpe_branch% & mp_model_ac
         end
 
         function add_opf_constraints(obj, nm, om, dm, mpopt)
-            %% define named indices into data matrices
-            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
-                TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
-                ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
-
             %% find branches with flow limits
-            mpc = dm.mpc;
-            il = find(mpc.branch(:, RATE_A) ~= 0 & mpc.branch(:, RATE_A) < 1e10);
-            nl2 = length(il);         %% number of constrained lines
+            dme = obj.data_model_element(dm);
+            il = find(dme.rate_a ~= 0 & dme.rate_a < 1e10);
+            nl2 = length(il);       %% number of constrained lines
 
             if nl2
                 %% port indexes
@@ -60,7 +49,7 @@ classdef mpe_branch_ac < mpe_branch% & mp_model_ac
                 idx = [il; nl+il];
 
                 %% limits
-                flow_max = mpc.branch(il, RATE_A)/mpc.baseMVA;  %% RATE_A
+                flow_max = dme.rate_a(il);  %% RATE_A
 
                 %% branch flow constraints
                 lim_type = upper(mpopt.opf.flow_lim(1));

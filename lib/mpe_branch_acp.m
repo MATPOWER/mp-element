@@ -13,15 +13,9 @@ classdef mpe_branch_acp < mpe_branch_ac & mp_model_acp
             %% call parent
             add_opf_constraints@mpe_branch_ac(obj, nm, om, dm, mpopt);
 
-            %% define named indices into data matrices
-            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
-                TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
-                ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
-
             %% branch voltage angle difference limits
-            mpc = dm.mpc;
-            nb = size(mpc.bus, 1);      %% number of buses
-            [Aang, lang, uang, iang] = makeAang(mpc.baseMVA, mpc.branch, nb, mpopt);
+            [Aang, lang, uang, iang] = ...
+                dm.branch_angle_diff_constraint(mpopt.opf.ignore_angle_lim);
             om.add_lin_constraint('ang', Aang, lang, uang, {'Va'});
             om.userdata.iang = iang;
         end
