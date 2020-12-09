@@ -14,21 +14,10 @@ classdef mpe_gen_ac < mpe_gen% & mp_model_ac
     
     methods
         function obj = add_zvars(obj, nm, dm, idx)
-            %% define constants
-            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
-                MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
-                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
-
-            mpc = dm.mpc;
             ng = obj.nk;
-            Pg   = mpc.gen(:, PG) / mpc.baseMVA;
-            Pmin = mpc.gen(:, PMIN) / mpc.baseMVA;
-            Pmax = mpc.gen(:, PMAX) / mpc.baseMVA;
-            Qg   = mpc.gen(:, QG) / mpc.baseMVA;
-            Qmin = mpc.gen(:, QMIN) / mpc.baseMVA;
-            Qmax = mpc.gen(:, QMAX) / mpc.baseMVA;
-            nm.add_var('zr', 'Pg', ng, Pg, Pmin, Pmax);
-            nm.add_var('zi', 'Qg', ng, Qg, Qmin, Qmax);
+            dme = obj.data_model_element(dm);
+            nm.add_var('zr', 'Pg', ng, dme.Pg0, dme.Pmin, dme.Pmax);
+            nm.add_var('zi', 'Qg', ng, dme.Qg0, dme.Qmin, dme.Qmax);
         end
 
         function obj = build_params(obj, nm, dm)

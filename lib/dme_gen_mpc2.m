@@ -46,5 +46,22 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             %% call parent to fill in on/off
             update_status@dme_gen(obj, dm);
         end
+
+        function obj = build_params(obj, dm)
+            %% define constants
+            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
+                MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
+                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
+            baseMVA = dm.mpc.baseMVA;
+
+            gen = obj.get_table(dm);
+
+            obj.Pg0  = gen(obj.on, PG) / baseMVA;
+            obj.Pmin = gen(obj.on, PMIN) / baseMVA;
+            obj.Pmax = gen(obj.on, PMAX) / baseMVA;
+            obj.Qg0  = gen(obj.on, QG) / baseMVA;
+            obj.Qmin = gen(obj.on, QMIN) / baseMVA;
+            obj.Qmax = gen(obj.on, QMAX) / baseMVA;
+        end
     end     %% methods
 end         %% classdef
