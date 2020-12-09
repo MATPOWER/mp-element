@@ -16,7 +16,7 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
         function obj = dme_bus_mpc2()
             obj@dme_bus();      %% call parent constructor
 
-            %% define constants
+            %% define constants & named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE] = idx_bus;
             obj.id_col = BUS_I;
             obj.st_col = BUS_TYPE;
@@ -41,7 +41,7 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
         end
 
         function obj = build_params(obj, dm)
-            %% define constants
+            %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
@@ -71,7 +71,7 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
         end
 
         function btv = bus_types(obj, dm)
-            %% define constants
+            %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 

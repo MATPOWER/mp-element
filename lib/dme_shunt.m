@@ -10,9 +10,11 @@ classdef dme_shunt < dm_element
 %   See https://matpower.org for more info.
 
     properties
-        bus         %% bus index vector
-        Gs
-        Bs
+        bus     %% bus index vector (all shunts)
+        Gs      %% shunt conductance (p.u. active power demanded at
+                %% V = 1.0 p.u.) for shunts that are on
+        Bs      %% shunt susceptance (p.u. reactive power injected at
+                %% V = 1.0 p.u.) for shunts that are on
     end     %% properties
 
     methods

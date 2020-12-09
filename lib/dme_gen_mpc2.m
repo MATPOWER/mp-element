@@ -17,7 +17,7 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
         function obj = dme_gen_mpc2()
             obj@dme_gen();      %% call parent constructor
 
-            %% define constants
+            %% define named indices into data matrices
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
             obj.st_col = GEN_STATUS;
         end
@@ -25,7 +25,7 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
         function obj = initialize(obj, dm)
             initialize@dme_gen(obj, dm);    %% call parent
 
-            %% define constants
+            %% define named indices into data matrices
             [GEN_BUS] = idx_gen;
 
             %% get bus mapping info
@@ -48,7 +48,7 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
         end
 
         function obj = build_params(obj, dm)
-            %% define constants
+            %% define named indices into data matrices
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;

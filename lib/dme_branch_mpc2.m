@@ -17,7 +17,7 @@ classdef dme_branch_mpc2 < dme_branch & dm_format_mpc2
         function obj = dme_branch_mpc2()
             obj@dme_branch();   %% call parent constructor
 
-            %% define constants
+            %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
                     TAP, SHIFT, BR_STATUS] = idx_brch;
             obj.st_col = BR_STATUS;
@@ -26,7 +26,7 @@ classdef dme_branch_mpc2 < dme_branch & dm_format_mpc2
         function obj = initialize(obj, dm)
             initialize@dme_branch(obj, dm);     %% call parent
 
-            %% define constants
+            %% define named indices into data matrices
             [F_BUS, T_BUS] = idx_brch;
 
             %% get bus mapping info

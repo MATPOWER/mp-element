@@ -14,7 +14,7 @@ classdef dme_load_mpc2 < dme_load & dm_format_mpc2
 
     methods
         function nr = count(obj, dm)
-            %% define constants
+            %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD] = idx_bus;
 
             %% get bus indices
@@ -38,7 +38,7 @@ classdef dme_load_mpc2 < dme_load & dm_format_mpc2
         end
 
         function obj = build_params(obj, dm)
-            %% define constants
+            %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD] = idx_bus;
             baseMVA = dm.mpc.baseMVA;
 

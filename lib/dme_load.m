@@ -10,9 +10,9 @@ classdef dme_load < dm_element
 %   See https://matpower.org for more info.
 
     properties
-        bus         %% bus index vector
-        Pd
-        Qd
+        bus     %% bus index vector (all loads)
+        Pd      %% active power demand (p.u.) for loads that are on
+        Qd      %% reactive power demand (p.u.) for loads that are on
     end     %% properties
 
     methods
