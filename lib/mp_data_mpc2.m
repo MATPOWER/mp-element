@@ -103,27 +103,30 @@ classdef mp_data_mpc2 < mp_data
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
             %% modify data model to form Bp (B prime)
-            if nargout > 1
-                dm1 = obj.copy();
-                dm1.mpc.bus(:, BS) = 0;         %% zero out shunts at buses
-                dm2 = dm1.copy();
-                dm1.mpc.branch(:, BR_B) = 0;    %% zero out line charging shunts
-                dm1.mpc.branch(:, TAP) = 1;     %% cancel out taps
+            if nargout > 1      %% for both Bp and Bpp
+                mpc1 = obj.mpc;
+                mpc1.bus(:, BS) = 0;            %% zero out shunts at buses
+                mpc2 = mpc1;
+                mpc1.branch(:, BR_B) = 0;       %% zero out line charging shunts
+                mpc1.branch(:, TAP) = 1;        %% cancel out taps
                 if strcmp(alg, 'FDXB')          %% if XB method
-                    dm1.mpc.branch(:, BR_R) = 0;%% zero out line resistance
+                    mpc1.branch(:, BR_R) = 0;   %% zero out line resistance
                 end
+                dm1 = feval(class(obj), mpc1);
             else
-                dm2 = obj.copy();
+                mpc2 = obj.mpc;
             end
 
             %% modify data model to form Bpp (B double prime)
-            dm2.mpc.branch(:, SHIFT) = 0;   %% zero out phase shifters
+            mpc2.branch(:, SHIFT) = 0;      %% zero out phase shifters
             if strcmp(alg, 'FDBX')          %% if BX method
-                dm2.mpc.branch(:, BR_R) = 0;%% zero out line resistance
+                mpc2.branch(:, BR_R) = 0;   %% zero out line resistance
             end
 
-            if nargout == 1
-                dm1 = dm2;
+            if nargout > 1      %% for both Bp and Bpp
+                dm2 = feval(class(obj), mpc2);
+            else                %% for just Bpp
+                dm1 = feval(class(obj), mpc2);
             end
         end
 
