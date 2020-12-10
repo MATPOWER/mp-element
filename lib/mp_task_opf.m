@@ -43,21 +43,21 @@ classdef mp_task_opf < mp_task
                     case 'AC'
                         if mpopt.opf.v_cartesian
                             if mpopt.opf.current_balance
-                                nm_class = @mpe_network_acci;
+                                nm_class = @mp_network_acci;
                             else
-                                nm_class = @mpe_network_accs;
-%                                nm_class = @mpe_network_accs_test_nln;
+                                nm_class = @mp_network_accs;
+%                                nm_class = @mp_network_accs_test_nln;
                             end
                         else
                             if mpopt.opf.current_balance
-                                nm_class = @mpe_network_acpi;
+                                nm_class = @mp_network_acpi;
                             else
-                                nm_class = @mpe_network_acps;
-%                                nm_class = @mpe_network_acps_test_nln;
+                                nm_class = @mp_network_acps;
+%                                nm_class = @mp_network_acps_test_nln;
                             end
                         end
                     case 'DC'
-                        nm_class = @mpe_network_dc;
+                        nm_class = @mp_network_dc;
                 end
             end
         end

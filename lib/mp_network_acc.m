@@ -1,4 +1,4 @@
-classdef mpe_network_acc < mpe_network_ac & mp_model_acc
+classdef mp_network_acc < mp_network_ac & mp_model_acc
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -14,8 +14,8 @@ classdef mpe_network_acc < mpe_network_ac & mp_model_acc
     end
     
     methods
-        function obj = mpe_network_acc()
-            obj@mpe_network_ac();
+        function obj = mp_network_acc()
+            obj@mp_network_ac();
             obj.element_classes = ...
                 { @nme_bus_acc, @nme_gen_acc, @nme_load_acc, ...
                     @nme_branch_acc, @nme_shunt_acc };
@@ -32,7 +32,7 @@ classdef mpe_network_acc < mpe_network_ac & mp_model_acc
         end
 
         function obj = def_set_types(obj)
-            def_set_types@mpe_network_ac(obj);      %% call parent first
+            def_set_types@mp_network_ac(obj);   %% call parent first
             obj.set_types.vr = 'REAL VOLTAGE VARS (vr)';
             obj.set_types.vi = 'IMAG VOLTAGE VARS (vi)';
         end

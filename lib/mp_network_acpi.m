@@ -1,4 +1,4 @@
-classdef mpe_network_acpi < mpe_network_acp% & mp_model_acpi
+classdef mp_network_acpi < mp_network_acp% & mp_model_acpi
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -17,7 +17,7 @@ classdef mpe_network_acpi < mpe_network_acp% & mp_model_acpi
         %%-----  PF methods  -----
         function ad = power_flow_aux_data(obj, dm, mpopt)
             %% call parent method
-            ad = power_flow_aux_data@mpe_network_ac(obj, dm, mpopt);
+            ad = power_flow_aux_data@mp_network_ac(obj, dm, mpopt);
 
             %% build additional aux data
             g = obj.elm_by_name('gen');

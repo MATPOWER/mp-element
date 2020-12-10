@@ -1,5 +1,5 @@
 classdef mpe_container < handle
-%MPE_CONTAINER  Mix-in class for methods shared by MPE_NETWORK and MP_DATA
+%MPE_CONTAINER  Mix-in class for methods shared by MP_NETWORK and MP_DATA
 
 %   MATPOWER
 %   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)

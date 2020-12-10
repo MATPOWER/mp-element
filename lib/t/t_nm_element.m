@@ -27,10 +27,10 @@ casefile = 't_case9_gizmo';
 mpopt = mpoption('out.all', 0, 'verbose', 0);
 
 %%-----  DC model  -----
-t = 'mpe_network_dc() : ';
-dc = mpe_network_dc();
+t = 'mp_network_dc() : ';
+dc = mp_network_dc();
 t_ok(strcmp(dc.name, 'network'), [t 'name']);
-t_ok(strcmp(class(dc), 'mpe_network_dc'), [t 'class']);
+t_ok(strcmp(class(dc), 'mp_network_dc'), [t 'class']);
 t_ok(strcmp(dc.find_model_class(), 'mp_model_dc'), [t 'model class']);
 t_ok(strcmp(dc.model_name, 'DC model'), [t 'model name']);
 t_ok(strcmp(dc.model_tag, 'dc'), [t 'model tag']);
@@ -198,10 +198,10 @@ Pg2 = gen.port_inj_power(x, 1, 2);
 t_is(Pg2, ePg(2), 12, t);
 
 %%-----  AC model  -----
-t = 'mpe_network_acps() : ';
-ac = mpe_network_acps();
+t = 'mp_network_acps() : ';
+ac = mp_network_acps();
 t_ok(strcmp(ac.name, 'network'), [t 'name']);
-t_ok(strcmp(class(ac), 'mpe_network_acps'), [t 'class']);
+t_ok(strcmp(class(ac), 'mp_network_acps'), [t 'class']);
 t_ok(strcmp(ac.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(ac.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(ac.model_tag, 'acp'), [t 'model tag']);
@@ -504,7 +504,7 @@ t_is(Igzi, Izi(2, :), 12, [t 'Izi']);
 %% AC Newton power flow
 t = 'mp_task_pf().run(mpc, mpopt) : ';
 mpc = loadcase(casefile);
-% ac = mpe_network_acps().create_model(dm);
+% ac = mp_network_acps().create_model(dm);
 % [v_, success, i] = ac.solve_power_flow(dm, mpopt);
 pf = mp_task_pf();
 success = pf.run(mpc, mpopt);
@@ -518,10 +518,10 @@ t_is(success, 1, 12, [t 'success']);
 t_is(i, 4, 12, [t 'i']);
 
 %%-----  AC gizmo test model  -----
-t = 'mpe_network_acps_test() : ';
-ac = mpe_network_acps_test();
+t = 'mp_network_acps_test() : ';
+ac = mp_network_acps_test();
 t_ok(strcmp(ac.name, 'network'), [t 'name']);
-t_ok(strcmp(class(ac), 'mpe_network_acps_test'), [t 'class']);
+t_ok(strcmp(class(ac), 'mp_network_acps_test'), [t 'class']);
 t_ok(strcmp(ac.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(ac.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(ac.model_tag, 'acp'), [t 'model tag']);
@@ -554,7 +554,7 @@ mpc.gen(ref, PG) = 1.7165997325858 * mpc.baseMVA;
 mpc.gen(:, QG) = [0.2570733353840 0.0079004398259 -0.1749046999314].' * mpc.baseMVA;
 % mpopt = mpoption(mpopt, 'verbose', 2);
 pf = mp_task_pf();
-mpopt.exp.network_model_class = @mpe_network_acps_test;
+mpopt.exp.network_model_class = @mp_network_acps_test;
 dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2);
 success = pf.run(dm, mpopt);
 v_ = pf.nm.soln.v;
@@ -570,7 +570,7 @@ t = 'ac.create_model(dm) : ';
 mpc.bus(:, VA) = angle(v_) * 180/pi;
 mpc.bus(:, VM) = abs(v_);
 dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2);
-ac = mpe_network_acps_test().create_model(dm);
+ac = mp_network_acps_test().create_model(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);
 t_is(ac.nz, 7, 12, [t 'nz']);

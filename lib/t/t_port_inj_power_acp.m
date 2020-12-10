@@ -40,7 +40,7 @@ for c = 1:length(tc)
     %% create network model object
     dm = mp_data_mpc2(casefile, @dme_gizmo_mpc2);
     mpc = dm.mpc;
-    ac = mpe_network_acps().modify_element_classes(@nme_gizmo_acp).create_model(dm);
+    ac = mp_network_acps().modify_element_classes(@nme_gizmo_acp).create_model(dm);
     C = ac.C;
     D = ac.D;
     np = ac.np;

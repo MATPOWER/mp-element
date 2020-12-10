@@ -1,4 +1,4 @@
-classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
+classdef mp_network_acps < mp_network_acp% & mp_model_acps
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -17,7 +17,7 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
         %%-----  PF methods  -----
         function ad = power_flow_aux_data(obj, dm, mpopt)
             %% call parent method
-            ad = power_flow_aux_data@mpe_network_ac(obj, dm, mpopt);
+            ad = power_flow_aux_data@mp_network_ac(obj, dm, mpopt);
 
             switch mpopt.pf.alg
                 case 'GS'
@@ -134,7 +134,7 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
             [Y1, L, M] = nm1.get_params([], {'Y', 'L', 'M'});
             Y2 = nm2.get_params();
             if any(any(L)) || any(any(M))
-                error('mpe_network_acps/df_jac_approx: fast-decoupled Jacobian approximation not implemented for models with non-zero L and/or M matrices.')
+                error('mp_network_acps/df_jac_approx: fast-decoupled Jacobian approximation not implemented for models with non-zero L and/or M matrices.')
             end
 
             %% form reduced Bp and Bpp matrices
@@ -228,7 +228,7 @@ classdef mpe_network_acps < mpe_network_acp% & mp_model_acps
                     nm = feval(class(obj)).create_model(dm2, mpopt);
                     [Y2, L, M] = nm.get_params([], {'Y', 'L', 'M'});
                     if any(any(L)) || any(any(M))
-                        error('mpe_network_acps/zg_x_update: B matrix for Z-bus Gauss w/PV buses not implemented for models with non-zero L and/or M matrices.')
+                        error('mp_network_acps/zg_x_update: B matrix for Z-bus Gauss w/PV buses not implemented for models with non-zero L and/or M matrices.')
                     end
                     Bpp = -nm.C * imag(Y2) * nm.C';
 

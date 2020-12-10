@@ -1,6 +1,6 @@
-classdef mpe_network_ac < mpe_network% & mp_model_ac
-%MPE_NETWORK_AC Abstract class, explicitly a subclass of MPE_NETWORK and
-%               implicitly assumed to be subclasses of MP_MODEL_AC as well
+classdef mp_network_ac < mp_network% & mp_model_ac
+%MP_NETWORK_AC Abstract class, explicitly a subclass of MP_NETWORK and
+%              implicitly assumed to be subclasses of MP_MODEL_AC as well
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -21,14 +21,14 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
     
     methods
         function obj = def_set_types(obj)
-            def_set_types@mpe_network(obj);     %% call parent first
+            def_set_types@mp_network(obj);      %% call parent first
             obj.set_types.zr = 'NON-VOLTAGE VARS REAL (zr)';
             obj.set_types.zi = 'NON-VOLTAGE VARS IMAG (zi)';
         end
 
         function obj = build_params(obj, nm, dm)
             %% call parent to build individual element parameters
-            build_params@mpe_network(obj, nm, dm);
+            build_params@mp_network(obj, nm, dm);
 
             %% aggregate parameters from individual elements
             obj.Y = obj.stack_matrix_params('Y', 1);
@@ -292,7 +292,7 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
                         'need_jac',         0, ...
                         'update_fcn',       zg_x_update  );
                 otherwise
-                    error('mpe_network_ac/solve_opts_power_flow: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
+                    error('mp_network_ac/solve_opts_power_flow: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
             end
             opt.verbose = mpopt.verbose;
         end
@@ -403,7 +403,7 @@ classdef mpe_network_ac < mpe_network% & mp_model_ac
             mpc = dm.mpc;
 
             %% call parent
-            add_opf_legacy_user_constraints@mpe_network(obj, om, dm, mpopt);
+            add_opf_legacy_user_constraints@mp_network(obj, om, dm, mpopt);
 
             %% check for user-defined nonlinear constraints
             nnle = 0;   %% number of nonlinear user-defined equality cons

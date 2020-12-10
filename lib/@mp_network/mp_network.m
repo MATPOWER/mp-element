@@ -1,5 +1,5 @@
-classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
-%MPE_NETWORK  Abstract base class for MATPOWER network model
+classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_model
+%MP_NETWORK  Abstract base class for MATPOWER network model
 %   Explicitly a subclass of NM_ELEMENT, MP_IDX_MANAGER and MPE_CONTAINER,
 %   and implicitly assumed to be a subclass of MP_MODEL as well.
 
@@ -21,7 +21,7 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
     
     methods
         %% constructor
-        function obj = mpe_network()
+        function obj = mp_network()
             obj@nm_element();
             obj.name = 'network';
             obj.np = 0;     %% unknown number of ports at this point, init to 0
@@ -529,10 +529,10 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
                 if any(cp.dd ~= 1) || any(cp.kk)    %% not simple quadratic form
                     if dc                           %% (includes "dead zone" or
                         if any(cp.dd ~= 1)          %%  quadratic "penalty")
-                            error('mpe_network/add_opf_legacy_user_costs: DC OPF can only handle legacy user-defined costs with d = 1');
+                            error('mp_network/add_opf_legacy_user_costs: DC OPF can only handle legacy user-defined costs with d = 1');
                         end
                         if any(cp.kk)
-                            error('mpe_network/add_opf_legacy_user_costs: DC OPF can only handle legacy user-defined costs with no "dead zone", i.e. k = 0');
+                            error('mp_network/add_opf_legacy_user_costs: DC OPF can only handle legacy user-defined costs with no "dead zone", i.e. k = 0');
                         end
                     else
                         %% use general nonlinear cost to implement legacy user cost

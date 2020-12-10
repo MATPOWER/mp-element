@@ -1,4 +1,4 @@
-classdef mpe_network_acps_test < mpe_network_acps
+classdef mp_network_acps_test < mp_network_acps
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -10,8 +10,8 @@ classdef mpe_network_acps_test < mpe_network_acps
 
     methods
         %% constructor
-        function obj = mpe_network_acps_test()
-            obj@mpe_network_acps();
+        function obj = mp_network_acps_test()
+            obj@mp_network_acps();
             obj.element_classes{end+1} = @nme_gizmo_acp;
 
             %% Due to a bug related to inheritance in constructors in
