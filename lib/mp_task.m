@@ -131,7 +131,7 @@ classdef mp_task < handle
         end
 
         function nm_class = network_model_class_default(obj, dm, mpopt)
-            error('mp_task/network_model_class_default: must be overridden in sub-class');
+            error('mp_task/network_model_class_default: must be implemented in sub-class');
         end
 
         function nm = network_model_create(obj, dm, mpopt)

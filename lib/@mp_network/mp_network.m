@@ -423,7 +423,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                         d = st.data;
                         om.add_var(name, st.idx.N.(name), d.v0.(name), d.vl.(name), d.vu.(name), d.vt.(name));
                     else
-                        error('handling of indexed sets not implmented here (yet)');
+                        error('mp_network/add_opf_vars: handling of indexed sets not implmented here (yet)');
                     end
                 end
             end

@@ -31,13 +31,13 @@ classdef mp_form < handle
     
     methods
         function name = form_name(obj)
-            error('form_name() method not implemented');
+            error('mp_form/form_name: must be implemented in sub-class');
         end
         function tag = form_tag(obj)
-            error('form_tag() method not implemented');
+            error('mp_form/form_tag: must be implemented in sub-class');
         end
         function params = model_params(obj)
-            error('model_params() method not implemented');
+            error('mp_form/model_params: must be implemented in sub-class');
         end
 
         function varargout = get_params(obj, idx, names)
@@ -58,7 +58,7 @@ classdef mp_form < handle
 
             if nargout > length(names)
                 namestr = sprintf(' ''%s''', names{:})
-                error('@mp_form/get_params: return values must correspond to%s', namestr);
+                error('mp_form/get_params: return values must correspond to%s', namestr);
             end
 
             varargout = cell(1, nargout);

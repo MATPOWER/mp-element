@@ -150,7 +150,7 @@ classdef mp_form_ac < mp_form
                     end
                 end
             elseif ~isempty(obj.snln)
-                error('Nonlinear current function not defined for corresponding nonlinear power function.')
+                error('mp_form_ac/port_inj_current: Nonlinear current function not defined for corresponding nonlinear power function.')
             end
         end
 
@@ -243,7 +243,7 @@ classdef mp_form_ac < mp_form
                     end
                 end
             elseif ~isempty(obj.inln)
-                error('Nonlinear power function not defined for corresponding nonlinear current function.')
+                error('mp_form_ac/port_inj_power: Nonlinear power function not defined for corresponding nonlinear current function.')
             end
         end
 
@@ -313,7 +313,7 @@ classdef mp_form_ac < mp_form
             if ~isempty(obj.inln_hess)
                 H = H + obj.inln_hess(x_, lam, sysx, idx);
             elseif ~isempty(obj.snln_hess)
-                error('Nonlinear current Hessian not defined for corresponding nonlinear power Hessian.')
+                error('mp_form_ac/port_inj_current_hess: Nonlinear current Hessian not defined for corresponding nonlinear power Hessian.')
             end
         end
 
@@ -383,7 +383,7 @@ classdef mp_form_ac < mp_form
             if ~isempty(obj.snln_hess)
                 H = H + obj.snln_hess(x_, lam, sysx, idx);
             elseif ~isempty(obj.inln_hess)
-                error('Nonlinear power Hessian not defined for corresponding nonlinear current Hessian.')
+                error('mp_form_ac/port_inj_power_hess: Nonlinear power Hessian not defined for corresponding nonlinear current Hessian.')
             end
         end
 

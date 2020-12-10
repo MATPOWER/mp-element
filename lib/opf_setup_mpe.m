@@ -39,16 +39,16 @@ if strcmp(alg, 'MINOPF') || strcmp(alg, 'PDIPM') || ...
         strcmp(alg, 'TRALM') || strcmp(alg, 'SDPOPF')
     legacy_formulation = 1;
     if vcart
-        error('Option ''opf.v_cartesian'' = 1 is not compatible with ''opf.solver.ac''=''%s''.', alg);
+        error('opf_setup_mpe: Option ''opf.v_cartesian'' = 1 is not compatible with ''opf.solver.ac''=''%s''.', alg);
     end
     if mpopt.opf.current_balance
-        error('Option ''opf.current_balance'' = 1 is not compatible with ''opf.solver.ac''=''%s''.', alg);
+        error('opf_setup_mpe: Option ''opf.current_balance'' = 1 is not compatible with ''opf.solver.ac''=''%s''.', alg);
     end
 else
     legacy_formulation = 0;
 end
 if legacy_formulation && ~dc
-    error('opf_setup_mpe not compatible with ''opf.solver.ac''=''%s''.', alg);
+    error('opf_setup_mpe: opf_setup_mpe not compatible with ''opf.solver.ac''=''%s''.', alg);
 end
 if ~dc && ( ~isempty(mpopt.exp.sys_wide_zip_loads.pw) && ...
                     ~isequal(mpopt.exp.sys_wide_zip_loads.pw, [1 0 0]) || ...
@@ -86,7 +86,7 @@ if dc
     if nlin && size(mpc.A, 2) >= 2*nb + 2*ng
       %% make sure there aren't any constraints on Vm or Qg
       if any(any(mpc.A(:, acc)))
-        error('opf_setup: attempting to solve DC OPF with user constraints on Vm or Qg');
+        error('opf_setup_mpe: attempting to solve DC OPF with user constraints on Vm or Qg');
       end
       mpc.A(:, acc) = [];               %% delete Vm and Qg columns
     end
@@ -97,7 +97,7 @@ if dc
         ii = unique(ii);    %% indices of w with potential non-zero cost terms from Vm or Qg
         if any(mpc.Cw(ii)) || (isfield(mpc, 'H') && ~isempty(mpc.H) && ...
                 any(any(mpc.H(:, ii))))
-          error('opf_setup: attempting to solve DC OPF with user costs on Vm or Qg');
+          error('opf_setup_mpe: attempting to solve DC OPF with user costs on Vm or Qg');
         end
       end
       mpc.N(:, acc) = [];               %% delete Vm and Qg columns
@@ -122,7 +122,7 @@ else    %% AC
         mpc.bus(ib, VMAX) = (1-use_vg) * mpc.bus(ib, VMAX) + use_vg * Vmax(ib);
         mpc.bus(ib, VMIN) = (1-use_vg) * mpc.bus(ib, VMIN) + use_vg * Vmin(ib);
     else
-        error('opf_setup: option ''opf.use_vg'' (= %g) cannot be negative or greater than 1', use_vg);
+        error('opf_setup_mpe: option ''opf.use_vg'' (= %g) cannot be negative or greater than 1', use_vg);
     end
   end
 end
@@ -145,7 +145,7 @@ end
 %% warn if there is more than one reference bus
 refs = find(mpc.bus(:, BUS_TYPE) == REF);
 if length(refs) > 1 && mpopt.verbose > 0
-  errstr = ['\nopf_setup: Warning: Multiple reference buses.\n', ...
+  errstr = ['\nopf_setup_mpe: Warning: Multiple reference buses.\n', ...
               '           For a system with islands, a reference bus in each island\n', ...
               '           may help convergence, but in a fully connected system such\n', ...
               '           a situation is probably not reasonable.\n\n' ];

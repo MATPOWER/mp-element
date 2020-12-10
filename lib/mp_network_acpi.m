@@ -52,7 +52,7 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
                     d = st.data;
                     om.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
                 else
-                    error('handling of indexed sets not implmented here (yet)');
+                    error('mp_network_acpi/add_pf_vars: handling of indexed sets not implmented here (yet)');
                 end
             end
 
@@ -71,7 +71,7 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
                     d = st.data;
                     om.add_var(name, ad.npq, d.v0.(name)(ad.pq), d.vl.(name)(ad.pq), d.vu.(name)(ad.pq));
                 else
-                    error('handling of indexed sets not implmented here (yet)');
+                    error('mp_network_acpi/add_pf_vars: handling of indexed sets not implmented here (yet)');
                 end
             end
         end

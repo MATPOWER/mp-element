@@ -107,7 +107,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
                     d = st.data;
                     om.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
                 else
-                    error('handling of indexed sets not implmented here (yet)');
+                    error('mp_network_dc/add_pf_vars: handling of indexed sets not implmented here (yet)');
                 end
             end
         end
