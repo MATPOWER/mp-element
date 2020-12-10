@@ -129,8 +129,8 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
             [dm1, dm2] = dm.fdpf_B_matrix_models(alg);
 
             %% build network models and get admittance matrices
-            nm1 = feval(class(obj)).create_model(dm1, mpopt);
-            nm2 = feval(class(obj)).create_model(dm2, mpopt);
+            nm1 = feval(class(obj)).build(dm1, mpopt);
+            nm2 = feval(class(obj)).build(dm2, mpopt);
             [Y1, L, M] = nm1.get_params([], {'Y', 'L', 'M'});
             Y2 = nm2.get_params();
             if any(any(L)) || any(any(M))
@@ -225,7 +225,7 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
                     dm2 = dm.fdpf_B_matrix_models('FDBX');
 
                     %% build network models and get admittance matrices
-                    nm = feval(class(obj)).create_model(dm2, mpopt);
+                    nm = feval(class(obj)).build(dm2, mpopt);
                     [Y2, L, M] = nm.get_params([], {'Y', 'L', 'M'});
                     if any(any(L)) || any(any(M))
                         error('mp_network_acps/zg_x_update: B matrix for Z-bus Gauss w/PV buses not implemented for models with non-zero L and/or M matrices.')

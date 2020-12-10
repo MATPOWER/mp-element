@@ -27,9 +27,8 @@ classdef mp_network_dc < mp_network & mp_form_dc
             %% MP_IDX_MANAGER constructor, as desired.
             %%
             %% WORKAROUND:  INIT_SET_TYPES() is called explicitly as needed
-            %%              (if obj.node is empty) in CREATE_MODEL() and
-            %%              DISPLAY(), after object construction, but before
-            %%              object use.
+            %%              (if obj.node is empty) in BUILD() and DISPLAY(),
+            %%              after object construction, but before object use.
         end
 
         function obj = def_set_types(obj)

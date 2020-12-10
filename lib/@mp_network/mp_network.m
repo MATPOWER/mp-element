@@ -34,12 +34,11 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %% MP_IDX_MANAGER constructor, as desired.
             %%
             %% WORKAROUND:  INIT_SET_TYPES() is called explicitly as needed
-            %%              (if obj.node is empty) in CREATE_MODEL() and
-            %%              DISPLAY(), after object construction, but before
-            %%              object use.
+            %%              (if obj.node is empty) in BUILD() and DISPLAY(),
+            %%              after object construction, but before object use.
         end
 
-        function obj = create_model(obj, dm, mpopt)
+        function obj = build(obj, dm, mpopt)
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
             %% INIT_SET_TYPES() cannot be called directly in the
@@ -54,7 +53,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %%-----  HACK ALERT  -----
             %% This is a hack to deal with experimental
             %% mpopt.exp.sys_wide_zip_loads.pw/qw. MPOPT should be removed
-            %% completely as an argument to create_model() once data and
+            %% completely as an argument to BUILD() once data and
             %% options are properly separated.
             if nargin == 3 && isfield(mpopt, 'exp') && ...
                     ~isempty(mpopt.exp) && ...

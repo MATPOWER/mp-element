@@ -131,7 +131,7 @@ classdef mp_task < handle
             obj.nm = nm;
 
             nm = obj.network_model_create_pre(nm, dm, mpopt);
-            nm.create_model(dm, mpopt);
+            nm.build(dm, mpopt);
             nm = obj.network_model_create_post(nm, dm, mpopt);
         end
         

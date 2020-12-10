@@ -28,7 +28,7 @@ classdef mp_data_mpc2 < mp_data
                 end
                 %% load case and create mappings
                 obj.mpc = loadcase(m);
-                obj.create_model();
+                obj.build();
             end
         end
 
