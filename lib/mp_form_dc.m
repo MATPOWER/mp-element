@@ -1,11 +1,11 @@
 classdef mp_form_dc < mp_form
-%MP_FORM_DC  MATPOWER Model base class for DC models.
+%MP_FORM_DC  MATPOWER Formulation base class for DC formulations.
 %   Each concrete Network Model Element class must inherit, at least
 %   indirectly, from both NM_ELEMENT and MP_FORM.
 %
 %   Subclass of MP_FORM.
 %   MP_FORM provides properties and methods related to the specific
-%   model and formulation (e.g. DC version, AC polar power version, etc.)
+%   formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   MP_FORM_DC defines:
 %       linear active power injection = B theta + K z + p
@@ -18,13 +18,13 @@ classdef mp_form_dc < mp_form
 %       p - np*nk x 1 matrix
 %
 %   Methods
-%       model_name() - returns string w/name of model/formulation ('DC model')
-%       model_tag() - returns string w/short label for model/formulation ('dc')
+%       form_name() - returns string w/name of formulation ('DC formulation')
+%       form_tag() - returns string w/short label for formulation ('dc')
 %       model_params() - cell array of names of model parameters
 %                        {'B', 'K', 'p'}
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -41,10 +41,10 @@ classdef mp_form_dc < mp_form
     end
 
     methods
-        function name = model_name(obj)
-            name = 'DC model';
+        function name = form_name(obj)
+            name = 'DC formulation';
         end
-        function tag = model_tag(obj)
+        function tag = form_tag(obj)
             tag = 'dc';
         end
         function params = model_params(obj)

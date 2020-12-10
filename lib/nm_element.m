@@ -179,9 +179,9 @@ classdef nm_element < handle
             fprintf('# OF PORTS/ELEM        : %d\n', obj.np);
             fprintf('# OF NON-V STATES/ELEM : %d\n', obj.nz);
             if isa(obj, 'mp_form')
-                fprintf('MODEL NAME             : %s\n', obj.model_name());
-                fprintf('MODEL TAG              : %s\n', obj.model_tag());
-                fprintf('MODEL CLASS            : %s\n', obj.find_model_class());
+                fprintf('FORMULATION NAME       : %s\n', obj.form_name());
+                fprintf('FORMULATION TAG        : %s\n', obj.form_tag());
+                fprintf('FORMULATION CLASS      : %s\n', obj.find_form_class());
                 fprintf('MODEL PARAMETERS');
                 model_params = obj.model_params();
                 for j = 1:length(model_params)

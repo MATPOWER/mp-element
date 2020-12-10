@@ -1,11 +1,11 @@
 classdef mp_form_ac < mp_form
-%MP_FORM_AC  MATPOWER Model base class for AC models.
+%MP_FORM_AC  MATPOWER Formulation base class for AC formulations.
 %   Each concrete Network Model Element class must inherit, at least
 %   indirectly, from both NM_ELEMENT and MP_FORM.
 %
 %   Subclass of MP_FORM.
 %   MP_FORM provides properties and methods related to the specific
-%   model and formulation (e.g. DC version, AC polar power version, etc.)
+%   formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   MP_FORM_AC defines:
 %       linear current injection       = Y v_ + L z_ + i
@@ -50,10 +50,10 @@ classdef mp_form_ac < mp_form
     end
 
     methods
-        function name = model_name(obj)
-            name = 'AC model';
+        function name = form_name(obj)
+            name = 'AC formulation';
         end
-        function tag = model_tag(obj)
+        function tag = form_tag(obj)
             tag = 'ac';
         end
         function params = model_params(obj)

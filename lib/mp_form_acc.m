@@ -1,18 +1,18 @@
 classdef mp_form_acc < mp_form_ac
-%MP_FORM_ACC  MATPOWER Model class for AC cartesian voltage models.
+%MP_FORM_ACC  MATPOWER Formulation class for AC cartesian voltage formulations.
 %   Each concrete Network Model Element class must inherit, at least
 %   indirectly, from both NM_ELEMENT and MP_FORM.
 %
 %   Subclass of MP_FORM_AC.
 %   MP_FORM provides properties and methods related to the specific
-%   model and formulation (e.g. DC version, AC polar power version, etc.)
+%   formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   Properties
 %       (model parameters inherited from MP_FORM_AC)
 %
 %   Methods
-%       model_name() - returns string w/name of model/formulation ('AC-cartesian model')
-%       model_tag() - returns string w/short label for model/formulation ('acc')
+%       form_name() - returns string w/name of formulation ('AC-cartesian formulation')
+%       form_tag() - returns string w/short label for formulation ('acc')
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -26,10 +26,10 @@ classdef mp_form_acc < mp_form_ac
 %     end
 
     methods
-        function name = model_name(obj)
-            name = 'AC-cartesian model';
+        function name = form_name(obj)
+            name = 'AC-cartesian formulation';
         end
-        function tag = model_tag(obj)
+        function tag = form_tag(obj)
             tag = 'acc';
         end
         function vtypes = model_vvars(obj)

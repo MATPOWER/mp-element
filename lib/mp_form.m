@@ -1,20 +1,20 @@
 classdef mp_form < handle
-%MP_FORM  MATPOWER Model abstract base class.
+%MP_FORM  MATPOWER Formulation abstract base class.
 %   Each concrete Network Model Element class must inherit, at least
 %   indirectly, from both NM_ELEMENT and MP_FORM.
 %
 %   MP_FORM provides properties and methods related to the specific
-%   model and formulation (e.g. DC version, AC polar power version, etc.)
+%   formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   Properties
 %       subclasses provide properties for model parameters
 %
 %   Methods
-%       model_name() - returns string w/name of model/formulation
-%       model_tag() - returns string w/short label for model/formulation
+%       form_name() - returns string w/name of formulation
+%       form_tag() - returns string w/short label for formulation
 %       model_params() - cell array of names of model parameters
 %       get_params() - 
-%       find_model_class() - 
+%       find_form_class() - 
 %       superclass_tab() - 
 
 %   MATPOWER
@@ -30,11 +30,11 @@ classdef mp_form < handle
 %     end
     
     methods
-        function name = model_name(obj)
-            error('model_name() method not implemented');
+        function name = form_name(obj)
+            error('form_name() method not implemented');
         end
-        function tag = model_tag(obj)
-            error('model_tag() method not implemented');
+        function tag = form_tag(obj)
+            error('form_tag() method not implemented');
         end
         function params = model_params(obj)
             error('model_params() method not implemented');
@@ -84,7 +84,7 @@ classdef mp_form < handle
             end
         end
 
-        function model_class = find_model_class(obj)
+        function form_class = find_form_class(obj)
             if isa(obj, 'mp_form')
                 tab = obj.superclass_tab({'mp_form', 'nm_element'});
 
@@ -95,9 +95,9 @@ classdef mp_form < handle
                 [~, k] = max(tab.ii(j, 1));
 
                 assert(~isempty(k));
-                model_class = tab.name{j(k)};
+                form_class = tab.name{j(k)};
             else
-                model_class = '<none>';
+                form_class = '<none>';
             end
         end
 

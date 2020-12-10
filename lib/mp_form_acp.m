@@ -1,18 +1,18 @@
 classdef mp_form_acp < mp_form_ac
-%MP_FORM_ACP  MATPOWER Model class for AC polar voltage models.
+%MP_FORM_ACP  MATPOWER Formulation class for AC polar voltage formulations.
 %   Each concrete Network Model Element class must inherit, at least
 %   indirectly, from both NM_ELEMENT and MP_FORM.
 %
 %   Subclass of MP_FORM_AC.
 %   MP_FORM provides properties and methods related to the specific
-%   model and formulation (e.g. DC version, AC polar power version, etc.)
+%   formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   Properties
 %       (model parameters inherited from MP_FORM_AC)
 %
 %   Methods
-%       model_name() - returns string w/name of model/formulation ('AC-polar model')
-%       model_tag() - returns string w/short label for model/formulation ('acp')
+%       form_name() - returns string w/name of formulation ('AC-polar formulation')
+%       form_tag() - returns string w/short label for formulation ('acp')
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -26,10 +26,10 @@ classdef mp_form_acp < mp_form_ac
 %     end
 
     methods
-        function name = model_name(obj)
-            name = 'AC-polar model';
+        function name = form_name(obj)
+            name = 'AC-polar formulation';
         end
-        function tag = model_tag(obj)
+        function tag = form_tag(obj)
             tag = 'acp';
         end
         function vtypes = model_vvars(obj)
