@@ -1,4 +1,4 @@
-classdef mpe_branch < mp_element
+classdef nme_branch < nm_element
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -14,8 +14,8 @@ classdef mpe_branch < mp_element
     
     methods
         %% constructor
-        function obj = mpe_branch()
-            obj@mp_element();
+        function obj = nme_branch()
+            obj@nm_element();
             obj.name = 'branch';
             obj.np = 2;             %% this is a 2 port element
         end

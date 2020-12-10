@@ -1,4 +1,4 @@
-classdef mpe_shunt_ac < mpe_shunt% & mp_model_ac
+classdef nme_shunt_ac < nme_shunt% & mp_model_ac
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -13,7 +13,7 @@ classdef mpe_shunt_ac < mpe_shunt% & mp_model_ac
 
     methods
         function obj = build_params(obj, nm, dm)
-            build_params@mpe_shunt(obj, nm, dm);    %% call parent
+            build_params@nme_shunt(obj, nm, dm);    %% call parent
 
             dme = obj.data_model_element(dm);
             Ysh = dme.Gs(dme.on) + 1j * dme.Bs(dme.on); %% vector of shunt admittances

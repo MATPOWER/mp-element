@@ -1,4 +1,4 @@
-classdef mpe_branch_dc < mpe_branch & mp_model_dc
+classdef nme_branch_dc < nme_branch & mp_model_dc
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef mpe_branch_dc < mpe_branch & mp_model_dc
     
     methods
         function obj = build_params(obj, nm, dm)
-            build_params@mpe_branch(obj, nm, dm);   %% call parent
+            build_params@nme_branch(obj, nm, dm);   %% call parent
 
             dme = obj.data_model_element(dm);
             nl = obj.nk;

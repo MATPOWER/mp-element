@@ -1,4 +1,4 @@
-classdef mpe_wrapper_ac_nln < handle
+classdef nme_wrapper_ac_nln < handle
 
 %   MATPOWER
 %   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
@@ -9,11 +9,11 @@ classdef mpe_wrapper_ac_nln < handle
 %   See https://matpower.org for more info.
 
     properties
-        mpe = [];           %% wrapped mp_element object
+        mpe = [];           %% wrapped nm_element object
     end
     
     methods
-        function obj = mpe_wrapper_ac_nln_init(obj)
+        function obj = nme_wrapper_ac_nln_init(obj)
             obj.mpe = obj.mpe_class();      %% construct wrapped class
             
             %% copy base field values from wrapped object

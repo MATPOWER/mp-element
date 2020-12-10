@@ -1,4 +1,4 @@
-classdef mpe_load < mp_element
+classdef nme_load < nm_element
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -13,8 +13,8 @@ classdef mpe_load < mp_element
 
     methods
         %% constructor
-        function obj = mpe_load()
-            obj@mp_element();
+        function obj = nme_load()
+            obj@nm_element();
             obj.name = 'load';
             obj.np = 1;             %% this is a 1 port element
         end

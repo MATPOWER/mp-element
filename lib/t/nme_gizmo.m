@@ -1,4 +1,4 @@
-classdef mpe_gizmo < mp_element
+classdef nme_gizmo < nm_element
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -14,8 +14,8 @@ classdef mpe_gizmo < mp_element
     
     methods
         %% constructor
-        function obj = mpe_gizmo()
-            obj@mp_element();
+        function obj = nme_gizmo()
+            obj@nm_element();
             obj.name = 'gizmo';
             obj.np = 3;             %% this is a 3 port element
             obj.nz = 2;             %% each with 2 state variables

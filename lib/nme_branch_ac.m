@@ -1,4 +1,4 @@
-classdef mpe_branch_ac < mpe_branch% & mp_model_ac
+classdef nme_branch_ac < nme_branch% & mp_model_ac
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef mpe_branch_ac < mpe_branch% & mp_model_ac
     
     methods
         function obj = build_params(obj, nm, dm)
-            build_params@mpe_branch(obj, nm, dm);   %% call parent
+            build_params@nme_branch(obj, nm, dm);   %% call parent
 
             dme = obj.data_model_element(dm);
             nl = obj.nk;
@@ -70,7 +70,7 @@ classdef mpe_branch_ac < mpe_branch% & mp_model_ac
                                                     [flow_max; flow_max] .^ 2);
                     hess_flow = @(x, lam)port_current_lim_hess(obj, x, lam, nm, idx);
                 else
-                    error('mpe_branch_ac/add_opf_constraints: MPOPT.opf.flow_lim = ''%s'' not yet implemented.', mpopt.opf.flow_lim);
+                    error('nme_branch_ac/add_opf_constraints: MPOPT.opf.flow_lim = ''%s'' not yet implemented.', mpopt.opf.flow_lim);
                 end
             
                 om.add_nln_constraint({'Sf', 'St'}, [nl2;nl2], 0, fcn_flow, hess_flow);

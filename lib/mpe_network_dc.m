@@ -17,7 +17,9 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
         %% constructor
         function obj = mpe_network_dc()
             obj@mpe_network();
-            obj.element_classes = { @mpe_bus_dc, @mpe_gen_dc, @mpe_load_dc, @mpe_branch_dc, @mpe_shunt_dc };
+            obj.element_classes = { ...
+                @nme_bus_dc, @nme_gen_dc, @nme_load_dc, ...
+                    @nme_branch_dc, @nme_shunt_dc };
 
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),

@@ -1,4 +1,4 @@
-classdef mpe_gen_acp_nln < mpe_gen_acp & mpe_wrapper_ac_nln
+classdef nme_gen_acp_nln < nme_gen_acp & nme_wrapper_ac_nln
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -9,23 +9,23 @@ classdef mpe_gen_acp_nln < mpe_gen_acp & mpe_wrapper_ac_nln
 %   See https://matpower.org for more info.
 
     properties
-        mpe_class = @mpe_gen_acp;
+        mpe_class = @nme_gen_acp;
     end
     
     methods
-        function obj = mpe_gen_acp_nln()
-            obj@mpe_gen_acp();
-            obj.mpe_wrapper_ac_nln_init();
+        function obj = nme_gen_acp_nln()
+            obj@nme_gen_acp();
+            obj.nme_wrapper_ac_nln_init();
         end
 
         function build_params(obj, nm, dm)
-            build_params@mpe_gen_acp(obj, nm, dm);
+            build_params@nme_gen_acp(obj, nm, dm);
             obj.build_nln_params(nm, dm);
         end
 
         function nk = count(obj, dm)
             obj.mpe.count(dm);
-            nk = count@mpe_gen_acp(obj, dm);
+            nk = count@nme_gen_acp(obj, dm);
         end
     end     %% methods
 end         %% classdef

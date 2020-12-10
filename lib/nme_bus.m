@@ -1,4 +1,4 @@
-classdef mpe_bus < mp_element
+classdef nme_bus < nm_element
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -14,8 +14,8 @@ classdef mpe_bus < mp_element
 
     methods
         %% constructor
-        function obj = mpe_bus()
-            obj@mp_element();
+        function obj = nme_bus()
+            obj@nm_element();
             obj.name = 'bus';
             obj.np = 0;             %% this is a 0 port element
         end

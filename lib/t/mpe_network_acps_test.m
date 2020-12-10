@@ -12,7 +12,7 @@ classdef mpe_network_acps_test < mpe_network_acps
         %% constructor
         function obj = mpe_network_acps_test()
             obj@mpe_network_acps();
-            obj.element_classes{end+1} = @mpe_gizmo_acp;
+            obj.element_classes{end+1} = @nme_gizmo_acp;
 
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),

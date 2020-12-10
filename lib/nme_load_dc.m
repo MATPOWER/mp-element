@@ -1,4 +1,4 @@
-classdef mpe_load_dc < mpe_load & mp_model_dc
+classdef nme_load_dc < nme_load & mp_model_dc
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -13,7 +13,7 @@ classdef mpe_load_dc < mpe_load & mp_model_dc
 
     methods
         function obj = build_params(obj, nm, dm)
-            build_params@mpe_load(obj, nm, dm);     %% call parent
+            build_params@nme_load(obj, nm, dm);     %% call parent
 
             dme = obj.data_model_element(dm);
             obj.p = dme.Pd(dme.on);     %% vector of active power demand

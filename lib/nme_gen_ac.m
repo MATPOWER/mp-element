@@ -1,4 +1,4 @@
-classdef mpe_gen_ac < mpe_gen% & mp_model_ac
+classdef nme_gen_ac < nme_gen% & mp_model_ac
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -20,7 +20,7 @@ classdef mpe_gen_ac < mpe_gen% & mp_model_ac
         end
 
         function obj = build_params(obj, nm, dm)
-            build_params@mpe_gen(obj, nm, dm);      %% call parent
+            build_params@nme_gen(obj, nm, dm);      %% call parent
             ng = obj.nk;
             obj.N = -speye(ng);
         end
@@ -44,12 +44,12 @@ classdef mpe_gen_ac < mpe_gen% & mp_model_ac
             end
 
             %% call parent
-            add_opf_constraints@mpe_gen(obj, nm, om, dm, mpopt);
+            add_opf_constraints@nme_gen(obj, nm, om, dm, mpopt);
         end
 
         function add_opf_costs(obj, nm, om, dm, mpopt)
             %% call parent
-            add_opf_costs@mpe_gen(obj, nm, om, dm, mpopt);
+            add_opf_costs@nme_gen(obj, nm, om, dm, mpopt);
 
             %% costs on reactive dispatch
             if ~isempty(obj.cost.poly_q)

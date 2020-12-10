@@ -1,5 +1,5 @@
-function obj = t_mp_element(quiet, out_ac)
-%T_MP_ELEMENT  Tests for MP_ELEMENT.
+function obj = t_nm_element(quiet, out_ac)
+%T_NM_ELEMENT  Tests for NM_ELEMENT.
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -62,9 +62,9 @@ t_is(dc.nv, 9, 12, [t 'nv']);
 t_is(length(dc.elm_list), 4, 12, [t '# of element types']);
 
 mpe = dc.elm_list;
-t = 'mpe_bus_dc : '; k = 1;
+t = 'nme_bus_dc : '; k = 1;
 t_ok(strcmp(mpe{k}.name, 'bus'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_bus_dc'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_bus_dc'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'DC model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'dc'), [t 'model tag']);
@@ -80,9 +80,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'mpe_gen_dc : '; k = 2;
+t = 'nme_gen_dc : '; k = 2;
 t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_gen_dc'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_gen_dc'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'DC model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'dc'), [t 'model tag']);
@@ -98,9 +98,9 @@ t_is(mpe{k}.D, speye(3), 12, [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'mpe_load_dc : '; k = 3;
+t = 'nme_load_dc : '; k = 3;
 t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_load_dc'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_load_dc'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'DC model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'dc'), [t 'model tag']);
@@ -117,9 +117,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'mpe_branch_dc : '; k = 4;
+t = 'nme_branch_dc : '; k = 4;
 t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_branch_dc'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_branch_dc'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'DC model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'dc'), [t 'model tag']);
@@ -182,7 +182,7 @@ t_is(P2, eP([3;1]), 8, t);
 t = 'dc.elm_by_name(''gen'') : ';
 gen = dc.elm_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(gen), 'mpe_gen_dc'), [t 'class']);
+t_ok(strcmp(class(gen), 'nme_gen_dc'), [t 'class']);
 
 t = 'gen.port_inj_power(x, 1)';
 Pg = gen.port_inj_power(x, 1);
@@ -238,9 +238,9 @@ t_is(ac.nv, 18, 12, [t 'nv']);
 t_is(length(ac.elm_list), 4, 12, [t '# of element types']);
 
 mpe = ac.elm_list;
-t = 'mpe_bus_acp : '; k = 1;
+t = 'nme_bus_acp : '; k = 1;
 t_ok(strcmp(mpe{k}.name, 'bus'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_bus_acp'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_bus_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -259,9 +259,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'mpe_gen_acp : '; k = 2;
+t = 'nme_gen_acp : '; k = 2;
 t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_gen_acp'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_gen_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -280,9 +280,9 @@ t_is(mpe{k}.D, speye(3), 12, [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'mpe_load_acp : '; k = 3;
+t = 'nme_load_acp : '; k = 3;
 t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_load_acp'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_load_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -302,9 +302,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'mpe_branch_acp : '; k = 4;
+t = 'nme_branch_acp : '; k = 4;
 t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_branch_acp'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_branch_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -389,7 +389,7 @@ t_is(Szi1, Szi([3;2;1], :), 12, [t 'Szi']);
 t = 'ac.elm_by_name(''gen'') : ';
 gen = ac.elm_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(gen), 'mpe_gen_acp'), [t 'class']);
+t_ok(strcmp(class(gen), 'nme_gen_acp'), [t 'class']);
 
 t = 'S = gen.port_inj_power(x_, 1)';
 Sg = gen.port_inj_power(x_, 1);
@@ -578,9 +578,9 @@ t_is(ac.nv, 18, 12, [t 'nv']);
 t_is(length(ac.elm_list), 5, 12, [t '# of element types']);
 
 mpe = ac.elm_list;
-t = 'mpe_bus_acp : '; k = 1;
+t = 'nme_bus_acp : '; k = 1;
 t_ok(strcmp(mpe{k}.name, 'bus'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_bus_acp'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_bus_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -599,9 +599,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'mpe_gen_acp : '; k = 2;
+t = 'nme_gen_acp : '; k = 2;
 t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_gen_acp'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_gen_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -620,9 +620,9 @@ t_is(mpe{k}.D, sparse(1:3, 1:3, 1, 7, 3), 12, [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'mpe_load_acp : '; k = 3;
+t = 'nme_load_acp : '; k = 3;
 t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_load_acp'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_load_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -642,9 +642,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'mpe_branch_acp : '; k = 4;
+t = 'nme_branch_acp : '; k = 4;
 t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_branch_acp'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_branch_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -679,9 +679,9 @@ t_ok(isempty(mpe{k}.D), [t 'D']);
 % C = mpe{k}.C
 % D = mpe{k}.D
 
-t = 'mpe_gizmo_acp : '; k = 5;
+t = 'nme_gizmo_acp : '; k = 5;
 t_ok(strcmp(mpe{k}.name, 'gizmo'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'mpe_gizmo_acp'), [t 'class']);
+t_ok(strcmp(class(mpe{k}), 'nme_gizmo_acp'), [t 'class']);
 t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
 t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
 t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
@@ -781,7 +781,7 @@ t_is(Szi1, Szi([3;2;1], :), 12, [t 'Szi']);
 t = 'ac.elm_by_name(''gen'') : ';
 gen = ac.elm_by_name('gen');
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(gen), 'mpe_gen_acp'), [t 'class']);
+t_ok(strcmp(class(gen), 'nme_gen_acp'), [t 'class']);
 
 t = 'S = gen.port_inj_power(x_, 1)';
 Sg = gen.port_inj_power(x_, 1);

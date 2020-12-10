@@ -1,4 +1,4 @@
-classdef mpe_shunt_dc < mpe_shunt & mp_model_dc
+classdef nme_shunt_dc < nme_shunt & mp_model_dc
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -13,7 +13,7 @@ classdef mpe_shunt_dc < mpe_shunt & mp_model_dc
 
     methods
         function obj = build_params(obj, nm, dm)
-            build_params@mpe_shunt(obj, nm, dm);   %% call parent
+            build_params@nme_shunt(obj, nm, dm);   %% call parent
 
             dme = obj.data_model_element(dm);
             obj.p = dme.Gs(dme.on);     %% vector of shunt conductances

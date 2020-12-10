@@ -1,4 +1,4 @@
-classdef mpe_gen < mp_element
+classdef nme_gen < nm_element
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -24,8 +24,8 @@ classdef mpe_gen < mp_element
     
     methods
         %% constructor
-        function obj = mpe_gen()
-            obj@mp_element();
+        function obj = nme_gen()
+            obj@nm_element();
             obj.name = 'gen';
             obj.np = 1;             %% this is a 1 port element
             obj.nz = 1;

@@ -1,7 +1,7 @@
 classdef mp_model_acc < mp_model_ac
 %MP_MODEL_ACC  MATPOWER Model class for AC cartesian voltage models.
-%   Each concrete MATPOWER Element class must inherit, at least indirectly,
-%   from both MP_ELEMENT and MP_MODEL.
+%   Each concrete Network Model Element class must inherit, at least
+%   indirectly, from both NM_ELEMENT and MP_MODEL.
 %
 %   Subclass of MP_MODEL_AC.
 %   MP_MODEL provides properties and methods related to the specific

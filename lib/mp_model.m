@@ -1,7 +1,7 @@
 classdef mp_model < handle
 %MP_MODEL  MATPOWER Model abstract base class.
-%   Each concrete MATPOWER Element class must inherit, at least indirectly,
-%   from both MP_ELEMENT and MP_MODEL.
+%   Each concrete Network Model Element class must inherit, at least
+%   indirectly, from both NM_ELEMENT and MP_MODEL.
 %
 %   MP_MODEL provides properties and methods related to the specific
 %   model and formulation (e.g. DC version, AC polar power version, etc.)
@@ -86,9 +86,9 @@ classdef mp_model < handle
 
         function model_class = find_model_class(obj)
             if isa(obj, 'mp_model')
-                tab = obj.superclass_tab({'mp_model', 'mp_element'});
+                tab = obj.superclass_tab({'mp_model', 'nm_element'});
 
-                %% select among classes that are not mp_element's ...
+                %% select among classes that are not nm_element's ...
                 j = find(tab.ii(:, 2) == 0);
                 %% ... the mp_model class with longest inheritance path
                 %% back to mp_model

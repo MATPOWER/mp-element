@@ -1,4 +1,4 @@
-classdef mpe_branch_acc < mpe_branch_ac & mp_model_acc
+classdef nme_branch_acc < nme_branch_ac & mp_model_acc
 
 %   MATPOWER
 %   Copyright (c) 2018-2020, Power Systems Engineering Research Center (PSERC)
@@ -60,7 +60,7 @@ classdef mpe_branch_acc < mpe_branch_ac & mp_model_acc
 
         function add_opf_constraints(obj, nm, om, dm, mpopt)
             %% call parent
-            add_opf_constraints@mpe_branch_ac(obj, nm, om, dm, mpopt);
+            add_opf_constraints@nme_branch_ac(obj, nm, om, dm, mpopt);
 
             %% branch angle difference limits
             [Aang, lang, uang, iang] = ...

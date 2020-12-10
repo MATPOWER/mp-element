@@ -1,4 +1,4 @@
-classdef mpe_shunt < mp_element
+classdef nme_shunt < nm_element
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -13,8 +13,8 @@ classdef mpe_shunt < mp_element
 
     methods
         %% constructor
-        function obj = mpe_shunt()
-            obj@mp_element();
+        function obj = nme_shunt()
+            obj@nm_element();
             obj.name = 'shunt';
             obj.np = 1;             %% this is a 1 port element
         end

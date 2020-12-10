@@ -1,4 +1,4 @@
-classdef mpe_gen_dc < mpe_gen & mp_model_dc
+classdef nme_gen_dc < nme_gen & mp_model_dc
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
@@ -20,7 +20,7 @@ classdef mpe_gen_dc < mpe_gen & mp_model_dc
         end
 
         function obj = build_params(obj, nm, dm)
-            build_params@mpe_gen(obj, nm, dm);      %% call parent
+            build_params@nme_gen(obj, nm, dm);      %% call parent
             ng = obj.nk;
             obj.K = -speye(ng);
         end
@@ -32,7 +32,7 @@ classdef mpe_gen_dc < mpe_gen & mp_model_dc
             end
 
             %% call parent
-            add_opf_constraints@mpe_gen(obj, nm, om, dm, mpopt);
+            add_opf_constraints@nme_gen(obj, nm, om, dm, mpopt);
         end
     end     %% methods
 end         %% classdef

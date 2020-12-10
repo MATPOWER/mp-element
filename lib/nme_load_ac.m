@@ -1,4 +1,4 @@
-classdef mpe_load_ac < mpe_load% & mp_model_ac
+classdef nme_load_ac < nme_load% & mp_model_ac
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -13,7 +13,7 @@ classdef mpe_load_ac < mpe_load% & mp_model_ac
 
     methods
         function obj = build_params(obj, nm, dm)
-            build_params@mpe_load(obj, nm, dm);     %% call parent
+            build_params@nme_load(obj, nm, dm);     %% call parent
 
             dme = obj.data_model_element(dm);
             obj.s = dme.Pd(dme.on) + 1j * dme.Qd(dme.on);   %% complex power demand

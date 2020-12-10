@@ -25,7 +25,7 @@ if isempty(obj.node)        %% only if not already initialized
 end
 
 %% base element info
-display@mp_element(obj)
+display@nm_element(obj)
 fprintf('\n');
 
 %% nodes and states

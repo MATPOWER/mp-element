@@ -1,6 +1,6 @@
-classdef mp_element < handle
-%MP_ELEMENT  Abstract base class for MATPOWER network model elements
-%   MPE = MP_ELEMENT()
+classdef nm_element < handle
+%NM_ELEMENT  Abstract base class for MATPOWER network model elements
+%   MPE = NM_ELEMENT()
 %
 %   Each concrete sub-class must also inherit from a sub-class of MP_MODEL.
 %
@@ -41,7 +41,7 @@ classdef mp_element < handle
 %   See https://matpower.org for more info.
 
     properties
-        name = 'mp_element';
+        name = 'nm_element';
         np = 0;             %% number of ports per element
         nz = 0;             %% number of non-voltage states per element (possibly complex)
         nk = 0;             %% number of elements of this type loaded

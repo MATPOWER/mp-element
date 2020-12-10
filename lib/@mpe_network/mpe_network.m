@@ -1,6 +1,6 @@
-classdef mpe_network < mp_element & mpe_container & mp_idx_manager% & mp_model
+classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
 %MPE_NETWORK  Abstract base class for MATPOWER network model
-%   Explicitly a subclass of MP_ELEMENT, MP_IDX_MANAGER and MPE_CONTAINER,
+%   Explicitly a subclass of NM_ELEMENT, MP_IDX_MANAGER and MPE_CONTAINER,
 %   and implicitly assumed to be a subclass of MP_MODEL as well.
 
 %   MATPOWER
@@ -22,7 +22,7 @@ classdef mpe_network < mp_element & mpe_container & mp_idx_manager% & mp_model
     methods
         %% constructor
         function obj = mpe_network()
-            obj@mp_element();
+            obj@nm_element();
             obj.name = 'network';
             obj.np = 0;     %% unknown number of ports at this point, init to 0
             obj.nk = 1;

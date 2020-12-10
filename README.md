@@ -45,7 +45,7 @@ of MATLAB or Octave, including setting up your MATLAB/Octave path.
     The result should resemble the following:
 ```matlab
   >> test_mp_element
-  t_mp_element..................ok
+  t_nm_element..................ok
   t_acp_port_inj_current........ok
   t_acp_port_inj_power..........ok
   t_acc_port_inj_current........ok
