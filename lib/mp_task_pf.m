@@ -69,7 +69,7 @@ classdef mp_task_pf < mp_task
         end
 
         %%-----  mathematical model methods  -----
-        function mm = math_model_create_pre(obj, mm, nm, dm, mpopt)
+        function mm = math_model_build_pre(obj, mm, nm, dm, mpopt)
             ad = nm.power_flow_aux_data(dm, mpopt);
             mm.userdata.power_flow_aux_data = ad;
         end

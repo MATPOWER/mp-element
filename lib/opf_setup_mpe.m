@@ -177,9 +177,9 @@ end
 if 0
 opf = mp_task_opf();
 %% from opf.run()
-dm = opf.data_model_create(mpc, mpopt);
-nm = opf.network_model_create(dm, mpopt);
-om = opf.math_model_create(nm, dm, mpopt);
+dm = opf.data_model_build(mpc, mpopt);
+nm = opf.network_model_build(dm, mpopt);
+om = opf.math_model_build(nm, dm, mpopt);
 else
 dm = mp_data_mpc2(mpc);
 % nm = netmodel().build(dm);

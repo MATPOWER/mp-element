@@ -106,7 +106,7 @@ classdef mp_task_opf < mp_task
             obj.mm_opt = opt;
         end
 
-        function mm = math_model_create_post(obj, mm, nm, dm, mpopt)
+        function mm = math_model_build_post(obj, mm, nm, dm, mpopt)
             %% execute userfcn callbacks for 'formulation' stage
             mpc = dm.mpc;
             if isfield(mpc, 'userfcn')

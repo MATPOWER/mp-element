@@ -41,9 +41,9 @@ classdef mp_task < handle
     methods
         function obj = run(obj, m, mpopt)
             %% create models
-            dm = obj.data_model_create(m, mpopt);
-            nm = obj.network_model_create(dm, mpopt);
-            mm = obj.math_model_create(nm, dm, mpopt);
+            dm = obj.data_model_build(m, mpopt);
+            nm = obj.network_model_build(dm, mpopt);
+            mm = obj.math_model_build(nm, dm, mpopt);
 
             %% get solve options
             mm_opt = obj.math_model_opt(mm, nm, dm, mpopt);
@@ -87,7 +87,7 @@ classdef mp_task < handle
             end
         end
 
-        function dm = data_model_create(obj, m, mpopt)
+        function dm = data_model_build(obj, m, mpopt)
             if ~isa(m, 'mp_data')
                 dm_class = obj.data_model_class(m, mpopt);
                 if isfield(mpopt.exp, 'dm_element_classes')
@@ -99,10 +99,10 @@ classdef mp_task < handle
                 dm = m;
             end
             obj.dm = dm;
-            dm = obj.data_model_create_post(dm, mpopt);
+            dm = obj.data_model_build_post(dm, mpopt);
         end
 
-        function dm = data_model_create_post(obj, dm, mpopt)
+        function dm = data_model_build_post(obj, dm, mpopt)
 %             dm.ext2int(mpopt);
         end
 
@@ -125,17 +125,17 @@ classdef mp_task < handle
             end
         end
 
-        function nm = network_model_create(obj, dm, mpopt)
+        function nm = network_model_build(obj, dm, mpopt)
             nm_class = obj.network_model_class(dm, mpopt);
             nm = nm_class();
             obj.nm = nm;
 
-            nm = obj.network_model_create_pre(nm, dm, mpopt);
+            nm = obj.network_model_build_pre(nm, dm, mpopt);
             nm.build(dm, mpopt);
-            nm = obj.network_model_create_post(nm, dm, mpopt);
+            nm = obj.network_model_build_post(nm, dm, mpopt);
         end
         
-        function nm = network_model_create_pre(obj, nm, dm, mpopt)
+        function nm = network_model_build_pre(obj, nm, dm, mpopt)
             %% add user-supplied elements to nm.element_classes
             if isfield(mpopt.exp, 'nm_element_classes') && ...
                     ~isempty(mpopt.exp.nm_element_classes)
@@ -143,7 +143,7 @@ classdef mp_task < handle
             end
         end
 
-        function nm = network_model_create_post(obj, nm, dm, mpopt)
+        function nm = network_model_build_post(obj, nm, dm, mpopt)
         end
 
         function nm = network_model_update(obj, mm, nm)
@@ -154,12 +154,12 @@ classdef mp_task < handle
             mm_class = @opt_model;
         end
 
-        function mm = math_model_create(obj, nm, dm, mpopt)
+        function mm = math_model_build(obj, nm, dm, mpopt)
             mm_class = obj.math_model_class(nm, dm, mpopt);
             mm = mm_class();
             obj.mm = mm;
 
-            mm = obj.math_model_create_pre(mm, nm, dm, mpopt);
+            mm = obj.math_model_build_pre(mm, nm, dm, mpopt);
 
             %% add variables, constraints, costs
             if nm.np ~= 0       %% skip for empty model
@@ -168,14 +168,14 @@ classdef mp_task < handle
                 obj.math_model_add_costs(mm, nm, dm, mpopt);
                 
                 %% add user customization
-                mm = obj.math_model_create_post(mm, nm, dm, mpopt);
+                mm = obj.math_model_build_post(mm, nm, dm, mpopt);
             end
         end
 
-        function mm = math_model_create_pre(obj, mm, nm, dm, mpopt)
+        function mm = math_model_build_pre(obj, mm, nm, dm, mpopt)
         end
 
-        function mm = math_model_create_post(obj, mm, nm, dm, mpopt)
+        function mm = math_model_build_post(obj, mm, nm, dm, mpopt)
         end
 
         function obj = math_model_add_vars(obj, mm, nm, dm, mpopt)
