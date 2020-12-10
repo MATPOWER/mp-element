@@ -79,6 +79,9 @@ classdef mp_task_opf < mp_task
         %%-----  mathematical model methods  -----
         function mm_class = math_model_class(obj, nm, dm, mpopt)
             mm_class = @opf_model;
+            %% switch back to simple opt_model, if possible
+            %% I believe opf_model is required for callback functions
+            %% that extract mpc from the om
         end
 
         function obj = math_model_add_vars(obj, mm, nm, dm, mpopt)

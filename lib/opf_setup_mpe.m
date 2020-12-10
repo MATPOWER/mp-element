@@ -177,10 +177,18 @@ else
 end
 
 %%-----  build network model from data model (mpc)  -----
+if 0
+opf = mp_task_opf();
+%% from opf.run()
+dm = opf.data_model_create(mpc, mpopt);
+nm = opf.network_model_create(dm, mpopt);
+om = opf.math_model_create(nm, dm, mpopt);
+else
 dm = mp_data_mpc2(mpc);
 % nm = netmodel().create_model(dm);
 nm = netmodel().create_model(dm, mpopt);   %% remove mpopt once we get all data (e.g. exp.sys_wide_zip_loads) out of options
 om = nm.setup_opf(dm, mpopt);
+end
 
 %% store indices of costs that were converted
 if ~isempty(pwl1)
