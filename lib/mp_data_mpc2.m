@@ -146,5 +146,54 @@ classdef mp_data_mpc2 < mp_data
 
             [Ah, uh, Al, ul, data] = makeApq(baseMVA, gen(gen_dme.on, :));
         end
+
+        function [uv, z] = opf_legacy_user_vars(obj, uv_names, nx, mpopt)
+            %% create (read-only) copies of individual fields for convenience
+            mpc = obj.mpc;
+            [baseMVA, bus, gen, branch, gencost, Au, lbu, ubu, mpopt, ...
+                N, fparm, H, Cw, z0, zl, zu, userfcn] = opf_args(mpc, mpopt);
+
+            %% get some more problem dimensions
+            if isfield(mpc, 'A')
+                nlin = size(mpc.A, 1);  %% number of linear user constraints
+            else
+                nlin = 0;
+            end
+            if isfield(mpc, 'N')
+                nw = size(mpc.N, 1);    %% number of general cost vars, w
+            else
+                nw = 0;
+            end
+
+            %% get number of user vars, check consistency
+            if nlin
+                nz = size(mpc.A, 2) - nx; %% number of user z variables
+                if nz < 0
+                    error('mp_data_mpc2/add_opf_legacy_user_vars: user supplied A matrix must have at least %d columns.', nx);
+                end
+            else
+                nz = 0;               %% number of user z variables
+                if nw                 %% still need to check number of columns of N
+                    if size(mpc.N, 2) ~= nx;
+                        error('mp_data_mpc2/add_opf_legacy_user_vars: user supplied N matrix must have %d columns.', nx);
+                    end
+                end
+            end
+
+            %% package up return data
+            uv = struct( ...
+                    'user_vars', {uv_names}, ...
+                    'nlin', nlin, ...
+                    'nw', nw, ...
+                    'A', Au, ...
+                    'l', lbu, ...
+                    'u', ubu, ...
+                    'N', N, ...
+                    'fparm', fparm, ...
+                    'H', H, ...
+                    'Cw', Cw ...
+                );
+            z = struct('nz', nz, 'z0', z0, 'zl', zl, 'zu', zu);
+        end
     end     %% methods
 end         %% classdef

@@ -480,54 +480,16 @@ classdef mpe_network < mp_element & mpe_container & mp_idx_manager% & mp_model
         end
 
         function add_opf_legacy_user_vars(obj, om, dm, mpopt)
-            %% create (read-only) copies of individual fields for convenience
-            mpc = dm.mpc;
-            [baseMVA, bus, gen, branch, gencost, Au, lbu, ubu, mpopt, ...
-                N, fparm, H, Cw, z0, zl, zu, userfcn] = opf_args(mpc, mpopt);
-
-            %% get some more problem dimensions
-            if isfield(mpc, 'A')
-                nlin = size(mpc.A, 1);  %% number of linear user constraints
-            else
-                nlin = 0;
-            end
-            if isfield(mpc, 'N')
-                nw = size(mpc.N, 1);    %% number of general cost vars, w
-            else
-                nw = 0;
-            end
-
-            %% get number of user vars, check consistency
-            nx = sum(cellfun(@(x)om.getN('var', x), obj.opf_legacy_user_var_names()));
-            if nlin
-                nz = size(mpc.A, 2) - nx; %% number of user z variables
-                if nz < 0
-                    error('mpe_network/add_opf_legacy_user_vars: user supplied A matrix must have at least %d columns.', nx);
-                end
-            else
-                nz = 0;               %% number of user z variables
-                if nw                 %% still need to check number of columns of N
-                    if size(mpc.N, 2) ~= nx;
-                        error('mpe_network/add_opf_legacy_user_vars: user supplied N matrix must have %d columns.', nx);
-                    end
-                end
-            end
+            uv_names = obj.opf_legacy_user_var_names();
+            nx = sum(cellfun(@(x)om.getN('var', x), uv_names));
+            [uv, z] = dm.opf_legacy_user_vars(uv_names, nx, mpopt);
 
             %% save data
-            om.userdata.user_vars = obj.opf_legacy_user_var_names();
-            om.userdata.nlin = nlin;
-            om.userdata.nw = nw;
-            om.userdata.A = Au;
-            om.userdata.l = lbu;
-            om.userdata.u = ubu;
-            om.userdata.N = N;
-            om.userdata.fparm = fparm;
-            om.userdata.H = H;
-            om.userdata.Cw = Cw;
+            om.userdata = nested_struct_copy(om.userdata, uv);
 
             %% add any user-defined vars
-            if nz > 0
-                om.add_var('z', nz, z0, zl, zu);
+            if z.nz > 0
+                om.add_var('z', z.nz, z.z0, z.zl, z.zu);
                 om.userdata.user_vars{end+1} = 'z';
             end
         end
