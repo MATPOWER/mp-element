@@ -195,5 +195,48 @@ classdef mp_data_mpc2 < mp_data
                 );
             z = struct('nz', nz, 'z0', z0, 'zl', zl, 'zu', zu);
         end
+
+        function uc = opf_legacy_user_constraints(obj, uv_names, nx, mpopt)
+            mpc = dm.mpc;
+
+            %% check for user-defined nonlinear constraints
+            nnle = 0;   %% number of nonlinear user-defined equality cons
+            nnli = 0;   %% number of nonlinear user-defined inequality cons
+            if isfield(mpc, 'user_constraints')
+                if isfield(mpc.user_constraints, 'nle')
+                    for k = 1:length(mpc.user_constraints.nle)
+                        nnle = nnle + mpc.user_constraints.nle{k}{2};
+                    end
+                end
+                if isfield(mpc.user_constraints, 'nli')
+                    for k = 1:length(mpc.user_constraints.nli)
+                        nnli = nnli + mpc.user_constraints.nli{k}{2};
+                    end
+                end
+            end
+
+            %% initialize cell array for add_nln_constraint() args
+            uc = cell(nnle+nnli, 1);
+
+            %% user-defined nonlinear equalities
+            if nnle
+                for k = 1:length(mpc.user_constraints.nle)
+                    nlc = mpc.user_constraints.nle{k};
+                    fcn  = eval(['@(x)' nlc{3} '(x, nlc{6}{:})']);
+                    hess = eval(['@(x, lam)' nlc{4} '(x, lam, nlc{6}{:})']);
+                    uc{k} = {nlc{1:2}, 1, fcn, hess, nlc{5}};
+                end
+            end
+
+            %% user-defined nonlinear inequalities
+            if nnli
+                for k = 1:length(mpc.user_constraints.nli)
+                    nlc = mpc.user_constraints.nli{k};
+                    fcn  = eval(['@(x)' nlc{3} '(x, nlc{6}{:})'])
+                    hess = eval(['@(x, lam)' nlc{4} '(x, lam, nlc{6}{:})'])
+                    uc{nnle+k} = {nlc{1:2}, 0, fcn, hess, nlc{5}};
+                end
+            end
+        end
     end     %% methods
 end         %% classdef

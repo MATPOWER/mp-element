@@ -400,45 +400,12 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         end
 
         function add_opf_legacy_user_constraints(obj, om, dm, mpopt)
-            mpc = dm.mpc;
-
             %% call parent
             add_opf_legacy_user_constraints@mp_network(obj, om, dm, mpopt);
 
-            %% check for user-defined nonlinear constraints
-            nnle = 0;   %% number of nonlinear user-defined equality cons
-            nnli = 0;   %% number of nonlinear user-defined inequality cons
-            if isfield(mpc, 'user_constraints')
-                if isfield(mpc.user_constraints, 'nle')
-                    for k = 1:length(mpc.user_constraints.nle)
-                        nnle = nnle + mpc.user_constraints.nle{k}{2};
-                    end
-                end
-                if isfield(mpc.user_constraints, 'nli')
-                    for k = 1:length(mpc.user_constraints.nli)
-                        nnli = nnli + mpc.user_constraints.nli{k}{2};
-                    end
-                end
-            end
-
-            %% user-defined nonlinear equalities
-            if nnle
-                for k = 1:length(mpc.user_constraints.nle)
-                    nlc = mpc.user_constraints.nle{k};
-                    fcn  = eval(['@(x)' nlc{3} '(x, nlc{6}{:})']);
-                    hess = eval(['@(x, lam)' nlc{4} '(x, lam, nlc{6}{:})']);
-                    om.add_nln_constraint(nlc{1:2}, 1, fcn, hess, nlc{5});
-                end
-            end
-
-            %% user-defined nonlinear inequalities
-            if nnli
-                for k = 1:length(mpc.user_constraints.nli)
-                    nlc = mpc.user_constraints.nli{k};
-                    fcn  = eval(['@(x)' nlc{3} '(x, nlc{6}{:})'])
-                    hess = eval(['@(x, lam)' nlc{4} '(x, lam, nlc{6}{:})'])
-                    om.add_nln_constraint(nlc{1:2}, 0, fcn, hess, nlc{5});
-                end
+            uc = dm.opf_legacy_user_constraints();
+            for k = 1:length(uc)
+                om.add_nln_constraint(uc{k}{:});
             end
         end
     end     %% methods
