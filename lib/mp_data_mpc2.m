@@ -238,5 +238,16 @@ classdef mp_data_mpc2 < mp_data
                 end
             end
         end
+
+        function mm = run_userfcn(obj, mm, mpopt)
+            %% execute userfcn callbacks for 'formulation' stage
+            mpc = obj.mpc;
+            if isfield(mpc, 'userfcn')
+                userfcn = mpc.userfcn;
+            else
+                userfcn = [];
+            end
+            mm = run_userfcn(userfcn, 'formulation', mm, mpopt);
+        end
     end     %% methods
 end         %% classdef

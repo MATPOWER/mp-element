@@ -104,14 +104,7 @@ classdef mp_task_opf < mp_task
         end
 
         function mm = math_model_build_post(obj, mm, nm, dm, mpopt)
-            %% execute userfcn callbacks for 'formulation' stage
-            mpc = dm.mpc;
-            if isfield(mpc, 'userfcn')
-                userfcn = mpc.userfcn;
-            else
-                userfcn = [];
-            end
-            mm = run_userfcn(userfcn, 'formulation', mm, mpopt);
+            mm = dm.run_userfcn(mm, mpopt);
         end
     end     %% methods
 end         %% classdef
