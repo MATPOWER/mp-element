@@ -1,4 +1,4 @@
-classdef nme_shunt_ac < nme_shunt% & mp_model_ac
+classdef nme_shunt_ac < nme_shunt% & mp_form_ac
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

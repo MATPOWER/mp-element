@@ -2,7 +2,7 @@ classdef nm_element < handle
 %NM_ELEMENT  Abstract base class for MATPOWER network model elements
 %   NME = NM_ELEMENT()
 %
-%   Each concrete sub-class must also inherit from a sub-class of MP_MODEL.
+%   Each concrete sub-class must also inherit from a sub-class of MP_FORM.
 %
 %   Properties
 %       name : name of element type (constant across forumations)
@@ -178,7 +178,7 @@ classdef nm_element < handle
             fprintf('# OF ELEMENTS          : %d\n', obj.nk);
             fprintf('# OF PORTS/ELEM        : %d\n', obj.np);
             fprintf('# OF NON-V STATES/ELEM : %d\n', obj.nz);
-            if isa(obj, 'mp_model')
+            if isa(obj, 'mp_form')
                 fprintf('MODEL NAME             : %s\n', obj.model_name());
                 fprintf('MODEL TAG              : %s\n', obj.model_tag());
                 fprintf('MODEL CLASS            : %s\n', obj.find_model_class());

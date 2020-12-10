@@ -1,4 +1,4 @@
-classdef nme_shunt_acp < nme_shunt_ac & mp_model_acp
+classdef nme_shunt_acp < nme_shunt_ac & mp_form_acp
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

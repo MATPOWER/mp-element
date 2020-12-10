@@ -1,9 +1,9 @@
-classdef mp_model < handle
-%MP_MODEL  MATPOWER Model abstract base class.
+classdef mp_form < handle
+%MP_FORM  MATPOWER Model abstract base class.
 %   Each concrete Network Model Element class must inherit, at least
-%   indirectly, from both NM_ELEMENT and MP_MODEL.
+%   indirectly, from both NM_ELEMENT and MP_FORM.
 %
-%   MP_MODEL provides properties and methods related to the specific
+%   MP_FORM provides properties and methods related to the specific
 %   model and formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   Properties
@@ -26,7 +26,7 @@ classdef mp_model < handle
 %   See https://matpower.org for more info.
 
 %     properties
-%         mp_model_field = '';
+%         mp_form_field = '';
 %     end
     
     methods
@@ -58,7 +58,7 @@ classdef mp_model < handle
 
             if nargout > length(names)
                 namestr = sprintf(' ''%s''', names{:})
-                error('@mp_model/get_params: return values must correspond to%s', namestr);
+                error('@mp_form/get_params: return values must correspond to%s', namestr);
             end
 
             varargout = cell(1, nargout);
@@ -85,13 +85,13 @@ classdef mp_model < handle
         end
 
         function model_class = find_model_class(obj)
-            if isa(obj, 'mp_model')
-                tab = obj.superclass_tab({'mp_model', 'nm_element'});
+            if isa(obj, 'mp_form')
+                tab = obj.superclass_tab({'mp_form', 'nm_element'});
 
                 %% select among classes that are not nm_element's ...
                 j = find(tab.ii(:, 2) == 0);
-                %% ... the mp_model class with longest inheritance path
-                %% back to mp_model
+                %% ... the mp_form class with longest inheritance path
+                %% back to mp_form
                 [~, k] = max(tab.ii(j, 1));
 
                 assert(~isempty(k));
@@ -102,7 +102,7 @@ classdef mp_model < handle
         end
 
         function [tab, ii] = superclass_tab(obj, roots, mcls, tab, ii, level)
-            %% obj - an mp_model object
+            %% obj - an mp_form object
             %% roots - cell array of names of root classes to search for
             %% mcls - meta class object (undocumented MATLAB and Octave) for
             %%        the class of interest

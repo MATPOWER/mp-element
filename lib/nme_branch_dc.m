@@ -1,4 +1,4 @@
-classdef nme_branch_dc < nme_branch & mp_model_dc
+classdef nme_branch_dc < nme_branch & mp_form_dc
 
 %   MATPOWER
 %   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)

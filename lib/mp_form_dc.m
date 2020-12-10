@@ -1,13 +1,13 @@
-classdef mp_model_dc < mp_model
-%MP_MODEL_DC  MATPOWER Model base class for DC models.
+classdef mp_form_dc < mp_form
+%MP_FORM_DC  MATPOWER Model base class for DC models.
 %   Each concrete Network Model Element class must inherit, at least
-%   indirectly, from both NM_ELEMENT and MP_MODEL.
+%   indirectly, from both NM_ELEMENT and MP_FORM.
 %
-%   Subclass of MP_MODEL.
-%   MP_MODEL provides properties and methods related to the specific
+%   Subclass of MP_FORM.
+%   MP_FORM provides properties and methods related to the specific
 %   model and formulation (e.g. DC version, AC polar power version, etc.)
 %
-%   MP_MODEL_DC defines:
+%   MP_FORM_DC defines:
 %       linear active power injection = B theta + K z + p
 %
 %   Properties

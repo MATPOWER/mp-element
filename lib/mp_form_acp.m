@@ -1,14 +1,14 @@
-classdef mp_model_acp < mp_model_ac
-%MP_MODEL_ACP  MATPOWER Model class for AC polar voltage models.
+classdef mp_form_acp < mp_form_ac
+%MP_FORM_ACP  MATPOWER Model class for AC polar voltage models.
 %   Each concrete Network Model Element class must inherit, at least
-%   indirectly, from both NM_ELEMENT and MP_MODEL.
+%   indirectly, from both NM_ELEMENT and MP_FORM.
 %
-%   Subclass of MP_MODEL_AC.
-%   MP_MODEL provides properties and methods related to the specific
+%   Subclass of MP_FORM_AC.
+%   MP_FORM provides properties and methods related to the specific
 %   model and formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   Properties
-%       (model parameters inherited from MP_MODEL_AC)
+%       (model parameters inherited from MP_FORM_AC)
 %
 %   Methods
 %       model_name() - returns string w/name of model/formulation ('AC-polar model')

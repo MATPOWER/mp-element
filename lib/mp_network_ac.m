@@ -1,6 +1,6 @@
-classdef mp_network_ac < mp_network% & mp_model_ac
+classdef mp_network_ac < mp_network% & mp_form_ac
 %MP_NETWORK_AC Abstract class, explicitly a subclass of MP_NETWORK and
-%              implicitly assumed to be subclasses of MP_MODEL_AC as well
+%              implicitly assumed to be subclasses of MP_FORM_AC as well
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
