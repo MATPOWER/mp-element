@@ -174,26 +174,13 @@ else
 end
 
 %%-----  build network model from data model (mpc)  -----
-if 0
 opf = mp_task_opf();
 %% from opf.run()
 dm = opf.data_model_build(mpc, mpopt);
 nm = opf.network_model_build(dm, mpopt);
 om = opf.math_model_build(nm, dm, mpopt);
-else
-dm = mp_data_mpc2(mpc);
-% nm = netmodel().build(dm);
-nm = netmodel().build(dm, mpopt);   %% remove mpopt once we get all data (e.g. exp.sys_wide_zip_loads) out of options
-om = nm.setup_opf(dm, mpopt);
-end
 
 %% store indices of costs that were converted
 if ~isempty(pwl1)
   om.userdata.pwl1 = pwl1;
 end
-
-% % [x, success, i] = nm.solve_power_flow(dm, mpopt);
-% [x, success, i] = nm.solve_opf(dm, mpopt);
-% opt = mpopt2nlpopt(mpopt, om.problem_type(), 'DEFAULT');
-% [x, f, eflag, output, lambda] = om.solve(opt);
-% keyboard;
