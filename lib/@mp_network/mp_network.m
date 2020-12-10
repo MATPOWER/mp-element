@@ -413,10 +413,6 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
 
         %%-----  OPF methods  -----
-        om = setup_opf(obj, dm, mpopt)
-        
-        [x, success, i] = solve_opf(obj, dm, mpopt)
-        
         function add_opf_vars(obj, nm, om, dm, mpopt)
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars
