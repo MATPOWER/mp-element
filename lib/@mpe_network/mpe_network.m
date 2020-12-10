@@ -12,8 +12,8 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
 %   See https://matpower.org for more info.
 
     properties
-        mpe_port_map = [];      %% mpe_port_map(k, 1:2), indices of 1st & last port for element k
-        mpe_z_map = [];         %% mpe_z_map(k, 1:2), indices of 1st & last z var for element k
+        nme_port_map = [];      %% nme_port_map(k, 1:2), indices of 1st & last port for element k
+        nme_z_map = [];         %% nme_z_map(k, 1:2), indices of 1st & last z var for element k
         nv = 0;                 %% total number of (real) v variables
         node = [];
         state = [];
@@ -68,13 +68,13 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
             %% create element objects for each class with data
             i = 0;
             for c = obj.element_classes
-                mpe = c{1}();       %% element constructor
-                if mpe.count(dm)
+                nme = c{1}();       %% element constructor
+                if nme.count(dm)
                     i = i + 1;
-                    obj.elm_list{i} = mpe;
-                    obj.elm_map.(mpe.name) = i;
-                    obj.np = obj.np + mpe.np * mpe.nk;  %% number of ports
-                    obj.nz = obj.nz + mpe.nz * mpe.nk;  %% number of z_ vars
+                    obj.elm_list{i} = nme;
+                    obj.elm_map.(nme.name) = i;
+                    obj.np = obj.np + nme.np * nme.nk;  %% number of ports
+                    obj.nz = obj.nz + nme.nz * nme.nk;  %% number of z_ vars
                 end
             end
             
@@ -92,8 +92,8 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
 
         function obj = add_nodes(obj, nm, dm)
             %% each element adds its nodes
-            for mpe = obj.elm_list
-                mpe{1}.add_nodes(obj, dm);
+            for nme = obj.elm_list
+                nme{1}.add_nodes(obj, dm);
             end
             
             %% add voltage variables for each node
@@ -102,8 +102,8 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
 
         function obj = add_states(obj, nm, dm)
             %% each element adds its states
-            for mpe = obj.elm_list
-                mpe{1}.add_states(obj, dm);
+            for nme = obj.elm_list
+                nme{1}.add_states(obj, dm);
             end
             
             %% add state variables for each node
@@ -114,22 +114,22 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
             %% each element builds parameters, aggregate incidence matrices
             C = {};
             D = {};
-            %% initialize mpe_port_map, mpe_z_map
-            obj.mpe_port_map = zeros(length(obj.elm_list), 2);
-            obj.mpe_z_map    = zeros(length(obj.elm_list), 2);
+            %% initialize nme_port_map, nme_z_map
+            obj.nme_port_map = zeros(length(obj.elm_list), 2);
+            obj.nme_z_map    = zeros(length(obj.elm_list), 2);
             pk = 1;     %% port counter
             zk = 1;     %% z-var counter
             for k = 1:length(obj.elm_list)
-                mpe = obj.elm_list{k};
-                obj.mpe_port_map(k, 1) = pk;        %% starting port index
-                obj.mpe_z_map(k, 1) = zk;           %% starting z-var index
-                mpe.build_params(obj, dm);
-                C = horzcat(C, {mpe.C});
-                D = horzcat(D, {mpe.D});
-                pk = pk + mpe.np * mpe.nk;          %% increment port counter
-                zk = zk + mpe.nz * mpe.nk;          %% increment z-var counter
-                obj.mpe_port_map(k, 2) = pk - 1;    %% ending port index
-                obj.mpe_z_map(k, 2)    = zk - 1;    %% ending z-var index
+                nme = obj.elm_list{k};
+                obj.nme_port_map(k, 1) = pk;        %% starting port index
+                obj.nme_z_map(k, 1) = zk;           %% starting z-var index
+                nme.build_params(obj, dm);
+                C = horzcat(C, {nme.C});
+                D = horzcat(D, {nme.D});
+                pk = pk + nme.np * nme.nk;          %% increment port counter
+                zk = zk + nme.nz * nme.nk;          %% increment z-var counter
+                obj.nme_port_map(k, 2) = pk - 1;    %% ending port index
+                obj.nme_z_map(k, 2)    = zk - 1;    %% ending z-var index
             end
             obj.C = horzcat(C{:});
             obj.D = horzcat(D{:});
@@ -147,19 +147,19 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
             ss = {};
             last_i = 0;
             last_j = 0;
-            for mpe = obj.elm_list
-                Mk = mpe{1}.(name);
+            for nme = obj.elm_list
+                Mk = nme{1}.(name);
                 if ~isempty(Mk)
                     [i, j, s] = find(Mk);
                     ii = horzcat(ii, i + last_i);
                     jj = horzcat(jj, j + last_j);
                     ss = horzcat(ss, s);
                 end
-                m = mpe{1}.nk * mpe{1}.np;      %% total number of ports for class
+                m = nme{1}.nk * nme{1}.np;      %% total number of ports for class
                 if vnotz
                     n = m;
                 else
-                    n = mpe{1}.nk * mpe{1}.nz;  %% total number of states for class
+                    n = nme{1}.nk * nme{1}.nz;  %% total number of states for class
                 end
                 last_i = last_i + m;
                 last_j = last_j + n;
@@ -172,10 +172,10 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
             nn = obj.getN('node');
             vv = {};
 
-            for mpe = obj.elm_list
-                vk = mpe{1}.(name);
+            for nme = obj.elm_list
+                vk = nme{1}.(name);
                 if isempty(vk)
-                    vk = zeros(mpe{1}.nk * mpe{1}.np, 1);
+                    vk = zeros(nme{1}.nk * nme{1}.np, 1);
                 end
                 vv = horzcat(vv, vk);
             end
@@ -184,8 +184,8 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
 
         function obj = add_vvars(obj, nm, dm, idx)
             for k = 1:length(obj.node.order)
-                mpe = obj.elm_by_name(obj.node.order(k).name);
-                mpe.add_vvars(obj, dm, obj.state.order(k).idx);
+                nme = obj.elm_by_name(obj.node.order(k).name);
+                nme.add_vvars(obj, dm, obj.state.order(k).idx);
             end
             for vtype = obj.model_vvars
                 obj.nv = obj.nv + obj.getN(vtype{1});
@@ -194,8 +194,8 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
 
         function obj = add_zvars(obj, nm, dm, idx)
             for k = 1:length(obj.state.order)
-                mpe = obj.elm_by_name(obj.state.order(k).name);
-                mpe.add_zvars(obj, dm, obj.state.order(k).idx);
+                nme = obj.elm_by_name(obj.state.order(k).name);
+                nme.add_zvars(obj, dm, obj.state.order(k).idx);
             end
         end
 
@@ -375,11 +375,11 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
         function [ref, pv, pq] = node_types(obj, nm, dm)
             %%           ntv = node_types(obj, nm, dm)
             %% [ref, pv, pq] = node_types(obj, nm, dm)
-            %% get node type vector from each node-creating MPE
+            %% get node type vector from each node-creating NME
             tt = cell(length(obj.node.order), 1);
             for k = 1:length(obj.node.order)
-                mpe = obj.elm_by_name(obj.node.order(k).name);
-                tt{k} = mpe.node_types(obj, dm);
+                nme = obj.elm_by_name(obj.node.order(k).name);
+                tt{k} = nme.node_types(obj, dm);
             end
             ntv = vertcat(tt{:});       %% concatenate into a single vector
 
@@ -398,8 +398,8 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
             obj.add_pf_system_constraints(om, dm, mpopt);
             
 %             %% each element adds its PF constraints
-%             for mpe = obj.elm_list
-%                 mpe{1}.add_pf_constraints(nm, om, dm, mpopt);
+%             for nme = obj.elm_list
+%                 nme{1}.add_pf_constraints(nm, om, dm, mpopt);
 %             end
         end
 
@@ -434,8 +434,8 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
             end
             
             %% each element adds its OPF variables
-            for mpe = obj.elm_list
-                mpe{1}.add_opf_vars(nm, om, dm, mpopt);
+            for nme = obj.elm_list
+                nme{1}.add_opf_vars(nm, om, dm, mpopt);
             end
             
             %% legacy user-defined variables
@@ -447,8 +447,8 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
             obj.add_opf_system_constraints(om, dm, mpopt);
             
             %% each element adds its OPF constraints
-            for mpe = obj.elm_list
-                mpe{1}.add_opf_constraints(nm, om, dm, mpopt);
+            for nme = obj.elm_list
+                nme{1}.add_opf_constraints(nm, om, dm, mpopt);
             end
         end
 
@@ -457,8 +457,8 @@ classdef mpe_network < nm_element & mpe_container & mp_idx_manager% & mp_model
             obj.add_opf_system_costs(om, dm, mpopt);
             
             %% each element adds its OPF costs
-            for mpe = obj.elm_list
-                mpe{1}.add_opf_costs(nm, om, dm, mpopt);
+            for nme = obj.elm_list
+                nme{1}.add_opf_costs(nm, om, dm, mpopt);
             end
         end
 

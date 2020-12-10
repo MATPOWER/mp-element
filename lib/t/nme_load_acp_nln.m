@@ -9,7 +9,7 @@ classdef nme_load_acp_nln < nme_load_acp & nme_wrapper_ac_nln
 %   See https://matpower.org for more info.
 
     properties
-        mpe_class = @nme_load_acp;
+        nme_class = @nme_load_acp;
     end
 
     methods
@@ -24,7 +24,7 @@ classdef nme_load_acp_nln < nme_load_acp & nme_wrapper_ac_nln
         end
 
         function nk = count(obj, dm)
-            obj.mpe.count(dm);
+            obj.nme.count(dm);
             nk = count@nme_load_acp(obj, dm);
         end
     end     %% methods

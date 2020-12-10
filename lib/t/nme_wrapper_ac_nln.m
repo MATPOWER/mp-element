@@ -9,22 +9,22 @@ classdef nme_wrapper_ac_nln < handle
 %   See https://matpower.org for more info.
 
     properties
-        mpe = [];           %% wrapped nm_element object
+        nme = [];           %% wrapped nm_element object
     end
     
     methods
         function obj = nme_wrapper_ac_nln_init(obj)
-            obj.mpe = obj.mpe_class();      %% construct wrapped class
+            obj.nme = obj.nme_class();      %% construct wrapped class
             
             %% copy base field values from wrapped object
-            obj.name = obj.mpe.name;
-            obj.np = obj.mpe.np;
-            obj.nz = obj.mpe.nz;
+            obj.name = obj.nme.name;
+            obj.np = obj.nme.np;
+            obj.nz = obj.nme.nz;
         end
         
         function build_nln_params(obj, nm, dm)
             %% build params for wrapped object
-            obj.mpe.build_params(nm, dm);
+            obj.nme.build_params(nm, dm);
             
             %% remove other params
             obj.Y = [];
@@ -35,10 +35,10 @@ classdef nme_wrapper_ac_nln < handle
             obj.s = [];
             
             %% add nonlinear function/hessian params
-            obj.inln = @(x_, sysx, idx)port_inj_current(obj.mpe, x_, sysx, idx);
-            obj.snln = @(x_, sysx, idx)port_inj_power(obj.mpe, x_, sysx, idx);
-            obj.inln_hess = @(x_, lam, sysx, idx)port_inj_current_hess(obj.mpe, x_, lam, sysx, idx);
-            obj.snln_hess = @(x_, lam, sysx, idx)port_inj_power_hess(obj.mpe, x_, lam, sysx, idx);
+            obj.inln = @(x_, sysx, idx)port_inj_current(obj.nme, x_, sysx, idx);
+            obj.snln = @(x_, sysx, idx)port_inj_power(obj.nme, x_, sysx, idx);
+            obj.inln_hess = @(x_, lam, sysx, idx)port_inj_current_hess(obj.nme, x_, lam, sysx, idx);
+            obj.snln_hess = @(x_, lam, sysx, idx)port_inj_power_hess(obj.nme, x_, lam, sysx, idx);
         end
     end     %% methods
 end         %% classdef

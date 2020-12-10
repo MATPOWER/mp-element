@@ -1,6 +1,6 @@
 classdef nm_element < handle
 %NM_ELEMENT  Abstract base class for MATPOWER network model elements
-%   MPE = NM_ELEMENT()
+%   NME = NM_ELEMENT()
 %
 %   Each concrete sub-class must also inherit from a sub-class of MP_MODEL.
 %
@@ -16,7 +16,7 @@ classdef nm_element < handle
 %           to element i of system Z
 %
 %   Methods
-%       count() - returns the number of elements of this type in dm, sets mpe.nk
+%       count() - returns the number of elements of this type in dm, sets nme.nk
 %       get_nv_()
 %       x2vz()
 %       incidence_matrix()

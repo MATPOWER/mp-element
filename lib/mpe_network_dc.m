@@ -64,8 +64,8 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
             [B, K, p] = obj.get_params();
             BB = obj.C * B * obj.C';
             pbus = -(obj.C * K * obj.D' * z + obj.C * p);
-            branch_mpe = obj.elm_by_name('branch');
-            [Bf, pf] = branch_mpe.get_params(1:branch_mpe.nk, {'B', 'p'});
+            branch_nme = obj.elm_by_name('branch');
+            [Bf, pf] = branch_nme.get_params(1:branch_nme.nk, {'B', 'p'});
 
             %% create aux_data struct
             ad = struct( ...
@@ -78,7 +78,7 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
                 'pq',   pq, ...             %% PQ node indices
                 'npq',  length(pq), ...     %% number of PQ nodes
                 'B',    BB, ...
-                'Bf',   Bf * branch_mpe.C', ...
+                'Bf',   Bf * branch_nme.C', ...
                 'Pbus', pbus, ...
                 'Pfinj',pf  ...
             );
@@ -143,9 +143,9 @@ classdef mpe_network_dc < mpe_network & mp_model_dc
                                 {obj.va.order(:).name obj.z.order(:).name});
 
             %% user data
-            branch_mpe = obj.elm_by_name('branch');
-            [Bbr, pbr] = branch_mpe.get_params(1:branch_mpe.nk, {'B', 'p'});
-            om.userdata.Bf = Bbr * branch_mpe.C';
+            branch_nme = obj.elm_by_name('branch');
+            [Bbr, pbr] = branch_nme.get_params(1:branch_nme.nk, {'B', 'p'});
+            om.userdata.Bf = Bbr * branch_nme.C';
             om.userdata.Pfinj = pbr;
         end
 

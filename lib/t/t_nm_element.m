@@ -61,71 +61,71 @@ t_is(dc.nz, 3, 12, [t 'nz']);
 t_is(dc.nv, 9, 12, [t 'nv']);
 t_is(length(dc.elm_list), 4, 12, [t '# of element types']);
 
-mpe = dc.elm_list;
+nme = dc.elm_list;
 t = 'nme_bus_dc : '; k = 1;
-t_ok(strcmp(mpe{k}.name, 'bus'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_bus_dc'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'DC model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'dc'), [t 'model tag']);
-t_is(mpe{k}.nk, 9, 12, [t 'nk']);
-t_is(mpe{k}.np, 0, 12, [t 'np']);
-t_is(mpe{k}.nz, 0, 12, [t 'nz']);
-t_ok(isempty(mpe{k}.B), [t 'B']);
-t_ok(isempty(mpe{k}.K), [t 'K']);
-t_ok(isempty(mpe{k}.p), [t 'p']);
-t_ok(isempty(mpe{k}.C), [t 'C']);
-t_ok(isempty(mpe{k}.D), [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_ok(strcmp(nme{k}.name, 'bus'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_bus_dc'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'DC model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'dc'), [t 'model tag']);
+t_is(nme{k}.nk, 9, 12, [t 'nk']);
+t_is(nme{k}.np, 0, 12, [t 'np']);
+t_is(nme{k}.nz, 0, 12, [t 'nz']);
+t_ok(isempty(nme{k}.B), [t 'B']);
+t_ok(isempty(nme{k}.K), [t 'K']);
+t_ok(isempty(nme{k}.p), [t 'p']);
+t_ok(isempty(nme{k}.C), [t 'C']);
+t_ok(isempty(nme{k}.D), [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'nme_gen_dc : '; k = 2;
-t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_gen_dc'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'DC model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'dc'), [t 'model tag']);
-t_is(mpe{k}.nk, 3, 12, [t 'nk']);
-t_is(mpe{k}.np, 1, 12, [t 'np']);
-t_is(mpe{k}.nz, 1, 12, [t 'nz']);
-t_ok(isempty(mpe{k}.B), [t 'B']);
-t_is(mpe{k}.K, -speye(3), 12, [t 'K']);
-t_ok(isempty(mpe{k}.p), [t 'p']);
-t_is(mpe{k}.C, sparse([1;3;2], [1;2;3], 1, 9, 3), 12, [t 'C']);
-t_is(mpe{k}.D, speye(3), 12, [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_ok(strcmp(nme{k}.name, 'gen'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_gen_dc'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'DC model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'dc'), [t 'model tag']);
+t_is(nme{k}.nk, 3, 12, [t 'nk']);
+t_is(nme{k}.np, 1, 12, [t 'np']);
+t_is(nme{k}.nz, 1, 12, [t 'nz']);
+t_ok(isempty(nme{k}.B), [t 'B']);
+t_is(nme{k}.K, -speye(3), 12, [t 'K']);
+t_ok(isempty(nme{k}.p), [t 'p']);
+t_is(nme{k}.C, sparse([1;3;2], [1;2;3], 1, 9, 3), 12, [t 'C']);
+t_is(nme{k}.D, speye(3), 12, [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'nme_load_dc : '; k = 3;
-t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_load_dc'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'DC model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'dc'), [t 'model tag']);
-t_is(mpe{k}.nk, 3, 12, [t 'nk']);
-t_is(mpe{k}.np, 1, 12, [t 'np']);
-t_is(mpe{k}.nz, 0, 12, [t 'nz']);
-t_ok(isempty(mpe{k}.B), [t 'B']);
-t_ok(isempty(mpe{k}.K), [t 'K']);
-t_is(mpe{k}.p, [0.9 1 1.25]', 12, [t 'p']);
+t_ok(strcmp(nme{k}.name, 'load'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_load_dc'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'DC model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'dc'), [t 'model tag']);
+t_is(nme{k}.nk, 3, 12, [t 'nk']);
+t_is(nme{k}.np, 1, 12, [t 'np']);
+t_is(nme{k}.nz, 0, 12, [t 'nz']);
+t_ok(isempty(nme{k}.B), [t 'B']);
+t_ok(isempty(nme{k}.K), [t 'K']);
+t_is(nme{k}.p, [0.9 1 1.25]', 12, [t 'p']);
 eC = sparse([5 7 9], 1:3, 1, 9, 3);
-t_is(mpe{k}.C, eC, 12, [t 'C']);
-t_ok(isempty(mpe{k}.D), [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_is(nme{k}.C, eC, 12, [t 'C']);
+t_ok(isempty(nme{k}.D), [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'nme_branch_dc : '; k = 4;
-t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_branch_dc'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'DC model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'dc'), [t 'model tag']);
-t_is(mpe{k}.nk, 9, 12, [t 'nk']);
-t_is(mpe{k}.np, 2, 12, [t 'np']);
-t_is(mpe{k}.nz, 0, 12, [t 'nz']);
+t_ok(strcmp(nme{k}.name, 'branch'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_branch_dc'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_dc'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'DC model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'dc'), [t 'model tag']);
+t_is(nme{k}.nk, 9, 12, [t 'nk']);
+t_is(nme{k}.np, 2, 12, [t 'np']);
+t_is(nme{k}.nz, 0, 12, [t 'nz']);
 nl = size(mpc.branch, 1);
 stat = mpc.branch(:, BR_STATUS);    %% ones at in-service branches
 tap = ones(nl, 1);                  %% default tap ratio = 1
@@ -140,14 +140,14 @@ Bdc = sparse( ...
     [b; -b; -b; b], ...
     2*nl, 2*nl );
 pdc = [Pfinj; -Pfinj];
-t_is(mpe{k}.B, Bdc, 12, [t 'B']);
-t_ok(isempty(mpe{k}.K), [t 'K']);
-t_is(mpe{k}.p, pdc, 12, [t 'p']);
-t_is(mpe{k}.C, sparse([1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:18]', 1, 9, 18), 12, [t 'C']);
-t_ok(isempty(mpe{k}.D), [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_is(nme{k}.B, Bdc, 12, [t 'B']);
+t_ok(isempty(nme{k}.K), [t 'K']);
+t_is(nme{k}.p, pdc, 12, [t 'p']);
+t_is(nme{k}.C, sparse([1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:18]', 1, 9, 18), 12, [t 'C']);
+t_ok(isempty(nme{k}.D), [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'dc.C';
 C = dc.C;
@@ -237,80 +237,80 @@ t_is(ac.nz, 3, 12, [t 'nz']);
 t_is(ac.nv, 18, 12, [t 'nv']);
 t_is(length(ac.elm_list), 4, 12, [t '# of element types']);
 
-mpe = ac.elm_list;
+nme = ac.elm_list;
 t = 'nme_bus_acp : '; k = 1;
-t_ok(strcmp(mpe{k}.name, 'bus'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_bus_acp'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
-t_is(mpe{k}.nk, 9, 12, [t 'nk']);
-t_is(mpe{k}.np, 0, 12, [t 'np']);
-t_is(mpe{k}.nz, 0, 12, [t 'nz']);
-t_ok(isempty(mpe{k}.Y), [t 'Y']);
-t_ok(isempty(mpe{k}.L), [t 'L']);
-t_ok(isempty(mpe{k}.M), [t 'M']);
-t_ok(isempty(mpe{k}.N), [t 'N']);
-t_ok(isempty(mpe{k}.i), [t 'i']);
-t_ok(isempty(mpe{k}.s), [t 's']);
-t_ok(isempty(mpe{k}.C), [t 'C']);
-t_ok(isempty(mpe{k}.D), [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_ok(strcmp(nme{k}.name, 'bus'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_bus_acp'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'acp'), [t 'model tag']);
+t_is(nme{k}.nk, 9, 12, [t 'nk']);
+t_is(nme{k}.np, 0, 12, [t 'np']);
+t_is(nme{k}.nz, 0, 12, [t 'nz']);
+t_ok(isempty(nme{k}.Y), [t 'Y']);
+t_ok(isempty(nme{k}.L), [t 'L']);
+t_ok(isempty(nme{k}.M), [t 'M']);
+t_ok(isempty(nme{k}.N), [t 'N']);
+t_ok(isempty(nme{k}.i), [t 'i']);
+t_ok(isempty(nme{k}.s), [t 's']);
+t_ok(isempty(nme{k}.C), [t 'C']);
+t_ok(isempty(nme{k}.D), [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'nme_gen_acp : '; k = 2;
-t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_gen_acp'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
-t_is(mpe{k}.nk, 3, 12, [t 'nk']);
-t_is(mpe{k}.np, 1, 12, [t 'np']);
-t_is(mpe{k}.nz, 1, 12, [t 'nz']);
-t_ok(isempty(mpe{k}.Y), [t 'Y']);
-t_ok(isempty(mpe{k}.L), [t 'L']);
-t_ok(isempty(mpe{k}.M), [t 'M']);
-t_is(mpe{k}.N, -speye(3), 12, [t 'N']);
-t_ok(isempty(mpe{k}.i), [t 'i']);
-t_ok(isempty(mpe{k}.s), [t 's']);
-t_is(mpe{k}.C, sparse([1;3;2], [1;2;3], 1, 9, 3), 12, [t 'C']);
-t_is(mpe{k}.D, speye(3), 12, [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_ok(strcmp(nme{k}.name, 'gen'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_gen_acp'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'acp'), [t 'model tag']);
+t_is(nme{k}.nk, 3, 12, [t 'nk']);
+t_is(nme{k}.np, 1, 12, [t 'np']);
+t_is(nme{k}.nz, 1, 12, [t 'nz']);
+t_ok(isempty(nme{k}.Y), [t 'Y']);
+t_ok(isempty(nme{k}.L), [t 'L']);
+t_ok(isempty(nme{k}.M), [t 'M']);
+t_is(nme{k}.N, -speye(3), 12, [t 'N']);
+t_ok(isempty(nme{k}.i), [t 'i']);
+t_ok(isempty(nme{k}.s), [t 's']);
+t_is(nme{k}.C, sparse([1;3;2], [1;2;3], 1, 9, 3), 12, [t 'C']);
+t_is(nme{k}.D, speye(3), 12, [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'nme_load_acp : '; k = 3;
-t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_load_acp'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
-t_is(mpe{k}.nk, 3, 12, [t 'nk']);
-t_is(mpe{k}.np, 1, 12, [t 'np']);
-t_is(mpe{k}.nz, 0, 12, [t 'nz']);
-t_ok(isempty(mpe{k}.Y), [t 'Y']);
-t_ok(isempty(mpe{k}.L), [t 'L']);
-t_ok(isempty(mpe{k}.M), [t 'M']);
-t_ok(isempty(mpe{k}.N), [t 'N']);
-t_ok(isempty(mpe{k}.i), [t 'i']);
-t_is(mpe{k}.s, [0.9 1 1.25]' + 1j*[0.3 0.35 0.5]', 12, [t 's']);
+t_ok(strcmp(nme{k}.name, 'load'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_load_acp'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'acp'), [t 'model tag']);
+t_is(nme{k}.nk, 3, 12, [t 'nk']);
+t_is(nme{k}.np, 1, 12, [t 'np']);
+t_is(nme{k}.nz, 0, 12, [t 'nz']);
+t_ok(isempty(nme{k}.Y), [t 'Y']);
+t_ok(isempty(nme{k}.L), [t 'L']);
+t_ok(isempty(nme{k}.M), [t 'M']);
+t_ok(isempty(nme{k}.N), [t 'N']);
+t_ok(isempty(nme{k}.i), [t 'i']);
+t_is(nme{k}.s, [0.9 1 1.25]' + 1j*[0.3 0.35 0.5]', 12, [t 's']);
 eC = sparse([5 7 9], 1:3, 1, 9, 3);
-t_is(mpe{k}.C, eC, 12, [t 'C']);
-t_ok(isempty(mpe{k}.D), [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_is(nme{k}.C, eC, 12, [t 'C']);
+t_ok(isempty(nme{k}.D), [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'nme_branch_acp : '; k = 4;
-t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_branch_acp'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
-t_is(mpe{k}.nk, 9, 12, [t 'nk']);
-t_is(mpe{k}.np, 2, 12, [t 'np']);
-t_is(mpe{k}.nz, 0, 12, [t 'nz']);
+t_ok(strcmp(nme{k}.name, 'branch'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_branch_acp'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'acp'), [t 'model tag']);
+t_is(nme{k}.nk, 9, 12, [t 'nk']);
+t_is(nme{k}.np, 2, 12, [t 'np']);
+t_is(nme{k}.nz, 0, 12, [t 'nz']);
 nl = size(mpc.branch, 1);
 stat = mpc.branch(:, BR_STATUS);    %% ones at in-service branches
 tap = ones(nl, 1);                  %% default tap ratio = 1
@@ -327,17 +327,17 @@ eY = sparse( ...
     [1:nl 1:nl nl+1:2*nl nl+1:2*nl]', ...
     [1:nl nl+1:2*nl 1:nl nl+1:2*nl]', ...
     [Yff; Yft; Ytf; Ytt], 2*nl, 2*nl );
-t_is(mpe{k}.Y, eY, 12, [t 'Y']);
-t_ok(isempty(mpe{k}.L), [t 'L']);
-t_ok(isempty(mpe{k}.M), [t 'M']);
-t_ok(isempty(mpe{k}.N), [t 'N']);
-t_ok(isempty(mpe{k}.i), [t 'i']);
-t_ok(isempty(mpe{k}.s), [t 's']);
-t_is(mpe{k}.C, sparse([1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:18]', 1, 9, 18), 12, [t 'C']);
-t_ok(isempty(mpe{k}.D), [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_is(nme{k}.Y, eY, 12, [t 'Y']);
+t_ok(isempty(nme{k}.L), [t 'L']);
+t_ok(isempty(nme{k}.M), [t 'M']);
+t_ok(isempty(nme{k}.N), [t 'N']);
+t_ok(isempty(nme{k}.i), [t 'i']);
+t_ok(isempty(nme{k}.s), [t 's']);
+t_is(nme{k}.C, sparse([1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:18]', 1, 9, 18), 12, [t 'C']);
+t_ok(isempty(nme{k}.D), [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'ac.C';
 C = ac.C;
@@ -577,80 +577,80 @@ t_is(ac.nz, 7, 12, [t 'nz']);
 t_is(ac.nv, 18, 12, [t 'nv']);
 t_is(length(ac.elm_list), 5, 12, [t '# of element types']);
 
-mpe = ac.elm_list;
+nme = ac.elm_list;
 t = 'nme_bus_acp : '; k = 1;
-t_ok(strcmp(mpe{k}.name, 'bus'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_bus_acp'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
-t_is(mpe{k}.nk, 9, 12, [t 'nk']);
-t_is(mpe{k}.np, 0, 12, [t 'np']);
-t_is(mpe{k}.nz, 0, 12, [t 'nz']);
-t_ok(isempty(mpe{k}.Y), [t 'Y']);
-t_ok(isempty(mpe{k}.L), [t 'L']);
-t_ok(isempty(mpe{k}.M), [t 'M']);
-t_ok(isempty(mpe{k}.N), [t 'N']);
-t_ok(isempty(mpe{k}.i), [t 'i']);
-t_ok(isempty(mpe{k}.s), [t 's']);
-t_ok(isempty(mpe{k}.C), [t 'C']);
-t_ok(isempty(mpe{k}.D), [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_ok(strcmp(nme{k}.name, 'bus'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_bus_acp'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'acp'), [t 'model tag']);
+t_is(nme{k}.nk, 9, 12, [t 'nk']);
+t_is(nme{k}.np, 0, 12, [t 'np']);
+t_is(nme{k}.nz, 0, 12, [t 'nz']);
+t_ok(isempty(nme{k}.Y), [t 'Y']);
+t_ok(isempty(nme{k}.L), [t 'L']);
+t_ok(isempty(nme{k}.M), [t 'M']);
+t_ok(isempty(nme{k}.N), [t 'N']);
+t_ok(isempty(nme{k}.i), [t 'i']);
+t_ok(isempty(nme{k}.s), [t 's']);
+t_ok(isempty(nme{k}.C), [t 'C']);
+t_ok(isempty(nme{k}.D), [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'nme_gen_acp : '; k = 2;
-t_ok(strcmp(mpe{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_gen_acp'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
-t_is(mpe{k}.nk, 3, 12, [t 'nk']);
-t_is(mpe{k}.np, 1, 12, [t 'np']);
-t_is(mpe{k}.nz, 1, 12, [t 'nz']);
-t_ok(isempty(mpe{k}.Y), [t 'Y']);
-t_ok(isempty(mpe{k}.L), [t 'L']);
-t_ok(isempty(mpe{k}.M), [t 'M']);
-t_is(mpe{k}.N, -speye(3), 12, [t 'N']);
-t_ok(isempty(mpe{k}.i), [t 'i']);
-t_ok(isempty(mpe{k}.s), [t 's']);
-t_is(mpe{k}.C, sparse([1;3;2], [1;2;3], 1, 9, 3), 12, [t 'C']);
-t_is(mpe{k}.D, sparse(1:3, 1:3, 1, 7, 3), 12, [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_ok(strcmp(nme{k}.name, 'gen'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_gen_acp'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'acp'), [t 'model tag']);
+t_is(nme{k}.nk, 3, 12, [t 'nk']);
+t_is(nme{k}.np, 1, 12, [t 'np']);
+t_is(nme{k}.nz, 1, 12, [t 'nz']);
+t_ok(isempty(nme{k}.Y), [t 'Y']);
+t_ok(isempty(nme{k}.L), [t 'L']);
+t_ok(isempty(nme{k}.M), [t 'M']);
+t_is(nme{k}.N, -speye(3), 12, [t 'N']);
+t_ok(isempty(nme{k}.i), [t 'i']);
+t_ok(isempty(nme{k}.s), [t 's']);
+t_is(nme{k}.C, sparse([1;3;2], [1;2;3], 1, 9, 3), 12, [t 'C']);
+t_is(nme{k}.D, sparse(1:3, 1:3, 1, 7, 3), 12, [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'nme_load_acp : '; k = 3;
-t_ok(strcmp(mpe{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_load_acp'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
-t_is(mpe{k}.nk, 3, 12, [t 'nk']);
-t_is(mpe{k}.np, 1, 12, [t 'np']);
-t_is(mpe{k}.nz, 0, 12, [t 'nz']);
-t_ok(isempty(mpe{k}.Y), [t 'Y']);
-t_ok(isempty(mpe{k}.L), [t 'L']);
-t_ok(isempty(mpe{k}.M), [t 'M']);
-t_ok(isempty(mpe{k}.N), [t 'N']);
-t_ok(isempty(mpe{k}.i), [t 'i']);
-t_is(mpe{k}.s, [0.9 1 1.25]' + 1j*[0.3 0.35 0.5]', 12, [t 's']);
+t_ok(strcmp(nme{k}.name, 'load'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_load_acp'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'acp'), [t 'model tag']);
+t_is(nme{k}.nk, 3, 12, [t 'nk']);
+t_is(nme{k}.np, 1, 12, [t 'np']);
+t_is(nme{k}.nz, 0, 12, [t 'nz']);
+t_ok(isempty(nme{k}.Y), [t 'Y']);
+t_ok(isempty(nme{k}.L), [t 'L']);
+t_ok(isempty(nme{k}.M), [t 'M']);
+t_ok(isempty(nme{k}.N), [t 'N']);
+t_ok(isempty(nme{k}.i), [t 'i']);
+t_is(nme{k}.s, [0.9 1 1.25]' + 1j*[0.3 0.35 0.5]', 12, [t 's']);
 eC = sparse([5 7 9], 1:3, 1, 9, 3);
-t_is(mpe{k}.C, eC, 12, [t 'C']);
-t_ok(isempty(mpe{k}.D), [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_is(nme{k}.C, eC, 12, [t 'C']);
+t_ok(isempty(nme{k}.D), [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'nme_branch_acp : '; k = 4;
-t_ok(strcmp(mpe{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_branch_acp'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
-t_is(mpe{k}.nk, 9, 12, [t 'nk']);
-t_is(mpe{k}.np, 2, 12, [t 'np']);
-t_is(mpe{k}.nz, 0, 12, [t 'nz']);
+t_ok(strcmp(nme{k}.name, 'branch'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_branch_acp'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'acp'), [t 'model tag']);
+t_is(nme{k}.nk, 9, 12, [t 'nk']);
+t_is(nme{k}.np, 2, 12, [t 'np']);
+t_is(nme{k}.nz, 0, 12, [t 'nz']);
 nl = size(mpc.branch, 1);
 stat = mpc.branch(:, BR_STATUS);    %% ones at in-service branches
 tap = ones(nl, 1);                  %% default tap ratio = 1
@@ -667,27 +667,27 @@ eY = sparse( ...
     [1:nl 1:nl nl+1:2*nl nl+1:2*nl]', ...
     [1:nl nl+1:2*nl 1:nl nl+1:2*nl]', ...
     [Yff; Yft; Ytf; Ytt], 2*nl, 2*nl );
-t_is(mpe{k}.Y, eY, 12, [t 'Y']);
-t_ok(isempty(mpe{k}.L), [t 'L']);
-t_ok(isempty(mpe{k}.M), [t 'M']);
-t_ok(isempty(mpe{k}.N), [t 'N']);
-t_ok(isempty(mpe{k}.i), [t 'i']);
-t_ok(isempty(mpe{k}.s), [t 's']);
-t_is(mpe{k}.C, sparse([1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:18]', 1, 9, 18), 12, [t 'C']);
-t_ok(isempty(mpe{k}.D), [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_is(nme{k}.Y, eY, 12, [t 'Y']);
+t_ok(isempty(nme{k}.L), [t 'L']);
+t_ok(isempty(nme{k}.M), [t 'M']);
+t_ok(isempty(nme{k}.N), [t 'N']);
+t_ok(isempty(nme{k}.i), [t 'i']);
+t_ok(isempty(nme{k}.s), [t 's']);
+t_is(nme{k}.C, sparse([1;4;5;3;6;7;8;8;9;4;5;6;6;7;8;2;9;4], [1:18]', 1, 9, 18), 12, [t 'C']);
+t_ok(isempty(nme{k}.D), [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'nme_gizmo_acp : '; k = 5;
-t_ok(strcmp(mpe{k}.name, 'gizmo'), [t 'name']);
-t_ok(strcmp(class(mpe{k}), 'nme_gizmo_acp'), [t 'class']);
-t_ok(strcmp(mpe{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
-t_ok(strcmp(mpe{k}.model_name, 'AC-polar model'), [t 'model name']);
-t_ok(strcmp(mpe{k}.model_tag, 'acp'), [t 'model tag']);
-t_is(mpe{k}.nk, 2, 12, [t 'nk']);
-t_is(mpe{k}.np, 3, 12, [t 'np']);
-t_is(mpe{k}.nz, 2, 12, [t 'nz']);
+t_ok(strcmp(nme{k}.name, 'gizmo'), [t 'name']);
+t_ok(strcmp(class(nme{k}), 'nme_gizmo_acp'), [t 'class']);
+t_ok(strcmp(nme{k}.find_model_class(), 'mp_model_acp'), [t 'model class']);
+t_ok(strcmp(nme{k}.model_name, 'AC-polar model'), [t 'model name']);
+t_ok(strcmp(nme{k}.model_tag, 'acp'), [t 'model tag']);
+t_is(nme{k}.nk, 2, 12, [t 'nk']);
+t_is(nme{k}.np, 3, 12, [t 'np']);
+t_is(nme{k}.nz, 2, 12, [t 'nz']);
 nk = size(mpc.gizmo, 1);
 y1 = mpc.gizmo(:,  4) + 1j * mpc.gizmo(:,  5);
 y2 = mpc.gizmo(:,  6) + 1j * mpc.gizmo(:,  7);
@@ -717,17 +717,17 @@ eN = sparse( ...
     [j1 j2 j1 j2 j1 j2 ]', ...
     [zz; zz; nn; zz; -nn; zz], 3*nk, 2*nk );
 es = [zz; -ss; ss];
-t_is(mpe{k}.Y, eY, 12, [t 'Y']);
-t_is(mpe{k}.L, eL, 12, [t 'L']);
-t_is(mpe{k}.M, eM, 12, [t 'M']);
-t_is(mpe{k}.N, eN, 12, [t 'N']);
-t_is(mpe{k}.i, ei, 12, [t 'i']);
-t_is(mpe{k}.s, es, 12, [t 's']);
-t_is(mpe{k}.C, sparse([1;5;2;7;3;9], [1:6]', 1, 9, 6), 12, [t 'C']);
-t_is(mpe{k}.D, sparse(4:7, 1:4, 1, 7, 4), 12, [t 'D']);
-% mpe{k}
-% C = mpe{k}.C
-% D = mpe{k}.D
+t_is(nme{k}.Y, eY, 12, [t 'Y']);
+t_is(nme{k}.L, eL, 12, [t 'L']);
+t_is(nme{k}.M, eM, 12, [t 'M']);
+t_is(nme{k}.N, eN, 12, [t 'N']);
+t_is(nme{k}.i, ei, 12, [t 'i']);
+t_is(nme{k}.s, es, 12, [t 's']);
+t_is(nme{k}.C, sparse([1;5;2;7;3;9], [1:6]', 1, 9, 6), 12, [t 'C']);
+t_is(nme{k}.D, sparse(4:7, 1:4, 1, 7, 4), 12, [t 'D']);
+% nme{k}
+% C = nme{k}.C
+% D = nme{k}.D
 
 t = 'ac.C';
 C = ac.C;
