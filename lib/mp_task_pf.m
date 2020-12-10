@@ -36,29 +36,26 @@ classdef mp_task_pf < mp_task
         end
 
         %%-----  network model methods  -----
-        function nm_class = network_model_class(obj, dm, mpopt)
-            nm_class = obj.network_model_class_override(dm, mpopt);
-            if isempty(nm_class)
-                switch upper(mpopt.model)
-                    case 'AC'
-                        if mpopt.pf.v_cartesian
-                            if mpopt.pf.current_balance
-                                nm_class = @mp_network_acci;
-                            else
-                                nm_class = @mp_network_accs;
-%                                nm_class = @mp_network_accs_test_nln;
-                            end
+        function nm_class = network_model_class_default(obj, dm, mpopt)
+            switch upper(mpopt.model)
+                case 'AC'
+                    if mpopt.pf.v_cartesian
+                        if mpopt.pf.current_balance
+                            nm_class = @mp_network_acci;
                         else
-                            if mpopt.pf.current_balance
-                                nm_class = @mp_network_acpi;
-                            else
-                                nm_class = @mp_network_acps;
-%                                nm_class = @mp_network_acps_test_nln;
-                            end
+                            nm_class = @mp_network_accs;
+%                                nm_class = @mp_network_accs_test_nln;
                         end
-                    case 'DC'
-                        nm_class = @mp_network_dc;
-                end
+                    else
+                        if mpopt.pf.current_balance
+                            nm_class = @mp_network_acpi;
+                        else
+                            nm_class = @mp_network_acps;
+%                                nm_class = @mp_network_acps_test_nln;
+                        end
+                    end
+                case 'DC'
+                    nm_class = @mp_network_dc;
             end
         end
 

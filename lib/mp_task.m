@@ -87,18 +87,23 @@ classdef mp_task < handle
             end
         end
 
-        function dm = data_model_build(obj, m, mpopt)
-            if ~isa(m, 'mp_data')
-                dm_class = obj.data_model_class(m, mpopt);
-                if isfield(mpopt.exp, 'dm_element_classes')
-                    dm = dm_class(m, mpopt.exp.dm_element_classes);
-                else
-                    dm = dm_class(m);
-                end
+        function dm = data_model_create(obj, m, mpopt)
+            dm_class = obj.data_model_class(m, mpopt);
+            if isfield(mpopt.exp, 'dm_element_classes')
+                dm = dm_class(m, mpopt.exp.dm_element_classes);
             else
-                dm = m;
+                dm = dm_class(m);
             end
             obj.dm = dm;
+        end
+
+        function dm = data_model_build(obj, m, mpopt)
+            if isa(m, 'mp_data')
+                dm = m;
+                obj.dm = dm;
+            else
+                dm = obj.data_model_create(m, mpopt);
+            end
             dm = obj.data_model_build_post(dm, mpopt);
         end
 
@@ -116,20 +121,27 @@ classdef mp_task < handle
         end
 
         %%-----  network model methods  -----
-        function nm_class = network_model_class_override(obj, dm, mpopt)
+        function nm_class = network_model_class(obj, dm, mpopt)
             if isfield(mpopt.exp, 'network_model_class') && ...
                     ~isempty(mpopt.exp.network_model_class)
                 nm_class = mpopt.exp.network_model_class;
             else
-                nm_class = [];
+                nm_class = obj.network_model_class_default(dm, mpopt);
             end
         end
 
-        function nm = network_model_build(obj, dm, mpopt)
+        function nm_class = network_model_class_default(obj, dm, mpopt)
+            error('mp_task/network_model_class_default: must be overridden in sub-class');
+        end
+
+        function nm = network_model_create(obj, dm, mpopt)
             nm_class = obj.network_model_class(dm, mpopt);
             nm = nm_class();
             obj.nm = nm;
+        end
 
+        function nm = network_model_build(obj, dm, mpopt)
+            nm = obj.network_model_create(dm, mpopt);
             nm = obj.network_model_build_pre(nm, dm, mpopt);
             nm.build(dm, mpopt);
             nm = obj.network_model_build_post(nm, dm, mpopt);
@@ -150,15 +162,19 @@ classdef mp_task < handle
         end
 
         %%-----  mathematical model methods  -----
-        function mm_class = math_model_class(obj, nm, dm, mpopt)
-            mm_class = @opt_model;
+%         function mm_class = math_model_class(obj, nm, dm, mpopt)
+%             mm_class = @opt_model;
+%         end
+
+        function mm = math_model_create(obj, nm, dm, mpopt)
+%             mm_class = obj.math_model_class(nm, dm, mpopt);
+%             mm = mm_class();
+            mm = opt_model();
+            obj.mm = mm;
         end
 
         function mm = math_model_build(obj, nm, dm, mpopt)
-            mm_class = obj.math_model_class(nm, dm, mpopt);
-            mm = mm_class();
-            obj.mm = mm;
-
+            mm = obj.math_model_create(nm, dm, mpopt);
             mm = obj.math_model_build_pre(mm, nm, dm, mpopt);
 
             %% add variables, constraints, costs

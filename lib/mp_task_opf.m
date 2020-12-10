@@ -36,29 +36,25 @@ classdef mp_task_opf < mp_task
         end
 
         %%-----  network model methods  -----
-        function nm_class = network_model_class(obj, dm, mpopt)
-            nm_class = obj.network_model_class_override(dm, mpopt);
-            if isempty(nm_class)
-                switch upper(mpopt.model)
-                    case 'AC'
-                        if mpopt.opf.v_cartesian
-                            if mpopt.opf.current_balance
-                                nm_class = @mp_network_acci;
-                            else
-                                nm_class = @mp_network_accs;
-%                                nm_class = @mp_network_accs_test_nln;
-                            end
+        function nm_class = network_model_class_default(obj, dm, mpopt)
+            switch upper(mpopt.model)
+                case 'AC'
+                    if mpopt.opf.v_cartesian
+                        if mpopt.opf.current_balance
+                            nm_class = @mp_network_acci;
                         else
-                            if mpopt.opf.current_balance
-                                nm_class = @mp_network_acpi;
-                            else
-                                nm_class = @mp_network_acps;
-%                                nm_class = @mp_network_acps_test_nln;
-                            end
+                            nm_class = @mp_network_accs;
                         end
-                    case 'DC'
-                        nm_class = @mp_network_dc;
-                end
+                    else
+                        if mpopt.opf.current_balance
+                            nm_class = @mp_network_acpi;
+                        else
+                            nm_class = @mp_network_acps;
+%                                nm_class = @mp_network_acps_test_nln;
+                        end
+                    end
+                case 'DC'
+                    nm_class = @mp_network_dc;
             end
         end
 
@@ -77,11 +73,12 @@ classdef mp_task_opf < mp_task
         end
 
         %%-----  mathematical model methods  -----
-        function mm_class = math_model_class(obj, nm, dm, mpopt)
-            mm_class = @opf_model;
+        function mm = math_model_create(obj, nm, dm, mpopt)
             %% switch back to simple opt_model, if possible
             %% I believe opf_model is required for callback functions
-            %% that extract mpc from the om
+            %% that extract mpc from the mm
+            mm = opf_model(dm.mpc);
+            obj.mm = mm;
         end
 
         function obj = math_model_add_vars(obj, mm, nm, dm, mpopt)
