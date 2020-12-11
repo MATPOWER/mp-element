@@ -16,7 +16,7 @@ classdef nme_shunt_ac < nme_shunt% & mp_form_ac
             build_params@nme_shunt(obj, nm, dm);    %% call parent
 
             dme = obj.data_model_element(dm);
-            Ysh = dme.Gs(dme.on) + 1j * dme.Bs(dme.on); %% vector of shunt admittances
+            Ysh = dme.Gs + 1j * dme.Bs;             %% shunt admittances
             nsh = obj.nk;
             obj.Y = sparse(1:nsh, 1:nsh, Ysh, nsh, nsh);
         end

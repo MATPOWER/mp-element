@@ -15,7 +15,7 @@ classdef mp_data_mpc2 < mp_data
 
     methods
         %% constructor
-        function obj = mp_data_mpc2(m, class_list)
+        function obj = mp_data_mpc2(mpc, class_list)
             %% call parent constructor
             obj@mp_data();
             obj.element_classes = ...
@@ -27,7 +27,7 @@ classdef mp_data_mpc2 < mp_data
                     obj.modify_element_classes(class_list);
                 end
                 %% load case and create mappings
-                obj.mpc = loadcase(m);
+                obj.mpc = loadcase(mpc);
                 obj.build();
             end
         end

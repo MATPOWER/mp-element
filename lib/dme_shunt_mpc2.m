@@ -43,8 +43,8 @@ classdef dme_shunt_mpc2 < dme_shunt & dm_format_mpc2
             baseMVA = dm.mpc.baseMVA;
 
             tab = obj.get_table(dm);
-            obj.Gs = tab(obj.bus, GS) / baseMVA;
-            obj.Bs = tab(obj.bus, BS) / baseMVA;
+            obj.Gs = tab(obj.bus(obj.on), GS) / baseMVA;
+            obj.Bs = tab(obj.bus(obj.on), BS) / baseMVA;
         end
     end     %% methods
 end         %% classdef

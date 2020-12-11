@@ -176,6 +176,7 @@ end
 %%-----  build network model from data model (mpc)  -----
 opf = mp_task_opf();
 %% from opf.run()
+mpc = opf.run_pre(mpc, mpopt);
 dm = opf.data_model_build(mpc, mpopt);
 nm = opf.network_model_build(dm, mpopt);
 om = opf.math_model_build(nm, dm, mpopt);

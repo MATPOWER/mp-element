@@ -16,44 +16,15 @@ classdef nme_load_ac < nme_load% & mp_form_ac
             build_params@nme_load(obj, nm, dm);     %% call parent
 
             dme = obj.data_model_element(dm);
-            obj.s = dme.Pd(dme.on) + 1j * dme.Qd(dme.on);   %% complex power demand
+            obj.s = dme.Pd + 1j * dme.Qd;           %% complex power demand
 
-            %%-----  HACK ALERT  -----
-            %% This is a hack to deal with experimental
-            %% mpopt.exp.sys_wide_zip_loads.pw/qw.
-            mpc = dm.mpc;
-            if isfield(mpc, 'sys_wide_zip_loads')
-                pw = mpc.sys_wide_zip_loads.pw;
-                qw = mpc.sys_wide_zip_loads.qw;
-                if any(size(pw) ~= [1 3])
-                    error('nme_load_ac/build_params: ''exp.sys_wide_zip_loads.pw'' must be a 1 x 3 vector');
-                end
-                if abs(sum(pw) - 1) > eps
-                    error('nme_load_ac/build_params: elements of ''exp.sys_wide_zip_loads.pw'' must sum to 1');
-                end
-                if isempty(qw)
-                    qw = pw;
-                else
-                    if any(size(qw) ~= [1 3])
-                        error('nme_load_ac/build_params: ''exp.sys_wide_zip_loads.qw'' must be a 1 x 3 vector');
-                    end
-                    if abs(sum(qw) - 1) > eps
-                        error('nme_load_ac/build_params: elements of ''exp.sys_wide_zip_loads.qw'' must sum to 1');
-                    end
-                end
-
-                Pd = dme.Pd(dme.on);
-                Qd = dme.Qd(dme.on);
-                nd = length(Pd);
-
-                obj.s = pw(1) * Pd + 1j * qw(1) * Qd;
-                Sd    = pw(2) * Pd + 1j * qw(2) * Qd;
-                Y     = pw(3) * Pd - 1j * qw(3) * Qd;
-%                obj.i = pw(2) * Pd - 1j * qw(2) * Qd;   %% power is function of complex voltage, not voltage magnitude (as expected)
-                obj.Y = sparse(1:nd, 1:nd, Y, nd, nd);
+            %% experimental system-wide ZIP loads (for backward compatibility)
+            [s, Sd, Y] = dme.sys_wide_zip_loads(dm);
+            if ~isempty(s)
+                obj.s = s;
+                obj.Y = Y;
                 obj.snln = @(x_, sysx, idx)port_inj_power_nln(obj, Sd, x_, sysx, idx);
             end
-            %%-----  end of HACK  -----
 
             function [S, Sv1, Sv2, Szr, Szi] = port_inj_power_nln(obj, Sd, x_, sysx, idx)
                 if nargin < 5

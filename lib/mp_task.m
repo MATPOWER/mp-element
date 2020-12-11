@@ -39,7 +39,10 @@ classdef mp_task < handle
     end
 
     methods
+        %%-----  task methods  -----
         function obj = run(obj, m, mpopt)
+            m = obj.run_pre(m, mpopt);
+
             %% create models
             dm = obj.data_model_build(m, mpopt);
             nm = obj.network_model_build(dm, mpopt);
@@ -63,6 +66,24 @@ classdef mp_task < handle
                 dm = obj.data_model_update(mm, nm, dm, mpopt);
                 dm = obj.data_model_update_post(mm, nm, dm, mpopt);
 %             end
+        end
+
+        function m = run_pre(obj, m, mpopt)
+            if ~isa(m, 'mp_data')
+                m = loadcase(m);
+
+                %% Handle experimental system-wide ZIP loads (for backward
+                %% compatibility), by moving data from
+                %%  mpopt.exp.sys_wide_zip_loads to
+                %%  mpc.sys_wide_zip_loads
+                if nargin == 3 && isfield(mpopt, 'exp') && ...
+                        ~isempty(mpopt.exp) && ...
+                        isfield(mpopt.exp, 'sys_wide_zip_loads') && ...
+                        (~isempty(mpopt.exp.sys_wide_zip_loads.pw) || ...
+                         ~isempty(mpopt.exp.sys_wide_zip_loads.qw))
+                    m.sys_wide_zip_loads = mpopt.exp.sys_wide_zip_loads;
+                end
+            end
         end
 
         function print_soln(obj, fname)
@@ -143,7 +164,7 @@ classdef mp_task < handle
         function nm = network_model_build(obj, dm, mpopt)
             nm = obj.network_model_create(dm, mpopt);
             nm = obj.network_model_build_pre(nm, dm, mpopt);
-            nm.build(dm, mpopt);
+            nm.build(dm);
             nm = obj.network_model_build_post(nm, dm, mpopt);
         end
         

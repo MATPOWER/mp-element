@@ -38,7 +38,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %%              after object construction, but before object use.
         end
 
-        function obj = build(obj, dm, mpopt)
+        function obj = build(obj, dm)
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
             %% INIT_SET_TYPES() cannot be called directly in the
@@ -49,20 +49,6 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             if isempty(obj.node)        %% only if not already initialized
                 obj.init_set_types();
             end
-
-            %%-----  HACK ALERT  -----
-            %% This is a hack to deal with experimental
-            %% mpopt.exp.sys_wide_zip_loads.pw/qw. MPOPT should be removed
-            %% completely as an argument to BUILD() once data and
-            %% options are properly separated.
-            if nargin == 3 && isfield(mpopt, 'exp') && ...
-                    ~isempty(mpopt.exp) && ...
-                    isfield(mpopt.exp, 'sys_wide_zip_loads') && ...
-                    (~isempty(mpopt.exp.sys_wide_zip_loads.pw) || ...
-                     ~isempty(mpopt.exp.sys_wide_zip_loads.qw))
-                dm.mpc.sys_wide_zip_loads = mpopt.exp.sys_wide_zip_loads;
-            end
-            %%-----  end of HACK  -----
 
             %% create element objects for each class with data
             i = 0;

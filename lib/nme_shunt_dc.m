@@ -13,10 +13,10 @@ classdef nme_shunt_dc < nme_shunt & mp_form_dc
 
     methods
         function obj = build_params(obj, nm, dm)
-            build_params@nme_shunt(obj, nm, dm);   %% call parent
+            build_params@nme_shunt(obj, nm, dm);    %% call parent
 
             dme = obj.data_model_element(dm);
-            obj.p = dme.Gs(dme.on);     %% vector of shunt conductances
+            obj.p = dme.Gs;                         %% shunt conductances
         end
     end     %% methods
 end         %% classdef

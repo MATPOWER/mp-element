@@ -43,8 +43,44 @@ classdef dme_load_mpc2 < dme_load & dm_format_mpc2
             baseMVA = dm.mpc.baseMVA;
 
             tab = obj.get_table(dm);
-            obj.Pd = tab(obj.bus, PD) / baseMVA;
-            obj.Qd = tab(obj.bus, QD) / baseMVA;
+            obj.Pd = tab(obj.bus(obj.on), PD) / baseMVA;
+            obj.Qd = tab(obj.bus(obj.on), QD) / baseMVA;
+        end
+
+        function [s, Sd, Y] = sys_wide_zip_loads(obj, dm)
+            mpc = dm.mpc;
+            if isfield(mpc, 'sys_wide_zip_loads')
+                pw = mpc.sys_wide_zip_loads.pw;
+                qw = mpc.sys_wide_zip_loads.qw;
+                if any(size(pw) ~= [1 3])
+                    error('dme_load_mpc2/sys_wide_zip_loads: ''exp.sys_wide_zip_loads.pw'' must be a 1 x 3 vector');
+                end
+                if abs(sum(pw) - 1) > eps
+                    error('dme_load_mpc2/sys_wide_zip_loads: elements of ''exp.sys_wide_zip_loads.pw'' must sum to 1');
+                end
+                if isempty(qw)
+                    qw = pw;
+                else
+                    if any(size(qw) ~= [1 3])
+                        error('dme_load_mpc2/sys_wide_zip_loads: ''exp.sys_wide_zip_loads.qw'' must be a 1 x 3 vector');
+                    end
+                    if abs(sum(qw) - 1) > eps
+                        error('dme_load_mpc2/sys_wide_zip_loads: elements of ''exp.sys_wide_zip_loads.qw'' must sum to 1');
+                    end
+                end
+
+                Pd = obj.Pd;
+                Qd = obj.Qd;
+                nd = length(Pd);
+
+                s  = pw(1) * Pd + 1j * qw(1) * Qd;
+                Sd = pw(2) * Pd + 1j * qw(2) * Qd;
+                Y  = pw(3) * Pd - 1j * qw(3) * Qd;
+%                i = pw(2) * Pd - 1j * qw(2) * Qd;   %% power is function of complex voltage, not voltage magnitude (as expected)
+                Y = sparse(1:nd, 1:nd, Y, nd, nd);
+            else
+                s = []; Sd = []; Y = [];
+            end
         end
     end     %% methods
 end         %% classdef
