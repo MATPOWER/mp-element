@@ -197,7 +197,7 @@ classdef mp_data_mpc2 < mp_data
         end
 
         function uc = opf_legacy_user_constraints(obj, uv_names, nx, mpopt)
-            mpc = dm.mpc;
+            mpc = obj.mpc;
 
             %% check for user-defined nonlinear constraints
             nnle = 0;   %% number of nonlinear user-defined equality cons
