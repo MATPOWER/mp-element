@@ -68,7 +68,7 @@ classdef nme_gen < nm_element
             %% (order 3 and higher) polynomial costs on Pg
             if ~isempty(obj.cost.poly_p.i3)
                 dme = obj.data_model_element(dm);
-                cost_Pg = @(xx)opf_gen_cost_fcn(xx, dm.mpc.baseMVA, dme.pcost, obj.cost.poly_p.i3);
+                cost_Pg = @(xx)opf_gen_cost_fcn(xx, obj.cost.baseMVA, dme.pcost, obj.cost.poly_p.i3);
                 om.add_nln_cost('polPg', 1, cost_Pg, {'Pg'});
             end
 
