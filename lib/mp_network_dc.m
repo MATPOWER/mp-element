@@ -148,6 +148,13 @@ classdef mp_network_dc < mp_network & mp_form_dc
             om.userdata.Pfinj = pbr;
         end
 
+        function add_opf_system_costs(obj, om, dm, mpopt)
+            %% can be overridden to add additional system costs
+
+            %% legacy user-defined costs
+            obj.add_opf_legacy_user_costs(om, dm, 1);
+        end
+
         function names = opf_legacy_user_var_names(obj)
             names = {'Va', 'Pg'};
         end

@@ -399,6 +399,13 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             d2G = real(d2Gr) + imag(d2Gi);
         end
 
+        function add_opf_system_costs(obj, om, dm, mpopt)
+            %% can be overridden to add additional system costs
+
+            %% legacy user-defined costs
+            obj.add_opf_legacy_user_costs(om, dm, 0);
+        end
+
         function add_opf_legacy_user_constraints(obj, om, dm, mpopt)
             %% call parent
             add_opf_legacy_user_constraints@mp_network(obj, om, dm, mpopt);

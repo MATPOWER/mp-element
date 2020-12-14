@@ -25,6 +25,12 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
             obj.N = -speye(ng);
         end
 
+        %%-----  OPF methods  -----
+        function build_gen_cost_params(obj, dm)
+            dme = obj.data_model_element(dm);
+            obj.cost = dme.build_gen_cost_params(dm, 0);
+        end
+
         function add_opf_constraints(obj, nm, om, dm, mpopt)
             %% generator PQ capability curve constraints
             [Apqh, ubpqh, Apql, ubpql, Apqdata] = dm.gen_pq_capability_constraint();

@@ -50,8 +50,7 @@ classdef nme_gen < nm_element
         %%-----  OPF methods  -----
         function add_opf_vars(obj, nm, om, dm, mpopt)
             %% collect/construct all generator cost parameters
-            dme = obj.data_model_element(dm);
-            obj.cost = dme.build_gen_cost_params(dm, strcmp(upper(mpopt.model), 'DC'));
+            obj.build_gen_cost_params(dm);
 
             %% piecewise linear costs
             if obj.cost.pwl.n

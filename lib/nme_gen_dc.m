@@ -25,6 +25,12 @@ classdef nme_gen_dc < nme_gen & mp_form_dc
             obj.K = -speye(ng);
         end
 
+        %%-----  OPF methods  -----
+        function build_gen_cost_params(obj, dm)
+            dme = obj.data_model_element(dm);
+            obj.cost = dme.build_gen_cost_params(dm, 1);
+        end
+
         function add_opf_constraints(obj, nm, om, dm, mpopt)
             %% piecewise linear costs
             if obj.cost.pwl.n

@@ -454,10 +454,6 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         function add_opf_system_costs(obj, om, dm, mpopt)
-            %% can be overridden to add additional system costs
-
-            %% legacy user-defined costs
-            obj.add_opf_legacy_user_costs(om, dm, mpopt);
         end
 
         function add_opf_legacy_user_vars(obj, om, dm, mpopt)
@@ -483,7 +479,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
-        function add_opf_legacy_user_costs(obj, om, dm, mpopt)
+        function add_opf_legacy_user_costs(obj, om, dm, dc)
             user_cost = dm.user_mods.cost;
             if user_cost.nw
                 uv = om.get_userdata('user_vars');
@@ -491,7 +487,6 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
 
             %% implement legacy user costs using quadratic or general non-linear costs
-            dc = strcmp(upper(mpopt.model), 'DC');
             cp = om.params_legacy_cost();   %% construct/fetch the parameters
             [N, H, Cw, rh, mm] = deal(cp.N, cp.H, cp.Cw, cp.rh, cp.mm);
             [nw, nx] = size(N);
