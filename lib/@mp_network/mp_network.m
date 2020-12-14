@@ -457,16 +457,14 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %% can be overridden to add additional system costs
 
             %% legacy user-defined costs
-            obj.add_opf_legacy_user_costs(om, mpopt);
+            obj.add_opf_legacy_user_costs(om, dm, mpopt);
         end
 
         function add_opf_legacy_user_vars(obj, om, dm, mpopt)
-            uv_names = obj.opf_legacy_user_var_names();
-            nx = sum(cellfun(@(x)om.getN('var', x), uv_names));
-            [uv, z] = dm.opf_legacy_user_vars(uv_names, nx, mpopt);
+            z = dm.user_mods.z;
 
             %% save data
-            om.userdata = nested_struct_copy(om.userdata, uv);
+            om.userdata.user_vars = obj.opf_legacy_user_var_names();
 
             %% add any user-defined vars
             if z.nz > 0
@@ -476,29 +474,20 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         function add_opf_legacy_user_constraints(obj, om, dm, mpopt)
+            lin = dm.user_mods.lin;
+
             %% user-defined linear constraints
-            if om.userdata.nlin
-                om.add_lin_constraint('usr', om.userdata.A, om.userdata.l, ...
-                    om.userdata.u, om.userdata.user_vars);
-                om.userdata = rmfield(om.userdata, {'A', 'l', 'u', 'nlin'});
+            if lin.nlin
+                uv = om.get_userdata('user_vars');
+                om.add_lin_constraint('usr', lin.A, lin.l, lin.u, uv);
             end
         end
 
-        function add_opf_legacy_user_costs(obj, om, mpopt)
-            if om.userdata.nw
-                user_cost.N = om.userdata.N;
-                user_cost.Cw = om.userdata.Cw;
-                if ~isempty(om.userdata.fparm)
-                    user_cost.dd = om.userdata.fparm(:, 1);
-                    user_cost.rh = om.userdata.fparm(:, 2);
-                    user_cost.kk = om.userdata.fparm(:, 3);
-                    user_cost.mm = om.userdata.fparm(:, 4);
-                end
-                if ~isempty(om.userdata.H)
-                    user_cost.H = om.userdata.H;
-                end
-                om.add_legacy_cost('usr', user_cost, om.userdata.user_vars);
-                om.userdata = rmfield(om.userdata, {'N', 'fparm', 'H', 'Cw', 'nw'});
+        function add_opf_legacy_user_costs(obj, om, dm, mpopt)
+            user_cost = dm.user_mods.cost;
+            if user_cost.nw
+                uv = om.get_userdata('user_vars');
+                om.add_legacy_cost('usr', user_cost, uv);
             end
 
             %% implement legacy user costs using quadratic or general non-linear costs

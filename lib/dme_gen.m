@@ -13,6 +13,7 @@ classdef dme_gen < dm_element
         bus     %% bus index vector (all gens)
         Pg0     %% initial active power (p.u.) for gens that are on
         Qg0     %% initial reactive power (p.u.) for gens that are on
+        Vg      %% generator voltage setpoint
         Pmin    %% active power lower bound (p.u.) for gens that are on
         Pmax    %% active power upper bound (p.u.) for gens that are on
         Qmin    %% reactive power lower bound (p.u.) for gens that are on

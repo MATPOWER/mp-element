@@ -9,8 +9,9 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%     properties
-%     end     %% properties
+    properties
+        pwl1        %% indices of single-block piecewise linear costs
+    end     %% properties
 
     methods
         %% constructor
@@ -52,19 +53,41 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
+            [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
             baseMVA = dm.mpc.baseMVA;
 
             gen = obj.get_table(dm);
 
+            %% get generator parameters
             obj.Pg0  = gen(obj.on, PG) / baseMVA;
             obj.Pmin = gen(obj.on, PMIN) / baseMVA;
             obj.Pmax = gen(obj.on, PMAX) / baseMVA;
             obj.Qg0  = gen(obj.on, QG) / baseMVA;
             obj.Qmin = gen(obj.on, QMIN) / baseMVA;
             obj.Qmax = gen(obj.on, QMAX) / baseMVA;
+            obj.Vg   = gen(obj.on, VG);
 
+            %% get gen cost parameters
             if isfield(dm.mpc, 'gencost') && ~isempty(dm.mpc.gencost)
-                [pcost, qcost] = pqcost(dm.mpc.gencost, obj.nr);
+                gencost = dm.mpc.gencost;
+
+                %% convert single-block piecewise-linear costs into linear polynomial cost
+                pwl1 = find(gencost(:, MODEL) == PW_LINEAR & gencost(:, NCOST) == 2);
+                % p1 = [];
+                if ~isempty(pwl1)
+                    x0 = gencost(pwl1, COST);
+                    y0 = gencost(pwl1, COST+1);
+                    x1 = gencost(pwl1, COST+2);
+                    y1 = gencost(pwl1, COST+3);
+                    m = (y1 - y0) ./ (x1 - x0);
+                    b = y0 - m .* x0;
+                    gencost(pwl1, MODEL) = POLYNOMIAL;
+                    gencost(pwl1, NCOST) = 2;
+                    gencost(pwl1, COST:COST+1) = [m b];
+                    obj.pwl1 = pwl1;
+                end
+
+                [pcost, qcost] = pqcost(gencost, obj.nr);
                 obj.pcost = pcost(obj.on, :);
                 if isempty(qcost)
                     obj.qcost = qcost;
@@ -74,6 +97,7 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             end
         end
 
+        %%-----  OPF methods  -----
         function cost = build_gen_cost_params(obj, dm, dc)
             mpc = dm.mpc;
             baseMVA = dm.mpc.baseMVA;
@@ -154,7 +178,6 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
                 );
         end
 
-        %%-----  OPF methods  -----
         function [A, l, u] = disp_load_constant_pf_constraint(obj, dm);
             %%-----  HACK ALERT  -----
             %% create a mpc with only online gens to call makeAvl

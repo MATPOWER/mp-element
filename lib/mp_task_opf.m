@@ -16,8 +16,9 @@ classdef mp_task_opf < mp_task
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%     properties
-%     end
+    properties
+        dc      %% true if DC network model (cached, from mpopt)
+    end
     
     methods
         %%-----  constructor  -----
@@ -29,7 +30,41 @@ classdef mp_task_opf < mp_task
             obj.name = 'Optimal Power Flow';
         end
 
+        %%-----  task methods  -----
+        function m = run_pre(obj, m, mpopt)
+            m = run_pre@mp_task(obj, m, mpopt);     %% call parent
+
+            %% cache some flags
+            obj.dc = strcmp(upper(mpopt.model), 'DC');
+
+            if ~obj.dc
+                alg = upper(mpopt.opf.ac.solver);
+
+                %% check for unsupported solver selection
+                if strcmp(alg, 'MINOPF') || strcmp(alg, 'PDIPM') || ...
+                        strcmp(alg, 'TRALM') || strcmp(alg, 'SDPOPF')
+                    error('mp_task_opf/run_pre: Option ''opf.solver.ac''=''%s'' not supported.', alg);
+                end
+            end
+        end
+
         %%-----  data model methods  -----
+        function dm = data_model_build_post(obj, dm, mpopt)
+            dm = data_model_build_post@mp_task(obj, dm, mpopt); %% call parent
+
+            %% pre-process inputs for legacy user vars, constraints, costs
+            dm.legacy_user_mod_inputs(mpopt, obj.dc);
+
+            if ~obj.dc
+                %% if requested, adjust bus voltage magnitude
+                %% limits based on generator Vg setpoint
+                use_vg = mpopt.opf.use_vg;
+                if use_vg
+                    dm.set_bus_v_lims_via_vg(use_vg);
+                end
+            end
+        end
+
         function dm = data_model_update(obj, mm, nm, dm, mpopt)
             %% e.g. update data model with network model solution
             if mpopt.verbose, fprintf('-- %s data_model_update()\n', obj.tag); end
@@ -37,24 +72,23 @@ classdef mp_task_opf < mp_task
 
         %%-----  network model methods  -----
         function nm_class = network_model_class_default(obj, dm, mpopt)
-            switch upper(mpopt.model)
-                case 'AC'
-                    if mpopt.opf.v_cartesian
-                        if mpopt.opf.current_balance
-                            nm_class = @mp_network_acci;
-                        else
-                            nm_class = @mp_network_accs;
-                        end
+            if obj.dc
+                nm_class = @mp_network_dc;
+            else
+                if mpopt.opf.v_cartesian
+                    if mpopt.opf.current_balance
+                        nm_class = @mp_network_acci;
                     else
-                        if mpopt.opf.current_balance
-                            nm_class = @mp_network_acpi;
-                        else
-                            nm_class = @mp_network_acps;
-%                                nm_class = @mp_network_acps_test_nln;
-                        end
+                        nm_class = @mp_network_accs;
                     end
-                case 'DC'
-                    nm_class = @mp_network_dc;
+                else
+                    if mpopt.opf.current_balance
+                        nm_class = @mp_network_acpi;
+                    else
+                        nm_class = @mp_network_acps;
+%                        nm_class = @mp_network_acps_test_nln;
+                    end
+                end
             end
         end
 

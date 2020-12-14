@@ -11,6 +11,7 @@ classdef mp_data_mpc2 < mp_data
 
     properties
         mpc
+        user_mods
     end     %% properties
 
     methods
@@ -131,6 +132,122 @@ classdef mp_data_mpc2 < mp_data
         end
 
         %%-----  OPF methods  -----
+        function obj = legacy_user_mod_inputs(obj, mpopt, dc)
+            %% pre-process input related to user vars, constraints, costs
+
+            %% create (read-only) copies of individual fields for convenience
+            mpc = obj.mpc;
+            [baseMVA, bus, gen, branch, gencost, A, l, u, mpopt, ...
+                N, fparm, H, Cw, z0, zl, zu, userfcn] = opf_args(mpc, mpopt);
+
+            %% data dimensions
+            nb   = size(bus, 1);    %% number of buses
+            ng   = size(gen, 1);    %% number of dispatchable injections
+            nlin = size(A, 1);      %% number of linear user constraints
+            nw = size(N, 1);        %% number of general cost vars, w
+            if dc
+                %% reduce A and/or N from AC dimensions to DC dimensions, if needed
+                if nlin || nw
+                    acc = [nb+(1:nb) 2*nb+ng+(1:ng)];   %% Vm and Qg columns
+                    if nlin && size(A, 2) >= 2*nb + 2*ng
+                        %% make sure there aren't any constraints on Vm or Qg
+                        if any(any(A(:, acc)))
+                            error('mp_data_mpc2/legacy_user_mod_inputs: attempting to solve DC OPF with user constraints on Vm or Qg');
+                        end
+                        A(:, acc) = [];         %% delete Vm and Qg columns
+                    end
+                    if nw && size(N, 2) >= 2*nb + 2*ng
+                        %% make sure there aren't any costs on Vm or Qg
+                        if any(any(N(:, acc)))
+                            [ii, jj] = find(N(:, acc));
+                            ii = unique(ii);    %% indices of w with potential non-zero cost terms from Vm or Qg
+                            if any(Cw(ii)) || (~isempty(H) && any(any(H(:, ii))))
+                                error('mp_data_mpc2/legacy_user_mod_inputs: attempting to solve DC OPF with user costs on Vm or Qg');
+                            end
+                        end
+                        N(:, acc) = [];         %% delete Vm and Qg columns
+                    end
+                end
+                nv = 0;
+                nq = 0;
+            else
+                nv = nb;
+                nq = ng;
+            end
+
+            %% get number of user vars, check consistency
+            nx = nb+nv + ng+nq;  %% number of standard OPF control variables
+            if nlin
+                nz = size(A, 2) - nx;   %% number of user z variables
+                if nz < 0
+                    error('mp_data_mpc2/legacy_user_mod_inputs: user supplied A matrix must have at least %d columns.', nx);
+                end
+            else
+                nz = 0;               %% number of user z variables
+                if nw                 %% still need to check number of columns of N
+                    if size(mpc.N, 2) ~= nx;
+                        error('mp_data_mpc2/legacy_user_mod_inputs: user supplied N matrix must have %d columns.', nx);
+                    end
+                end
+            end
+
+            %% package up parameters
+            z = struct( 'nz', nz, ...           %% num user variables
+                        'z0', z0, ...
+                        'zl', zl, ...
+                        'zu', zu    );
+            lin = struct(   'nlin', nlin, ...   %% num user linear constraints
+                            'A', A, ...
+                            'l', l, ...
+                            'u', u  );
+            cost =  struct( 'nw', nw, ...       %% num user cost rows
+                            'N', N, ...
+                            'Cw', Cw    );
+            if ~isempty(H)
+                cost.H = H;
+            end
+            if ~isempty(fparm)
+                cost.dd = fparm(:, 1);
+                cost.rh = fparm(:, 2);
+                cost.kk = fparm(:, 3);
+                cost.mm = fparm(:, 4);
+            end
+            obj.user_mods = struct( 'z', z, 'lin', lin, 'cost', cost );
+        end
+
+        function obj = set_bus_v_lims_via_vg(obj, use_vg)
+            bus_dme = obj.elm_by_name('bus');
+            gen_dme = obj.elm_by_name('gen');
+            nb = bus_dme.n;
+            ng = gen_dme.n;
+
+            %% gen connection matrix, element i, j is 1 if, generator j at bus i is ON
+            Cg = sparse(gen_dme.bus, (1:ng)', 1, nb, ng);
+            Vbg = Cg * sparse(1:ng, 1:ng, gen_dme.Vg, ng, ng);
+            Vmax = max(Vbg, [], 2); %% zero for non-gen buses, else max Vg of gens @ bus
+            ib = find(Vmax);                %% buses with online gens
+            Vmin = max(2*Cg - Vbg, [], 2);  %% same as Vmax, except min Vg of gens @ bus
+            Vmin(ib) = 2 - Vmin(ib);
+
+            if use_vg == 1      %% use Vg setpoint directly
+                bus_dme.Vmax(ib) = Vmax(ib);    %% max set by max Vg @ bus
+                bus_dme.Vmin(ib) = Vmin(ib);    %% min set by min Vg @ bus
+                bus_dme.Vm0(ib) = Vmax(ib);
+            elseif use_vg > 0 && use_vg < 1     %% fractional value
+                %% use weighted avg between original Vmin/Vmax limits and Vg
+                bus_dme.Vmax(ib) = (1-use_vg) * bus_dme.Vmax(ib) + use_vg * Vmax(ib);
+                bus_dme.Vmin(ib) = (1-use_vg) * bus_dme.Vmin(ib) + use_vg * Vmin(ib);
+            else
+                error('opf_setup_mpe: option ''opf.use_vg'' (= %g) cannot be negative or greater than 1', use_vg);
+            end
+
+            %% update mpc.bus as well (for output)
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+            obj.mpc.bus(bus_dme.on(ib), VMAX) = bus_dme.Vmax(ib);
+            obj.mpc.bus(bus_dme.on(ib), VMIN) = bus_dme.Vmin(ib);
+        end
+
         function [A, l, u, i] = branch_angle_diff_constraint(obj, ignore);
             baseMVA = obj.mpc.baseMVA;
             branch = obj.elm_by_name('branch').get_table(obj);
@@ -145,55 +262,6 @@ classdef mp_data_mpc2 < mp_data
             gen = gen_dme.get_table(obj);
 
             [Ah, uh, Al, ul, data] = makeApq(baseMVA, gen(gen_dme.on, :));
-        end
-
-        function [uv, z] = opf_legacy_user_vars(obj, uv_names, nx, mpopt)
-            %% create (read-only) copies of individual fields for convenience
-            mpc = obj.mpc;
-            [baseMVA, bus, gen, branch, gencost, Au, lbu, ubu, mpopt, ...
-                N, fparm, H, Cw, z0, zl, zu, userfcn] = opf_args(mpc, mpopt);
-
-            %% get some more problem dimensions
-            if isfield(mpc, 'A')
-                nlin = size(mpc.A, 1);  %% number of linear user constraints
-            else
-                nlin = 0;
-            end
-            if isfield(mpc, 'N')
-                nw = size(mpc.N, 1);    %% number of general cost vars, w
-            else
-                nw = 0;
-            end
-
-            %% get number of user vars, check consistency
-            if nlin
-                nz = size(mpc.A, 2) - nx; %% number of user z variables
-                if nz < 0
-                    error('mp_data_mpc2/add_opf_legacy_user_vars: user supplied A matrix must have at least %d columns.', nx);
-                end
-            else
-                nz = 0;               %% number of user z variables
-                if nw                 %% still need to check number of columns of N
-                    if size(mpc.N, 2) ~= nx;
-                        error('mp_data_mpc2/add_opf_legacy_user_vars: user supplied N matrix must have %d columns.', nx);
-                    end
-                end
-            end
-
-            %% package up return data
-            uv = struct( ...
-                    'user_vars', {uv_names}, ...
-                    'nlin', nlin, ...
-                    'nw', nw, ...
-                    'A', Au, ...
-                    'l', lbu, ...
-                    'u', ubu, ...
-                    'N', N, ...
-                    'fparm', fparm, ...
-                    'H', H, ...
-                    'Cw', Cw ...
-                );
-            z = struct('nz', nz, 'z0', z0, 'zl', zl, 'zu', zu);
         end
 
         function uc = opf_legacy_user_constraints(obj, uv_names, nx, mpopt)
