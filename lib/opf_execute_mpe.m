@@ -31,13 +31,6 @@ om = opf.mm;
 %% options
 dc  = strcmp(upper(mpopt.model), 'DC');
 alg = upper(mpopt.opf.ac.solver);
-switch alg
-    case {'PDIPM', 'TRALM', 'MINOPF', 'SDPOPF'}
-        legacy_solver = 1;
-    otherwise
-        legacy_solver = 0;
-end
-sdp = strcmp(alg, 'SDPOPF');
 vcart = ~dc && mpopt.opf.v_cartesian;
 
 %% get indexing
@@ -58,90 +51,42 @@ else
     %%-----  run AC OPF solver  -----
     if mpopt.verbose > 0
         fprintf(' -- AC Optimal Power Flow\n  AC OPF formulation: ');
-        if sdp
-            fprintf('SDP relaxation\n');
+        if vcart
+            v = 'cartesian';
         else
-            if vcart
-                v = 'cartesian';
-            else
-                v = 'polar';
-            end
-            if mpopt.opf.current_balance
-                v2 = 'current';
-            else
-                v2 = 'power';
-            end
-            fprintf('%s voltages, %s balance eqns\n', v, v2);
+            v = 'polar';
         end
-    end
-
-    %% ZIP loads?
-    if legacy_solver && ( ...
-            (~isempty(mpopt.exp.sys_wide_zip_loads.pw) && ...
-              any(mpopt.exp.sys_wide_zip_loads.pw(2:3))) || ...
-            (~isempty(mpopt.exp.sys_wide_zip_loads.qw) && ...
-              any(mpopt.exp.sys_wide_zip_loads.qw(2:3))) )
-        warning('opf_execute: ''%s'' solver does not support ZIP load model. Converting to constant power loads.', alg)
-        mpopt = mpoption(mpopt, 'exp.sys_wide_zip_loads', ...
-                          struct('pw', [], 'qw', []));
+        if mpopt.opf.current_balance
+            v2 = 'current';
+        else
+            v2 = 'power';
+        end
+        fprintf('%s voltages, %s balance eqns\n', v, v2);
     end
 
     %% run specific AC OPF solver
-    if legacy_solver
-        switch alg
-            case 'PDIPM'
-                if mpopt.pdipm.step_control
-                    if ~have_feature('scpdipmopf')
-                        error('opf_execute: MPOPT.opf.ac.solver = ''%s'' requires SCPDIPMOPF (see http://www.pserc.cornell.edu/tspopf/)', alg);
-                    end
-                else
-                    if ~have_feature('pdipmopf')
-                        error('opf_execute: MPOPT.opf.ac.solver = ''%s'' requires PDIPMOPF (see http://www.pserc.cornell.edu/tspopf/)', alg);
-                    end
-                end
-                [results, success, raw] = tspopf_solver(om, mpopt);
-            case 'TRALM'
-                if ~have_feature('tralmopf')
-                    error('opf_execute: MPOPT.opf.ac.solver = ''%s'' requires TRALM (see http://www.pserc.cornell.edu/tspopf/)', alg);
-                end
-                [results, success, raw] = tspopf_solver(om, mpopt);
-            case 'MINOPF'
-                if ~have_feature('minopf')
-                    error('opf_execute: MPOPT.opf.ac.solver = ''%s'' requires MINOPF (see http://www.pserc.cornell.edu/minopf/)', alg);
-                end
-                [results, success, raw] = mopf_solver(om, mpopt);
-            case 'SDPOPF'
-                if ~have_feature('yalmip')
-                    error('opf_execute: MPOPT.opf.ac.solver = ''%s'' requires YALMIP (see https://yalmip.github.io)', alg);
-                end
-                [results, success, raw] = sdpopf_solver(om, mpopt);
-            otherwise
-                error('opf_execute: MPOPT.opf.ac.solver = ''%s'' is not a valid AC OPF solver selection', alg);
-        end
-    else    %% not legacy solver
-        switch alg
-            case 'IPOPT'
-                if ~have_feature('ipopt')
-                    error('opf_execute: MPOPT.opf.ac.solver = ''%s'' requires IPOPT (see https://github.com/coin-or/Ipopt)', alg);
-                end
-            case 'FMINCON'
-                if ~have_feature('fmincon')
-                    error('opf_execute: MPOPT.opf.ac.solver = ''%s'' requires FMINCON (Optimization Toolbox 2.x or later)', alg);
-                end
-            case 'KNITRO'
-                if ~have_feature('knitro')
-                    error('opf_execute: MPOPT.opf.ac.solver = ''%s'' requires Artelys Knitro (see https://www.artelys.com/solvers/knitro/)', alg);
-                end
-        end
-        [results, success, raw] = nlpopf_solver_mpe(opf, mpopt);
-    end     %% if legacy_solver
+    switch alg
+        case 'IPOPT'
+            if ~have_feature('ipopt')
+                error('opf_execute: MPOPT.opf.ac.solver = ''%s'' requires IPOPT (see https://github.com/coin-or/Ipopt)', alg);
+            end
+        case 'FMINCON'
+            if ~have_feature('fmincon')
+                error('opf_execute: MPOPT.opf.ac.solver = ''%s'' requires FMINCON (Optimization Toolbox 2.x or later)', alg);
+            end
+        case 'KNITRO'
+            if ~have_feature('knitro')
+                error('opf_execute: MPOPT.opf.ac.solver = ''%s'' requires Artelys Knitro (see https://www.artelys.com/solvers/knitro/)', alg);
+            end
+    end
+    [results, success, raw] = nlpopf_solver_mpe(opf, mpopt);
 end %% if dc
 if ~isfield(raw, 'output') || ~isfield(raw.output, 'alg') || isempty(raw.output.alg)
     raw.output.alg = alg;
 end
 
 if success
-  if ~dc && ~sdp
+  if ~dc
     %% copy bus voltages back to gen matrix
     results.gen(:, VG) = results.bus(results.gen(:, GEN_BUS), VM);
 
@@ -188,7 +133,7 @@ if success
 
   %% angle limit constraint multipliers
   iang = om.get_userdata('iang');
-  if ~sdp && length(iang)
+  if length(iang)
     if vcart
       iang = om.get_userdata('iang');
       results.branch(iang, MU_ANGMIN) = results.mu.nli(nni.i1.angL:nni.iN.angL) * pi/180;
@@ -209,90 +154,88 @@ else
   end
 end
 
-if ~sdp
-  %% assign values and limit shadow prices for variables
-  om_var_order = om.get('var', 'order');
-  for k = 1:length(om_var_order)
-    name = om_var_order(k).name;
-    if om.getN('var', name)
-      idx = vv.i1.(name):vv.iN.(name);
-      results.var.val.(name) = results.x(idx);
-      results.var.mu.l.(name) = results.mu.var.l(idx);
-      results.var.mu.u.(name) = results.mu.var.u(idx);
+%% assign values and limit shadow prices for variables
+om_var_order = om.get('var', 'order');
+for k = 1:length(om_var_order)
+  name = om_var_order(k).name;
+  if om.getN('var', name)
+    idx = vv.i1.(name):vv.iN.(name);
+    results.var.val.(name) = results.x(idx);
+    results.var.mu.l.(name) = results.mu.var.l(idx);
+    results.var.mu.u.(name) = results.mu.var.u(idx);
+  end
+end
+
+%% assign shadow prices for linear constraints
+om_lin_order = om.get('lin', 'order');
+for k = 1:length(om_lin_order)
+  name = om_lin_order(k).name;
+  if om.getN('lin', name)
+    idx = ll.i1.(name):ll.iN.(name);
+    results.lin.mu.l.(name) = results.mu.lin.l(idx);
+    results.lin.mu.u.(name) = results.mu.lin.u(idx);
+  end
+end
+
+%% assign shadow prices for nonlinear constraints
+if ~dc
+  om_nle_order = om.get('nle', 'order');
+  for k = 1:length(om_nle_order)
+    name = om_nle_order(k).name;
+    if om.getN('nle', name)
+      results.nle.lambda.(name) = results.mu.nle(nne.i1.(name):nne.iN.(name));
     end
   end
 
-  %% assign shadow prices for linear constraints
-  om_lin_order = om.get('lin', 'order');
-  for k = 1:length(om_lin_order)
-    name = om_lin_order(k).name;
-    if om.getN('lin', name)
-      idx = ll.i1.(name):ll.iN.(name);
-      results.lin.mu.l.(name) = results.mu.lin.l(idx);
-      results.lin.mu.u.(name) = results.mu.lin.u(idx);
+  om_nli_order = om.get('nli', 'order');
+  for k = 1:length(om_nli_order)
+    name = om_nli_order(k).name;
+    if om.getN('nli', name)
+      results.nli.mu.(name) = results.mu.nli(nni.i1.(name):nni.iN.(name));
     end
   end
+end
 
-  %% assign shadow prices for nonlinear constraints
-  if ~dc
-    om_nle_order = om.get('nle', 'order');
-    for k = 1:length(om_nle_order)
-      name = om_nle_order(k).name;
-      if om.getN('nle', name)
-        results.nle.lambda.(name) = results.mu.nle(nne.i1.(name):nne.iN.(name));
-      end
-    end
-
-    om_nli_order = om.get('nli', 'order');
-    for k = 1:length(om_nli_order)
-      name = om_nli_order(k).name;
-      if om.getN('nli', name)
-        results.nli.mu.(name) = results.mu.nli(nni.i1.(name):nni.iN.(name));
-      end
-    end
+%% assign values for components of quadratic cost
+om_qdc_order = om.get('qdc', 'order');
+for k = 1:length(om_qdc_order)
+  name = om_qdc_order(k).name;
+  if om.getN('qdc', name)
+    results.qdc.(name) = om.eval_quad_cost(results.x, name);
   end
+end
 
-  %% assign values for components of quadratic cost
-  om_qdc_order = om.get('qdc', 'order');
-  for k = 1:length(om_qdc_order)
-    name = om_qdc_order(k).name;
-    if om.getN('qdc', name)
-      results.qdc.(name) = om.eval_quad_cost(results.x, name);
-    end
+%% assign values for components of general nonlinear cost
+om_nlc_order = om.get('nlc', 'order');
+for k = 1:length(om_nlc_order)
+  name = om_nlc_order(k).name;
+  if om.getN('nlc', name)
+    results.nlc.(name) = om.eval_nln_cost(results.x, name);
   end
+end
 
-  %% assign values for components of general nonlinear cost
-  om_nlc_order = om.get('nlc', 'order');
-  for k = 1:length(om_nlc_order)
-    name = om_nlc_order(k).name;
-    if om.getN('nlc', name)
-      results.nlc.(name) = om.eval_nln_cost(results.x, name);
-    end
+%% assign values for components of legacy user cost
+om_cost_order = om.get('cost', 'order');
+for k = 1:length(om_cost_order)
+  name = om_cost_order(k).name;
+  if om.getN('cost', name)
+    results.cost.(name) = om.eval_legacy_cost(results.x, name);
   end
+end
 
-  %% assign values for components of legacy user cost
-  om_cost_order = om.get('cost', 'order');
-  for k = 1:length(om_cost_order)
-    name = om_cost_order(k).name;
-    if om.getN('cost', name)
-      results.cost.(name) = om.eval_legacy_cost(results.x, name);
-    end
+%% if single-block PWL costs were converted to POLY, insert dummy y into x
+%% Note: The "y" portion of x will be nonsense, but everything should at
+%%       least be in the expected locations.
+pwl1 = om.get_userdata('pwl1');
+if ~isempty(pwl1)
+  %% get indexing
+  vv = om.get_idx();
+  if dc
+    nx = vv.iN.Pg;
+  else
+    nx = vv.iN.Qg;
   end
-
-  %% if single-block PWL costs were converted to POLY, insert dummy y into x
-  %% Note: The "y" portion of x will be nonsense, but everything should at
-  %%       least be in the expected locations.
-  pwl1 = om.get_userdata('pwl1');
-  if ~isempty(pwl1) && ~strcmp(alg, 'TRALM') && ~(strcmp(alg, 'PDIPM') && mpopt.pdipm.step_control)
-    %% get indexing
-    vv = om.get_idx();
-    if dc
-      nx = vv.iN.Pg;
-    else
-      nx = vv.iN.Qg;
-    end
-    y = zeros(length(pwl1), 1);
-    raw.xr = [ raw.xr(1:nx); y; raw.xr(nx+1:end)];
-    results.x = [ results.x(1:nx); y; results.x(nx+1:end)];
-  end
+  y = zeros(length(pwl1), 1);
+  raw.xr = [ raw.xr(1:nx); y; raw.xr(nx+1:end)];
+  results.x = [ results.x(1:nx); y; results.x(nx+1:end)];
 end
