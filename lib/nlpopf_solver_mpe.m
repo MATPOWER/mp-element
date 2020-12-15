@@ -1,51 +1,13 @@
 function [results, success, raw] = nlpopf_solver_mpe(opf, mpopt)
-%NLPOPF_SOLVER  Solves AC optimal power flow using MP-Opt-Model.
-%
-%   [RESULTS, SUCCESS, RAW] = NLPOPF_SOLVER(OM, MPOPT)
-%
-%   Inputs are an OPF model object and a MATPOWER options struct.
-%
-%   Outputs are a RESULTS struct, SUCCESS flag and RAW output struct.
-%
-%   RESULTS is a MATPOWER case struct (mpc) with the usual baseMVA, bus
-%   branch, gen, gencost fields, along with the following additional
-%   fields:
-%       .order      see 'help ext2int' for details of this field
-%       .x          final value of optimization variables (internal order)
-%       .f          final objective function value
-%       .mu         shadow prices on ...
-%           .var
-%               .l  lower bounds on variables
-%               .u  upper bounds on variables
-%           .nln    (deprecated) 2*nb+2*nl - Pmis, Qmis, Sf, St
-%               .l  lower bounds on nonlinear constraints
-%               .u  upper bounds on nonlinear constraints
-%           .nle    nonlinear equality constraints
-%           .nli    nonlinear inequality constraints
-%           .lin
-%               .l  lower bounds on linear constraints
-%               .u  upper bounds on linear constraints
-%
-%   SUCCESS     1 if solver converged successfully, 0 otherwise
-%
-%   RAW         raw output in form returned by MINOS
-%       .xr     final value of optimization variables
-%       .pimul  constraint multipliers
-%       .info   solver specific termination code
-%       .output solver specific output information
-%
-%   See also OPF, MIPS.
 
-%   MATPOWER
-%   Copyright (c) 2000-2020, Power Systems Engineering Research Center (PSERC)
-%   by Ray Zimmerman, PSERC Cornell
-%   and Carlos E. Murillo-Sanchez, PSERC Cornell & Universidad Nacional de Colombia
-%
-%   This file is part of MATPOWER.
-%   Covered by the 3-clause BSD License (see LICENSE file for details).
-%   See https://matpower.org for more info.
+%% from mp_task/run()
+%% get solve options
+mm_opt = opf.math_model_opt(opf.mm, opf.nm, opf.dm, mpopt);
 
-om = opf.mm;
+%% solve mathematical model
+if opf.mm_opt.verbose
+    fprintf('-----  SOLVE %s  -----\n', opf.tag);
+end
 
 %%----- initialization -----
 %% define named indices into data matrices
@@ -60,6 +22,7 @@ om = opf.mm;
 [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
 
 %% unpack data
+om = opf.mm;
 mpc = om.get_mpc();
 [baseMVA, bus, gen, branch, gencost] = ...
     deal(mpc.baseMVA, mpc.bus, mpc.gen, mpc.branch, mpc.gencost);
@@ -69,10 +32,6 @@ mpc = om.get_mpc();
 nb = size(bus, 1);          %% number of buses
 nl = size(branch, 1);       %% number of branches
 ny = om.getN('var', 'y');   %% number of piece-wise linear costs
-
-%% options
-model = om.problem_type();
-opt = mpopt2nlpopt(mpopt, model);
 
 %% try to select an interior initial point, unless requested not to
 if mpopt.opf.start < 2
@@ -103,16 +62,19 @@ if mpopt.opf.start < 2
             x0(vv.i1.y:vv.iN.y) = max(c) + 0.1 * abs(max(c));
         end
     end
-    opt.x0 = x0;
+    mm_opt.x0 = x0;
 end
+
+%%-----  run opf  -----
+om.solve(mm_opt);
+opf.success = (om.soln.eflag > 0);
+
+[x, f, eflag, output, lambda, success] = deal(om.soln.x, om.soln.f, ...
+    om.soln.eflag, om.soln.output, om.soln.lambda, opf.success);
 
 %% find branches with flow limits
 il = find(branch(:, RATE_A) ~= 0 & branch(:, RATE_A) < 1e10);
 nl2 = length(il);           %% number of constrained lines
-
-%%-----  run opf  -----
-[x, f, eflag, output, lambda] = om.solve(opt);
-success = (eflag > 0);
 
 %% update solution data
 if mpopt.opf.v_cartesian

@@ -1,46 +1,13 @@
 function [results, success, raw] = dcopf_solver_mpe(opf, mpopt)
-%DCOPF_SOLVER  Solves a DC optimal power flow.
-%
-%   [RESULTS, SUCCESS, RAW] = DCOPF_SOLVER(OM, MPOPT)
-%
-%   Inputs are an OPF model object and a MATPOWER options struct.
-%
-%   Outputs are a RESULTS struct, SUCCESS flag and RAW output struct.
-%
-%   RESULTS is a MATPOWER case struct (mpc) with the usual baseMVA, bus
-%   branch, gen, gencost fields, along with the following additional
-%   fields:
-%       .order      see 'help ext2int' for details of this field
-%       .x          final value of optimization variables (internal order)
-%       .f          final objective function value
-%       .mu         shadow prices on ...
-%           .var
-%               .l  lower bounds on variables
-%               .u  upper bounds on variables
-%           .lin
-%               .l  lower bounds on linear constraints
-%               .u  upper bounds on linear constraints
-%
-%   SUCCESS     1 if solver converged successfully, 0 otherwise
-%
-%   RAW         raw output in form returned by MINOS
-%       .xr     final value of optimization variables
-%       .pimul  constraint multipliers
-%       .info   solver specific termination code
-%       .output solver specific output information
-%
-%   See also OPF, OPT_MODEL/SOLVE.
 
-%   MATPOWER
-%   Copyright (c) 2000-2020, Power Systems Engineering Research Center (PSERC)
-%   by Ray Zimmerman, PSERC Cornell
-%   and Carlos E. Murillo-Sanchez, PSERC Cornell & Universidad Nacional de Colombia
-%
-%   This file is part of MATPOWER.
-%   Covered by the 3-clause BSD License (see LICENSE file for details).
-%   See https://matpower.org for more info.
+%% from mp_task/run()
+%% get solve options
+mm_opt = opf.math_model_opt(opf.mm, opf.nm, opf.dm, mpopt);
 
-om = opf.mm;
+%% solve mathematical model
+if opf.mm_opt.verbose
+    fprintf('-----  SOLVE %s  -----\n', opf.tag);
+end
 
 %%----- initialization -----
 %% define named indices into data matrices
@@ -55,12 +22,10 @@ om = opf.mm;
 [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
 
 %% unpack data
+om = opf.mm;
 mpc = om.get_mpc();
 [baseMVA, bus, gen, branch, gencost] = ...
     deal(mpc.baseMVA, mpc.bus, mpc.gen, mpc.branch, mpc.gencost);
-cp = om.get_cost_params();
-Bf = om.get_userdata('Bf');
-Pfinj = om.get_userdata('Pfinj');
 [vv, ll] = om.get_idx();
 
 %% problem dimensions
@@ -69,15 +34,13 @@ nl = size(branch, 1);       %% number of branches
 ny = om.getN('var', 'y');   %% number of piece-wise linear costs
 
 %% options
-model = om.problem_type();
-opt = mpopt2qpopt(mpopt, model);
-if strcmp(opt.alg, 'OSQP')
-    opt.x0 = [];    %% disable provided starting point for OSQP
+if strcmp(mm_opt.alg, 'OSQP')
+    mm_opt.x0 = [];    %% disable provided starting point for OSQP
 end
 
 %% try to select an interior initial point, unless requested not to
 if mpopt.opf.start < 2 && ...
-        (strcmp(opt.alg, 'MIPS') || strcmp(opt.alg, 'IPOPT'))
+        (strcmp(mm_opt.alg, 'MIPS') || strcmp(mm_opt.alg, 'IPOPT'))
     [x0, xmin, xmax] = om.params_var();     %% init var & bounds
     s = 1;                      %% set init point inside bounds by s
     lb = xmin; ub = xmax;
@@ -95,14 +58,19 @@ if mpopt.opf.start < 2 && ...
         c = gencost(sub2ind(size(gencost), ipwl, NCOST+2*gencost(ipwl, NCOST)));    %% largest y-value in CCV data
         x0(vv.i1.y:vv.iN.y) = max(c) + 0.1 * abs(max(c));
     end
-    opt.x0 = x0;
+    mm_opt.x0 = x0;
 end
 
 %%-----  run opf  -----
-[x, f, eflag, output, lambda] = om.solve(opt);
-success = (eflag == 1);
+om.solve(mm_opt);
+opf.success = (om.soln.eflag > 0);
+
+[x, f, eflag, output, lambda, success] = deal(om.soln.x, om.soln.f, ...
+    om.soln.eflag, om.soln.output, om.soln.lambda, opf.success);
 
 %%-----  calculate return values  -----
+Bf = om.get_userdata('Bf');
+Pfinj = om.get_userdata('Pfinj');
 if ~any(isnan(x))
     %% update solution data
     Va = x(vv.i1.Va:vv.iN.Va);
