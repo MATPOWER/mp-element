@@ -1,4 +1,4 @@
-function [results, success, raw] = opf_execute_mpe(om, mpopt)
+function [results, success, raw] = opf_execute_mpe(opf, mpopt)
 %OPF_EXECUTE  Executes the OPF specified by an OPF model object.
 %   [RESULTS, SUCCESS, RAW] = OPF_EXECUTE(OM, MPOPT)
 %
@@ -14,6 +14,8 @@ function [results, success, raw] = opf_execute_mpe(om, mpopt)
 %   This file is part of MATPOWER.
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
+
+om = opf.mm;
 
 %% define named indices into data matrices
 [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
@@ -51,7 +53,7 @@ if dc
     if mpopt.verbose > 0
         fprintf(' -- DC Optimal Power Flow\n');
     end
-    [results, success, raw] = dcopf_solver(om, mpopt);
+    [results, success, raw] = dcopf_solver_mpe(opf, mpopt);
 else
     %%-----  run AC OPF solver  -----
     if mpopt.verbose > 0
@@ -131,7 +133,7 @@ else
                     error('opf_execute: MPOPT.opf.ac.solver = ''%s'' requires Artelys Knitro (see https://www.artelys.com/solvers/knitro/)', alg);
                 end
         end
-        [results, success, raw] = nlpopf_solver(om, mpopt);
+        [results, success, raw] = nlpopf_solver_mpe(opf, mpopt);
     end     %% if legacy_solver
 end %% if dc
 if ~isfield(raw, 'output') || ~isfield(raw.output, 'alg') || isempty(raw.output.alg)

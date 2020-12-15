@@ -1,4 +1,4 @@
-function [results, success, raw] = dcopf_solver_mpe(om, mpopt)
+function [results, success, raw] = dcopf_solver_mpe(opf, mpopt)
 %DCOPF_SOLVER  Solves a DC optimal power flow.
 %
 %   [RESULTS, SUCCESS, RAW] = DCOPF_SOLVER(OM, MPOPT)
@@ -39,6 +39,8 @@ function [results, success, raw] = dcopf_solver_mpe(om, mpopt)
 %   This file is part of MATPOWER.
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
+
+om = opf.mm;
 
 %%----- initialization -----
 %% define named indices into data matrices

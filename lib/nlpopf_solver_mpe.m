@@ -1,4 +1,4 @@
-function [results, success, raw] = nlpopf_solver_mpe(om, mpopt)
+function [results, success, raw] = nlpopf_solver_mpe(opf, mpopt)
 %NLPOPF_SOLVER  Solves AC optimal power flow using MP-Opt-Model.
 %
 %   [RESULTS, SUCCESS, RAW] = NLPOPF_SOLVER(OM, MPOPT)
@@ -45,6 +45,8 @@ function [results, success, raw] = nlpopf_solver_mpe(om, mpopt)
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
+om = opf.mm;
+
 %%----- initialization -----
 %% define named indices into data matrices
 [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
@@ -56,17 +58,6 @@ function [results, success, raw] = nlpopf_solver_mpe(om, mpopt)
     TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
     ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
-
-%% options
-% mips_opt = mpopt.mips;
-% mips_opt.verbose = mpopt.verbose;
-% if mips_opt.feastol == 0
-%     mips_opt.feastol = mpopt.opf.violation;  %% = MPOPT.opf.violation by default
-% end
-% if ~isfield(mips_opt, 'cost_mult') || isempty(mips_opt.cost_mult)
-%     mips_opt.cost_mult = 1e-4;
-% end
-% opt = struct('mips_opt', mips_opt);
 
 %% unpack data
 mpc = om.get_mpc();
