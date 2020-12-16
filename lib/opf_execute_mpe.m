@@ -15,22 +15,6 @@ function [results, success, raw] = opf_execute_mpe(opf, mpopt)
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%% from mp_task/run()
-%% get solve options
-mm_opt = opf.math_model_opt(opf.mm, opf.nm, opf.dm, mpopt);
-
-%% solve mathematical model
-if opf.mm_opt.verbose
-    fprintf('-----  SOLVE %s  -----\n', opf.tag);
-end
-opf.mm.solve(mm_opt);
-opf.success = (opf.mm.soln.eflag > 0);
-opf.network_model_update(opf.mm, opf.nm);
-opf.data_model_update(opf.mm, opf.nm, opf.dm, mpopt);
-opf.data_model_update_post(opf.mm, opf.nm, opf.dm, mpopt);
-
-
-%%-----  old post-solve processing  -----
 om = opf.mm;
 
 %% define named indices into data matrices
