@@ -29,17 +29,17 @@ display@nm_element(obj)
 fprintf('\n');
 
 %% nodes and states
-obj.display_set('node', obj.set_types.('node'));
-obj.display_set('state', obj.set_types.('state'));
+obj.display_set('node');
+obj.display_set('state');
 
 %% variables
 vvars = obj.model_vvars();
 zvars = obj.model_zvars();
 for k = 1:length(vvars)
-    obj.display_set(vvars{k}, obj.set_types.(vvars{k}));
+    obj.display_set(vvars{k});
 end
 for k = 1:length(zvars)
-    obj.display_set(zvars{k}, obj.set_types.(zvars{k}));
+    obj.display_set(zvars{k});
 end
 
 %% elements
