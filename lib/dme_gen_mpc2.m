@@ -178,6 +178,13 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
                 );
         end
 
+        function maxgc = max_pwl_gencost(obj, ipwl, dm)
+            [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
+            gencost = dm.mpc.gencost;
+            c = gencost(sub2ind(size(gencost), ipwl, NCOST+2*gencost(ipwl, NCOST)));    %% largest y-value in CCV data
+            maxgc = max(c);
+        end
+
         function [A, l, u] = disp_load_constant_pf_constraint(obj, dm);
             %%-----  HACK ALERT  -----
             %% create a mpc with only online gens to call makeAvl

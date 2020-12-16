@@ -8,6 +8,8 @@ mm_opt = opf.math_model_opt(opf.mm, opf.nm, opf.dm, mpopt);
 if opf.mm_opt.verbose
     fprintf('-----  SOLVE %s  -----\n', opf.tag);
 end
+opf.mm.solve(mm_opt);
+opf.success = (opf.mm.soln.eflag > 0);
 
 %%----- initialization -----
 %% define named indices into data matrices
@@ -32,38 +34,6 @@ mpc = om.get_mpc();
 nb = size(bus, 1);          %% number of buses
 nl = size(branch, 1);       %% number of branches
 ny = om.getN('var', 'y');   %% number of piece-wise linear costs
-
-%% options
-if strcmp(mm_opt.alg, 'OSQP')
-    mm_opt.x0 = [];    %% disable provided starting point for OSQP
-end
-
-%% try to select an interior initial point, unless requested not to
-if mpopt.opf.start < 2 && ...
-        (strcmp(mm_opt.alg, 'MIPS') || strcmp(mm_opt.alg, 'IPOPT'))
-    [x0, xmin, xmax] = om.params_var();     %% init var & bounds
-    s = 1;                      %% set init point inside bounds by s
-    lb = xmin; ub = xmax;
-    lb(xmin == -Inf) = -1e10;   %% replace Inf with numerical proxies
-    ub(xmax ==  Inf) =  1e10;
-    x0 = (lb + ub) / 2;         %% set x0 mid-way between bounds
-    k = find(xmin == -Inf & xmax < Inf);    %% if only bounded above
-    x0(k) = xmax(k) - s;                    %% set just below upper bound
-    k = find(xmin > -Inf & xmax == Inf);    %% if only bounded below
-    x0(k) = xmin(k) + s;                    %% set just above lower bound
-    Varefs = bus(bus(:, BUS_TYPE) == REF, VA) * (pi/180);
-    x0(vv.i1.Va:vv.iN.Va) = Varefs(1);  %% angles set to first reference angle
-    if ny > 0
-        ipwl = find(gencost(:, MODEL) == PW_LINEAR);
-        c = gencost(sub2ind(size(gencost), ipwl, NCOST+2*gencost(ipwl, NCOST)));    %% largest y-value in CCV data
-        x0(vv.i1.y:vv.iN.y) = max(c) + 0.1 * abs(max(c));
-    end
-    mm_opt.x0 = x0;
-end
-
-%%-----  run opf  -----
-om.solve(mm_opt);
-opf.success = (om.soln.eflag > 0);
 
 [x, f, eflag, output, lambda, success] = deal(om.soln.x, om.soln.f, ...
     om.soln.eflag, om.soln.output, om.soln.lambda, opf.success);
