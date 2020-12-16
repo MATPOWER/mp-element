@@ -111,7 +111,7 @@ classdef mp_task_opf < mp_task
             %% switch back to simple opt_model, if possible
             %% I believe opf_model is required for callback functions
             %% that extract mpc from the mm
-            mm = opf_model(dm.mpc);
+            mm = opf_model(dm.mpc).init_set_types();
             obj.mm = mm;
         end
 
