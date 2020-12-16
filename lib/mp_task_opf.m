@@ -93,7 +93,7 @@ classdef mp_task_opf < mp_task
         end
 
         function nm = network_model_update(obj, mm, nm)
-            fprintf('-- %s network_model_update()\n', obj.tag);
+%             fprintf('-- %s network_model_update()\n', obj.tag);
 
             %% convert back to complex voltage vector
             x = mm.soln.x;

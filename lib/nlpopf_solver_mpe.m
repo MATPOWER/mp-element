@@ -1,16 +1,5 @@
 function [results, success, raw] = nlpopf_solver_mpe(opf, mpopt)
 
-%% from mp_task/run()
-%% get solve options
-mm_opt = opf.math_model_opt(opf.mm, opf.nm, opf.dm, mpopt);
-
-%% solve mathematical model
-if opf.mm_opt.verbose
-    fprintf('-----  SOLVE %s  -----\n', opf.tag);
-end
-opf.mm.solve(mm_opt);
-opf.success = (opf.mm.soln.eflag > 0);
-
 %%----- initialization -----
 %% define named indices into data matrices
 [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
