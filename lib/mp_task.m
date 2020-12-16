@@ -48,24 +48,30 @@ classdef mp_task < handle
             nm = obj.network_model_build(dm, mpopt);
             mm = obj.math_model_build(nm, dm, mpopt);
 
-            %% get solve options
-            mm_opt = obj.math_model_opt(mm, nm, dm, mpopt);
+            if mm.getN('var')   %% model is NOT empty
+                %% get solve options
+                mm_opt = obj.math_model_opt(mm, nm, dm, mpopt);
 
-            %% solve mathematical model
-            if obj.mm_opt.verbose
-                fprintf('-----  SOLVE %s  -----\n', obj.tag);
-            end
-            mm.solve(mm_opt);
-            obj.success = (mm.soln.eflag > 0);
+                %% solve mathematical model
+                if obj.mm_opt.verbose
+                    fprintf('-----  SOLVE %s  -----\n', obj.tag);
+                end
+                mm.solve(mm_opt);
+                obj.success = (mm.soln.eflag > 0);
 
-%             if obj.success
                 %% update network model with math model solution
                 nm = obj.network_model_update(mm, nm);
 
                 %% update data model with network model solution
                 dm = obj.data_model_update(mm, nm, dm, mpopt);
                 dm = obj.data_model_update_post(mm, nm, dm, mpopt);
-%             end
+            else                %% model IS empty
+                obj.success = 0;
+                raw.output.message = 'MATPOWER model contains no connected buses';
+                if mpopt.verbose
+                    fprintf('OPF not valid : %s\n', raw.output.message);
+                end
+            end
         end
 
         function m = run_pre(obj, m, mpopt)
