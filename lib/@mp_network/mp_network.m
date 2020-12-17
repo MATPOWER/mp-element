@@ -399,7 +399,14 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
 
         %%-----  OPF methods  -----
+        function obj = opf_soln(obj, mm)
+            %% convert back to network model x
+            [obj.soln.v, obj.soln.z] = obj.opf_convert_x(mm.soln.x);
+            obj.soln.x = [obj.soln.v; obj.soln.z];
+        end
+        
         function add_opf_vars(obj, nm, om, dm, mpopt)
+            %% add network voltage and non-voltage state variables
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars
                 st = obj.(vtype{1});    %% set type

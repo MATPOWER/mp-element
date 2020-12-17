@@ -95,8 +95,9 @@ classdef mp_task_opf < mp_task
         function nm = network_model_update(obj, mm, nm)
 %             fprintf('-- %s network_model_update()\n', obj.tag);
 
-            %% convert back to complex voltage vector
-            x = mm.soln.x;
+            %% convert solution back to network state
+            nm.opf_soln(mm);
+
             out = mm.soln.output;
 
             if isfield(out, 'iterations')
