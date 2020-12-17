@@ -347,8 +347,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             d2G = obj.port_inj_power_hess(x_, obj.C' * lam);
         end
 
-        function [g, dg] = opf_current_balance_fcn(obj, x)
-            x_ = obj.opf_convert_x(x);  %% convert x from math model x
+        function [g, dg] = opf_current_balance_fcn(obj, x_)
             if nargout > 1
                 [G, Gv1, Gv2, Gzr, Gzi] = obj.nodal_complex_current_balance(x_);
                 Gx = [Gv1 Gv2 Gzr Gzi];
@@ -361,8 +360,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                   imag(G) ];            %% imaginary current mismatch
         end
 
-        function [g, dg] = opf_power_balance_fcn(obj, x)
-            x_ = obj.opf_convert_x(x);  %% convert x from math model x
+        function [g, dg] = opf_power_balance_fcn(obj, x_)
             if nargout > 1
                 [G, Gv1, Gv2, Gzr, Gzi] = obj.nodal_complex_power_balance(x_);
                 Gx = [Gv1 Gv2 Gzr Gzi];
@@ -375,8 +373,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                   imag(G) ];            %% reactive power (Q) mismatch
         end
 
-        function d2G = opf_current_balance_hess(obj, x, lam)
-            x_ = obj.opf_convert_x(x);  %% convert x from math model x
+        function d2G = opf_current_balance_hess(obj, x_, lam)
             nlam = length(lam) / 2;
             lamIr = lam(1:nlam);
             lamIi = lam((1:nlam)+nlam);
@@ -387,8 +384,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             d2G = real(d2Gr) + imag(d2Gi);
         end
 
-        function d2G = opf_power_balance_hess(obj, x, lam)
-            x_ = obj.opf_convert_x(x);  %% convert x from math model x
+        function d2G = opf_power_balance_hess(obj, x_, lam)
             nlam = length(lam) / 2;
             lamP = lam(1:nlam);
             lamQ = lam((1:nlam)+nlam);

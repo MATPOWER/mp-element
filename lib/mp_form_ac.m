@@ -387,9 +387,8 @@ classdef mp_form_ac < mp_form
             end
         end
 
-        function [h, dh] = port_apparent_power_lim_fcn(obj, x, nm, idx, hmax)
+        function [h, dh] = port_apparent_power_lim_fcn(obj, x_, nm, idx, hmax)
             %% branch squared apparent power flow constraints
-            x_ = nm.opf_convert_x(x);   %% convert x from math model x
 
             %% get port power injections with derivatives
             if nargout > 1
@@ -404,9 +403,8 @@ classdef mp_form_ac < mp_form
             h = conj(S) .* S - hmax;
         end
 
-        function [h, dh] = port_active_power_lim_fcn(obj, x, nm, idx, hmax)
+        function [h, dh] = port_active_power_lim_fcn(obj, x_, nm, idx, hmax)
             %% branch active power flow constraints
-            x_ = nm.opf_convert_x(x);   %% convert x from math model x
 
             %% get port power injections with derivatives
             if nargout > 1
@@ -419,9 +417,8 @@ classdef mp_form_ac < mp_form
             h = P - hmax;
         end
 
-        function [h, dh] = port_active_power2_lim_fcn(obj, x, nm, idx, hmax)
+        function [h, dh] = port_active_power2_lim_fcn(obj, x_, nm, idx, hmax)
             %% branch squared active power flow constraints
-            x_ = nm.opf_convert_x(x);   %% convert x from math model x
 
             %% get port power injections with derivatives
             if nargout > 1
@@ -437,9 +434,8 @@ classdef mp_form_ac < mp_form
             h = P .* P - hmax;
         end
 
-        function [h, dh] = port_current_lim_fcn(obj, x, nm, idx, hmax)
+        function [h, dh] = port_current_lim_fcn(obj, x_, nm, idx, hmax)
             %% branch squared current constraints
-            x_ = nm.opf_convert_x(x);   %% convert x from math model x
 
             %% get port current injections with derivatives
             if nargout > 1
@@ -454,9 +450,8 @@ classdef mp_form_ac < mp_form
             h = conj(I) .* I - hmax;
         end
 
-        function d2H = port_apparent_power_lim_hess(obj, x, lam, nm, idx)
+        function d2H = port_apparent_power_lim_hess(obj, x_, lam, nm, idx)
             %% branch squared apparent power flow Hessian
-            x_ = nm.opf_convert_x(x);   %% convert x from math model x
             nlam = length(lam);
 
             [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1, idx);
@@ -469,16 +464,14 @@ classdef mp_form_ac < mp_form
                         Sx.' * dlam * conj(Sx) );
         end
 
-        function d2H = port_active_power_lim_hess(obj, x, lam, nm, idx)
+        function d2H = port_active_power_lim_hess(obj, x_, lam, nm, idx)
             %% branch active power flow Hessian
-            x_ = nm.opf_convert_x(x);   %% convert x from math model x
 
             d2H = real( obj.port_inj_power_hess(x_, lam, 1, idx) );
         end
 
-        function d2H = port_active_power2_lim_hess(obj, x, lam, nm, idx)
+        function d2H = port_active_power2_lim_hess(obj, x_, lam, nm, idx)
             %% branch squared active power flow Hessian
-            x_ = nm.opf_convert_x(x);   %% convert x from math model x
             nlam = length(lam);
 
             [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1, idx);
@@ -491,9 +484,8 @@ classdef mp_form_ac < mp_form
                         Px.' * dlam * Px );
         end
 
-        function d2H = port_current_lim_hess(obj, x, lam, nm, idx)
+        function d2H = port_current_lim_hess(obj, x_, lam, nm, idx)
             %% branch squared current Hessian
-            x_ = nm.opf_convert_x(x);   %% convert x from math model x
             nlam = length(lam);
 
             [I, Iv1, Iv2, Izr, Izi] = obj.port_inj_current(x_, 1, idx);

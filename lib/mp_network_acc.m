@@ -38,7 +38,7 @@ classdef mp_network_acc < mp_network_ac & mp_form_acc
 
 
         %%-----  OPF methods  -----
-        function x_ = opf_convert_x(obj, mmx)
+        function x_ = opf_convert_x(obj, mmx, ad)
             %% convert (real) math model x to (complex) network model x_
             nv_ = obj.nv / 2;       %% number of voltage vars (sysx=1)
             nz_ = obj.nz;           %% number of state vars
