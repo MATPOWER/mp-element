@@ -112,11 +112,14 @@ classdef mp_network_dc < mp_network & mp_form_dc
             end
         end
 
-        function [va, z] = pf_convert_x(obj, x, ad)
+        function [vx, z] = pf_convert_x(obj, x, ad)
             %% update v_, z_ from x
-            va = ad.va;
-            va([ad.pv; ad.pq]) = x(1:ad.npv+ad.npq);        %% va
+            vx = ad.va;
+            vx([ad.pv; ad.pq]) = x(1:ad.npv+ad.npq);        %% va
             z = ad.z;
+            if nargout < 2
+                vx = [vx; z];
+            end
         end
 
         function add_pf_node_balance_constraints(obj, om, dm, mpopt)

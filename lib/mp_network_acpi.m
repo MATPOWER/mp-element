@@ -76,14 +76,17 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
             end
         end
 
-        function [v_, z_] = pf_convert_x(obj, x, ad)
+        function [vx_, z_] = pf_convert_x(obj, x, ad)
             %% update v_, z_ from x
             iN = ad.npv + ad.npq;           ad.v1([ad.pv; ad.pq]) = x(1:iN);%% va
             i1 = iN+1;  iN = iN + ad.npv;   Qg_pv = x(i1:iN);
             i1 = iN+1;  iN = iN + ad.npq;   ad.v2(ad.pq) = x(i1:iN);        %% vm
-            v_ = ad.v2 .* exp(1j * ad.v1);
+            vx_ = ad.v2 .* exp(1j * ad.v1);
             ad.zi(ad.k) = -ad.N \ Qg_pv;
             z_ = ad.zr + 1j * ad.zi;
+            if nargout < 2
+                vx_ = [vx_; z_];
+            end
         end
 
         function [f, J] = power_flow_equations(obj, x, ad)

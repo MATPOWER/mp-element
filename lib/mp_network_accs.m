@@ -48,13 +48,16 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
             end
         end
 
-        function [v_, z_] = pf_convert_x(obj, x, ad)
+        function [vx_, z_] = pf_convert_x(obj, x, ad)
             %% update v_, z_ from x
             pqv = [ad.pq; ad.pv];
             ad.v1(pqv) = x(1:ad.npv+ad.npq);                    %% vr
             ad.v2(pqv) = x(ad.npv+ad.npq+1:2*ad.npv+2*ad.npq);  %% vi
-            v_ = ad.v1 + 1j * ad.v2;
+            vx_ = ad.v1 + 1j * ad.v2;
             z_ = ad.zr + 1j * ad.zi;
+            if nargout < 2
+                vx_ = [vx_; z_];
+            end
         end
 
         function [f, J] = power_flow_equations(obj, x, ad)
