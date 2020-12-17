@@ -134,6 +134,16 @@ classdef mp_network_dc < mp_network & mp_form_dc
 
 
         %%-----  OPF methods  -----
+        function [vx, z] = opf_convert_x(obj, mmx, ad)
+            %% convert (real) math model x to network model x
+            if nargout < 2
+                vx = mmx(1:obj.nv+obj.nz);
+            else
+                vx = mmx(1:obj.nv);
+                z  = mmx(obj.nv+1:obj.nv+obj.nz);
+            end
+        end
+
         function add_opf_node_balance_constraints(obj, om)
             [B, K, p] = obj.get_params();
 
