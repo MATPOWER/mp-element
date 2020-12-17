@@ -112,7 +112,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
             end
         end
 
-        function [va, z] = pfx2vz(obj, x, ad)
+        function [va, z] = pf_convert_x(obj, x, ad)
             %% update v_, z_ from x
             va = ad.va;
             va([ad.pv; ad.pq]) = x(1:ad.npv+ad.npq);        %% va

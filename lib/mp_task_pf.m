@@ -62,13 +62,13 @@ classdef mp_task_pf < mp_task
         function nm = network_model_update(obj, mm, nm)
             %% convert back to complex voltage vector
             ad = mm.get_userdata('power_flow_aux_data');
-            [nm.soln.v, nm.soln.z] = nm.pfx2vz(mm.soln.x, ad);
+            [nm.soln.v, nm.soln.z] = nm.pf_convert_x(mm.soln.x, ad);
         end
 
         %%-----  mathematical model methods  -----
         function mm = math_model_build_pre(obj, mm, nm, dm, mpopt)
-            ad = nm.power_flow_aux_data(dm, mpopt);
-            mm.userdata.power_flow_aux_data = ad;
+            mm.userdata.power_flow_aux_data = ...
+                nm.power_flow_aux_data(dm, mpopt);
         end
 
         function obj = math_model_add_vars(obj, mm, nm, dm, mpopt)

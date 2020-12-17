@@ -48,7 +48,7 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
             end
         end
 
-        function [v_, z_] = pfx2vz(obj, x, ad)
+        function [v_, z_] = pf_convert_x(obj, x, ad)
             %% update v_, z_ from x
             pqv = [ad.pq; ad.pv];
             ad.v1(pqv) = x(1:ad.npv+ad.npq);                    %% vr
@@ -61,8 +61,8 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
             %% index vector
             pqv = [ad.pq; ad.pv];
 
-            %% update model state ([v_; z_]) from power flow state (x)
-            [v_, z_] = obj.pfx2vz(x, ad);
+            %% update network model state ([v_; z_]) from math model state (x)
+            [v_, z_] = obj.pf_convert_x(x, ad);
 
             %% incidence matrix
             C = obj.C;

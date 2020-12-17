@@ -67,7 +67,7 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
             end
         end
 
-        function [v_, z_] = pfx2vz(obj, x, ad)
+        function [v_, z_] = pf_convert_x(obj, x, ad)
             %% update v_, z_ from x
             ad.v1([ad.pv; ad.pq]) = x(1:ad.npv+ad.npq);                 %% va
             ad.v2(ad.pq)          = x(ad.npv+ad.npq+1:ad.npv+2*ad.npq); %% vm
@@ -79,8 +79,8 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
             %% index vector
             pvq = [ad.pv; ad.pq];
 
-            %% update model state ([v_; z_]) from power flow state (x)
-            [v_, z_] = obj.pfx2vz(x, ad);
+            %% update network model state ([v_; z_]) from math model state (x)
+            [v_, z_] = obj.pf_convert_x(x, ad);
 
             %% incidence matrix
             C = obj.C;
@@ -150,8 +150,8 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
             alg = mpopt.pf.alg;
             ad = om.get_userdata('power_flow_aux_data');
 
-            %% get model state ([v_; z_]) from power flow state (x)
-            [v_, z_] = obj.pfx2vz(x, ad);
+            %% update network model state ([v_; z_]) from math model state (x)
+            [v_, z_] = obj.pf_convert_x(x, ad);
 
             [pv, pq, npv, npq, Y] = deal(ad.pv, ad.pq, ad.npv, ad.npq, ad.Y);
             
@@ -186,8 +186,8 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
             alg = mpopt.pf.alg;
             ad = om.get_userdata('power_flow_aux_data');
 
-            %% get model state ([v_; z_]) from power flow state (x)
-            [v_, z_] = obj.pfx2vz(x, ad);
+            %% update network model state ([v_; z_]) from math model state (x)
+            [v_, z_] = obj.pf_convert_x(x, ad);
 
             [pv, pq, ref, npv, npq] = deal(ad.pv, ad.pq, ad.ref, ad.npv, ad.npq);
             pvq = [pv; pq];
@@ -259,7 +259,6 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
 
                 %% update S0
                 S0(pv) = S0(pv) + 1j * dQ;
-                ad.S0 = S0;
             end
 
             %% complex current injections

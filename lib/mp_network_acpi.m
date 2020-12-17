@@ -76,7 +76,7 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
             end
         end
 
-        function [v_, z_] = pfx2vz(obj, x, ad)
+        function [v_, z_] = pf_convert_x(obj, x, ad)
             %% update v_, z_ from x
             iN = ad.npv + ad.npq;           ad.v1([ad.pv; ad.pq]) = x(1:iN);%% va
             i1 = iN+1;  iN = iN + ad.npv;   Qg_pv = x(i1:iN);
@@ -90,8 +90,8 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
             %% index vector
             pvq = [ad.pv; ad.pq];
 
-            %% update model state ([v_; z_]) from power flow state (x)
-            [v_, z_] = obj.pfx2vz(x, ad);
+            %% update network model state ([v_; z_]) from math model state (x)
+            [v_, z_] = obj.pf_convert_x(x, ad);
 
             %% incidence matrix
             C = obj.C;
