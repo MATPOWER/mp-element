@@ -91,7 +91,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
                 'leq_opt',  struct('thresh', 1e5)   );
         end
 
-        function add_pf_vars(obj, nm, mm, dm, mpopt)
+        function add_pf_vars(obj, mm, nm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 

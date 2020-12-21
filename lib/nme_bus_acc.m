@@ -134,7 +134,7 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
             d2G = [dlam zz; zz dlam];
         end
 
-        function add_opf_constraints(obj, nm, mm, dm, mpopt)
+        function add_opf_constraints(obj, mm, nm, dm, mpopt)
             %% voltage angle reference constraint
             dme = obj.data_model_element(dm);
             ref = dm.node_type_ref(obj.node_types(nm, dm));

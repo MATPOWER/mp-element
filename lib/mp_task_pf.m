@@ -72,11 +72,11 @@ classdef mp_task_pf < mp_task
         end
 
         function obj = math_model_add_vars(obj, mm, nm, dm, mpopt)
-            nm.add_pf_vars(nm, mm, dm, mpopt);
+            nm.add_pf_vars(mm, nm, dm, mpopt);
         end
 
         function obj = math_model_add_constraints(obj, mm, nm, dm, mpopt)
-            nm.add_pf_constraints(nm, mm, dm, mpopt);
+            nm.add_pf_constraints(mm, nm, dm, mpopt);
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)

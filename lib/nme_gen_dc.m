@@ -31,14 +31,14 @@ classdef nme_gen_dc < nme_gen & mp_form_dc
             obj.cost = dme.build_gen_cost_params(dm, 1);
         end
 
-        function add_opf_constraints(obj, nm, mm, dm, mpopt)
+        function add_opf_constraints(obj, mm, nm, dm, mpopt)
             %% piecewise linear costs
             if obj.cost.pwl.n
                 mm.add_lin_constraint('ycon', obj.cost.pwl.A, [], obj.cost.pwl.b, {'Pg', 'y'});
             end
 
             %% call parent
-            add_opf_constraints@nme_gen(obj, nm, mm, dm, mpopt);
+            add_opf_constraints@nme_gen(obj, mm, nm, dm, mpopt);
         end
     end     %% methods
 end         %% classdef

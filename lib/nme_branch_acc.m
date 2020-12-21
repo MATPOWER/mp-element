@@ -58,9 +58,9 @@ classdef nme_branch_acc < nme_branch_ac & mp_form_acc
                     h_ri -h_rr ];
         end
 
-        function add_opf_constraints(obj, nm, mm, dm, mpopt)
+        function add_opf_constraints(obj, mm, nm, dm, mpopt)
             %% call parent
-            add_opf_constraints@nme_branch_ac(obj, nm, mm, dm, mpopt);
+            add_opf_constraints@nme_branch_ac(obj, mm, nm, dm, mpopt);
 
             %% branch angle difference limits
             [Aang, lang, uang, iang] = ...

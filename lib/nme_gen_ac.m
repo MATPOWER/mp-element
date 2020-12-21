@@ -31,7 +31,7 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
             obj.cost = dme.build_gen_cost_params(dm, 0);
         end
 
-        function add_opf_constraints(obj, nm, mm, dm, mpopt)
+        function add_opf_constraints(obj, mm, nm, dm, mpopt)
             %% generator PQ capability curve constraints
             [Apqh, ubpqh, Apql, ubpql, Apqdata] = dm.gen_pq_capability_constraint();
             mm.add_lin_constraint('PQh', Apqh, [], ubpqh, {'Pg', 'Qg'});      %% npqh
@@ -50,12 +50,12 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
             end
 
             %% call parent
-            add_opf_constraints@nme_gen(obj, nm, mm, dm, mpopt);
+            add_opf_constraints@nme_gen(obj, mm, nm, dm, mpopt);
         end
 
-        function add_opf_costs(obj, nm, mm, dm, mpopt)
+        function add_opf_costs(obj, mm, nm, dm, mpopt)
             %% call parent
-            add_opf_costs@nme_gen(obj, nm, mm, dm, mpopt);
+            add_opf_costs@nme_gen(obj, mm, nm, dm, mpopt);
 
             %% costs on reactive dispatch
             if ~isempty(obj.cost.poly_q)

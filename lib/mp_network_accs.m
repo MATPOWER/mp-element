@@ -15,7 +15,7 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
     
     methods
         %%-----  PF methods  -----
-        function add_pf_vars(obj, nm, mm, dm, mpopt)
+        function add_pf_vars(obj, mm, nm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 

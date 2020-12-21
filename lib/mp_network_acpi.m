@@ -36,7 +36,7 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
             ad.k = k;               %% indices of PV node gen z-vars (in sys z)
         end
 
-        function add_pf_vars(obj, nm, mm, dm, mpopt)
+        function add_pf_vars(obj, mm, nm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 

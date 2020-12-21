@@ -207,21 +207,21 @@ classdef nm_element < handle
         end
 
         %%-----  PF methods  -----
-%         function add_pf_vars(obj, nm, mm, dm, mpopt)
+%         function add_pf_vars(obj, mm, nm, dm, mpopt)
 %         end
 % 
-%         function add_pf_constraints(obj, nm, mm, ad, dm, mpopt)
+%         function add_pf_constraints(obj, mm, nm, ad, dm, mpopt)
 %         end
 
 
         %%-----  OPF methods  -----
-        function add_opf_vars(obj, nm, mm, dm, mpopt)
+        function add_opf_vars(obj, mm, nm, dm, mpopt)
         end
 
-        function add_opf_constraints(obj, nm, mm, dm, mpopt)
+        function add_opf_constraints(obj, mm, nm, dm, mpopt)
         end
 
-        function add_opf_costs(obj, nm, mm, dm, mpopt)
+        function add_opf_costs(obj, mm, nm, dm, mpopt)
         end
     end     %% methods
 end         %% classdef

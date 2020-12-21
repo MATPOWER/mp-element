@@ -378,13 +378,13 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         %%-----  PF methods  -----
-        function add_pf_constraints(obj, nm, mm, dm, mpopt)
+        function add_pf_constraints(obj, mm, nm, dm, mpopt)
             %% system constraints
             obj.add_pf_system_constraints(mm, dm, mpopt);
             
 %             %% each element adds its PF constraints
 %             for nme = obj.elm_list
-%                 nme{1}.add_pf_constraints(nm, mm, dm, mpopt);
+%                 nme{1}.add_pf_constraints(mm, nm, dm, mpopt);
 %             end
         end
 
@@ -405,7 +405,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             obj.soln.x = [obj.soln.v; obj.soln.z];
         end
         
-        function add_opf_vars(obj, nm, mm, dm, mpopt)
+        function add_opf_vars(obj, mm, nm, dm, mpopt)
             %% add network voltage and non-voltage state variables
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars
@@ -423,30 +423,30 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             
             %% each element adds its OPF variables
             for nme = obj.elm_list
-                nme{1}.add_opf_vars(nm, mm, dm, mpopt);
+                nme{1}.add_opf_vars(mm, nm, dm, mpopt);
             end
             
             %% legacy user-defined variables
             obj.add_opf_legacy_user_vars(mm, dm, mpopt);
         end
 
-        function add_opf_constraints(obj, nm, mm, dm, mpopt)
+        function add_opf_constraints(obj, mm, nm, dm, mpopt)
             %% system constraints
             obj.add_opf_system_constraints(mm, dm, mpopt);
             
             %% each element adds its OPF constraints
             for nme = obj.elm_list
-                nme{1}.add_opf_constraints(nm, mm, dm, mpopt);
+                nme{1}.add_opf_constraints(mm, nm, dm, mpopt);
             end
         end
 
-        function add_opf_costs(obj, nm, mm, dm, mpopt)
+        function add_opf_costs(obj, mm, nm, dm, mpopt)
             %% system costs
             obj.add_opf_system_costs(mm, dm, mpopt);
             
             %% each element adds its OPF costs
             for nme = obj.elm_list
-                nme{1}.add_opf_costs(nm, mm, dm, mpopt);
+                nme{1}.add_opf_costs(mm, nm, dm, mpopt);
             end
         end
 
