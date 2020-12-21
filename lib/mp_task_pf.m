@@ -61,26 +61,25 @@ classdef mp_task_pf < mp_task
 
         function nm = network_model_update(obj, mm, nm)
             %% convert back to complex voltage vector
-            ad = mm.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('aux_data');
             [nm.soln.v, nm.soln.z] = nm.pf_convert_x(mm.soln.x, ad);
         end
 
         %%-----  mathematical model methods  -----
         function mm = math_model_build_pre(obj, mm, nm, dm, mpopt)
-            mm.userdata.power_flow_aux_data = ...
-                nm.power_flow_aux_data(dm, mpopt);
+            mm.userdata.aux_data = nm.pf_aux_data(dm, mpopt);
         end
 
         function obj = math_model_add_vars(obj, mm, nm, dm, mpopt)
-            nm.add_pf_vars(mm, nm, dm, mpopt);
+            nm.pf_add_vars(mm, nm, dm, mpopt);
         end
 
         function obj = math_model_add_constraints(obj, mm, nm, dm, mpopt)
-            nm.add_pf_constraints(mm, nm, dm, mpopt);
+            nm.pf_add_constraints(mm, nm, dm, mpopt);
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)
-            opt = nm.solve_opts_power_flow(mm, dm, mpopt);
+            opt = nm.pf_solve_opts(mm, dm, mpopt);
             obj.mm_opt = opt;
         end
     end     %% methods

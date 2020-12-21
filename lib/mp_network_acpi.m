@@ -15,9 +15,9 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
     
     methods
         %%-----  PF methods  -----
-        function ad = power_flow_aux_data(obj, dm, mpopt)
+        function ad = pf_aux_data(obj, dm, mpopt)
             %% call parent method
-            ad = power_flow_aux_data@mp_network_ac(obj, dm, mpopt);
+            ad = pf_aux_data@mp_network_ac(obj, dm, mpopt);
 
             %% build additional aux data
             g = obj.elm_by_name('gen');
@@ -36,12 +36,12 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
             ad.k = k;               %% indices of PV node gen z-vars (in sys z)
         end
 
-        function add_pf_vars(obj, mm, nm, dm, mpopt)
+        function pf_add_vars(obj, mm, nm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
             %% index vectors
-            ad = mm.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('aux_data');
             pvq = [ad.pv; ad.pq];
 
             %% voltage angles
@@ -52,7 +52,7 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
                     d = st.data;
                     mm.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
                 else
-                    error('mp_network_acpi/add_pf_vars: handling of indexed sets not implmented here (yet)');
+                    error('mp_network_acpi/pf_add_vars: handling of indexed sets not implmented here (yet)');
                 end
             end
 
@@ -71,7 +71,7 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
                     d = st.data;
                     mm.add_var(name, ad.npq, d.v0.(name)(ad.pq), d.vl.(name)(ad.pq), d.vu.(name)(ad.pq));
                 else
-                    error('mp_network_acpi/add_pf_vars: handling of indexed sets not implmented here (yet)');
+                    error('mp_network_acpi/pf_add_vars: handling of indexed sets not implmented here (yet)');
                 end
             end
         end
@@ -89,7 +89,7 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
             end
         end
 
-        function [f, J] = power_flow_equations(obj, x, ad)
+        function [f, J] = pf_node_balance_equations(obj, x, ad)
             %% index vector
             pvq = [ad.pv; ad.pq];
 
@@ -121,11 +121,11 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
             f = [real(II(pvq)); imag(II(pvq))];
         end
 
-        function add_pf_node_balance_constraints(obj, mm, dm, mpopt)
+        function pf_add_node_balance_constraints(obj, mm, dm, mpopt)
             %% power balance constraints
-            ad = mm.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('aux_data');
             npvq = ad.npv+ad.npq;
-            fcn = @(x)power_flow_equations(obj, x, ad);
+            fcn = @(x)pf_node_balance_equations(obj, x, ad);
             mm.add_nln_constraint({'Irmis', 'Iimis'}, [npvq;npvq], 1, fcn, []);
         end
 

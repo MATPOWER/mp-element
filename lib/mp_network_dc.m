@@ -49,7 +49,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
 
 
         %%-----  PF methods  -----
-        function ad = power_flow_aux_data(obj, dm, mpopt)
+        function ad = pf_aux_data(obj, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
             zvars = obj.model_zvars();
@@ -83,7 +83,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
             );
         end
 
-        function opt = solve_opts_power_flow(obj, mm, dm, mpopt)
+        function opt = pf_solve_opts(obj, mm, dm, mpopt)
             %% TO DO: move pf.alg to pf.ac.solver and add a
             %%        pf.dc.solver to set the 'leq_opt.solver' option here
             opt = struct( ...
@@ -91,12 +91,12 @@ classdef mp_network_dc < mp_network & mp_form_dc
                 'leq_opt',  struct('thresh', 1e5)   );
         end
 
-        function add_pf_vars(obj, mm, nm, dm, mpopt)
+        function pf_add_vars(obj, mm, nm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
             %% index vectors
-            ad = mm.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('aux_data');
             pvq = [ad.pv; ad.pq];
 
             %% voltage angles
@@ -107,7 +107,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
                     d = st.data;
                     mm.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
                 else
-                    error('mp_network_dc/add_pf_vars: handling of indexed sets not implmented here (yet)');
+                    error('mp_network_dc/pf_add_vars: handling of indexed sets not implmented here (yet)');
                 end
             end
         end
@@ -122,8 +122,8 @@ classdef mp_network_dc < mp_network & mp_form_dc
             end
         end
 
-        function add_pf_node_balance_constraints(obj, mm, dm, mpopt)
-            ad = mm.get_userdata('power_flow_aux_data');
+        function pf_add_node_balance_constraints(obj, mm, dm, mpopt)
+            ad = mm.get_userdata('aux_data');
             pvq = [ad.pv; ad.pq];
 
             %% power balance constraints

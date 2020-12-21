@@ -378,24 +378,24 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         %%-----  PF methods  -----
-        function add_pf_constraints(obj, mm, nm, dm, mpopt)
+        function pf_add_constraints(obj, mm, nm, dm, mpopt)
             %% system constraints
-            obj.add_pf_system_constraints(mm, dm, mpopt);
+            obj.pf_add_system_constraints(mm, dm, mpopt);
             
 %             %% each element adds its PF constraints
 %             for nme = obj.elm_list
-%                 nme{1}.add_pf_constraints(mm, nm, dm, mpopt);
+%                 nme{1}.pf_add_constraints(mm, nm, dm, mpopt);
 %             end
         end
 
-        function add_pf_system_constraints(obj, mm, dm, mpopt)
+        function pf_add_system_constraints(obj, mm, dm, mpopt)
             %% can be overridden to add additional system constraints
 
             %% node balance constraints
-            obj.add_pf_node_balance_constraints(mm, dm, mpopt);
+            obj.pf_add_node_balance_constraints(mm, dm, mpopt);
         end
 
-        opt = solve_opts_power_flow(obj, mm, dm, mpopt)
+        opt = pf_solve_opts(obj, mm, dm, mpopt)
 
 
         %%-----  OPF methods  -----

@@ -239,7 +239,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
 
         %%-----  PF methods  -----
-        function ad = power_flow_aux_data(obj, dm, mpopt)
+        function ad = pf_aux_data(obj, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
             zvars = obj.model_zvars();
@@ -266,7 +266,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             );
         end
 
-        function opt = solve_opts_power_flow(obj, mm, dm, mpopt)
+        function opt = pf_solve_opts(obj, mm, dm, mpopt)
             switch mpopt.pf.alg
                 case 'DEFAULT'
                     opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'DEFAULT');
@@ -274,17 +274,17 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                     opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'NEWTON');
                 case {'FDXB', 'FDBX'}
                     opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'FD');
-                    opt.fd_opt.jac_approx_fcn = @()obj.fd_jac_approx(mm, dm, mpopt);
+                    opt.fd_opt.jac_approx_fcn = @()obj.pf_fd_jac_approx(mm, dm, mpopt);
                     opt.fd_opt.labels = {'P', 'Q'};
                 case 'FSOLVE'
                     opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'FSOLVE');
                 case 'GS'
                     opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'GS');
                     opt.gs_opt.x_update_fcn = ...
-                        @(x, f)obj.gs_x_update(x, f, mm, dm, mpopt);
+                        @(x, f)obj.pf_gs_x_update(x, f, mm, dm, mpopt);
                 case 'ZG'
                     opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'ZG');
-                    zg_x_update = @(x, f)obj.zg_x_update(x, f, mm, dm, mpopt);
+                    zg_x_update = @(x, f)obj.pf_zg_x_update(x, f, mm, dm, mpopt);
                     opt.core_sp = struct(...
                         'alg',              'ZG', ...
                         'name',             'Implicit Z-bus Gauss', ...
@@ -292,7 +292,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                         'need_jac',         0, ...
                         'update_fcn',       zg_x_update  );
                 otherwise
-                    error('mp_network_ac/solve_opts_power_flow: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
+                    error('mp_network_ac/pf_solve_opts: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
             end
             opt.verbose = mpopt.verbose;
         end

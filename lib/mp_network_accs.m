@@ -15,12 +15,12 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
     
     methods
         %%-----  PF methods  -----
-        function add_pf_vars(obj, mm, nm, dm, mpopt)
+        function pf_add_vars(obj, mm, nm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
             %% index vectors
-            ad = mm.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('aux_data');
             pqv = [ad.pq; ad.pv];
 
             %% voltage real part
@@ -31,7 +31,7 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
                     d = st.data;
                     mm.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
                 else
-                    error('mp_network_accs/add_pf_vars: handling of indexed sets not implmented here (yet)');
+                    error('mp_network_accs/pf_add_vars: handling of indexed sets not implmented here (yet)');
                 end
             end
 
@@ -43,7 +43,7 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
                     d = st.data;
                     mm.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
                 else
-                    error('mp_network_accs/add_pf_vars: handling of indexed sets not implmented here (yet)');
+                    error('mp_network_accs/pf_add_vars: handling of indexed sets not implmented here (yet)');
                 end
             end
         end
@@ -60,7 +60,7 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
             end
         end
 
-        function [f, J] = power_flow_equations(obj, x, ad)
+        function [f, J] = pf_node_balance_equations(obj, x, ad)
             %% index vector
             pqv = [ad.pq; ad.pv];
 
@@ -93,10 +93,10 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
             f = [real(SS(pqv)); imag(SS(ad.pq)); vmm];
         end
 
-        function add_pf_node_balance_constraints(obj, mm, dm, mpopt)
+        function pf_add_node_balance_constraints(obj, mm, dm, mpopt)
             %% power balance constraints
-            ad = mm.get_userdata('power_flow_aux_data');
-            fcn = @(x)power_flow_equations(obj, x, ad);
+            ad = mm.get_userdata('aux_data');
+            fcn = @(x)pf_node_balance_equations(obj, x, ad);
             mm.add_nln_constraint({'Pmis', 'Qmis', 'Vmis'}, [ad.npv+ad.npq;ad.npq;ad.npv], 1, fcn, []);
         end
 

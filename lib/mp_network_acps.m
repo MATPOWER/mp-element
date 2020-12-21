@@ -15,9 +15,9 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
     
     methods
         %%-----  PF methods  -----
-        function ad = power_flow_aux_data(obj, dm, mpopt)
+        function ad = pf_aux_data(obj, dm, mpopt)
             %% call parent method
-            ad = power_flow_aux_data@mp_network_ac(obj, dm, mpopt);
+            ad = pf_aux_data@mp_network_ac(obj, dm, mpopt);
 
             switch mpopt.pf.alg
                 case 'GS'
@@ -34,12 +34,12 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
             end
         end
 
-        function add_pf_vars(obj, mm, nm, dm, mpopt)
+        function pf_add_vars(obj, mm, nm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
             %% index vectors
-            ad = mm.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('aux_data');
             pvq = [ad.pv; ad.pq];
 
             %% voltage angles
@@ -50,7 +50,7 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
                     d = st.data;
                     mm.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
                 else
-                    error('mp_network_acps/add_pf_vars: handling of indexed sets not implmented here (yet)');
+                    error('mp_network_acps/pf_add_vars: handling of indexed sets not implmented here (yet)');
                 end
             end
 
@@ -62,7 +62,7 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
                     d = st.data;
                     mm.add_var(name, ad.npq, d.v0.(name)(ad.pq), d.vl.(name)(ad.pq), d.vu.(name)(ad.pq));
                 else
-                    error('mp_network_acps/add_pf_vars: handling of indexed sets not implmented here (yet)');
+                    error('mp_network_acps/pf_add_vars: handling of indexed sets not implmented here (yet)');
                 end
             end
         end
@@ -78,7 +78,7 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
             end
         end
 
-        function [f, J] = power_flow_equations(obj, x, ad, fdpf)
+        function [f, J] = pf_node_balance_equations(obj, x, ad, fdpf)
             %% index vector
             pvq = [ad.pv; ad.pq];
 
@@ -111,21 +111,21 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
             f = [real(SS(pvq)); imag(SS(ad.pq))];
         end
 
-        function add_pf_node_balance_constraints(obj, mm, dm, mpopt)
+        function pf_add_node_balance_constraints(obj, mm, dm, mpopt)
             alg = mpopt.pf.alg;
-            ad = mm.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('aux_data');
             
             %% power balance constraints
             switch alg
                 case  {'FDXB', 'FDBX'}
-                    fcn = @(x)power_flow_equations(obj, x, ad, 1);
+                    fcn = @(x)pf_node_balance_equations(obj, x, ad, 1);
                 otherwise
-                    fcn = @(x)power_flow_equations(obj, x, ad);
+                    fcn = @(x)pf_node_balance_equations(obj, x, ad);
             end
             mm.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end
 
-        function JJ = fd_jac_approx(obj, mm, dm, mpopt)
+        function JJ = pf_fd_jac_approx(obj, mm, dm, mpopt)
             alg = mpopt.pf.alg;
 
             %% create copies of data model for building B prime, B double prime
@@ -141,7 +141,7 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
             end
 
             %% form reduced Bp and Bpp matrices
-            ad = mm.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('aux_data');
             Cp  = nm1.C([ad.pv; ad.pq], :);
             Cpp = nm2.C(ad.pq, :);
             Bp  = -imag( Cp  * Y1 * Cp' );
@@ -149,9 +149,9 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
             JJ = {Bp, Bpp};
         end
 
-        function x = gs_x_update(obj, x, f, mm, dm, mpopt);
+        function x = pf_gs_x_update(obj, x, f, mm, dm, mpopt);
             alg = mpopt.pf.alg;
-            ad = mm.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('aux_data');
 
             %% update network model state ([v_; z_]) from math model state (x)
             [v_, z_] = obj.pf_convert_x(x, ad);
@@ -185,9 +185,9 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
         end
 
 
-        function x = zg_x_update(obj, x, f, mm, dm, mpopt);
+        function x = pf_zg_x_update(obj, x, f, mm, dm, mpopt);
             alg = mpopt.pf.alg;
-            ad = mm.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('aux_data');
 
             %% update network model state ([v_; z_]) from math model state (x)
             [v_, z_] = obj.pf_convert_x(x, ad);
@@ -211,7 +211,7 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
 
                 %% cache 'em
                 [ad.Y21_v1, ad.S0] = deal(Y21_v1, S0);
-                mm.userdata.power_flow_aux_data = ad;
+                mm.userdata.aux_data = ad;
             end
 
             if npv  %% update Q injections at PV buses based on vm mismatch
@@ -231,7 +231,7 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
                     nm = feval(class(obj)).build(dm2);
                     [Y2, L, M] = nm.get_params([], {'Y', 'L', 'M'});
                     if any(any(L)) || any(any(M))
-                        error('mp_network_acps/zg_x_update: B matrix for Z-bus Gauss w/PV buses not implemented for models with non-zero L and/or M matrices.')
+                        error('mp_network_acps/pf_zg_x_update: B matrix for Z-bus Gauss w/PV buses not implemented for models with non-zero L and/or M matrices.')
                     end
                     Bpp = -nm.C * imag(Y2) * nm.C';
 
@@ -241,7 +241,7 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
                     %% cache 'em
                     [ad.vmpv, ad.vmpv0, ad.Bpp, ad.LBpp, ad.UBpp, ad.pBpp, ad.iqBpp] = ...
                         deal(vmpv, vmpv0, Bpp, LBpp, UBpp, pBpp, iqBpp);
-                    mm.userdata.power_flow_aux_data = ad;
+                    mm.userdata.aux_data = ad;
                 end
 
                 %% compute voltage mismatches at PV buses
@@ -272,7 +272,7 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
 
             v_(pv) = V2(1:npv);
             v_(pq) = V2(npv+1:npv+npq);
-            mm.userdata.power_flow_aux_data.vmpv = abs(v_(pv));
+            mm.userdata.aux_data.vmpv = abs(v_(pv));
 
             x = [angle(v_(pvq)); abs(v_(pq))];
         end
