@@ -98,7 +98,7 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
         end
 
         %%-----  OPF methods  -----
-        function cost = build_gen_cost_params(obj, dm, dc)
+        function cost = opf_build_gen_cost_params(obj, dm, dc)
             mpc = dm.mpc;
             baseMVA = dm.mpc.baseMVA;
 

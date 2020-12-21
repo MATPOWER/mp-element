@@ -28,9 +28,9 @@ classdef nm_element < handle
 %       add_vvars()
 %       add_zvars()
 %       build_params() - build model parameters from data model
-%       add_opf_vars()
-%       add_opf_constraints()
-%       add_opf_costs()
+%       opf_add_vars()
+%       opf_add_constraints()
+%       opf_add_costs()
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -215,13 +215,13 @@ classdef nm_element < handle
 
 
         %%-----  OPF methods  -----
-        function add_opf_vars(obj, mm, nm, dm, mpopt)
+        function opf_add_vars(obj, mm, nm, dm, mpopt)
         end
 
-        function add_opf_constraints(obj, mm, nm, dm, mpopt)
+        function opf_add_constraints(obj, mm, nm, dm, mpopt)
         end
 
-        function add_opf_costs(obj, mm, nm, dm, mpopt)
+        function opf_add_costs(obj, mm, nm, dm, mpopt)
         end
     end     %% methods
 end         %% classdef

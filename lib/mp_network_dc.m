@@ -144,7 +144,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
             end
         end
 
-        function add_opf_node_balance_constraints(obj, mm)
+        function opf_add_node_balance_constraints(obj, mm)
             [B, K, p] = obj.get_params();
 
             %% power balance constraints
@@ -161,11 +161,11 @@ classdef mp_network_dc < mp_network & mp_form_dc
             mm.userdata.Pfinj = pbr;
         end
 
-        function add_opf_system_costs(obj, mm, dm, mpopt)
+        function opf_add_system_costs(obj, mm, dm, mpopt)
             %% can be overridden to add additional system costs
 
             %% legacy user-defined costs
-            obj.add_opf_legacy_user_costs(mm, dm, 1);
+            obj.opf_add_legacy_user_costs(mm, dm, 1);
         end
 
         function names = opf_legacy_user_var_names(obj)

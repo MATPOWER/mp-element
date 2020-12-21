@@ -18,7 +18,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         inln_hess_list = {};    %% private: list of indexes of nme's w/inln_hess
         snln_hess_list = {};    %% private: list of indexes of nme's w/snln_hess
     end
-    
+
     methods
         function obj = def_set_types(obj)
             def_set_types@mp_network(obj);      %% call parent first
@@ -237,6 +237,54 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             end
         end
 
+        function [G, Gv1, Gv2, Gzr, Gzi] = nodal_complex_current_balance(obj, x_)
+            %% node incidence matrix
+            C = obj.C;
+
+            %% get port current injections with derivatives
+            if nargout > 1
+                [I, Iv1, Iv2, Izr, Izi] = obj.port_inj_current(x_, 1);
+                Gv1 = C * Iv1;      %% Gva or Gvr
+                Gv2 = C * Iv2;      %% Gvm or Gvi
+                Gzr = C * Izr;
+                Gzi = C * Izi;
+            else
+                I = obj.port_inj_current(x_, 1);
+            end
+
+            %% nodal current balance
+            G = C * I;
+        end
+
+        function [G, Gv1, Gv2, Gzr, Gzi] = nodal_complex_power_balance(obj, x_)
+            %% node incidence matrix
+            C = obj.C;
+
+            %% get port power injections with derivatives
+            if nargout > 1
+                [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1);
+                Gv1 = C * Sv1;      %% Gva or Gvr
+                Gv2 = C * Sv2;      %% Gvm or Gvi
+                Gzr = C * Szr;
+                Gzi = C * Szi;
+            else
+                S = obj.port_inj_power(x_, 1);
+            end
+
+            %% nodal power balance
+            G = C * S;
+        end
+
+        function d2G = nodal_complex_current_balance_hess(obj, x_, lam)
+            %% get port power injection hessians
+            d2G = obj.port_inj_current_hess(x_, obj.C' * lam);
+        end
+
+        function d2G = nodal_complex_power_balance_hess(obj, x_, lam)
+            %% get port power injection hessians
+            d2G = obj.port_inj_power_hess(x_, obj.C' * lam);
+        end
+
 
         %%-----  PF methods  -----
         function ad = pf_aux_data(obj, dm, mpopt)
@@ -299,54 +347,6 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
 
         %%-----  OPF methods  -----
-        function [G, Gv1, Gv2, Gzr, Gzi] = nodal_complex_current_balance(obj, x_)
-            %% node incidence matrix
-            C = obj.C;
-
-            %% get port current injections with derivatives
-            if nargout > 1
-                [I, Iv1, Iv2, Izr, Izi] = obj.port_inj_current(x_, 1);
-                Gv1 = C * Iv1;      %% Gva or Gvr
-                Gv2 = C * Iv2;      %% Gvm or Gvi
-                Gzr = C * Izr;
-                Gzi = C * Izi;
-            else
-                I = obj.port_inj_current(x_, 1);
-            end
-
-            %% nodal current balance
-            G = C * I;
-        end
-
-        function [G, Gv1, Gv2, Gzr, Gzi] = nodal_complex_power_balance(obj, x_)
-            %% node incidence matrix
-            C = obj.C;
-
-            %% get port power injections with derivatives
-            if nargout > 1
-                [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(x_, 1);
-                Gv1 = C * Sv1;      %% Gva or Gvr
-                Gv2 = C * Sv2;      %% Gvm or Gvi
-                Gzr = C * Szr;
-                Gzi = C * Szi;
-            else
-                S = obj.port_inj_power(x_, 1);
-            end
-
-            %% nodal power balance
-            G = C * S;
-        end
-
-        function d2G = nodal_complex_current_balance_hess(obj, x_, lam)
-            %% get port power injection hessians
-            d2G = obj.port_inj_current_hess(x_, obj.C' * lam);
-        end
-
-        function d2G = nodal_complex_power_balance_hess(obj, x_, lam)
-            %% get port power injection hessians
-            d2G = obj.port_inj_power_hess(x_, obj.C' * lam);
-        end
-
         function [g, dg] = opf_current_balance_fcn(obj, x_)
             if nargout > 1
                 [G, Gv1, Gv2, Gzr, Gzi] = obj.nodal_complex_current_balance(x_);
@@ -395,16 +395,16 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             d2G = real(d2Gr) + imag(d2Gi);
         end
 
-        function add_opf_system_costs(obj, mm, dm, mpopt)
+        function opf_add_system_costs(obj, mm, dm, mpopt)
             %% can be overridden to add additional system costs
 
             %% legacy user-defined costs
-            obj.add_opf_legacy_user_costs(mm, dm, 0);
+            obj.opf_add_legacy_user_costs(mm, dm, 0);
         end
 
-        function add_opf_legacy_user_constraints(obj, mm, dm, mpopt)
+        function opf_add_legacy_user_constraints(obj, mm, dm, mpopt)
             %% call parent
-            add_opf_legacy_user_constraints@mp_network(obj, mm, dm, mpopt);
+            opf_add_legacy_user_constraints@mp_network(obj, mm, dm, mpopt);
 
             uc = dm.opf_legacy_user_constraints();
             for k = 1:length(uc)

@@ -37,7 +37,7 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
                 [Yff; Yft; Ytf; Ytt], 2*nl, 2*nl );
         end
 
-        function add_opf_constraints(obj, mm, nm, dm, mpopt)
+        function opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% find branches with flow limits
             dme = obj.data_model_element(dm);
             il = find(dme.rate_a ~= 0 & dme.rate_a < 1e10);
@@ -77,7 +77,7 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
                     hess_flow = @(x, lam)port_current_lim_hess(obj, ...
                         nm.opf_convert_x(x), lam, nm, idx);
                 else
-                    error('nme_branch_ac/add_opf_constraints: MPOPT.opf.flow_lim = ''%s'' not yet implemented.', mpopt.opf.flow_lim);
+                    error('nme_branch_ac/opf_add_constraints: MPOPT.opf.flow_lim = ''%s'' not yet implemented.', mpopt.opf.flow_lim);
                 end
             
                 mm.add_nln_constraint({'Sf', 'St'}, [nl2;nl2], 0, fcn_flow, hess_flow);

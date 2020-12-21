@@ -9,9 +9,9 @@ classdef nme_branch_acp < nme_branch_ac & mp_form_acp
 %   See https://matpower.org for more info.
 
     methods
-        function add_opf_constraints(obj, mm, nm, dm, mpopt)
+        function opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% call parent
-            add_opf_constraints@nme_branch_ac(obj, mm, nm, dm, mpopt);
+            opf_add_constraints@nme_branch_ac(obj, mm, nm, dm, mpopt);
 
             %% branch voltage angle difference limits
             [Aang, lang, uang, iang] = ...

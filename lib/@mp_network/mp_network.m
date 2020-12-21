@@ -405,7 +405,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             obj.soln.x = [obj.soln.v; obj.soln.z];
         end
         
-        function add_opf_vars(obj, mm, nm, dm, mpopt)
+        function opf_add_vars(obj, mm, nm, dm, mpopt)
             %% add network voltage and non-voltage state variables
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars
@@ -416,54 +416,54 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                         d = st.data;
                         mm.add_var(name, st.idx.N.(name), d.v0.(name), d.vl.(name), d.vu.(name), d.vt.(name));
                     else
-                        error('mp_network/add_opf_vars: handling of indexed sets not implmented here (yet)');
+                        error('mp_network/opf_add_vars: handling of indexed sets not implmented here (yet)');
                     end
                 end
             end
             
             %% each element adds its OPF variables
             for nme = obj.elm_list
-                nme{1}.add_opf_vars(mm, nm, dm, mpopt);
+                nme{1}.opf_add_vars(mm, nm, dm, mpopt);
             end
             
             %% legacy user-defined variables
-            obj.add_opf_legacy_user_vars(mm, dm, mpopt);
+            obj.opf_add_legacy_user_vars(mm, dm, mpopt);
         end
 
-        function add_opf_constraints(obj, mm, nm, dm, mpopt)
+        function opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% system constraints
-            obj.add_opf_system_constraints(mm, dm, mpopt);
+            obj.opf_add_system_constraints(mm, dm, mpopt);
             
             %% each element adds its OPF constraints
             for nme = obj.elm_list
-                nme{1}.add_opf_constraints(mm, nm, dm, mpopt);
+                nme{1}.opf_add_constraints(mm, nm, dm, mpopt);
             end
         end
 
-        function add_opf_costs(obj, mm, nm, dm, mpopt)
+        function opf_add_costs(obj, mm, nm, dm, mpopt)
             %% system costs
-            obj.add_opf_system_costs(mm, dm, mpopt);
+            obj.opf_add_system_costs(mm, dm, mpopt);
             
             %% each element adds its OPF costs
             for nme = obj.elm_list
-                nme{1}.add_opf_costs(mm, nm, dm, mpopt);
+                nme{1}.opf_add_costs(mm, nm, dm, mpopt);
             end
         end
 
-        function add_opf_system_constraints(obj, mm, dm, mpopt)
+        function opf_add_system_constraints(obj, mm, dm, mpopt)
             %% can be overridden to add additional system constraints
 
             %% node balance constraints
-            obj.add_opf_node_balance_constraints(mm);
+            obj.opf_add_node_balance_constraints(mm);
 
             %% legacy user-defined constraints
-            obj.add_opf_legacy_user_constraints(mm, dm, mpopt);
+            obj.opf_add_legacy_user_constraints(mm, dm, mpopt);
         end
 
-        function add_opf_system_costs(obj, mm, dm, mpopt)
+        function opf_add_system_costs(obj, mm, dm, mpopt)
         end
 
-        function add_opf_legacy_user_vars(obj, mm, dm, mpopt)
+        function opf_add_legacy_user_vars(obj, mm, dm, mpopt)
             z = dm.user_mods.z;
 
             %% save data
@@ -476,7 +476,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
-        function add_opf_legacy_user_constraints(obj, mm, dm, mpopt)
+        function opf_add_legacy_user_constraints(obj, mm, dm, mpopt)
             lin = dm.user_mods.lin;
 
             %% user-defined linear constraints
@@ -486,7 +486,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
-        function add_opf_legacy_user_costs(obj, mm, dm, dc)
+        function opf_add_legacy_user_costs(obj, mm, dm, dc)
             user_cost = dm.user_mods.cost;
             if user_cost.nw
                 uv = mm.get_userdata('user_vars');
@@ -501,10 +501,10 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                 if any(cp.dd ~= 1) || any(cp.kk)    %% not simple quadratic form
                     if dc                           %% (includes "dead zone" or
                         if any(cp.dd ~= 1)          %%  quadratic "penalty")
-                            error('mp_network/add_opf_legacy_user_costs: DC OPF can only handle legacy user-defined costs with d = 1');
+                            error('mp_network/opf_add_legacy_user_costs: DC OPF can only handle legacy user-defined costs with d = 1');
                         end
                         if any(cp.kk)
-                            error('mp_network/add_opf_legacy_user_costs: DC OPF can only handle legacy user-defined costs with no "dead zone", i.e. k = 0');
+                            error('mp_network/opf_add_legacy_user_costs: DC OPF can only handle legacy user-defined costs with no "dead zone", i.e. k = 0');
                         end
                     else
                         %% use general nonlinear cost to implement legacy user cost

@@ -102,7 +102,7 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
 
 
         %%-----  OPF methods  -----
-        function add_opf_node_balance_constraints(obj, mm)
+        function opf_add_node_balance_constraints(obj, mm)
             %% power balance constraints
             nn = obj.node.N;            %% number of nodes
             fcn_mis = @(x)opf_power_balance_fcn(obj, obj.opf_convert_x(x));
