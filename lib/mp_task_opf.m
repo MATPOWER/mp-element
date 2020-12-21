@@ -92,19 +92,10 @@ classdef mp_task_opf < mp_task
             end
         end
 
-        function nm = network_model_update(obj, mm, nm)
-%             fprintf('-- %s network_model_update()\n', obj.tag);
-
-            %% convert solution back to network state
-            nm.opf_soln(mm);
-
-            out = mm.soln.output;
-
-            if isfield(out, 'iterations')
-                i = out.iterations;
-            else
-                i = -1;
-            end
+        function nm = network_model_convert_x(obj, mm, nm)
+            %% convert solved state from math model to network model soln
+            [nm.soln.v, nm.soln.z, nm.soln.x] = nm.opf_convert_x(mm.soln.x, ...
+                                                mm.get_userdata('aux_data'));
         end
 
         %%-----  mathematical model methods  -----

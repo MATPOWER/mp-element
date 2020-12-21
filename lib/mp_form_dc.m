@@ -62,6 +62,9 @@ classdef mp_form_dc < mp_form
             
             if nargin < 4
                 idx = [];
+                if nargin < 3
+                    sysx = 1;
+                end
             end
             
             [B, K, p] = obj.get_params(idx);

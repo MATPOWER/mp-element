@@ -47,6 +47,11 @@ classdef mp_network_dc < mp_network & mp_form_dc
             obj.p = obj.stack_vector_params('p');
         end
 
+        function obj = port_inj_soln(obj)
+            %% compute port injections
+            obj.soln.gp = obj.port_inj_power(obj.soln.x);
+        end
+
 
         %%-----  PF methods  -----
         function ad = pf_aux_data(obj, dm, mpopt)

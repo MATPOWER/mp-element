@@ -400,9 +400,6 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
         %%-----  OPF methods  -----
         function obj = opf_soln(obj, mm)
-            %% convert back to network model x
-            [obj.soln.v, obj.soln.z] = obj.opf_convert_x(mm.soln.x);
-            obj.soln.x = [obj.soln.v; obj.soln.z];
         end
         
         function opf_add_vars(obj, mm, nm, dm, mpopt)

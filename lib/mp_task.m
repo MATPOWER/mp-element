@@ -185,7 +185,15 @@ classdef mp_task < handle
         function nm = network_model_build_post(obj, nm, dm, mpopt)
         end
 
+        function nm = network_model_convert_x(obj, mm, nm)
+        end
+
         function nm = network_model_update(obj, mm, nm)
+            %% convert solved state from math model to network model soln
+            obj.network_model_convert_x(mm, nm);
+
+            %% save port injections
+            nm.port_inj_soln();
         end
 
         %%-----  mathematical model methods  -----

@@ -285,6 +285,12 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             d2G = obj.port_inj_power_hess(x_, obj.C' * lam);
         end
 
+        function obj = port_inj_soln(obj)
+            %% compute port injections
+%             obj.soln.gi_ = obj.port_inj_current(obj.soln.x);
+            obj.soln.gs_ = obj.port_inj_power(obj.soln.x);
+        end
+
 
         %%-----  PF methods  -----
         function ad = pf_aux_data(obj, dm, mpopt)

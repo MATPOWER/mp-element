@@ -59,10 +59,10 @@ classdef mp_task_pf < mp_task
             end
         end
 
-        function nm = network_model_update(obj, mm, nm)
-            %% convert back to complex voltage vector
-            ad = mm.get_userdata('aux_data');
-            [nm.soln.v, nm.soln.z] = nm.pf_convert_x(mm.soln.x, ad);
+        function nm = network_model_convert_x(obj, mm, nm)
+            %% convert solved state from math model to network model soln
+            [nm.soln.v, nm.soln.z, nm.soln.x] = nm.pf_convert_x(mm.soln.x, ...
+                                                mm.get_userdata('aux_data'));
         end
 
         %%-----  mathematical model methods  -----
