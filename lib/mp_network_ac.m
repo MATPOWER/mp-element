@@ -266,25 +266,25 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             );
         end
 
-        function opt = solve_opts_power_flow(obj, om, dm, mpopt)
+        function opt = solve_opts_power_flow(obj, mm, dm, mpopt)
             switch mpopt.pf.alg
                 case 'DEFAULT'
-                    opt = mpopt2nleqopt(mpopt, om.problem_type(), 'DEFAULT');
+                    opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'DEFAULT');
                 case {'NR', 'NR-SP', 'NR-SC', 'NR-SH', 'NR-IP', 'NR-IC', 'NR-IH'}
-                    opt = mpopt2nleqopt(mpopt, om.problem_type(), 'NEWTON');
+                    opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'NEWTON');
                 case {'FDXB', 'FDBX'}
-                    opt = mpopt2nleqopt(mpopt, om.problem_type(), 'FD');
-                    opt.fd_opt.jac_approx_fcn = @()obj.fd_jac_approx(om, dm, mpopt);
+                    opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'FD');
+                    opt.fd_opt.jac_approx_fcn = @()obj.fd_jac_approx(mm, dm, mpopt);
                     opt.fd_opt.labels = {'P', 'Q'};
                 case 'FSOLVE'
-                    opt = mpopt2nleqopt(mpopt, om.problem_type(), 'FSOLVE');
+                    opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'FSOLVE');
                 case 'GS'
-                    opt = mpopt2nleqopt(mpopt, om.problem_type(), 'GS');
+                    opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'GS');
                     opt.gs_opt.x_update_fcn = ...
-                        @(x, f)obj.gs_x_update(x, f, om, dm, mpopt);
+                        @(x, f)obj.gs_x_update(x, f, mm, dm, mpopt);
                 case 'ZG'
-                    opt = mpopt2nleqopt(mpopt, om.problem_type(), 'ZG');
-                    zg_x_update = @(x, f)obj.zg_x_update(x, f, om, dm, mpopt);
+                    opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'ZG');
+                    zg_x_update = @(x, f)obj.zg_x_update(x, f, mm, dm, mpopt);
                     opt.core_sp = struct(...
                         'alg',              'ZG', ...
                         'name',             'Implicit Z-bus Gauss', ...
@@ -395,20 +395,20 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             d2G = real(d2Gr) + imag(d2Gi);
         end
 
-        function add_opf_system_costs(obj, om, dm, mpopt)
+        function add_opf_system_costs(obj, mm, dm, mpopt)
             %% can be overridden to add additional system costs
 
             %% legacy user-defined costs
-            obj.add_opf_legacy_user_costs(om, dm, 0);
+            obj.add_opf_legacy_user_costs(mm, dm, 0);
         end
 
-        function add_opf_legacy_user_constraints(obj, om, dm, mpopt)
+        function add_opf_legacy_user_constraints(obj, mm, dm, mpopt)
             %% call parent
-            add_opf_legacy_user_constraints@mp_network(obj, om, dm, mpopt);
+            add_opf_legacy_user_constraints@mp_network(obj, mm, dm, mpopt);
 
             uc = dm.opf_legacy_user_constraints();
             for k = 1:length(uc)
-                om.add_nln_constraint(uc{k}{:});
+                mm.add_nln_constraint(uc{k}{:});
             end
         end
     end     %% methods

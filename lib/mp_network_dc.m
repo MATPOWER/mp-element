@@ -83,7 +83,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
             );
         end
 
-        function opt = solve_opts_power_flow(obj, om, dm, mpopt)
+        function opt = solve_opts_power_flow(obj, mm, dm, mpopt)
             %% TO DO: move pf.alg to pf.ac.solver and add a
             %%        pf.dc.solver to set the 'leq_opt.solver' option here
             opt = struct( ...
@@ -91,12 +91,12 @@ classdef mp_network_dc < mp_network & mp_form_dc
                 'leq_opt',  struct('thresh', 1e5)   );
         end
 
-        function add_pf_vars(obj, nm, om, dm, mpopt)
+        function add_pf_vars(obj, nm, mm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
             %% index vectors
-            ad = om.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('power_flow_aux_data');
             pvq = [ad.pv; ad.pq];
 
             %% voltage angles
@@ -105,7 +105,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
                 name = st.order(k).name;
                 if isempty(st.order(k).idx)
                     d = st.data;
-                    om.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
+                    mm.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
                 else
                     error('mp_network_dc/add_pf_vars: handling of indexed sets not implmented here (yet)');
                 end
@@ -122,14 +122,14 @@ classdef mp_network_dc < mp_network & mp_form_dc
             end
         end
 
-        function add_pf_node_balance_constraints(obj, om, dm, mpopt)
-            ad = om.get_userdata('power_flow_aux_data');
+        function add_pf_node_balance_constraints(obj, mm, dm, mpopt)
+            ad = mm.get_userdata('power_flow_aux_data');
             pvq = [ad.pv; ad.pq];
 
             %% power balance constraints
             A = ad.B(pvq, pvq);
             b = (ad.Pbus(pvq) - ad.B(pvq, ad.ref) * ad.va(ad.ref));
-            om.add_lin_constraint('Pmis', A, b, b);
+            mm.add_lin_constraint('Pmis', A, b, b);
         end
 
 
@@ -144,28 +144,28 @@ classdef mp_network_dc < mp_network & mp_form_dc
             end
         end
 
-        function add_opf_node_balance_constraints(obj, om)
+        function add_opf_node_balance_constraints(obj, mm)
             [B, K, p] = obj.get_params();
 
             %% power balance constraints
             C = obj.C;
             Amis = C * [B*C' K*obj.D'];
             bmis = -C * p;
-            om.add_lin_constraint('Pmis', Amis, bmis, bmis, ...
+            mm.add_lin_constraint('Pmis', Amis, bmis, bmis, ...
                                 {obj.va.order(:).name obj.z.order(:).name});
 
             %% user data
             branch_nme = obj.elm_by_name('branch');
             [Bbr, pbr] = branch_nme.get_params(1:branch_nme.nk, {'B', 'p'});
-            om.userdata.Bf = Bbr * branch_nme.C';
-            om.userdata.Pfinj = pbr;
+            mm.userdata.Bf = Bbr * branch_nme.C';
+            mm.userdata.Pfinj = pbr;
         end
 
-        function add_opf_system_costs(obj, om, dm, mpopt)
+        function add_opf_system_costs(obj, mm, dm, mpopt)
             %% can be overridden to add additional system costs
 
             %% legacy user-defined costs
-            obj.add_opf_legacy_user_costs(om, dm, 1);
+            obj.add_opf_legacy_user_costs(mm, dm, 1);
         end
 
         function names = opf_legacy_user_var_names(obj)

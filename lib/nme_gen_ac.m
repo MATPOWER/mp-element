@@ -31,44 +31,44 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
             obj.cost = dme.build_gen_cost_params(dm, 0);
         end
 
-        function add_opf_constraints(obj, nm, om, dm, mpopt)
+        function add_opf_constraints(obj, nm, mm, dm, mpopt)
             %% generator PQ capability curve constraints
             [Apqh, ubpqh, Apql, ubpql, Apqdata] = dm.gen_pq_capability_constraint();
-            om.add_lin_constraint('PQh', Apqh, [], ubpqh, {'Pg', 'Qg'});      %% npqh
-            om.add_lin_constraint('PQl', Apql, [], ubpql, {'Pg', 'Qg'});      %% npql
-            om.userdata.Apqdata = Apqdata;
+            mm.add_lin_constraint('PQh', Apqh, [], ubpqh, {'Pg', 'Qg'});      %% npqh
+            mm.add_lin_constraint('PQl', Apql, [], ubpql, {'Pg', 'Qg'});      %% npql
+            mm.userdata.Apqdata = Apqdata;
 
             %% dispatchable load constant power factor constraint
             [Avl, lvl, uvl] = dm.elm_by_name('gen').disp_load_constant_pf_constraint(dm);
             if ~isempty(Avl)
-                om.add_lin_constraint('vl',  Avl, lvl, uvl,   {'Pg', 'Qg'});    %% nvl
+                mm.add_lin_constraint('vl',  Avl, lvl, uvl,   {'Pg', 'Qg'});    %% nvl
             end
 
             %% piecewise linear costs
             if obj.cost.pwl.n
-                om.add_lin_constraint('ycon', obj.cost.pwl.A, [], obj.cost.pwl.b, {'Pg', 'Qg', 'y'});
+                mm.add_lin_constraint('ycon', obj.cost.pwl.A, [], obj.cost.pwl.b, {'Pg', 'Qg', 'y'});
             end
 
             %% call parent
-            add_opf_constraints@nme_gen(obj, nm, om, dm, mpopt);
+            add_opf_constraints@nme_gen(obj, nm, mm, dm, mpopt);
         end
 
-        function add_opf_costs(obj, nm, om, dm, mpopt)
+        function add_opf_costs(obj, nm, mm, dm, mpopt)
             %% call parent
-            add_opf_costs@nme_gen(obj, nm, om, dm, mpopt);
+            add_opf_costs@nme_gen(obj, nm, mm, dm, mpopt);
 
             %% costs on reactive dispatch
             if ~isempty(obj.cost.poly_q)
                 %% (quadratic) polynomial costs on Qg
                 if obj.cost.poly_q.have_quad_cost
-                    om.add_quad_cost('polQg', obj.cost.poly_q.Q, obj.cost.poly_q.c, obj.cost.poly_q.k, {'Qg'});
+                    mm.add_quad_cost('polQg', obj.cost.poly_q.Q, obj.cost.poly_q.c, obj.cost.poly_q.k, {'Qg'});
                 end
 
                 %% (order 3 and higher) polynomial costs on Qg
                 if ~isempty(obj.cost.poly_q.i3)
                     dme = obj.data_model_element(dm);
                     cost_Qg = @(xx)opf_gen_cost_fcn(xx, obj.cost.baseMVA, dme.qcost, obj.cost.poly_q.i3);
-                    om.add_nln_cost('polQg', 1, cost_Qg, {'Qg'});
+                    mm.add_nln_cost('polQg', 1, cost_Qg, {'Qg'});
                 end
             end
         end

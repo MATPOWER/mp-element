@@ -34,7 +34,7 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
             obj.p = [Pfinj; -Pfinj];
         end
 
-        function add_opf_constraints(obj, nm, om, dm, mpopt)
+        function add_opf_constraints(obj, nm, mm, dm, mpopt)
             %% find branches with flow limits
             dme = obj.data_model_element(dm);
             il = find(dme.rate_a ~= 0 & dme.rate_a < 1e10);
@@ -47,15 +47,15 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
                 %% branch flow constraints
                 [B, K, p] = obj.get_params(il);
                 Af = B * obj.C';
-                om.add_lin_constraint('Pf', Af, -p-flow_max, -p+flow_max, ...
+                mm.add_lin_constraint('Pf', Af, -p-flow_max, -p+flow_max, ...
                     {nm.va.order(:).name});
             end
 
             %% branch voltage angle difference limits
             [Aang, lang, uang, iang] = ...
                 dm.branch_angle_diff_constraint(mpopt.opf.ignore_angle_lim);
-            om.add_lin_constraint('ang', Aang, lang, uang, {'Va'});
-            om.userdata.iang = iang;
+            mm.add_lin_constraint('ang', Aang, lang, uang, {'Va'});
+            mm.userdata.iang = iang;
         end
     end     %% methods
 end         %% classdef

@@ -134,14 +134,14 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
             d2G = [dlam zz; zz dlam];
         end
 
-        function add_opf_constraints(obj, nm, om, dm, mpopt)
+        function add_opf_constraints(obj, nm, mm, dm, mpopt)
             %% voltage angle reference constraint
             dme = obj.data_model_element(dm);
             ref = dm.node_type_ref(obj.node_types(nm, dm));
             varef = dme.Va0(ref);
             fcn_vref = @(xx)va_fcn(obj, xx, ref, varef);
             hess_vref = @(xx, lam)va_hess(obj, xx, lam, ref);
-            om.add_nln_constraint('Vref', length(ref), 1, fcn_vref, hess_vref, {'Vr', 'Vi'});
+            mm.add_nln_constraint('Vref', length(ref), 1, fcn_vref, hess_vref, {'Vr', 'Vi'});
 
             %% fixed voltage magnitudes
             veq = find(dme.Vmin == dme.Vmax);
@@ -149,9 +149,9 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
             if nveq
                 fcn_vm2eq = @(xx)vm2_fcn(obj, xx, veq, dme.Vmax(veq).^2);
                 hess_vm2eq = @(xx, lam)vm2_hess(obj, xx, lam, veq);
-                om.add_nln_constraint('Veq', nveq, 1, fcn_vm2eq, hess_vm2eq, {'Vr', 'Vi'});
+                mm.add_nln_constraint('Veq', nveq, 1, fcn_vm2eq, hess_vm2eq, {'Vr', 'Vi'});
             end
-            om.userdata.veq = veq;
+            mm.userdata.veq = veq;
 
             %% voltage magnitude limits
             viq = find(dme.Vmin ~= dme.Vmax);
@@ -160,9 +160,9 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
                 fcn_vlim = @(xx)vm2_fcn(obj, xx, viq, ...
                         {dme.Vmin(viq).^2, dme.Vmax(viq).^2} );
                 hess_vlim = @(xx, lam)vm2_hess(obj, xx, lam, viq);
-                om.add_nln_constraint({'Vmin', 'Vmax'}, [nviq;nviq], 0, fcn_vlim, hess_vlim, {'Vr', 'Vi'});
+                mm.add_nln_constraint({'Vmin', 'Vmax'}, [nviq;nviq], 0, fcn_vlim, hess_vlim, {'Vr', 'Vi'});
             end
-            om.userdata.viq = viq;
+            mm.userdata.viq = viq;
         end
     end     %% methods
 end         %% classdef

@@ -36,12 +36,12 @@ classdef mp_network_acci < mp_network_acc% & mp_form_acci
             ad.k = k;               %% indices of PV node gen z-vars (in sys z)
         end
 
-        function add_pf_vars(obj, nm, om, dm, mpopt)
+        function add_pf_vars(obj, nm, mm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
             %% index vectors
-            ad = om.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('power_flow_aux_data');
             pqv = [ad.pq; ad.pv];
 
             %% reactive injections
@@ -49,7 +49,7 @@ classdef mp_network_acci < mp_network_acc% & mp_form_acci
             z_ = ad.zr + 1j * ad.zi;
             Qpv = obj.C(ad.pv, :) * imag( obj.port_inj_power([v_; z_], 1) );
             Qg_pv = Qpv - ad.N * ad.zi(ad.k);
-            om.add_var('Qg_pv', ad.npv, Qg_pv);
+            mm.add_var('Qg_pv', ad.npv, Qg_pv);
 
             %% voltage real part
             st = obj.(vvars{1});
@@ -57,7 +57,7 @@ classdef mp_network_acci < mp_network_acc% & mp_form_acci
                 name = st.order(k).name;
                 if isempty(st.order(k).idx)
                     d = st.data;
-                    om.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
+                    mm.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
                 else
                     error('mp_network_acci/add_pf_vars: handling of indexed sets not implmented here (yet)');
                 end
@@ -69,7 +69,7 @@ classdef mp_network_acci < mp_network_acc% & mp_form_acci
                 name = st.order(k).name;
                 if isempty(st.order(k).idx)
                     d = st.data;
-                    om.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
+                    mm.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
                 else
                     error('mp_network_acci/add_pf_vars: handling of indexed sets not implmented here (yet)');
                 end
@@ -127,23 +127,23 @@ classdef mp_network_acci < mp_network_acc% & mp_form_acci
             f = [real(II(pvq)); imag(II(pvq)); vmm];
         end
 
-        function add_pf_node_balance_constraints(obj, om, dm, mpopt)
+        function add_pf_node_balance_constraints(obj, mm, dm, mpopt)
             %% power balance constraints
-            ad = om.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('power_flow_aux_data');
             npvq = ad.npv+ad.npq;
             fcn = @(x)power_flow_equations(obj, x, ad);
-            om.add_nln_constraint({'Irmis', 'Iimis', 'Vmis'}, [npvq;npvq;ad.npv], 1, fcn, []);
+            mm.add_nln_constraint({'Irmis', 'Iimis', 'Vmis'}, [npvq;npvq;ad.npv], 1, fcn, []);
         end
 
 
         %%-----  OPF methods  -----
-        function add_opf_node_balance_constraints(obj, om)
+        function add_opf_node_balance_constraints(obj, mm)
             %% power balance constraints
             nn = obj.node.N;            %% number of nodes
             fcn_mis = @(x)opf_current_balance_fcn(obj, obj.opf_convert_x(x));
             hess_mis = @(x, lam)opf_current_balance_hess(obj, ...
                 obj.opf_convert_x(x), lam);
-            om.add_nln_constraint({'rImis', 'iImis'}, [nn;nn], 1, fcn_mis, hess_mis);
+            mm.add_nln_constraint({'rImis', 'iImis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
     end     %% methods
 end         %% classdef

@@ -15,12 +15,12 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
     
     methods
         %%-----  PF methods  -----
-        function add_pf_vars(obj, nm, om, dm, mpopt)
+        function add_pf_vars(obj, nm, mm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
             %% index vectors
-            ad = om.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('power_flow_aux_data');
             pqv = [ad.pq; ad.pv];
 
             %% voltage real part
@@ -29,7 +29,7 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
                 name = st.order(k).name;
                 if isempty(st.order(k).idx)
                     d = st.data;
-                    om.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
+                    mm.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
                 else
                     error('mp_network_accs/add_pf_vars: handling of indexed sets not implmented here (yet)');
                 end
@@ -41,7 +41,7 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
                 name = st.order(k).name;
                 if isempty(st.order(k).idx)
                     d = st.data;
-                    om.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
+                    mm.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
                 else
                     error('mp_network_accs/add_pf_vars: handling of indexed sets not implmented here (yet)');
                 end
@@ -93,22 +93,22 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
             f = [real(SS(pqv)); imag(SS(ad.pq)); vmm];
         end
 
-        function add_pf_node_balance_constraints(obj, om, dm, mpopt)
+        function add_pf_node_balance_constraints(obj, mm, dm, mpopt)
             %% power balance constraints
-            ad = om.get_userdata('power_flow_aux_data');
+            ad = mm.get_userdata('power_flow_aux_data');
             fcn = @(x)power_flow_equations(obj, x, ad);
-            om.add_nln_constraint({'Pmis', 'Qmis', 'Vmis'}, [ad.npv+ad.npq;ad.npq;ad.npv], 1, fcn, []);
+            mm.add_nln_constraint({'Pmis', 'Qmis', 'Vmis'}, [ad.npv+ad.npq;ad.npq;ad.npv], 1, fcn, []);
         end
 
 
         %%-----  OPF methods  -----
-        function add_opf_node_balance_constraints(obj, om)
+        function add_opf_node_balance_constraints(obj, mm)
             %% power balance constraints
             nn = obj.node.N;            %% number of nodes
             fcn_mis = @(x)opf_power_balance_fcn(obj, obj.opf_convert_x(x));
             hess_mis = @(x, lam)opf_power_balance_hess(obj, ...
                 obj.opf_convert_x(x), lam);
-            om.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
+            mm.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
     end     %% methods
 end         %% classdef

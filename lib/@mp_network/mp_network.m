@@ -378,24 +378,24 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         %%-----  PF methods  -----
-        function add_pf_constraints(obj, nm, om, dm, mpopt)
+        function add_pf_constraints(obj, nm, mm, dm, mpopt)
             %% system constraints
-            obj.add_pf_system_constraints(om, dm, mpopt);
+            obj.add_pf_system_constraints(mm, dm, mpopt);
             
 %             %% each element adds its PF constraints
 %             for nme = obj.elm_list
-%                 nme{1}.add_pf_constraints(nm, om, dm, mpopt);
+%                 nme{1}.add_pf_constraints(nm, mm, dm, mpopt);
 %             end
         end
 
-        function add_pf_system_constraints(obj, om, dm, mpopt)
+        function add_pf_system_constraints(obj, mm, dm, mpopt)
             %% can be overridden to add additional system constraints
 
             %% node balance constraints
-            obj.add_pf_node_balance_constraints(om, dm, mpopt);
+            obj.add_pf_node_balance_constraints(mm, dm, mpopt);
         end
 
-        opt = solve_opts_power_flow(obj, om, dm, mpopt)
+        opt = solve_opts_power_flow(obj, mm, dm, mpopt)
 
 
         %%-----  OPF methods  -----
@@ -405,7 +405,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             obj.soln.x = [obj.soln.v; obj.soln.z];
         end
         
-        function add_opf_vars(obj, nm, om, dm, mpopt)
+        function add_opf_vars(obj, nm, mm, dm, mpopt)
             %% add network voltage and non-voltage state variables
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars
@@ -414,7 +414,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                     name = st.order(k).name;
                     if isempty(st.order(k).idx)
                         d = st.data;
-                        om.add_var(name, st.idx.N.(name), d.v0.(name), d.vl.(name), d.vu.(name), d.vt.(name));
+                        mm.add_var(name, st.idx.N.(name), d.v0.(name), d.vl.(name), d.vu.(name), d.vt.(name));
                     else
                         error('mp_network/add_opf_vars: handling of indexed sets not implmented here (yet)');
                     end
@@ -423,79 +423,79 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             
             %% each element adds its OPF variables
             for nme = obj.elm_list
-                nme{1}.add_opf_vars(nm, om, dm, mpopt);
+                nme{1}.add_opf_vars(nm, mm, dm, mpopt);
             end
             
             %% legacy user-defined variables
-            obj.add_opf_legacy_user_vars(om, dm, mpopt);
+            obj.add_opf_legacy_user_vars(mm, dm, mpopt);
         end
 
-        function add_opf_constraints(obj, nm, om, dm, mpopt)
+        function add_opf_constraints(obj, nm, mm, dm, mpopt)
             %% system constraints
-            obj.add_opf_system_constraints(om, dm, mpopt);
+            obj.add_opf_system_constraints(mm, dm, mpopt);
             
             %% each element adds its OPF constraints
             for nme = obj.elm_list
-                nme{1}.add_opf_constraints(nm, om, dm, mpopt);
+                nme{1}.add_opf_constraints(nm, mm, dm, mpopt);
             end
         end
 
-        function add_opf_costs(obj, nm, om, dm, mpopt)
+        function add_opf_costs(obj, nm, mm, dm, mpopt)
             %% system costs
-            obj.add_opf_system_costs(om, dm, mpopt);
+            obj.add_opf_system_costs(mm, dm, mpopt);
             
             %% each element adds its OPF costs
             for nme = obj.elm_list
-                nme{1}.add_opf_costs(nm, om, dm, mpopt);
+                nme{1}.add_opf_costs(nm, mm, dm, mpopt);
             end
         end
 
-        function add_opf_system_constraints(obj, om, dm, mpopt)
+        function add_opf_system_constraints(obj, mm, dm, mpopt)
             %% can be overridden to add additional system constraints
 
             %% node balance constraints
-            obj.add_opf_node_balance_constraints(om);
+            obj.add_opf_node_balance_constraints(mm);
 
             %% legacy user-defined constraints
-            obj.add_opf_legacy_user_constraints(om, dm, mpopt);
+            obj.add_opf_legacy_user_constraints(mm, dm, mpopt);
         end
 
-        function add_opf_system_costs(obj, om, dm, mpopt)
+        function add_opf_system_costs(obj, mm, dm, mpopt)
         end
 
-        function add_opf_legacy_user_vars(obj, om, dm, mpopt)
+        function add_opf_legacy_user_vars(obj, mm, dm, mpopt)
             z = dm.user_mods.z;
 
             %% save data
-            om.userdata.user_vars = obj.opf_legacy_user_var_names();
+            mm.userdata.user_vars = obj.opf_legacy_user_var_names();
 
             %% add any user-defined vars
             if z.nz > 0
-                om.add_var('z', z.nz, z.z0, z.zl, z.zu);
-                om.userdata.user_vars{end+1} = 'z';
+                mm.add_var('z', z.nz, z.z0, z.zl, z.zu);
+                mm.userdata.user_vars{end+1} = 'z';
             end
         end
 
-        function add_opf_legacy_user_constraints(obj, om, dm, mpopt)
+        function add_opf_legacy_user_constraints(obj, mm, dm, mpopt)
             lin = dm.user_mods.lin;
 
             %% user-defined linear constraints
             if lin.nlin
-                uv = om.get_userdata('user_vars');
-                om.add_lin_constraint('usr', lin.A, lin.l, lin.u, uv);
+                uv = mm.get_userdata('user_vars');
+                mm.add_lin_constraint('usr', lin.A, lin.l, lin.u, uv);
             end
         end
 
-        function add_opf_legacy_user_costs(obj, om, dm, dc)
+        function add_opf_legacy_user_costs(obj, mm, dm, dc)
             user_cost = dm.user_mods.cost;
             if user_cost.nw
-                uv = om.get_userdata('user_vars');
-                om.add_legacy_cost('usr', user_cost, uv);
+                uv = mm.get_userdata('user_vars');
+                mm.add_legacy_cost('usr', user_cost, uv);
             end
 
             %% implement legacy user costs using quadratic or general non-linear costs
-            cp = om.params_legacy_cost();   %% construct/fetch the parameters
-            [N, H, Cw, rh, mm] = deal(cp.N, cp.H, cp.Cw, cp.rh, cp.mm);
+            cp = mm.params_legacy_cost();   %% construct/fetch the parameters
+            [N, H, Cw, rh, m] = deal(cp.N, cp.H, cp.Cw, cp.rh, cp.mm);
             [nw, nx] = size(N);
             if nw
                 if any(cp.dd ~= 1) || any(cp.kk)    %% not simple quadratic form
@@ -509,12 +509,12 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                     else
                         %% use general nonlinear cost to implement legacy user cost
                         legacy_cost_fcn = @(x)opf_legacy_user_cost_fcn(x, cp);
-                        om.add_nln_cost('usr', 1, legacy_cost_fcn);
+                        mm.add_nln_cost('usr', 1, legacy_cost_fcn);
                     end
                 else                                %% simple quadratic form
                     %% use a quadratic cost to implement legacy user cost
-                    %% f = 1/2 * w'*H*w + Cw'*w, where w = diag(mm)*(N*x - rh)
-                    %% Let: MN = diag(mm)*N
+                    %% f = 1/2 * w'*H*w + Cw'*w, where w = diag(m)*(N*x - rh)
+                    %% Let: MN = diag(m)*N
                     %%      MR = M * rh
                     %%      HMR  = H  * MR;
                     %%      HtMR = H' * MR;
@@ -525,9 +525,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                     %%          1/2 * MR'*H*MR - Cw'*MR
                     %%   = 1/2 * x'*Q*w + c'*x + k
 
-                    [N, H, Cw, rh, mm] = deal(cp.N, cp.H, cp.Cw, cp.rh, cp.mm);
-                    nw = size(N, 1);            %% number of general cost vars, w
-                    M    = sparse(1:nw, 1:nw, mm, nw, nw);
+                    M    = sparse(1:nw, 1:nw, m, nw, nw);
                     MN   = M * N;
                     MR   = M * rh;
                     HMR  = H  * MR;
@@ -535,7 +533,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                     Q = MN' * H * MN;
                     c = full(MN' * (Cw - 1/2*(HMR+HtMR)));
                     k = (1/2 * HtMR - Cw)' * MR;
-                    om.add_quad_cost('usr', Q, c, k);
+                    mm.add_quad_cost('usr', Q, c, k);
                 end
             end
         end
