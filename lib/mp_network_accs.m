@@ -48,15 +48,17 @@ classdef mp_network_accs < mp_network_acc% & mp_form_accs
             end
         end
 
-        function [vx_, z_] = pf_convert_x(obj, x, ad)
-            %% update v_, z_ from x
+        function [vx_, z_, x_] = pf_convert_x(obj, mmx, ad)
+            %% update v_, z_ from mmx
             pqv = [ad.pq; ad.pv];
-            ad.v1(pqv) = x(1:ad.npv+ad.npq);                    %% vr
-            ad.v2(pqv) = x(ad.npv+ad.npq+1:2*ad.npv+2*ad.npq);  %% vi
+            ad.v1(pqv) = mmx(1:ad.npv+ad.npq);                      %% vr
+            ad.v2(pqv) = mmx(ad.npv+ad.npq+1:2*ad.npv+2*ad.npq);    %% vi
             vx_ = ad.v1 + 1j * ad.v2;
             z_ = ad.zr + 1j * ad.zi;
             if nargout < 2
                 vx_ = [vx_; z_];
+            elseif nargout > 2
+                x_ = [vx_; z_];
             end
         end
 

@@ -112,13 +112,15 @@ classdef mp_network_dc < mp_network & mp_form_dc
             end
         end
 
-        function [vx, z] = pf_convert_x(obj, x, ad)
-            %% update v_, z_ from x
+        function [vx, z, x] = pf_convert_x(obj, mmx, ad)
+            %% update v_, z_ from mmx
             vx = ad.va;
-            vx([ad.pv; ad.pq]) = x(1:ad.npv+ad.npq);        %% va
+            vx([ad.pv; ad.pq]) = mmx(1:ad.npv+ad.npq);      %% va
             z = ad.z;
             if nargout < 2
                 vx = [vx; z];
+            elseif nargout > 2
+                x = [vx; z];
             end
         end
 
@@ -134,13 +136,16 @@ classdef mp_network_dc < mp_network & mp_form_dc
 
 
         %%-----  OPF methods  -----
-        function [vx, z] = opf_convert_x(obj, mmx, ad)
+        function [vx, z, x] = opf_convert_x(obj, mmx, ad)
             %% convert (real) math model x to network model x
             if nargout < 2
                 vx = mmx(1:obj.nv+obj.nz);
             else
                 vx = mmx(1:obj.nv);
                 z  = mmx(obj.nv+1:obj.nv+obj.nz);
+                if nargout > 2
+                    x = [vx; z];
+                end
             end
         end
 

@@ -76,17 +76,19 @@ classdef mp_network_acci < mp_network_acc% & mp_form_acci
             end
         end
 
-        function [vx_, z_] = pf_convert_x(obj, x, ad)
-            %% update v_, z_ from x
+        function [vx_, z_, x_] = pf_convert_x(obj, mmx, ad)
+            %% update v_, z_ from mmx
             pqv = [ad.pq; ad.pv];
-            iN = ad.npv;                            Qg_pv   = x(1:iN);
-            i1 = iN+1;  iN = iN + ad.npv + ad.npq;  ad.v1(pqv) = x(i1:iN);  %% vr
-            i1 = iN+1;  iN = iN + ad.npv + ad.npq;  ad.v2(pqv) = x(i1:iN);  %% vi
+            iN = ad.npv;                            Qg_pv   = mmx(1:iN);    %% Qg_pv
+            i1 = iN+1;  iN = iN + ad.npv + ad.npq;  ad.v1(pqv) = mmx(i1:iN);%% vr
+            i1 = iN+1;  iN = iN + ad.npv + ad.npq;  ad.v2(pqv) = mmx(i1:iN);%% vi
             vx_ = ad.v1 + 1j * ad.v2;
             ad.zi(ad.k) = -ad.N \ Qg_pv;
             z_ = ad.zr + 1j * ad.zi;
             if nargout < 2
                 vx_ = [vx_; z_];
+            elseif nargout > 2
+                x_ = [vx_; z_];
             end
         end
 
