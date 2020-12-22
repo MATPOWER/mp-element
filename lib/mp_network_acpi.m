@@ -36,7 +36,7 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
             ad.k = k;               %% indices of PV node gen z-vars (in sys z)
         end
 
-        function pf_add_vars(obj, mm, nm, dm, mpopt)
+        function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
@@ -123,7 +123,7 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
             f = [real(II(pvq)); imag(II(pvq))];
         end
 
-        function pf_add_node_balance_constraints(obj, mm, dm, mpopt)
+        function obj = pf_add_node_balance_constraints(obj, mm, dm, mpopt)
             %% power balance constraints
             ad = mm.get_userdata('aux_data');
             npvq = ad.npv+ad.npq;

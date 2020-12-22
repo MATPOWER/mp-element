@@ -378,7 +378,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         %%-----  PF methods  -----
-        function pf_add_constraints(obj, mm, nm, dm, mpopt)
+        function obj = pf_add_constraints(obj, mm, nm, dm, mpopt)
             %% system constraints
             obj.pf_add_system_constraints(mm, dm, mpopt);
             
@@ -388,7 +388,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 %             end
         end
 
-        function pf_add_system_constraints(obj, mm, dm, mpopt)
+        function obj = pf_add_system_constraints(obj, mm, dm, mpopt)
             %% can be overridden to add additional system constraints
 
             %% node balance constraints
@@ -402,7 +402,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         function obj = opf_soln(obj, mm)
         end
         
-        function opf_add_vars(obj, mm, nm, dm, mpopt)
+        function obj = opf_add_vars(obj, mm, nm, dm, mpopt)
             %% add network voltage and non-voltage state variables
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars
@@ -427,7 +427,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             obj.opf_add_legacy_user_vars(mm, dm, mpopt);
         end
 
-        function opf_add_constraints(obj, mm, nm, dm, mpopt)
+        function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% system constraints
             obj.opf_add_system_constraints(mm, dm, mpopt);
             
@@ -437,7 +437,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
-        function opf_add_costs(obj, mm, nm, dm, mpopt)
+        function obj = opf_add_costs(obj, mm, nm, dm, mpopt)
             %% system costs
             obj.opf_add_system_costs(mm, dm, mpopt);
             

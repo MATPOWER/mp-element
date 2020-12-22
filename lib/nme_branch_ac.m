@@ -37,7 +37,7 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
                 [Yff; Yft; Ytf; Ytt], 2*nl, 2*nl );
         end
 
-        function opf_add_constraints(obj, mm, nm, dm, mpopt)
+        function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% find branches with flow limits
             dme = obj.data_model_element(dm);
             il = find(dme.rate_a ~= 0 & dme.rate_a < 1e10);

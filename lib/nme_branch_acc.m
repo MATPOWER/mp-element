@@ -58,7 +58,7 @@ classdef nme_branch_acc < nme_branch_ac & mp_form_acc
                     h_ri -h_rr ];
         end
 
-        function opf_add_constraints(obj, mm, nm, dm, mpopt)
+        function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% call parent
             opf_add_constraints@nme_branch_ac(obj, mm, nm, dm, mpopt);
 

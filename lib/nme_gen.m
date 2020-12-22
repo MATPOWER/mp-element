@@ -48,7 +48,7 @@ classdef nme_gen < nm_element
         end
 
         %%-----  OPF methods  -----
-        function opf_add_vars(obj, mm, nm, dm, mpopt)
+        function obj = opf_add_vars(obj, mm, nm, dm, mpopt)
             %% collect/construct all generator cost parameters
             obj.opf_build_gen_cost_params(dm);
 
@@ -58,7 +58,7 @@ classdef nme_gen < nm_element
             end
         end
 
-        function opf_add_costs(obj, mm, nm, dm, mpopt)
+        function obj = opf_add_costs(obj, mm, nm, dm, mpopt)
             %% (quadratic) polynomial costs on Pg
             if obj.cost.poly_p.have_quad_cost
                 mm.add_quad_cost('polPg', obj.cost.poly_p.Q, obj.cost.poly_p.c, obj.cost.poly_p.k, {'Pg'});

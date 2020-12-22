@@ -34,7 +34,7 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
             end
         end
 
-        function pf_add_vars(obj, mm, nm, dm, mpopt)
+        function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
@@ -113,7 +113,7 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
             f = [real(SS(pvq)); imag(SS(ad.pq))];
         end
 
-        function pf_add_node_balance_constraints(obj, mm, dm, mpopt)
+        function obj = pf_add_node_balance_constraints(obj, mm, dm, mpopt)
             alg = mpopt.pf.alg;
             ad = mm.get_userdata('aux_data');
             

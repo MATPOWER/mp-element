@@ -96,7 +96,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
                 'leq_opt',  struct('thresh', 1e5)   );
         end
 
-        function pf_add_vars(obj, mm, nm, dm, mpopt)
+        function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
@@ -129,7 +129,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
             end
         end
 
-        function pf_add_node_balance_constraints(obj, mm, dm, mpopt)
+        function obj = pf_add_node_balance_constraints(obj, mm, dm, mpopt)
             ad = mm.get_userdata('aux_data');
             pvq = [ad.pv; ad.pq];
 

@@ -31,7 +31,7 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
             obj.cost = dme.opf_build_gen_cost_params(dm, 0);
         end
 
-        function opf_add_constraints(obj, mm, nm, dm, mpopt)
+        function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% generator PQ capability curve constraints
             [Apqh, ubpqh, Apql, ubpql, Apqdata] = dm.gen_pq_capability_constraint();
             mm.add_lin_constraint('PQh', Apqh, [], ubpqh, {'Pg', 'Qg'});      %% npqh
@@ -53,7 +53,7 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
             opf_add_constraints@nme_gen(obj, mm, nm, dm, mpopt);
         end
 
-        function opf_add_costs(obj, mm, nm, dm, mpopt)
+        function obj = opf_add_costs(obj, mm, nm, dm, mpopt)
             %% call parent
             opf_add_costs@nme_gen(obj, mm, nm, dm, mpopt);
 

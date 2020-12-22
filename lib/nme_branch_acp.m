@@ -9,7 +9,7 @@ classdef nme_branch_acp < nme_branch_ac & mp_form_acp
 %   See https://matpower.org for more info.
 
     methods
-        function opf_add_constraints(obj, mm, nm, dm, mpopt)
+        function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% call parent
             opf_add_constraints@nme_branch_ac(obj, mm, nm, dm, mpopt);
 
