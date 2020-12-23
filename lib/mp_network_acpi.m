@@ -21,13 +21,13 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
 
             %% build additional aux data
             g = obj.elm_by_name('gen');
-            i = obj.nme_z_map(obj.elm_map.gen, :);  %% 1st-last z-idx for gens
+            i1 = obj.get_idx('state').i1.gen;       %% first z-idx for gens
             N = g.C(ad.pv, :) * g.N;%% z coefficients for all gens @ PV nodes
             [ii, jj, ss] = find(N); %% deconstruct and recreate with
             [~, ia] = unique(ii);   %% only 1st non-zero in each row
             N = sparse(ii(ia), jj(ia), ss(ia), ad.npv, size(N, 2));
             j = find(any(N, 1));    %% indices of PV node gen z-vars (in gen z)
-            k = j + i(1) - 1;       %% indices of PV node gen z-vars (in sys z)
+            k = j + i1 - 1;         %% indices of PV node gen z-vars (in sys z)
             N = N(:,j) * g.D(k,j)'; %% coefficients for zi(k)
 
             %% save additional aux data

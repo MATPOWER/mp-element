@@ -97,6 +97,9 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             gzi = sparse(np, nz);
 
             %% loop through elements w/gen nonlin fcns, evaluate them
+            if ~sysx
+                ss = obj.get_idx('state');
+            end
             for kk = obj.(fcn_list)
                 k = kk{1};      %% index into obj.elm_list
                 nme = obj.elm_list{k};
@@ -118,8 +121,13 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 if sysx
                     nme_x_ = x_;
                 else
-                    j1 = obj.nme_z_map(k, 1);   %% starting aggregate z-var index
-                    jN = obj.nme_z_map(k, 2);   %% ending aggregate z-var index
+                    if isfield(ss.i1, nme.name)
+                        j1 = ss.i1.(nme.name)(1);
+                        jN = ss.iN.(nme.name)(end);
+                    else
+                        j1 = 1;
+                        jN = 0;
+                    end
                     nme_x_ = [  x_(i1:iN, :);
                                 x_(nv+j1:nv+jN, :)  ];
                 end
@@ -191,6 +199,9 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             H = sparse(n, n);
 
             %% loop through elements w/gen nonlin Hessians, evaluate them
+            if ~sysx
+                ss = obj.get_idx('state');
+            end
             for kk = obj.(fcn_list)
                 k = kk{1};      %% index into obj.elm_list
                 nme = obj.elm_list{k};
@@ -203,8 +214,13 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 else
                     nv = obj.get_nv_(sysx);
                     nz = obj.nz;
-                    j1 = obj.nme_z_map(k, 1);   %% starting aggregate z-var index
-                    jN = obj.nme_z_map(k, 2);   %% ending aggregate z-var index
+                    if isfield(ss.i1, nme.name)
+                        j1 = ss.i1.(nme.name)(1);
+                        jN = ss.iN.(nme.name)(end);
+                    else
+                        j1 = 1;
+                        jN = 0;
+                    end
                     nme_x_ = [  x_(i1:iN, :);
                                 x_(nv+j1:nv+jN, :)  ];
 

@@ -13,7 +13,6 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
     properties
         nme_port_map = [];      %% nme_port_map(k, 1:2), indices of 1st & last port for element k
-        nme_z_map = [];         %% nme_z_map(k, 1:2), indices of 1st & last z var for element k
         nv = 0;                 %% total number of (real) v variables
         node = [];
         state = [];
@@ -99,22 +98,17 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %% each element builds parameters, aggregate incidence matrices
             C = {};
             D = {};
-            %% initialize nme_port_map, nme_z_map
+            %% initialize nme_port_map
             obj.nme_port_map = zeros(length(obj.elm_list), 2);
-            obj.nme_z_map    = zeros(length(obj.elm_list), 2);
             pk = 1;     %% port counter
-            zk = 1;     %% z-var counter
             for k = 1:length(obj.elm_list)
                 nme = obj.elm_list{k};
                 obj.nme_port_map(k, 1) = pk;        %% starting port index
-                obj.nme_z_map(k, 1) = zk;           %% starting z-var index
                 nme.build_params(obj, dm);
                 C = horzcat(C, {nme.C});
                 D = horzcat(D, {nme.D});
                 pk = pk + nme.np * nme.nk;          %% increment port counter
-                zk = zk + nme.nz * nme.nk;          %% increment z-var counter
                 obj.nme_port_map(k, 2) = pk - 1;    %% ending port index
-                obj.nme_z_map(k, 2)    = zk - 1;    %% ending z-var index
             end
             obj.C = horzcat(C{:});
             obj.D = horzcat(D{:});
