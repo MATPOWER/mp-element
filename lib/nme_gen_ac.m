@@ -72,5 +72,53 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
                 end
             end
         end
+
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% generator active power
+            ss = nm.get_idx('state');
+            Sg = nm.soln.z(ss.i1.gen:ss.iN.gen);
+            Vg = abs(obj.C' * nm.soln.v);
+
+            %% shadow prices on generator limits
+            [vv, ll] = mm.get_idx();
+            lambda = mm.soln.lambda;
+            muPmax = lambda.upper(vv.i1.Pg:vv.iN.Pg);
+            muPmin = lambda.lower(vv.i1.Pg:vv.iN.Pg);
+            muQmax = lambda.upper(vv.i1.Qg:vv.iN.Qg);
+            muQmin = lambda.lower(vv.i1.Qg:vv.iN.Qg);
+
+            %% gen PQ capability curve multipliers - based on update_mupq()
+            if ll.N.PQh > 0 || ll.N.PQl > 0
+                d = mm.get_userdata('Apqdata');
+
+                %% combine original limit multipliers into single value
+                muP = muPmax - muPmin;
+                muQ = muQmax - muQmin;
+
+                %% add P and Q components of multipliers on upper sloped constraint
+                if ~isempty(d.ipqh)
+                    mu_PQh = lambda.mu_l(ll.i1.PQh:ll.iN.PQh) - lambda.mu_u(ll.i1.PQh:ll.iN.PQh);
+                    muP(d.ipqh) = muP(d.ipqh) - mu_PQh .* d.h(:,1);
+                    muQ(d.ipqh) = muQ(d.ipqh) - mu_PQh .* d.h(:,2);
+                end
+
+                %% add P and Q components of multipliers on lower sloped constraint
+                if ~isempty(d.ipql)
+                    mu_PQl = lambda.mu_l(ll.i1.PQl:ll.iN.PQl) - lambda.mu_u(ll.i1.PQl:ll.iN.PQl);
+                    muP(d.ipql) = muP(d.ipql) - mu_PQl .* d.l(:,1);
+                    muQ(d.ipql) = muQ(d.ipql) - mu_PQl .* d.l(:,2);
+                end
+
+                %% split back into upper and lower multipliers based on sign
+                muPmax = (muP > 0) .*  muP;
+                muPmin = (muP < 0) .* -muP;
+                muQmax = (muQ > 0) .*  muQ;
+                muQmin = (muQ < 0) .* -muQ;
+            end
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.update(dm, Sg, Vg, muPmin, muPmax, muQmin, muQmax);
+        end
     end     %% methods
 end         %% classdef

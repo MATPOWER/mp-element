@@ -528,5 +528,12 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                 end
             end
         end
+
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% each element updates its data model
+            for nme = obj.elm_list
+                nme{1}.opf_data_model_update(mm, nm, dm, mpopt);
+            end
+        end
     end     %% methods
 end         %% classdef

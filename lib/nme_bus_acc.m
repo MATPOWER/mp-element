@@ -164,5 +164,41 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
             end
             mm.userdata.viq = viq;
         end
+
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% complex bus voltages
+            nn = nm.get_idx('node');
+            V = nm.soln.v(nn.i1.bus:nn.iN.bus);
+
+            %% shadow prices on voltage magnitudes
+            [nne, nni] = mm.get_idx('nle', 'nli');
+            lambda = mm.soln.lambda;
+            muVmin = zeros(nn.N.bus, 1);    %% init to all 0
+            muVmax = muVmin;                %% init to all 0
+            if mm.userdata.veq
+                lam = lambda.eqnonlin(nne.i1.Veq:nne.iN.Veq);
+                lam_p = zeros(size(lam));
+                lam_n = zeros(size(lam));
+                lam_p(lam > 0) =  lam(lam > 0);
+                lam_n(lam < 0) = -lam(lam < 0);
+                muVmin(mm.userdata.veq) = lam_n;
+                muVmax(mm.userdata.veq) = lam_p;
+            end
+            muVmin(mm.userdata.viq) = lambda.ineqnonlin(nni.i1.Vmin:nni.iN.Vmin);
+            muVmax(mm.userdata.viq) = lambda.ineqnonlin(nni.i1.Vmax:nni.iN.Vmax);
+
+            Vm = abs(V);
+            muVmin = muVmin .* Vm * 2;
+            muVmax = muVmax .* Vm * 2;
+
+            %% shadow prices on node power balance
+            [lamP, lamQ] = nm.opf_node_power_balance_prices(mm);
+            lamP = lamP(nn.i1.bus:nn.iN.bus);   %% for bus nodes only
+            lamQ = lamQ(nn.i1.bus:nn.iN.bus);   %% for bus nodes only
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.update(dm, angle(V), abs(V), lamP, lamQ, muVmin, muVmax);
+        end
     end     %% methods
 end         %% classdef

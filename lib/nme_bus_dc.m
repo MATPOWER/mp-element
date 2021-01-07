@@ -26,5 +26,22 @@ classdef nme_bus_dc < nme_bus & mp_form_dc
 
             nm.add_var('va', 'Va', nb, dme.Va0, Vamin, Vamax);
         end
+
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% bus voltage angles
+            nn = nm.get_idx('node');
+            Va = nm.soln.v(nn.i1.bus:nn.iN.bus);
+
+            %% shadow prices on node power balance
+            ll = mm.get_idx('lin');
+            lambda = mm.soln.lambda;
+            lamP =  lambda.mu_u(ll.i1.Pmis:ll.iN.Pmis) - ...
+                    lambda.mu_l(ll.i1.Pmis:ll.iN.Pmis);
+            lamP = lamP(nn.i1.bus:nn.iN.bus);   %% for bus nodes only
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.update(dm, Va, [], lamP);
+        end
     end     %% methods
 end         %% classdef

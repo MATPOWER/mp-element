@@ -37,15 +37,16 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
         function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% find branches with flow limits
             dme = obj.data_model_element(dm);
-            il = find(dme.rate_a ~= 0 & dme.rate_a < 1e10);
-            nl2 = length(il);       %% number of constrained lines
+            ibr = find(dme.rate_a ~= 0 & dme.rate_a < 1e10);
+            nl2 = length(ibr);      %% number of constrained branches
+            mm.userdata.flow_constrained_branch_idx = ibr;
 
             if nl2
                 %% limits
-                flow_max = dme.rate_a(il);  %% RATE_A
+                flow_max = dme.rate_a(ibr); %% RATE_A
 
                 %% branch flow constraints
-                [B, K, p] = obj.get_params(il);
+                [B, K, p] = obj.get_params(ibr);
                 Af = B * obj.C';
                 mm.add_lin_constraint('Pf', Af, -p-flow_max, -p+flow_max, ...
                     {nm.va.order(:).name});
@@ -55,7 +56,37 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
             [Aang, lang, uang, iang] = ...
                 dm.branch_angle_diff_constraint(mpopt.opf.ignore_angle_lim);
             mm.add_lin_constraint('ang', Aang, lang, uang, {'Va'});
-            mm.userdata.iang = iang;
+            mm.userdata.ang_diff_constrained_branch_idx = iang;
+        end
+
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% branch active power flow
+            k = nm.elm_map.branch;
+
+            i1 = nm.nme_port_map(k, 1);
+            iN = i1 + obj.nk - 1;
+            Pf = nm.soln.gp(i1:iN);
+            i1 = iN + 1;
+            iN = i1 + obj.nk - 1;
+            Pt = nm.soln.gp(i1:iN);
+
+            %% shadow prices on branch flow constraints
+            ibr = mm.userdata.flow_constrained_branch_idx;
+            muPf = zeros(obj.nk, 1);
+            muPt = muPf;
+            if length(ibr)
+                ll = mm.get_idx('lin');
+                lambda = mm.soln.lambda;
+                muPf(ibr) = lambda.mu_u(ll.i1.Pf:ll.iN.Pf);
+                muPt(ibr) = lambda.mu_l(ll.i1.Pf:ll.iN.Pf);
+            end
+
+            %% shadow prices on angle difference limits
+            [muAngmin, muAngmax] = obj.opf_branch_ang_diff_prices(mm);
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.update(dm, Pf, Pt, muPf, muPt, muAngmin, muAngmax);
         end
     end     %% methods
 end         %% classdef

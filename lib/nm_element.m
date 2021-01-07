@@ -223,5 +223,8 @@ classdef nm_element < handle
 
         function obj = opf_add_costs(obj, mm, nm, dm, mpopt)
         end
+
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+        end
     end     %% methods
 end         %% classdef

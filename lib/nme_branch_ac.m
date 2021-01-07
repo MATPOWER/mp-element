@@ -40,16 +40,17 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
         function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% find branches with flow limits
             dme = obj.data_model_element(dm);
-            il = find(dme.rate_a ~= 0 & dme.rate_a < 1e10);
-            nl2 = length(il);       %% number of constrained lines
+            ibr = find(dme.rate_a ~= 0 & dme.rate_a < 1e10);
+            nl2 = length(ibr);      %% number of constrained branches
+            mm.userdata.flow_constrained_branch_idx = ibr;
 
             if nl2
                 %% port indexes
                 nl = obj.nk;
-                idx = [il; nl+il];
+                idx = [ibr; nl+ibr];
 
                 %% limits
-                flow_max = dme.rate_a(il);  %% RATE_A
+                flow_max = dme.rate_a(ibr); %% RATE_A
 
                 %% branch flow constraints
                 lim_type = upper(mpopt.opf.flow_lim(1));
@@ -82,6 +83,43 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
             
                 mm.add_nln_constraint({'Sf', 'St'}, [nl2;nl2], 0, fcn_flow, hess_flow);
             end
+        end
+
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% branch active power flow
+            k = nm.elm_map.branch;
+
+            i1 = nm.nme_port_map(k, 1);
+            iN = i1 + obj.nk - 1;
+            Sf = nm.soln.gs_(i1:iN);
+            i1 = iN + 1;
+            iN = i1 + obj.nk - 1;
+            St = nm.soln.gs_(i1:iN);
+
+            %% shadow prices on branch flow constraints
+            ibr = mm.userdata.flow_constrained_branch_idx;
+            muSf = zeros(obj.nk, 1);
+            muSt = muSf;
+            if length(ibr)
+                lim_type = upper(mpopt.opf.flow_lim(1));
+                nni = mm.get_idx('nli');
+                lambda = mm.soln.lambda;
+                if lim_type == 'P'
+                    muSf(ibr) = lambda.ineqnonlin(nni.i1.Sf:nni.iN.Sf);
+                    muSt(ibr) = lambda.ineqnonlin(nni.i1.St:nni.iN.St);
+                else
+                    rate_a = obj.data_model_element(dm).rate_a(ibr);
+                    muSf(ibr) = 2 * lambda.ineqnonlin(nni.i1.Sf:nni.iN.Sf) .* rate_a;
+                    muSt(ibr) = 2 * lambda.ineqnonlin(nni.i1.St:nni.iN.St) .* rate_a;
+                end
+            end
+
+            %% shadow prices on angle difference limits
+            [muAngmin, muAngmax] = obj.opf_branch_ang_diff_prices(mm);
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.update(dm, Sf, St, muSf, muSt, muAngmin, muAngmax);
         end
     end     %% methods
 end         %% classdef

@@ -40,5 +40,21 @@ classdef nme_gen_dc < nme_gen & mp_form_dc
             %% call parent
             opf_add_constraints@nme_gen(obj, mm, nm, dm, mpopt);
         end
+
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% generator active power
+            ss = nm.get_idx('state');
+            Pg = nm.soln.z(ss.i1.gen:ss.iN.gen);
+
+            %% shadow prices on generator limits
+            vv = mm.get_idx();
+            lambda = mm.soln.lambda;
+            muPmax = lambda.upper(vv.i1.Pg:vv.iN.Pg);
+            muPmin = lambda.lower(vv.i1.Pg:vv.iN.Pg);
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.update(dm, Pg, muPmin, muPmax);
+        end
     end     %% methods
 end         %% classdef
