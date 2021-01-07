@@ -41,7 +41,7 @@ classdef mp_task < handle
     methods
         %%-----  task methods  -----
         function obj = run(obj, m, mpopt)
-            m = obj.run_pre(m, mpopt);
+            [m, mpopt] = obj.run_pre(m, mpopt);
 
             %% create models
             dm = obj.data_model_build(m, mpopt);
@@ -74,7 +74,7 @@ classdef mp_task < handle
             end
         end
 
-        function m = run_pre(obj, m, mpopt)
+        function [m, mpopt] = run_pre(obj, m, mpopt)
             if ~isa(m, 'mp_data')
                 m = loadcase(m);
 
