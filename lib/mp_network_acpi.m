@@ -141,5 +141,26 @@ classdef mp_network_acpi < mp_network_acp% & mp_form_acpi
                 obj.opf_convert_x(x), lam);
             mm.add_nln_constraint({'rImis', 'iImis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
+
+        function [lamP, lamQ] = opf_node_power_balance_prices(obj, mm)
+            %% shadow prices on node power balance
+            nne = mm.get_idx('nle');
+
+            %% convert current balance shadow prices to equivalent lamP and lamQ
+            %% P + jQ = (Vr + jVi) * (M - jN)
+            %% M = (Vr P + Vi Q) / (Vr^2 + Vi^2)
+            %% N = (Vi P - Vr Q) / (Vr^2 + Vi^2)
+            %% lamP = df/dP = df/dM * dM/dP + df/dN + dN/dP
+            %% lamQ = df/dQ = df/dM * dM/dQ + df/dN + dN/dQ
+            V = obj.soln.v;
+            lambda = mm.soln.lambda;
+            VV = V ./ (V .* conj(V));   %% V / Vm^2
+            VVr = real(VV);
+            VVi = imag(VV);
+            lamM = lambda.eqnonlin(nne.i1.rImis:nne.iN.rImis);
+            lamN = lambda.eqnonlin(nne.i1.iImis:nne.iN.iImis);
+            lamP = (VVr.*lamM + VVi.*lamN);
+            lamQ = (VVi.*lamM - VVr.*lamN);
+        end
     end     %% methods
 end         %% classdef

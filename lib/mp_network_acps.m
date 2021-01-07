@@ -289,5 +289,13 @@ classdef mp_network_acps < mp_network_acp% & mp_form_acps
                 obj.opf_convert_x(x), lam);
             mm.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
+
+        function [lamP, lamQ] = opf_node_power_balance_prices(obj, mm)
+            %% shadow prices on node power balance
+            nne = mm.get_idx('nle');
+            lambda = mm.soln.lambda;
+            lamP = lambda.eqnonlin(nne.i1.Pmis:nne.iN.Pmis);
+            lamQ = lambda.eqnonlin(nne.i1.Qmis:nne.iN.Qmis);
+        end
     end     %% methods
 end         %% classdef
