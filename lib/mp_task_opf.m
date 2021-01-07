@@ -66,8 +66,7 @@ classdef mp_task_opf < mp_task
         end
 
         function dm = data_model_update(obj, mm, nm, dm, mpopt)
-            %% e.g. update data model with network model solution
-            if mpopt.verbose, fprintf('-- %s data_model_update()\n', obj.tag); end
+            nm.opf_data_model_update(mm, nm, dm, mpopt);
         end
 
         %%-----  network model methods  -----

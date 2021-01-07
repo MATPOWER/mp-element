@@ -88,21 +88,21 @@ end
 if success
   if ~dc
     %% copy bus voltages back to gen matrix
-    results.gen(:, VG) = results.bus(results.gen(:, GEN_BUS), VM);
+%     results.gen(:, VG) = results.bus(results.gen(:, GEN_BUS), VM);
 
-    %% cartesian voltage magnitude multipliers
-    if vcart
-        results.bus(:, MU_VMIN) = results.bus(:, MU_VMIN) .* results.bus(:, VM) * 2;
-        results.bus(:, MU_VMAX) = results.bus(:, MU_VMAX) .* results.bus(:, VM) * 2;
-    end
+%     %% cartesian voltage magnitude multipliers
+%     if vcart
+%         results.bus(:, MU_VMIN) = results.bus(:, MU_VMIN) .* results.bus(:, VM) * 2;
+%         results.bus(:, MU_VMAX) = results.bus(:, MU_VMAX) .* results.bus(:, VM) * 2;
+%     end
 
-    %% gen PQ capability curve multipliers
-    if ll.N.PQh > 0 || ll.N.PQl > 0
-      mu_PQh = results.mu.lin.l(ll.i1.PQh:ll.iN.PQh) - results.mu.lin.u(ll.i1.PQh:ll.iN.PQh);
-      mu_PQl = results.mu.lin.l(ll.i1.PQl:ll.iN.PQl) - results.mu.lin.u(ll.i1.PQl:ll.iN.PQl);
-      Apqdata = om.get_userdata('Apqdata');
-      results.gen = update_mupq(results.baseMVA, results.gen, mu_PQh, mu_PQl, Apqdata);
-    end
+%     %% gen PQ capability curve multipliers
+%     if ll.N.PQh > 0 || ll.N.PQl > 0
+%       mu_PQh = results.mu.lin.l(ll.i1.PQh:ll.iN.PQh) - results.mu.lin.u(ll.i1.PQh:ll.iN.PQh);
+%       mu_PQl = results.mu.lin.l(ll.i1.PQl:ll.iN.PQl) - results.mu.lin.u(ll.i1.PQl:ll.iN.PQl);
+%       Apqdata = om.get_userdata('Apqdata');
+%       results.gen = update_mupq(results.baseMVA, results.gen, mu_PQh, mu_PQl, Apqdata);
+%     end
 
     %% compute g, dg, f, df, d2f if requested by opf.return_raw_der = 1
     if mpopt.opf.return_raw_der
@@ -131,19 +131,19 @@ if success
     rmfield(results, 'g');
   end
 
-  %% angle limit constraint multipliers
-  iang = om.get_userdata('iang');
-  if length(iang)
-    if vcart
-      iang = om.get_userdata('iang');
-      results.branch(iang, MU_ANGMIN) = results.mu.nli(nni.i1.angL:nni.iN.angL) * pi/180;
-      results.branch(iang, MU_ANGMAX) = results.mu.nli(nni.i1.angU:nni.iN.angU) * pi/180;
-    else
-      iang = om.get_userdata('iang');
-      results.branch(iang, MU_ANGMIN) = results.mu.lin.l(ll.i1.ang:ll.iN.ang) * pi/180;
-      results.branch(iang, MU_ANGMAX) = results.mu.lin.u(ll.i1.ang:ll.iN.ang) * pi/180;
-    end
-  end
+%   %% angle limit constraint multipliers
+%   iang = om.get_userdata('iang');
+%   if length(iang)
+%     if vcart
+%       iang = om.get_userdata('iang');
+%       results.branch(iang, MU_ANGMIN) = results.mu.nli(nni.i1.angL:nni.iN.angL) * pi/180;
+%       results.branch(iang, MU_ANGMAX) = results.mu.nli(nni.i1.angU:nni.iN.angU) * pi/180;
+%     else
+%       iang = om.get_userdata('iang');
+%       results.branch(iang, MU_ANGMIN) = results.mu.lin.l(ll.i1.ang:ll.iN.ang) * pi/180;
+%       results.branch(iang, MU_ANGMAX) = results.mu.lin.u(ll.i1.ang:ll.iN.ang) * pi/180;
+%     end
+%   end
 else
   %% assign empty g, dg, f, df, d2f if requested by opf.return_raw_der = 1
   if ~dc && mpopt.opf.return_raw_der
