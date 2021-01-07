@@ -17,7 +17,7 @@ classdef nme_branch_acp < nme_branch_ac & mp_form_acp
             [Aang, lang, uang, iang] = ...
                 dm.branch_angle_diff_constraint(mpopt.opf.ignore_angle_lim);
             mm.add_lin_constraint('ang', Aang, lang, uang, {'Va'});
-            mm.userdata.iang = iang;
+            mm.userdata.ang_diff_constrained_branch_idx = iang;
         end
     end     %% methods
 end         %% classdef

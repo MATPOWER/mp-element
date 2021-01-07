@@ -30,5 +30,18 @@ classdef nme_branch < nm_element
             obj.C = obj.incidence_matrix(nm.getN('node'), fidx, tidx);
             obj.D = obj.incidence_matrix(nm.getN('state'));
         end
+
+        function [muAngmin, muAngmax] = opf_branch_ang_diff_prices(obj, mm)
+            %% shadow prices on angle difference limits
+            iang = mm.userdata.ang_diff_constrained_branch_idx;
+            muAngmin = zeros(obj.nk, 1);
+            muAngmax = muAngmin;
+            if length(iang)
+                ll = mm.get_idx('lin');
+                lambda = mm.soln.lambda;
+                muAngmin(iang) = lambda.mu_l(ll.i1.ang:ll.iN.ang);
+                muAngmax(iang) = lambda.mu_u(ll.i1.ang:ll.iN.ang);
+            end
+        end
     end     %% methods
 end         %% classdef
