@@ -1,31 +1,6 @@
 function [results, success, raw] = opf_execute_mpe(opf, mpopt)
-%OPF_EXECUTE  Executes the OPF specified by an OPF model object.
-%   [RESULTS, SUCCESS, RAW] = OPF_EXECUTE(OM, MPOPT)
-%
-%   RESULTS are returned with internal indexing, all equipment
-%   in-service, etc.
-%
-%   See also OPF, OPF_SETUP.
-
-%   MATPOWER
-%   Copyright (c) 2009-2020, Power Systems Engineering Research Center (PSERC)
-%   by Ray Zimmerman, PSERC Cornell
-%
-%   This file is part of MATPOWER.
-%   Covered by the 3-clause BSD License (see LICENSE file for details).
-%   See https://matpower.org for more info.
 
 om = opf.mm;
-
-%% define named indices into data matrices
-[PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-    VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-[GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
-    MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
-    QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
-[F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
-    TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
-    ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
 %%-----  setup  -----
 %% options
@@ -87,22 +62,6 @@ end
 
 if success
   if ~dc
-    %% copy bus voltages back to gen matrix
-%     results.gen(:, VG) = results.bus(results.gen(:, GEN_BUS), VM);
-
-%     %% cartesian voltage magnitude multipliers
-%     if vcart
-%         results.bus(:, MU_VMIN) = results.bus(:, MU_VMIN) .* results.bus(:, VM) * 2;
-%         results.bus(:, MU_VMAX) = results.bus(:, MU_VMAX) .* results.bus(:, VM) * 2;
-%     end
-
-%     %% gen PQ capability curve multipliers
-%     if ll.N.PQh > 0 || ll.N.PQl > 0
-%       mu_PQh = results.mu.lin.l(ll.i1.PQh:ll.iN.PQh) - results.mu.lin.u(ll.i1.PQh:ll.iN.PQh);
-%       mu_PQl = results.mu.lin.l(ll.i1.PQl:ll.iN.PQl) - results.mu.lin.u(ll.i1.PQl:ll.iN.PQl);
-%       Apqdata = om.get_userdata('Apqdata');
-%       results.gen = update_mupq(results.baseMVA, results.gen, mu_PQh, mu_PQl, Apqdata);
-%     end
 
     %% compute g, dg, f, df, d2f if requested by opf.return_raw_der = 1
     if mpopt.opf.return_raw_der
@@ -130,20 +89,6 @@ if success
     rmfield(results, 'dg');
     rmfield(results, 'g');
   end
-
-%   %% angle limit constraint multipliers
-%   iang = om.get_userdata('iang');
-%   if length(iang)
-%     if vcart
-%       iang = om.get_userdata('iang');
-%       results.branch(iang, MU_ANGMIN) = results.mu.nli(nni.i1.angL:nni.iN.angL) * pi/180;
-%       results.branch(iang, MU_ANGMAX) = results.mu.nli(nni.i1.angU:nni.iN.angU) * pi/180;
-%     else
-%       iang = om.get_userdata('iang');
-%       results.branch(iang, MU_ANGMIN) = results.mu.lin.l(ll.i1.ang:ll.iN.ang) * pi/180;
-%       results.branch(iang, MU_ANGMAX) = results.mu.lin.u(ll.i1.ang:ll.iN.ang) * pi/180;
-%     end
-%   end
 else
   %% assign empty g, dg, f, df, d2f if requested by opf.return_raw_der = 1
   if ~dc && mpopt.opf.return_raw_der
