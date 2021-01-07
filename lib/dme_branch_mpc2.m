@@ -66,5 +66,31 @@ classdef dme_branch_mpc2 < dme_branch & dm_format_mpc2
             obj.shift  = branch(obj.on, SHIFT) * pi/180;
             obj.rate_a = branch(obj.on, RATE_A) / baseMVA;
         end
+
+        function obj = update(obj, dm, Sf, St, muSf, muSt, muAngmin, muAngmax)
+            %% obj.update(dm, Sf, St)
+            %% obj.update(dm, Sf, St, muSf, muSt)
+            %% obj.update(dm, Sf, St, muSf, muSt, muAngmin, muAngmax)
+
+            %% define named indices into data matrices
+            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
+                TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
+                ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
+            baseMVA = dm.mpc.baseMVA;
+ 
+            dm.mpc.branch(obj.on, PF) = real(Sf) * baseMVA;
+            dm.mpc.branch(obj.on, PT) = real(St) * baseMVA;
+            dm.mpc.branch(obj.on, QF) = imag(Sf) * baseMVA;
+            dm.mpc.branch(obj.on, QT) = imag(St) * baseMVA;
+
+            if nargin > 4
+                dm.mpc.branch(obj.on, MU_SF) = muSf / baseMVA;
+                dm.mpc.branch(obj.on, MU_ST) = muSt / baseMVA;
+                if nargin > 6
+                    dm.mpc.branch(obj.on, MU_ANGMIN) = muAngmin * pi/180;
+                    dm.mpc.branch(obj.on, MU_ANGMAX) = muAngmax * pi/180;
+                end
+            end
+        end
     end     %% methods
 end         %% classdef

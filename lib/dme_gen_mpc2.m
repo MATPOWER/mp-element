@@ -195,5 +195,43 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             %% this should give incorrect results if mpc is not in 
             [A, l, u] = makeAvl(mpc);
         end
+
+        function obj = update(obj, dm, Sg, Vg, muPmin, muPmax, muQmin, muQmax)
+            %% obj.update(dm, Sg)
+            %% obj.update(dm, Sg, Vg)
+            %% obj.update(dm, Pg, muPmin, muPmax)
+            %% obj.update(dm, Sg, Vg, muPmin, muPmax, muQmin, muQmax)
+
+            %% input arg handling
+            if nargin == 5
+                muPmax = muPmin;
+                muPmin = Vg;
+                Vg = [];
+            end
+
+            %% define named indices into data matrices
+            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
+                MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
+                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
+            baseMVA = dm.mpc.baseMVA;
+
+            dm.mpc.gen(obj.on, PG) = real(Sg) * baseMVA;
+            if ~isreal(Sg)
+                dm.mpc.gen(obj.on, QG) = imag(Sg) * baseMVA;
+            end
+
+            if nargin > 3 && ~isempty(Vg)
+                dm.mpc.gen(obj.on, VG) = Vg;
+            end
+
+            if nargin > 4
+                dm.mpc.gen(obj.on, MU_PMIN) = muPmin / baseMVA;
+                dm.mpc.gen(obj.on, MU_PMAX) = muPmax / baseMVA;
+                if nargin > 6
+                    dm.mpc.gen(obj.on, MU_QMIN) = muQmin / baseMVA;
+                    dm.mpc.gen(obj.on, MU_QMAX) = muQmax / baseMVA;
+                end
+            end
+        end
     end     %% methods
 end         %% classdef

@@ -103,5 +103,34 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             %% package up bus type vector
             btv = isref * REF + ispv * PV + ispq * PQ;
         end
+
+        function obj = update(obj, dm, Va, Vm, lamP, lamQ, muVmin, muVmax)
+            %% obj.update(dm, Va)
+            %% obj.update(dm, Va, Vm)
+            %% obj.update(dm, Va, [], lamP)
+            %% obj.update(dm, Va, Vm, lamP, lamQ, muVmin, muVmax)
+
+            %% define named indices into data matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+
+            if nargin < 4 || isempty(Vm)
+                Vm = 1;
+            end
+
+            dm.mpc.bus(obj.on, VA) = Va * 180/pi;
+            dm.mpc.bus(obj.on, VM) = Vm;
+            
+            if nargin > 4
+                dm.mpc.bus(obj.on, LAM_P) = lamP / dm.mpc.baseMVA;
+                if nargin > 5
+                    dm.mpc.bus(obj.on, LAM_Q) = lamQ / dm.mpc.baseMVA;
+                    if nargin > 6
+                        dm.mpc.bus(obj.on, MU_VMIN) = muVmin;
+                        dm.mpc.bus(obj.on, MU_VMAX) = muVmax;
+                    end
+                end
+            end
+        end
     end     %% methods
 end         %% classdef
