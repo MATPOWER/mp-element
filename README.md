@@ -43,19 +43,16 @@ of MATLAB or Octave, including setting up your MATLAB/Octave path.
 3.  At the MATLAB/Octave prompt, type `test_mp_element` to run the test
     suite and verify that MP-Element is properly installed and functioning.
     The result should resemble the following:
-```matlab
+```
   >> test_mp_element
-  t_nm_element..................ok
-  t_acp_port_inj_current........ok
-  t_acp_port_inj_power..........ok
-  t_acc_port_inj_current........ok
-  t_acc_port_inj_power..........ok
-  t_acp_nln_port_inj_current....ok
-  t_acp_nln_port_inj_power......ok
-  t_acc_nln_port_inj_current....ok
-  t_acc_nln_port_inj_power......ok
-  All tests successful (1131 of 1131)
-  Elapsed time 1.81 seconds.
+  t_mp_data_mpc2............ok
+  t_nm_element..............ok
+  t_port_inj_current_acc....ok
+  t_port_inj_current_acp....ok
+  t_port_inj_power_acc......ok
+  t_port_inj_power_acp......ok
+  All tests successful (1329 of 1329)
+  Elapsed time 1.41 seconds.
 ```
 
 
