@@ -406,6 +406,13 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             obj.pf_add_node_balance_constraints(mm, dm, mpopt);
         end
 
+        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% each element updates its data model
+            for nme = obj.elm_list
+                nme{1}.pf_data_model_update(mm, nm, dm, mpopt);
+            end
+        end
+
         opt = pf_solve_opts(obj, mm, dm, mpopt)
 
 

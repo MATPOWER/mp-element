@@ -40,7 +40,7 @@ classdef mp_task_pf < mp_task
 
         %%-----  data model methods  -----
         function dm = data_model_update(obj, mm, nm, dm, mpopt)
-%             nm.pf_data_model_update(mm, nm, dm, mpopt);
+            nm.pf_data_model_update(mm, nm, dm, mpopt);
         end
 
         %%-----  network model methods  -----

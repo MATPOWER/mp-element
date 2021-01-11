@@ -25,6 +25,18 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
             obj.N = -speye(ng);
         end
 
+        %%-----  PF methods  -----
+        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% generator active power
+            ss = nm.get_idx('state');
+            Sg = nm.soln.z(ss.i1.gen:ss.iN.gen);
+            Vg = abs(obj.C' * nm.soln.v);
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.update(dm, Sg, Vg);
+        end
+
         %%-----  OPF methods  -----
         function opf_build_gen_cost_params(obj, dm)
             dme = obj.data_model_element(dm);

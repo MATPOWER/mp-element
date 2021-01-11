@@ -28,6 +28,18 @@ classdef nme_bus_acp < nme_bus & mp_form_acp
             nm.add_var('vm', 'Vm', nb, dme.Vm0, dme.Vmin, dme.Vmax);
         end
 
+        %%-----  PF methods  -----
+        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% complex bus voltages
+            nn = nm.get_idx('node');
+            V = nm.soln.v(nn.i1.bus:nn.iN.bus);
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.update(dm, angle(V), abs(V));
+        end
+
+        %%-----  OPF methods  -----
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% complex bus voltages
             nn = nm.get_idx('node');

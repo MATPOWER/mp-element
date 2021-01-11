@@ -34,6 +34,19 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
             obj.p = [Pfinj; -Pfinj];
         end
 
+        %%-----  PF methods  -----
+        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% branch active power flow
+            pp = nm.get_idx('port');
+            Pf = nm.soln.gp(pp.i1.branch(1):pp.iN.branch(1));
+            Pt = nm.soln.gp(pp.i1.branch(2):pp.iN.branch(2));
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.update(dm, Pf, Pt);
+        end
+
+        %%-----  OPF methods  -----
         function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% find branches with flow limits
             dme = obj.data_model_element(dm);

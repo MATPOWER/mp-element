@@ -213,6 +213,9 @@ classdef nm_element < handle
 %         function obj = pf_add_constraints(obj, mm, nm, ad, dm, mpopt)
 %         end
 
+        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+        end
+
 
         %%-----  OPF methods  -----
         function obj = opf_add_vars(obj, mm, nm, dm, mpopt)

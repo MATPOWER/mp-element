@@ -27,6 +27,18 @@ classdef nme_bus_dc < nme_bus & mp_form_dc
             nm.add_var('va', 'Va', nb, dme.Va0, Vamin, Vamax);
         end
 
+        %%-----  PF methods  -----
+        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% bus voltage angles
+            nn = nm.get_idx('node');
+            Va = nm.soln.v(nn.i1.bus:nn.iN.bus);
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.update(dm, Va);
+        end
+
+        %%-----  OPF methods  -----
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% bus voltage angles
             nn = nm.get_idx('node');

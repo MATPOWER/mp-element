@@ -26,6 +26,18 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
             nm.add_var('vi', 'Vi', nb, imag(v0), -vclim, vclim);
         end
 
+        %%-----  PF methods  -----
+        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% complex bus voltages
+            nn = nm.get_idx('node');
+            V = nm.soln.v(nn.i1.bus:nn.iN.bus);
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.update(dm, angle(V), abs(V));
+        end
+
+        %%-----  OPF methods  -----
         function [g, dg] = va_fcn(obj, xx, idx, lim)
             %% lim can be a scalar value for equality constraint or
             %% upper bound on va, or a cell array with {vamin, vamax}
