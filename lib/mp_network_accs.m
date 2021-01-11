@@ -1,4 +1,4 @@
-classdef mp_network_accs < mp_network_acc% & mp_form_accs
+classdef mp_network_accs < mp_network_acc & mp_form_accs
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

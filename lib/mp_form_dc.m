@@ -1,5 +1,5 @@
 classdef mp_form_dc < mp_form
-%MP_FORM_DC  MATPOWER Formulation base class for DC formulations.
+%MP_FORM_DC  MATPOWER Formulation base class for DC formulations
 %   Each concrete Network Model Element class must inherit, at least
 %   indirectly, from both NM_ELEMENT and MP_FORM.
 %
@@ -42,7 +42,7 @@ classdef mp_form_dc < mp_form
 
     methods
         function name = form_name(obj)
-            name = 'DC formulation';
+            name = 'DC';
         end
         function tag = form_tag(obj)
             tag = 'dc';
