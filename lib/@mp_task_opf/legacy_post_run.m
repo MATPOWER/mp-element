@@ -1,4 +1,4 @@
-function [results, success, raw] = opf_execute_mpe(opf, mpopt)
+function [results, success, raw] = legacy_post_run(opf, mpopt)
 
 %% unpack data
 mm = opf.mm;
