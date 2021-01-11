@@ -36,6 +36,7 @@ classdef mp_task < handle
         tag     %% task tag - e.g. 'PF', 'CPF', 'OPF'
         name    %% task name - e.g. 'Power Flow', etc.
         success %% success flag, 1 - math model solved, 0 - didn't solve
+        message %% output message
     end
 
     methods
@@ -62,6 +63,11 @@ classdef mp_task < handle
                 %% solve mathematical model
                 mm.solve(mm_opt);
                 obj.success = (mm.soln.eflag > 0);
+                if obj.success
+                    obj.message = sprintf('%s successful', obj.tag);
+                else
+                    obj.message = sprintf('%s failed', obj.tag);
+                end
 
                 %% update network model with math model solution
                 nm = obj.network_model_update(mm, nm);
@@ -71,10 +77,10 @@ classdef mp_task < handle
                 dm = obj.data_model_update_post(mm, nm, dm, mpopt);
             else                %% model IS empty
                 obj.success = 0;
-                raw.output.message = 'MATPOWER model contains no connected buses';
-                if mpopt.verbose
-                    fprintf('OPF not valid : %s\n', raw.output.message);
-                end
+                obj.message = sprintf('%s not valid : MATPOWER model contains no connected buses', obj.tag);
+            end
+            if mpopt.verbose
+                fprintf('%s\n', obj.message);
             end
         end
 
