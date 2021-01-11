@@ -37,13 +37,24 @@ classdef mp_task_opf < mp_task
             %% cache DC model flag
             obj.dc = strcmp(upper(mpopt.model), 'DC');
 
+            %% check for unsupported AC OPF solver selection
             if ~obj.dc
                 alg = upper(mpopt.opf.ac.solver);
-
-                %% check for unsupported solver selection
-                if strcmp(alg, 'MINOPF') || strcmp(alg, 'PDIPM') || ...
-                        strcmp(alg, 'TRALM') || strcmp(alg, 'SDPOPF')
-                    error('mp_task_opf/run_pre: Option ''opf.solver.ac''=''%s'' not supported.', alg);
+                switch alg
+                    case 'IPOPT'
+                        if ~have_feature('ipopt')
+                            error('mp_task_opf/run_pre: MPOPT.opf.ac.solver = ''%s'' requires IPOPT (see https://github.com/coin-or/Ipopt)', alg);
+                        end
+                    case 'FMINCON'
+                        if ~have_feature('fmincon')
+                            error('mp_task_opf/run_pre: MPOPT.opf.ac.solver = ''%s'' requires FMINCON (Optimization Toolbox 2.x or later)', alg);
+                        end
+                    case 'KNITRO'
+                        if ~have_feature('knitro')
+                            error('mp_task_opf/run_pre: MPOPT.opf.ac.solver = ''%s'' requires Artelys Knitro (see https://www.artelys.com/solvers/knitro/)', alg);
+                        end
+                    case {'MINOPF', 'PDIPM', 'TRALM', 'SDPOPF'}
+                        error('mp_task_opf/run_pre: MPOPT.opf.ac.solver = ''%s'' not supported.', alg);
                 end
             end
         end
