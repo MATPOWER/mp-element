@@ -17,17 +17,7 @@ vcart = ~dc && mpopt.opf.v_cartesian;
 %% problem dimensions
 ny = mm.getN('var', 'y');   %% number of piece-wise linear costs
 
-if mpopt.verbose > 0
-    v = mpver('all');
-    fprintf('\nMATPOWER Version %s, %s', v.Version, v.Date);
-end
-
 if dc
-    %%-----  run DC OPF solver  -----
-    if mpopt.verbose > 0
-        fprintf(' -- DC Optimal Power Flow\n');
-    end
-
     mu = struct( ...
       'var', struct('l', lambda.lower, 'u', lambda.upper), ...
       'lin', struct('l', lambda.mu_l, 'u', lambda.mu_u) );
@@ -38,22 +28,6 @@ if dc
       mu.var.l - mu.var.u;
     ];
 else
-    %%-----  run AC OPF solver  -----
-    if mpopt.verbose > 0
-        fprintf(' -- AC Optimal Power Flow\n  AC OPF formulation: ');
-        if vcart
-            v = 'cartesian';
-        else
-            v = 'polar';
-        end
-        if mpopt.opf.current_balance
-            v2 = 'current';
-        else
-            v2 = 'power';
-        end
-        fprintf('%s voltages, %s balance eqns\n', v, v2);
-    end
-
     %% run specific AC OPF solver
     switch alg
         case 'IPOPT'

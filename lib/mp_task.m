@@ -48,14 +48,18 @@ classdef mp_task < handle
             nm = obj.network_model_build(dm, mpopt);
             mm = obj.math_model_build(nm, dm, mpopt);
 
+            %% print initial output
+            if mpopt.verbose
+                v = mpver('all');
+                fprintf('\nMATPOWER Version %s, %s\n', v.Version, v.Date);
+                fprintf('%s -- %s formulation\n', obj.name, nm.form_name());
+            end
+
             if mm.getN('var')   %% model is NOT empty
                 %% get solve options
                 mm_opt = obj.math_model_opt(mm, nm, dm, mpopt);
 
                 %% solve mathematical model
-                if obj.mm_opt.verbose
-                    fprintf('-----  SOLVE %s  -----\n', obj.tag);
-                end
                 mm.solve(mm_opt);
                 obj.success = (mm.soln.eflag > 0);
 

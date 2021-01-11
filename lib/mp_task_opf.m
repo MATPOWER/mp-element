@@ -17,9 +17,9 @@ classdef mp_task_opf < mp_task
 %   See https://matpower.org for more info.
 
     properties
-        dc      %% true if DC network model (cached, from mpopt)
+        dc      %% true if DC network model (cached in run_pre(), from mpopt)
     end
-    
+
     methods
         %%-----  constructor  -----
         function obj = mp_task_opf()
@@ -34,7 +34,7 @@ classdef mp_task_opf < mp_task
         function [m, mpopt] = run_pre(obj, m, mpopt)
             [m, mpopt] = run_pre@mp_task(obj, m, mpopt);     %% call parent
 
-            %% cache some flags
+            %% cache DC model flag
             obj.dc = strcmp(upper(mpopt.model), 'DC');
 
             if ~obj.dc

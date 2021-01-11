@@ -16,9 +16,10 @@ classdef mp_task_pf < mp_task
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%     properties
-%     end
-    
+    properties
+        dc      %% true if DC network model (cached in run_pre(), from mpopt)
+    end
+
     methods
         %%-----  constructor  -----
         function obj = mp_task_pf()
@@ -29,10 +30,17 @@ classdef mp_task_pf < mp_task
             obj.name = 'Power Flow';
         end
 
+        %%-----  task methods  -----
+        function [m, mpopt] = run_pre(obj, m, mpopt)
+            [m, mpopt] = run_pre@mp_task(obj, m, mpopt);     %% call parent
+
+            %% cache DC model flag
+            obj.dc = strcmp(upper(mpopt.model), 'DC');
+        end
+
         %%-----  data model methods  -----
         function dm = data_model_update(obj, mm, nm, dm, mpopt)
-            %% e.g. update data model with network model solution
-            if mpopt.verbose, fprintf('-- %s data_model_update()\n', obj.tag); end
+%             nm.pf_data_model_update(mm, nm, dm, mpopt);
         end
 
         %%-----  network model methods  -----
