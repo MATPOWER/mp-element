@@ -61,14 +61,9 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
 
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% branch active power flow
-            k = nm.elm_map.branch;
-
-            i1 = nm.nme_port_map(k, 1);
-            iN = i1 + obj.nk - 1;
-            Pf = nm.soln.gp(i1:iN);
-            i1 = iN + 1;
-            iN = i1 + obj.nk - 1;
-            Pt = nm.soln.gp(i1:iN);
+            pp = nm.get_idx('port');
+            Pf = nm.soln.gp(pp.i1.branch(1):pp.iN.branch(1));
+            Pt = nm.soln.gp(pp.i1.branch(2):pp.iN.branch(2));
 
             %% shadow prices on branch flow constraints
             ibr = mm.userdata.flow_constrained_branch_idx;

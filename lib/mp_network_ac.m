@@ -97,14 +97,15 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             gzi = sparse(np, nz);
 
             %% loop through elements w/gen nonlin fcns, evaluate them
+            pp = obj.get_idx('port');
             if ~sysx
                 ss = obj.get_idx('state');
             end
             for kk = obj.(fcn_list)
                 k = kk{1};      %% index into obj.elm_list
                 nme = obj.elm_list{k};
-                i1 = obj.nme_port_map(k, 1);    %% starting aggregate port index
-                iN = obj.nme_port_map(k, 2);    %% ending aggregate port index
+                i1 = pp.i1.(nme.name)(1);
+                iN = pp.iN.(nme.name)(end);
 
                 %% set up port index vector for nme
                 if sel
@@ -199,14 +200,15 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             H = sparse(n, n);
 
             %% loop through elements w/gen nonlin Hessians, evaluate them
+            pp = obj.get_idx('port');
             if ~sysx
                 ss = obj.get_idx('state');
             end
             for kk = obj.(fcn_list)
                 k = kk{1};      %% index into obj.elm_list
                 nme = obj.elm_list{k};
-                i1 = obj.nme_port_map(k, 1);    %% starting aggregate port index
-                iN = obj.nme_port_map(k, 2);    %% ending aggregate port index
+                i1 = pp.i1.(nme.name)(1);
+                iN = pp.iN.(nme.name)(end);
 
                 %% set up x_ for nme & corresp row/col indices for nme
                 if sysx

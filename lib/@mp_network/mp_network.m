@@ -12,9 +12,9 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 %   See https://matpower.org for more info.
 
     properties
-        nme_port_map = [];      %% nme_port_map(k, 1:2), indices of 1st & last port for element k
         nv = 0;                 %% total number of (real) v variables
         node = [];
+        port = [];
         state = [];
     end
     
@@ -98,17 +98,21 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %% each element builds parameters, aggregate incidence matrices
             C = {};
             D = {};
-            %% initialize nme_port_map
-            obj.nme_port_map = zeros(length(obj.elm_list), 2);
-            pk = 1;     %% port counter
             for k = 1:length(obj.elm_list)
                 nme = obj.elm_list{k};
-                obj.nme_port_map(k, 1) = pk;        %% starting port index
                 nme.build_params(obj, dm);
                 C = horzcat(C, {nme.C});
                 D = horzcat(D, {nme.D});
-                pk = pk + nme.np * nme.nk;          %% increment port counter
-                obj.nme_port_map(k, 2) = pk - 1;    %% ending port index
+
+                %% add ports (to track indexing of all network ports)
+                if nme.np > 1
+                    obj.init_indexed_name('port', nme.name, {nme.np});
+                    for p = 1:nme.np
+                        obj.add_port(nme.name, {p}, nme.nk);
+                    end
+                elseif nme.np
+                    obj.add_port(nme.name, nme.nk);
+                end
             end
             obj.C = horzcat(C{:});
             obj.D = horzcat(D{:});
@@ -186,7 +190,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         function obj = def_set_types(obj)
             obj.set_types = struct(...
                     'node', 'NODES', ...
-                    'state', 'STATES' ...
+                    'state', 'STATES', ...
+                    'port', 'PORTS' ...
                 );
         end
 
@@ -218,6 +223,18 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
             %% add the named node set
             obj.add_named_set('node', name, idx, N);
+        end
+
+        function add_port(obj, name, idx, N)
+            %   obj.add_port(name, N)
+            %   obj.add_port(name, idx_list, N)
+            if ~iscell(idx)
+                N = idx;
+                idx = {};
+            end
+
+            %% add the named state set
+            obj.add_named_set('port', name, idx, N);
         end
 
         function add_state(obj, name, idx, N)
