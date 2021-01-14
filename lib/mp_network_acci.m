@@ -20,20 +20,16 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
             ad = pf_aux_data@mp_network_ac(obj, dm, mpopt);
 
             %% build additional aux data
-            g = obj.elm_by_name('gen');
-            i1 = obj.get_idx('state').i1.gen;       %% first z-idx for gens
-            N = g.C(ad.pv, :) * g.N;%% z coefficients for all gens @ PV nodes
-            [ii, jj, ss] = find(N); %% deconstruct and recreate with
-            [~, ia] = unique(ii);   %% only 1st non-zero in each row
-            N = sparse(ii(ia), jj(ia), ss(ia), ad.npv, size(N, 2));
-            j = find(any(N, 1));    %% indices of PV node gen z-vars (in gen z)
-            k = j + i1 - 1;         %% indices of PV node gen z-vars (in sys z)
-            N = N(:,j) * g.D(k,j)'; %% coefficients for zi(k)
+            N = obj.C(ad.pv, :) * obj.N;%% z coefficients for z @ PV nodes
+            [ii, jj, ss] = find(N);     %% deconstruct and recreate with
+            [~, ia] = unique(ii, 'first');  %% only 1st non-zero in each row
+            N = sparse(ii(ia), jj(ia), ss(ia), ad.npv, size(N, 2)) * obj.D';
+            k = find(any(N, 1));        %% indices of PV node z-vars
 
             %% save additional aux data
-            ad.N = N;               %% coefficients for zi(k) corrsp to PV node gens
-            ad.invN = inv(N);       %% inverse of N, typically equal to N = -eye()
-            ad.k = k;               %% indices of PV node gen z-vars (in sys z)
+            ad.N = N(:,k);          %% coefficients for zi(k) corrsp to PV nodes
+            ad.invN = inv(ad.N);    %% inverse of N, typically equal to N = -eye()
+            ad.k = k;               %% indices of PV node z-vars
         end
 
         function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
