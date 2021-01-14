@@ -129,6 +129,40 @@ classdef mp_network_dc < mp_network & mp_form_dc
             end
         end
 
+        function z = pf_update_z(obj, x, z, ad)
+            %% update/allocate slack node active power injections
+            
+            %% coefficient matrix for power injection states at slack bus
+            CC = obj.C(ad.ref, :) * obj.get_params([], 'K') * obj.D';
+            jr = find(any(CC, 1));  %% indices of corresponding states
+
+            %% power injections at slack nodes
+            idx = find(any(obj.C(ad.ref, :), 1));  %% ports connected to slack nodes
+            Pref = obj.C(ad.ref, idx) * obj.port_inj_power([x; z], 1, idx);
+
+            %% allocate active power at slack nodes to 1st direct inj state
+            %% find all z (except first one) with direct injection at each
+            %% slack node
+            [i, j] = find(CC);
+            if size(i, 2) > 1, i = i'; j = j'; end
+            ij = sortrows([i j]);       %% 1st state comes 1st for each node
+            [~, k1] = unique(ij(:, 1), 'first');%% index of 1st entry for each node
+            %% all included states that are not 1st at their node
+            jn = unique(ij(~ismember(1:length(i), k1), 2));
+
+            %% if we have extra states (more than 1) for any node(s)
+            if ~isempty(jn)
+                %% augment update equation CC * (z - zprev) = -Pref with
+                %% additional rows to force these states to remain fixed
+                I = speye(obj.nz);
+                CC = [CC; I(jn, :)];
+                Pref = [Pref; zeros(length(jn), 1)];
+            end
+
+            %% update z for active injections at slack nodes
+            z(jr) = z(jr) - CC(:, jr) \ Pref;
+        end
+
         function obj = pf_add_node_balance_constraints(obj, mm, dm, mpopt)
             ad = mm.get_userdata('aux_data');
             pvq = [ad.pv; ad.pq];

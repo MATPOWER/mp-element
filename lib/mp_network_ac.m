@@ -369,6 +369,141 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             opt.verbose = mpopt.verbose;
         end
 
+        function z_ = pf_update_z(obj, x_, z_, ad)
+            %% update/allocate slack node active power injections
+            %% and slack/PV node reactive power injections
+
+            %% coefficient matrix for power injection states
+            CC = obj.C * obj.get_params([], 'N') * obj.D';
+
+            %% compute power injection at slack/PV nodes
+            rpv = [ad.ref; ad.pv];      %% slack and PV nodes
+            idx = find(any(obj.C(rpv, :), 1));  %% ports connected to slack/PV nodes
+            Sinj = obj.port_inj_power([x_; z_], 1, idx);
+            Sref = obj.C(ad.ref, idx) * Sinj;
+            Spv  = obj.C(ad.pv,  idx) * Sinj;
+
+            %%-----  active power at slack nodes  -----
+            %% coefficient matrix for power injection states for slack nodes
+            CCref = CC(ad.ref, :);
+            jr = find(any(CCref, 1));   %% indices of corresponding states
+
+            %% active power injections at slack nodes
+            Pref = real(Sref);
+
+            %% allocate active power at slack nodes to 1st direct inj state
+            %% find all z (except first one) with direct injection at each
+            %% slack node
+            [i, j] = find(CCref);
+            if size(i, 2) > 1, i = i'; j = j'; end
+            ij = sortrows([i j]);       %% 1st state comes 1st for each node
+            [~, k1] = unique(ij(:, 1), 'first');%% index of 1st entry for each node
+            %% all included states that are not 1st at their node
+            jn = unique(ij(~ismember(1:length(i), k1), 2));
+
+            %% if we have extra states (more than 1) for any node(s)
+            if ~isempty(jn)
+                %% augment update equation CC * (z - zprev) = -Pref with
+                %% additional rows to force these states to remain fixed
+                I = speye(obj.nz);
+                CCref = [CCref; I(jn, :)];
+                Pref = [Pref; zeros(length(jn), 1)];
+            end
+
+            %% update z for active injections at slack nodes
+            z_(jr) = z_(jr) - CCref(:, jr) \ Pref;
+
+            %%-----  reactive power at slack/PV nodes  -----
+            %% coefficient matrix for power injection states for slack/PV nodes
+            CCrpv = CC(rpv, :);
+            jrpv = find(any(CCrpv, 1));
+            Qrpv = imag([Sref; Spv]) - CCrpv * imag(z_);
+
+            %% find all z with direct injection at each slack/PV node
+            [i, j] = find(CCrpv);
+            if size(i, 2) > 1, i = i'; j = j'; end
+            ij = sortrows([i j]);       %% 1st state comes 1st for each node
+            [~, k1] = unique(ij(:, 1), 'first');%% index of 1st entry for each node
+            % j1 = ij(k1, 2);     %% indices of states that are 1st at their node
+            kn = find(~ismember(1:length(i), k1));  %% indices of entries that are not first state for corresponding node
+            %% all included states that are not 1st at their node
+            jn = unique(ij(kn, 2));
+            in = unique(ij(kn, 1));     %% nodes with multiple states
+
+            %% if we have extra states (more than 1) for some node(s)
+            if ~isempty(jn)
+                %% find ranges for relevant state vars to allocate reactive
+                %% power proportional to ranges
+                [~, mn, mx] = obj.params_var('zi');
+
+                %% This code is currently not designed to handle injections
+                %% from states that affect more than a single node, so we
+                %% throw an error if we find such a case
+                if any(sum(CCrpv ~= 0) > 1)
+                    k = find(sum(CCrpv ~= 0) > 1);
+                    error('mp_network_ac/pf_update_z: unable to distribute reactive power due to z var %d affecting multiple nodes.', k(1));
+                end
+
+                %% define a numerical proxy to replace +/- Inf limits
+                %% start by setting M equal to average injection at node
+                %% CCrpv' * Qrpv is total Qrpv at each corresponding state
+                %% CCrpv' * sum(CCrpv, 2) is the number of injections at node
+                M = abs((CCrpv' * Qrpv) ./ (CCrpv' * sum(CCrpv, 2)));
+                %% add abs value of upper and lower bound to avg nodal injection
+                M(~isinf(mx)) = M(~isinf(mx)) + abs(mx(~isinf(mx)));
+                M(~isinf(mn)) = M(~isinf(mn)) + abs(mn(~isinf(mn)));
+                %% set M for each state to sum over all states at same node
+                M = CC' * CC * M;
+                %% replace +/- Inf limits with proxy +/- M
+                mn(mn ==  Inf) =  M(mn ==  Inf);
+                mn(mn == -Inf) = -M(mn == -Inf);
+                mx(mx ==  Inf) =  M(mx ==  Inf);
+                mx(mx == -Inf) = -M(mx == -Inf);
+
+                %% find indices of states with largest range at its node
+                r = mx - mn;    %% size of range for each state
+                [rmax, j] = max(-CCrpv * spdiags(r, 0, obj.nz, obj.nz), [], 2);
+
+                %% set ranges to 1 for states at nodes where all ranges are 0
+                %% (results in equal limit violations)
+                %% find nodes where all corresponding ranges are zero
+                i0 = find(abs(rmax) < 10*eps);
+                if ~isempty(i0)
+                    rmax(i0) = 1;           %% set these ranges to one
+                    j0 = find(any(CCrpv(i0, :), 1));    %% corresponding states
+                    r(j0) = -CCrpv(i0, j0)' * rmax(i0); %% apply to all states at same node
+                end
+
+                %% augment update equation ...
+                %%  CCrpv * (z - zprev + 1j * imag(zprev)) = -1j * Qrpv
+                %% with additional rows to force these states to allocate in
+                %% proportion to min-max range, i.e. all states k at node have
+                %%  q_k = -qmin_k - r_k * lam, where lam is same for all k at node
+                %% we solve for lam using eqn with largest r_k, then
+                %% substitute in other equations to get the set of constraints
+                %% to add
+                R = sparse(obj.nz, obj.nz);
+                b = zeros(obj.nz, 1);
+                jn = [];    %% initialize list of states that do not have max range at their node
+                for i = 1:length(in)    %% for all nodes with multiple states
+                    ii = in(i);         %% node ii, with multiple states
+                    jj = ij(ij(:, 1) == ii, 2); %% states at node ii
+                    rr = r(jj) / r(j(ii));  %% range of each z / max z range
+                    R(jj, j(ii)) = rr;  %% rows for states @ node ii, col of state w/max range
+                    b(jj) = b(jj) + rr * mn(j(ii)) - mn(jj);
+                    jj(jj == j(ii)) = [];
+                    jn = [jn; jj];  %% add states at node i that do not have max range
+                end
+                A = speye(obj.nz) - R;
+                Qrpv = [Qrpv; b(jn)];
+                CCrpv = [CCrpv; A(jn, :)];
+            end
+
+            %% update z for reactive injections at slack/PV nodes
+            z0 = z_(jrpv);
+            z_(jrpv) = z0 - 1j * (CCrpv(:, jrpv) \ Qrpv + imag(z0));
+        end
+
 
         %%-----  OPF methods  -----
         function [g, dg] = opf_current_balance_fcn(obj, x_)
