@@ -556,7 +556,11 @@ mpc.gen(:, QG) = [0.2570733353840 0.0079004398259 -0.1749046999314].' * mpc.base
 pf = mp_task_pf();
 mpopt.exp.network_model_class = @mp_network_acps_test;
 dm = mp_data_mpc2(mpc, @dme_gizmo_mpc2);
+warn_id = 'pf_update_z:multiple_nodes';
+s1 = warning('query', warn_id);
+warning('off', warn_id);
 success = pf.run(dm, mpopt);
+warning(s1.state, warn_id);
 v_ = pf.nm.soln.v;
 success = pf.mm.soln.eflag > 0;
 i = pf.mm.soln.output.iterations;

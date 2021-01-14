@@ -67,12 +67,23 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             end
         end
 
-        function [vx_, z_, x_] = pf_convert_x(obj, mmx, ad)
+        function [vx_, z_, x_] = pf_convert_x(obj, mmx, ad, only_v)
+            %% x = obj.pf_convert(mmx, ad)
+            %% [v, z] = obj.pf_convert(mmx, ad)
+            %% [v, z, x] = obj.pf_convert(mmx, ad)
+            %% ... = obj.pf_convert(mmx, ad, only_v)
+
             %% update v_, z_ from mmx
             ad.v1([ad.pv; ad.pq]) = mmx(1:ad.npv+ad.npq);                   %% va
             ad.v2(ad.pq)          = mmx(ad.npv+ad.npq+1:ad.npv+2*ad.npq);   %% vm
             vx_ = ad.v2 .* exp(1j * ad.v1);
             z_ = ad.zr + 1j * ad.zi;
+
+            %% update z, if requested
+            if nargin < 4 || ~only_v
+                z_ = obj.pf_update_z(vx_, z_, ad);
+            end
+
             if nargout < 2
                 vx_ = [vx_; z_];
             elseif nargout > 2
@@ -85,7 +96,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             pvq = [ad.pv; ad.pq];
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = obj.pf_convert_x(x, ad);
+            [v_, z_] = obj.pf_convert_x(x, ad, 1);
 
             %% incidence matrix
             C = obj.C;
@@ -156,7 +167,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             ad = mm.get_userdata('aux_data');
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = obj.pf_convert_x(x, ad);
+            [v_, z_] = obj.pf_convert_x(x, ad, 1);
 
             [pv, pq, npv, npq, Y] = deal(ad.pv, ad.pq, ad.npv, ad.npq, ad.Y);
             
@@ -192,7 +203,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             ad = mm.get_userdata('aux_data');
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = obj.pf_convert_x(x, ad);
+            [v_, z_] = obj.pf_convert_x(x, ad, 1);
 
             [pv, pq, ref, npv, npq] = deal(ad.pv, ad.pq, ad.ref, ad.npv, ad.npq);
             pvq = [pv; pq];

@@ -117,11 +117,23 @@ classdef mp_network_dc < mp_network & mp_form_dc
             end
         end
 
-        function [vx, z, x] = pf_convert_x(obj, mmx, ad)
+        function [vx, z, x] = pf_convert_x(obj, mmx, ad, only_v)
+            %% x = obj.pf_convert(mmx, ad)
+            %% [v, z] = obj.pf_convert(mmx, ad)
+            %% [v, z, x] = obj.pf_convert(mmx, ad)
+            %% ... = obj.pf_convert(mmx, ad, only_v)
+
             %% update v_, z_ from mmx
             vx = ad.va;
             vx([ad.pv; ad.pq]) = mmx(1:ad.npv+ad.npq);      %% va
             z = ad.z;
+
+            %% update z, if requested
+            if nargin < 4 || ~only_v
+                z = obj.pf_update_z(vx, z, ad);
+            end
+
+            %% prepare return values
             if nargout < 2
                 vx = [vx; z];
             elseif nargout > 2

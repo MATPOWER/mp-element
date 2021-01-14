@@ -76,7 +76,12 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
             end
         end
 
-        function [vx_, z_, x_] = pf_convert_x(obj, mmx, ad)
+        function [vx_, z_, x_] = pf_convert_x(obj, mmx, ad, only_v)
+            %% x = obj.pf_convert(mmx, ad)
+            %% [v, z] = obj.pf_convert(mmx, ad)
+            %% [v, z, x] = obj.pf_convert(mmx, ad)
+            %% ... = obj.pf_convert(mmx, ad, only_v)
+
             %% update v_, z_ from mmx
             pqv = [ad.pq; ad.pv];
             iN = ad.npv;                            Qg_pv   = mmx(1:iN);    %% Qg_pv
@@ -85,6 +90,12 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
             vx_ = ad.v1 + 1j * ad.v2;
             ad.zi(ad.k) = -ad.N \ Qg_pv;
             z_ = ad.zr + 1j * ad.zi;
+
+            %% update z, if requested
+            if nargin < 4 || ~only_v
+                z_ = obj.pf_update_z(vx_, z_, ad);
+            end
+
             if nargout < 2
                 vx_ = [vx_; z_];
             elseif nargout > 2
@@ -98,7 +109,7 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
             pqv = [ad.pq; ad.pv];
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = obj.pf_convert_x(x, ad);
+            [v_, z_] = obj.pf_convert_x(x, ad, 1);
 
             %% incidence matrix
             C = obj.C;

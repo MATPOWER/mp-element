@@ -441,7 +441,8 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 %% throw an error if we find such a case
                 if any(sum(CCrpv ~= 0) > 1)
                     k = find(sum(CCrpv ~= 0) > 1);
-                    error('mp_network_ac/pf_update_z: unable to distribute reactive power due to z var %d affecting multiple nodes.', k(1));
+                    warning('pf_update_z:multiple_nodes', ...
+                        'mp_network_ac/pf_update_z: unable to distribute reactive power due to z var %d affecting multiple nodes.', k(1));
                 end
 
                 %% define a numerical proxy to replace +/- Inf limits
