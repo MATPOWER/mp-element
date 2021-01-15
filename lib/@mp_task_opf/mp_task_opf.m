@@ -187,6 +187,14 @@ classdef mp_task_opf < mp_task
         end
 
         function mm = math_model_build_post(obj, mm, nm, dm, mpopt)
+            if obj.dc
+                %% user data required by toggle_softlims
+                branch_nme = nm.elm_by_name('branch');
+                [Bbr, pbr] = branch_nme.get_params(1:branch_nme.nk, {'B', 'p'});
+                mm.userdata.Bf = Bbr * branch_nme.C';
+                mm.userdata.Pfinj = pbr;
+            end
+
             mm = dm.run_userfcn(mm, mpopt);
         end
     end     %% methods

@@ -66,10 +66,6 @@ classdef mp_network_dc < mp_network & mp_form_dc
 
             %% get parameters
             [B, K, p] = obj.get_params();
-            BB = obj.C * B * obj.C';
-            pbus = -(obj.C * K * obj.D' * z + obj.C * p);
-            branch_nme = obj.elm_by_name('branch');
-            [Bf, pf] = branch_nme.get_params(1:branch_nme.nk, {'B', 'p'});
 
             %% create aux_data struct
             ad = struct( ...
@@ -81,10 +77,8 @@ classdef mp_network_dc < mp_network & mp_form_dc
                 'npv',  length(pv), ...     %% number of PV nodes
                 'pq',   pq, ...             %% PQ node indices
                 'npq',  length(pq), ...     %% number of PQ nodes
-                'B',    BB, ...
-                'Bf',   Bf * branch_nme.C', ...
-                'Pbus', pbus, ...
-                'Pfinj',pf  ...
+                'B',    obj.C * B * obj.C', ...
+                'Pbus', -(obj.C * K * obj.D' * z + obj.C * p) ...
             );
         end
 
@@ -209,12 +203,6 @@ classdef mp_network_dc < mp_network & mp_form_dc
             bmis = -C * p;
             mm.add_lin_constraint('Pmis', Amis, bmis, bmis, ...
                                 {obj.va.order(:).name obj.z.order(:).name});
-
-            %% user data
-            branch_nme = obj.elm_by_name('branch');
-            [Bbr, pbr] = branch_nme.get_params(1:branch_nme.nk, {'B', 'p'});
-            mm.userdata.Bf = Bbr * branch_nme.C';
-            mm.userdata.Pfinj = pbr;
         end
 
         function opf_add_system_costs(obj, mm, dm, mpopt)
