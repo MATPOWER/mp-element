@@ -40,11 +40,10 @@ classdef dme_load_mpc2 < dme_load & dm_format_mpc2
         function obj = build_params(obj, dm)
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD] = idx_bus;
-            baseMVA = dm.mpc.baseMVA;
 
             tab = obj.get_table(dm);
-            obj.Pd = tab(obj.bus(obj.on), PD) / baseMVA;
-            obj.Qd = tab(obj.bus(obj.on), QD) / baseMVA;
+            obj.Pd = tab(obj.bus(obj.on), PD) / dm.baseMVA;
+            obj.Qd = tab(obj.bus(obj.on), QD) / dm.baseMVA;
         end
 
         function [s, Sd, Y] = sys_wide_zip_loads(obj, dm)

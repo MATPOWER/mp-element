@@ -22,8 +22,7 @@ classdef dm_element < handle
         nr              %% total number of rows in table
         n               %% number of online elements
         ID              %% nr x 1 vector of unique IDs, maps dmi to ID
-                        %% let maxID = max(ID)
-        ID2i            %% maxID x 1 vector, maps IDs to row indices
+        ID2i            %% max(ID) x 1 vector, maps IDs to row indices
         status          %% nr x 1 vector of on/off status for elements
         on              %% n x 1 vector of row indices of online elements
         off             %% (nr-n) x 1 vector of row indices of offline elements
@@ -55,7 +54,7 @@ classdef dm_element < handle
             maxID = max(ID);
             if ~isempty(ID)
                 if nr > 5000 && maxID > 10 * nr %% use sparse map (save memory)
-                    ID2i =  sparse(ID, ones(nr,1), 1:nr, maxID, 1);
+                    ID2i = sparse(ID, ones(nr,1), 1:nr, maxID, 1);
                 else                            %% use dense map (faster)
                     ID2i = accumarray([ID ones(nr,1)], 1:nr, [maxID 1]);
                 end

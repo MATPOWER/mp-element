@@ -9,8 +9,9 @@ classdef mp_data < mpe_container
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%     properties
-%     end     %% properties
+    properties
+        baseMVA
+    end     %% properties
 
     methods
         function new_obj = copy(obj)

@@ -55,7 +55,6 @@ classdef dme_branch_mpc2 < dme_branch & dm_format_mpc2
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
                 TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
-            baseMVA = dm.mpc.baseMVA;
 
             branch = obj.get_table(dm);
 
@@ -64,7 +63,7 @@ classdef dme_branch_mpc2 < dme_branch & dm_format_mpc2
             obj.B  = branch(obj.on, BR_B);
             obj.tap    = branch(obj.on, TAP);
             obj.shift  = branch(obj.on, SHIFT) * pi/180;
-            obj.rate_a = branch(obj.on, RATE_A) / baseMVA;
+            obj.rate_a = branch(obj.on, RATE_A) / dm.baseMVA;
         end
 
         function obj = update(obj, dm, Sf, St, muSf, muSt, muAngmin, muAngmax)
@@ -76,7 +75,7 @@ classdef dme_branch_mpc2 < dme_branch & dm_format_mpc2
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
                 TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
-            baseMVA = dm.mpc.baseMVA;
+            baseMVA = dm.baseMVA;
  
             dm.mpc.branch(obj.on, PF) = real(Sf) * baseMVA;
             dm.mpc.branch(obj.on, PT) = real(St) * baseMVA;

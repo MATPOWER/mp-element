@@ -26,6 +26,7 @@ classdef mp_data_mpc2 < mp_data
 
         function obj = build(obj, mpc)
             obj.mpc = loadcase(mpc);
+            obj.baseMVA = obj.mpc.baseMVA;
             build@mp_data(obj, mpc);
         end
 
@@ -245,19 +246,16 @@ classdef mp_data_mpc2 < mp_data
         end
 
         function [A, l, u, i] = branch_angle_diff_constraint(obj, ignore);
-            baseMVA = obj.mpc.baseMVA;
             branch = obj.elm_by_name('branch').get_table(obj);
             nb = obj.elm_by_name('bus').n;
             mpopt = struct('opf', struct('ignore_angle_lim', ignore));
-            [A, l, u, i]  = makeAang(baseMVA, branch, nb, mpopt);
+            [A, l, u, i]  = makeAang(obj.baseMVA, branch, nb, mpopt);
         end
 
         function [Ah, uh, Al, ul, data] = gen_pq_capability_constraint(obj);
-            baseMVA = obj.mpc.baseMVA;
             gen_dme = obj.elm_by_name('gen');
             gen = gen_dme.get_table(obj);
-
-            [Ah, uh, Al, ul, data] = makeApq(baseMVA, gen(gen_dme.on, :));
+            [Ah, uh, Al, ul, data] = makeApq(obj.baseMVA, gen(gen_dme.on, :));
         end
 
         function uc = opf_legacy_user_constraints(obj, uv_names, nx, mpopt)

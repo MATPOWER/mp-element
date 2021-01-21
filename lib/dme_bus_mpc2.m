@@ -122,9 +122,9 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             dm.mpc.bus(obj.on, VM) = Vm;
             
             if nargin > 4
-                dm.mpc.bus(obj.on, LAM_P) = lamP / dm.mpc.baseMVA;
+                dm.mpc.bus(obj.on, LAM_P) = lamP / dm.baseMVA;
                 if nargin > 5
-                    dm.mpc.bus(obj.on, LAM_Q) = lamQ / dm.mpc.baseMVA;
+                    dm.mpc.bus(obj.on, LAM_Q) = lamQ / dm.baseMVA;
                     if nargin > 6
                         dm.mpc.bus(obj.on, MU_VMIN) = muVmin;
                         dm.mpc.bus(obj.on, MU_VMAX) = muVmax;

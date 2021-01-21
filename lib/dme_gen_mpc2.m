@@ -54,7 +54,7 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
             [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
-            baseMVA = dm.mpc.baseMVA;
+            baseMVA = dm.baseMVA;
 
             gen = obj.get_table(dm);
 
@@ -100,7 +100,7 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
         %%-----  OPF methods  -----
         function cost = opf_build_gen_cost_params(obj, dm, dc)
             mpc = dm.mpc;
-            baseMVA = dm.mpc.baseMVA;
+            baseMVA = dm.baseMVA;
 
             poly_p = obj.gen_cost_poly_params(baseMVA, obj.pcost);
             if dc || isempty(obj.qcost)
@@ -113,7 +113,6 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             end
 
             cost = struct( ...
-                    'baseMVA',  mpc.baseMVA, ...
                     'poly_p',   poly_p, ...
                     'poly_q',   poly_q, ...
                     'pwl',      pwl ...
@@ -213,7 +212,7 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
-            baseMVA = dm.mpc.baseMVA;
+            baseMVA = dm.baseMVA;
 
             dm.mpc.gen(obj.on, PG) = real(Sg) * baseMVA;
             if ~isreal(Sg)

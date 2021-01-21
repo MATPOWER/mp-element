@@ -40,11 +40,10 @@ classdef dme_shunt_mpc2 < dme_shunt & dm_format_mpc2
         function obj = build_params(obj, dm)
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS] = idx_bus;
-            baseMVA = dm.mpc.baseMVA;
 
             tab = obj.get_table(dm);
-            obj.Gs = tab(obj.bus(obj.on), GS) / baseMVA;
-            obj.Bs = tab(obj.bus(obj.on), BS) / baseMVA;
+            obj.Gs = tab(obj.bus(obj.on), GS) / dm.baseMVA;
+            obj.Bs = tab(obj.bus(obj.on), BS) / dm.baseMVA;
         end
     end     %% methods
 end         %% classdef
