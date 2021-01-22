@@ -30,6 +30,7 @@ fprintf('\n');
 
 %% nodes and states
 obj.display_set('node');
+obj.display_set('port');
 obj.display_set('state');
 
 %% variables
