@@ -417,21 +417,29 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %% nidx = obj.get_node_idx(name), where
             %%      nidx = [i1:iN]' or
             %%      nidx = {[i1(1):iN(1)]', ..., [i1(n):iN(n)]'}
-            [varargout{1:nargout}] = obj.get_node_state_idx('node', name);
+            [varargout{1:nargout}] = obj.get_set_type_idx('node', name);
+        end
+
+        function varargout = get_port_idx(obj, name)
+            %% [i1 iN] = obj.get_port_idx(name)
+            %% pidx = obj.get_port_idx(name), where
+            %%      pidx = [i1:iN]' or
+            %%      pidx = {[i1(1):iN(1)]', ..., [i1(n):iN(n)]'}
+            [varargout{1:nargout}] = obj.get_set_type_idx('port', name);
         end
 
         function varargout = get_state_idx(obj, name)
             %% [i1 iN] = obj.get_state_idx(name)
-            %% nidx = obj.get_state_idx(name), where
-            %%      nidx = [i1:iN]' or
-            %%      nidx = {[i1(1):iN(1)]', ..., [i1(n):iN(n)]'}
-            [varargout{1:nargout}] = obj.get_node_state_idx('state', name);
+            %% sidx = obj.get_state_idx(name), where
+            %%      sidx = [i1:iN]' or
+            %%      sidx = {[i1(1):iN(1)]', ..., [i1(n):iN(n)]'}
+            [varargout{1:nargout}] = obj.get_set_type_idx('state', name);
         end
 
-        function [i1, iN] = get_node_state_idx(obj, node_state, name)
+        function [i1, iN] = get_set_type_idx(obj, node_state, name)
             %% private method
-            %% [i1 iN] = obj.get_node_state_idx(node_state, name)
-            %% nidx = obj.get_node_state_idx(node_state, name), where
+            %% [i1 iN] = obj.get_set_type_idx(node_state, name)
+            %% nidx = obj.get_set_type_idx(node_state, name), where
             %%      nidx = [i1:iN]' or
             %%      nidx = {[i1(1):iN(1)]', ..., [i1(n):iN(n)]'}
             idx = obj.get_idx(node_state);
@@ -452,8 +460,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         function [ref, pv, pq] = node_types(obj, nm, dm)
-            %%           ntv = node_types(obj, nm, dm)
-            %% [ref, pv, pq] = node_types(obj, nm, dm)
+            %%           ntv = obj.node_types(nm, dm)
+            %% [ref, pv, pq] = obj.node_types(nm, dm)
             %% get node type vector from each node-creating NME
             tt = cell(length(obj.node.order), 1);
             for k = 1:length(obj.node.order)
