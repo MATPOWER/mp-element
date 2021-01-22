@@ -13,7 +13,7 @@ if nargin < 1
     quiet = 0;
 end
 
-t_begin(438, quiet);
+t_begin(453, quiet);
 
 define_constants;
 if quiet
@@ -926,6 +926,42 @@ e = struct( 'name', {'gen', 'gizmo', 'gizmo'}, ...
             'ID', {[1:3], [1 2], [1 2]}, ...
             'j', {[1:3], [4 5], [6 7]}   );
 t_ok(isequal(s, e), t);
+
+t = 'ac.set_type_label(''node'', ...) : ';
+i = [1 3 9];
+e = {'bus 1', 'bus 30', 'bus 9'};
+for k = 1:length(e)
+    t_ok(isequal(ac.set_type_label('node', i(k), dm), e{k}), [t e{k}]);
+end
+t_ok(isequal(ac.set_type_label('node', i, dm), e), [t e{k}]);
+% ac.set_type_label('node', (1:ac.getN('node'))', dm)
+% for k = 1:ac.getN('node')
+%     fprintf('node %d : %s\n', k, ac.set_type_label('node', k, dm));
+% end
+
+t = 'ac.set_type_label(''port'', ...) : ';
+i = [2 6 7 22 29];
+e = {'gen 2', 'load 3', 'branch(1) 1', 'branch(2) 7', 'gizmo(3) 1'};
+for k = 1:length(e)
+    t_ok(isequal(ac.set_type_label('port', i(k), dm), e{k}), [t e{k}]);
+end
+t_ok(isequal(ac.set_type_label('port', i, dm), e), [t e{k}]);
+% ac.set_type_label('port', (1:ac.getN('port'))', dm)
+% for k = 1:ac.getN('port')
+%     fprintf('port %d : %s\n', k, ac.set_type_label('port', k, dm));
+% end
+
+t = 'ac.set_type_label(''state'', ...) : ';
+i = [2 3 5 6];
+e = {'gen 2', 'gen 3', 'gizmo(1) 2', 'gizmo(2) 1'};
+for k = 1:length(e)
+    t_ok(isequal(ac.set_type_label('state', i(k), dm), e{k}), [t e{k}]);
+end
+t_ok(isequal(ac.set_type_label('state', i, dm), e), [t e{k}]);
+% ac.set_type_label('state', (1:ac.getN('state'))', dm)
+% for k = 1:ac.getN('state')
+%     fprintf('state %d : %s\n', k, ac.set_type_label('state', k, dm));
+% end
 
 % disp(dc)
 % disp(ac)

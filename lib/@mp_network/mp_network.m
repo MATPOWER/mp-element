@@ -304,6 +304,34 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
+        function label = set_type_label(obj, set_type, idxs, dm)
+            %%  label = obj.set_type_label(set_type, idxs)
+            %%  label = obj.set_type_label(set_type, idxs, dm)
+            label = cell(size(idxs));
+            if nargin > 3
+                s = obj.set_type_idx_map(set_type, idxs, dm);
+                [ID{1:length(idxs(:))}] = deal(s.ID);
+            else
+                s = obj.set_type_idx_map(set_type, idxs);
+                [ID{1:length(idxs(:))}] = deal(s.i);
+            end
+            for k = 1:length(idxs(:))
+                if isempty(s(k).idx)
+                    label{k} = sprintf('%s %d', s(k).name, ID{k});
+                else
+                    if length(s(k).idx) <= 1
+                        idxstr = sprintf('%d', s(k).idx{1});
+                    else
+                        idxstr = [sprintf('%d', s(k).idx{1}) sprintf(',%d', s(k).idx{2:end})];
+                    end
+                    label{k} = sprintf('%s(%s) %d', s(k).name, idxstr, ID{k});
+                end
+            end
+            if isscalar(idxs)               %% return scalar
+                label = label{1};
+            end
+        end
+
         function add_var(obj, vtype, name, idx, varargin)
             %   obj.add_var(vtype, name, N, v0, vl, vu, vt)
             %   obj.add_var(vtype, name, N, v0, vl, vu)
