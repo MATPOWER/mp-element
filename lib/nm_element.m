@@ -210,11 +210,19 @@ classdef nm_element < handle
 %         function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
 %         end
 % 
-%         function obj = pf_add_constraints(obj, mm, nm, ad, dm, mpopt)
+%         function obj = pf_add_constraints(obj, mm, nm, dm, mpopt)
 %         end
 
         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
         end
+
+
+        %%-----  CPF methods  -----
+%         function cpf_add_vars(obj, mm, nm, dm, mpopt)
+%         end
+% 
+%         function cpf_add_constraints(obj, mm, nm, dm, mpopt)
+%         end
 
 
         %%-----  OPF methods  -----

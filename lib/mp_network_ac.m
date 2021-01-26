@@ -506,6 +506,72 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         end
 
 
+        %%-----  CPF methods  -----
+        function ad = cpf_aux_data(obj, dm, mpopt)
+            ad = obj.pf_aux_data(dm, mpopt);
+
+            %% build data/network models for target case
+            pf = mp_task_pf();
+            [d, mpopt] = pf.run_pre(dm.aux_data, mpopt);
+            dmt = pf.data_model_build(d, mpopt);
+            nmt = pf.network_model_build(dmt, mpopt);
+
+            ad.xfer = obj.cpf_xfer(nmt);
+            ad.target_pf = pf;
+            ad.mpopt = mpopt;
+        end
+
+        function xfer = cpf_xfer(obj, nmt)
+            %% ensure base and target parameters are identical,
+            %% except for fixed power injections & states
+            [Y,  L,  M,  N,  i,  s ] = obj.get_params();
+            [Yt, Lt, Mt, Nt, it, st] = nmt.get_params();
+            tol = 1e-12;
+            if norm(Y-Yt, Inf) > tol || norm(L-Lt, Inf) > tol || ...
+                    norm(M-Mt, Inf) > tol || norm(N-Nt, Inf) > tol || ...
+                    norm(i-it, Inf) > tol
+                error('mpe_network_ac/cpf_aux_data: base and target cases must differ only in direct power injections')
+            end
+
+            %% create transfer vector from diff between base & target cases
+            z0  = obj.params_var('zr') + 1j * obj.params_var('zi');
+            z0t = nmt.params_var('zr') + 1j * nmt.params_var('zi');
+            sg = N * (z0 - z0t);
+
+            xfer = obj.C * (s - st + sg);
+        end
+
+        function cpf_add_vars(obj, mm, nm, dm, mpopt)
+            obj.pf_add_vars(mm, nm, dm, mpopt);
+            mm.add_var('lambda', 1, 0);
+        end
+
+        function opt = cpf_add_callbacks(obj, opt, mm, dm, mpopt)
+            qlim = mpopt.cpf.enforce_q_lims;    %% enforce reactive limits
+            plim = mpopt.cpf.enforce_p_lims;    %% enforce active limits
+            vlim = mpopt.cpf.enforce_v_lims;    %% enforce voltage magnitude limits
+            flim = mpopt.cpf.enforce_flow_lims; %% enforce branch flow limits
+            
+            %% initialize event and callback options
+            if ~isfield(opt, 'events') || isempty(opt.events)
+                opt.events = {};
+            end
+            if ~isfield(opt, 'callbacks') || isempty(opt.callbacks)
+                opt.callbacks = {};
+            end
+            
+            if qlim
+                opt.events{end+1} = { ...
+                    'QLIM', ...
+                    @(cx, opt)cpf_event_qlim(obj, cx, opt, mm, dm, mpopt), ...
+                    mpopt.cpf.q_lims_tol };
+                opt.callbacks{end+1} = { ...
+                    @(k, nx, cx, px, s, opt)cpf_callback_qlim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt), ...
+                    41 };
+            end
+        end
+
+
         %%-----  OPF methods  -----
         function [g, dg] = opf_current_balance_fcn(obj, x_)
             if nargout > 1
