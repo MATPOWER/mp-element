@@ -25,17 +25,19 @@ classdef nme_bus < nm_element
             nm.add_node(obj.name, obj.nk);
         end
 
-        function ntv = node_types(obj, nm, dm)
+        function [ref, pv, pq] = node_types(obj, nm, dm)
+            %% ntv = obj.node_types(nm, dm)
+            %% [ref, pv, pq] = obj.node_types(nm, dm)
             dme = obj.data_model_element(dm);
-            ntv = dme.bus_types(dm);
             if nargout > 1
-                ref = dm.node_type_ref(ntv);    %% reference node indices
-                pv  = dm.node_type_pv(ntv);     %% PV node indices
-                pq  = dm.node_type_pq(ntv);     %% PQ node indices
-            else
-                ref = ntv;
+                ref = find(dme.isref);      %% reference node indices
+                pv  = find(dme.ispv);       %% PV node indices
+                pq  = find(dme.ispq);       %% PQ node indices
+            else    %% ntv
+                ref = dm.node_type_vector(dme.isref, dme.ispv, dme.ispq);
             end
         end
+
         function set_node_type_ref(obj, nm, dm, idx)
             dme = obj.data_model_element(dm);
             dme.isref(idx) = 1;

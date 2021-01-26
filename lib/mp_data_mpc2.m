@@ -35,25 +35,33 @@ classdef mp_data_mpc2 < mp_data
             build@mp_data(obj, mpc);
         end
 
-        function ref = node_type_ref(obj, node_type)
-            %% define constants
+        function ntv = node_type_vector(obj, isref, ispv, ispq)
+            %% define named indices into data matrices
             [PQ, PV, REF, NONE] = idx_bus;
 
-            ref = find(node_type == REF);
+            %% package up bus type vector
+            ntv = isref * REF + ispv * PV + ispq * PQ;
         end
 
-        function pv = node_type_pv(obj, node_type)
+        function ref = node_type_ref(obj, ntv)
             %% define constants
             [PQ, PV, REF, NONE] = idx_bus;
 
-            pv = find(node_type == PV);
+            ref = find(ntv == REF);
         end
 
-        function pq = node_type_pq(obj, node_type)
+        function pv = node_type_pv(obj, ntv)
             %% define constants
             [PQ, PV, REF, NONE] = idx_bus;
 
-            pq = find(node_type == PQ);
+            pv = find(ntv == PV);
+        end
+
+        function pq = node_type_pq(obj, ntv)
+            %% define constants
+            [PQ, PV, REF, NONE] = idx_bus;
+
+            pq = find(ntv == PQ);
         end
 
         function obj = ext2int(obj, mpopt)

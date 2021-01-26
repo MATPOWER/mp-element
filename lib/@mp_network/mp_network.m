@@ -459,23 +459,35 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
-        function [ref, pv, pq] = node_types(obj, nm, dm)
+        function [ref, pv, pq] = node_types(obj, nm, dm, skip_ensure_ref)
             %%           ntv = obj.node_types(nm, dm)
             %% [ref, pv, pq] = obj.node_types(nm, dm)
-            %% get node type vector from each node-creating NME
-            tt = cell(length(obj.node.order), 1);
-            for k = 1:length(obj.node.order)
-                nme = obj.elm_by_name(obj.node.order(k).name);
-                tt{k} = nme.node_types(obj, dm);
+            if nargin < 4
+                skip_ensure_ref = 0;
             end
-            ntv = vertcat(tt{:});       %% concatenate into a single vector
 
+            %% get node types from each node-creating NME
             if nargout > 1
-                ref = dm.node_type_ref(ntv);    %% reference node indices
-                pv  = dm.node_type_pv(ntv);     %% PV node indices
-                pq  = dm.node_type_pq(ntv);     %% PQ node indices
+                [rr, vv, qq] = deal(cell(length(obj.node.order), 1));
+                for k = 1:obj.node.NS
+                    nme = obj.elm_by_name(obj.node.order(k).name);
+                    [rr{k}, vv{k}, qq{k}] = nme.node_types(obj, dm);
+                end
+                [ref, pv, pq] = ...     %% concatenate into single vectors
+                    deal(vertcat(rr{:}), vertcat(vv{:}), vertcat(qq{:}));
+                if ~skip_ensure_ref
+                    [ref, pv, pq] = obj.ensure_ref_node(dm, ref, pv, pq);
+                end
             else
-                ref = ntv;
+                tt = cell(length(obj.node.order), 1);
+                for k = 1:length(obj.node.order)
+                    nme = obj.elm_by_name(obj.node.order(k).name);
+                    tt{k} = nme.node_types(obj, dm);
+                end
+                ref = vertcat(tt{:});       %% concatenate into a single vector
+                if ~skip_ensure_ref
+                    ref = obj.ensure_ref_node(dm, ref);
+                end
             end
         end
 
