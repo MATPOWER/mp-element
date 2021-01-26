@@ -136,13 +136,17 @@ classdef mp_task < handle
                 obj.dm = dm;
             else
                 dm = obj.data_model_create(d, mpopt);
-                dm = obj.data_model_build_pre(dm, mpopt);
-                dm.build(d);
+                [dm, d] = obj.data_model_build_pre(dm, d, mpopt);
+                if iscell(d)
+                    dm.build(d{:});
+                else
+                    dm.build(d);
+                end
                 dm = obj.data_model_build_post(dm, mpopt);
             end
         end
 
-        function dm = data_model_build_pre(obj, dm, mpopt)
+        function [dm, d] = data_model_build_pre(obj, dm, d, mpopt)
             %% add user-supplied elements to dm.element_classes
             if isfield(mpopt.exp, 'dm_element_classes') && ...
                     ~isempty(mpopt.exp.dm_element_classes)

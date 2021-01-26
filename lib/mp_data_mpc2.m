@@ -10,8 +10,10 @@ classdef mp_data_mpc2 < mp_data
 %   See https://matpower.org for more info.
 
     properties
-        mpc
-        user_mods
+        mpc         %% MATPOWER case struct
+        aux_data    %% struct of auxiliary data, e.g. target mpc for CPF
+        user_mods   %% struct for storing input data for user variables,
+                    %% constraints and costs
     end     %% properties
 
     methods
@@ -24,9 +26,12 @@ classdef mp_data_mpc2 < mp_data
                     @dme_branch_mpc2, @dme_shunt_mpc2 };
         end
 
-        function obj = build(obj, mpc)
+        function obj = build(obj, mpc, aux_data)
             obj.mpc = loadcase(mpc);
             obj.baseMVA = obj.mpc.baseMVA;
+            if nargin > 2
+                obj.aux_data = aux_data;
+            end
             build@mp_data(obj, mpc);
         end
 
