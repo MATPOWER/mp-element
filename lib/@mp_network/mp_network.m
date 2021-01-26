@@ -479,6 +479,55 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
+        function [ref, pv, pq] = ensure_ref_node(obj, dm, ref, pv, pq)
+            %% [ref, pv, pq] = obj.ensure_ref_node(dm, ref, pv, pq)
+            %% ntv = obj.ensure_ref_node(dm, ntv)
+            if nargout > 1      %% ref, pv, pq
+                if isempty(ref)
+                    if isempty(pv)
+                        error('mp_network/ensure_ref_node: must have at least one REF or PV node');
+                    end
+                    obj.set_node_type_ref(dm, pv(1));
+                    ref = pv(1);
+                    pv(1) = [];
+                end
+            else                %% ntv
+                ntv = ref;
+                ref = dm.node_type_ref(ntv);    %% reference node indices
+                if isempty(ref)
+                    pv = dm.node_type_pv(ntv);  %% PV node indices
+                    if isempty(pv)
+                        error('mp_network/ensure_ref_node: must have at least one REF or PV node');
+                    end
+                    obj.set_node_type_ref(dm, pv(1));
+
+                    %% update node type vector, skipping ensure ref node step
+                    ntv = obj.node_types(obj, dm, 1);
+                end
+                ref = ntv;
+            end
+        end
+
+        function set_node_type_ref(obj, dm, idx)
+            %% obj.set_node_type_ref(dm, idx)
+            %% idx is internal nme index
+            s = obj.set_type_idx_map('node', idx, dm, 1);
+            for k = 1:length(s)
+                nme = obj.elm_by_name(s(k).name);
+                nme.set_node_type_ref(obj, dm, s(k).i);
+            end
+        end
+
+        function set_node_type_pq(obj, dm, idx)
+            %% obj.set_node_type_pq(dm, idx)
+            %% idx is internal nme index
+            s = obj.set_type_idx_map('node', idx, dm, 1);
+            for k = 1:length(s)
+                nme = obj.elm_by_name(s(k).name);
+                nme.set_node_type_pq(obj, dm, s(k).i);
+            end
+        end
+
         %%-----  PF methods  -----
         function obj = pf_add_constraints(obj, mm, nm, dm, mpopt)
             %% system constraints
@@ -508,9 +557,6 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
 
         %%-----  OPF methods  -----
-        function obj = opf_soln(obj, mm)
-        end
-        
         function obj = opf_add_vars(obj, mm, nm, dm, mpopt)
             %% add network voltage and non-voltage state variables
             vars = horzcat(obj.model_vvars(), obj.model_zvars());

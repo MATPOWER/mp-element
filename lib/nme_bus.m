@@ -36,5 +36,19 @@ classdef nme_bus < nm_element
                 ref = ntv;
             end
         end
+        function set_node_type_ref(obj, nm, dm, idx)
+            dme = obj.data_model_element(dm);
+            dme.isref(idx) = 1;
+            dme.ispv(idx)  = 0;
+            dme.ispq(idx)  = 0;
+        end
+
+        function set_node_type_pq(obj, nm, dm, idx)
+            dme = obj.data_model_element(dm);
+            dme.isref(idx) = 0;
+            dme.ispv(idx)  = 0;
+            dme.ispq(idx)  = 1;
+        end
+
     end     %% methods
 end         %% classdef
