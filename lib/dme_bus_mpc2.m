@@ -33,11 +33,26 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             if ~isempty(err)
                 error('dme_bus_mpc2/get_status: bus %d has an invalid BUS_TYPE', err);
             end
+
+            %% temporarily set bus type properties with dimensions for all buses
+            %% (reduced for online buses only in update_status())
             obj.isref = (bt == REF);    %% bus is ref?
             obj.ispv  = (bt == PV);     %% bus is PV?
             obj.ispq  = (bt == PQ);     %% bus is PQ?
+
             status = (bt ~= NONE);      %% bus status
             obj.status = status;
+        end
+
+        function obj = update_status(obj, dm)
+            %% call parent to fill in on/off
+            update_status@dme_bus(obj, dm);
+
+            %% update bus type properties so they correspond
+            %% to online buses only
+            obj.isref = obj.isref(obj.on);
+            obj.ispv  = obj.ispv(obj.on);
+            obj.ispq  = obj.ispq(obj.on);
         end
 
         function obj = build_params(obj, dm)
@@ -49,8 +64,21 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
             gen_dme = dm.elm_by_name('gen');
+            ng = gen_dme.n;
+            on = gen_dme.on;
             bus = obj.get_table(dm);
             gen = gen_dme.get_table(dm);
+
+            %% update bus types based on connected generator status
+            %% gen connection matrix, element i, j is 1 if gen j @ bus i is ON
+            Cg = sparse(gen_dme.bus(on), (1:ng)', 1, obj.n, ng);
+            bus_gen_status = Cg * ones(ng, 1);  %% num of gens ON at each bus
+%             obj.isref = obj.isref & bus_gen_status;
+              % above line would affect OPF (not just PF, CPF) where REF is
+              % used only as angle reference and does not require an online gen
+            obj.ispv  = obj.ispv  & bus_gen_status;
+            obj.ispq  = obj.ispq | ~bus_gen_status;
+%             obj.ensure_ref_bus();   %% pick a new ref bus if one does not exist
 
             %% initialize voltage from bus table
             Va = bus(:, VA) * pi/180;
@@ -59,7 +87,7 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             %% pull PV bus voltage magnitudes from mpc.gen(:, VG)
             gbus = gen_dme.bus(gen_dme.on);     %% buses of online gens
             vcb = ones(obj.nr, 1);  %% create mask of voltage-controlled buses
-            vcb(bus(:, BUS_TYPE) == PQ) = 0;    %% exclude PQ buses
+            vcb(obj.ispq) = 0;      %% exclude PQ buses
             %% find indices of online at online v-c buses
             k = find(obj.status(gbus) & vcb(gbus));
             Vm(gbus(k)) = gen(gen_dme.on(k), VG);
@@ -70,39 +98,6 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             obj.Vmax = bus(obj.on, VMAX);
         end
 
-        function btv = bus_types(obj, dm)
-            %% define named indices into data matrices
-            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-
-            gen_dme = dm.elm_by_name('gen');
-            ng = gen_dme.n;
-
-            %% generator connection matrix
-            %% element i, j is 1 if, generator j at bus i is ON
-            Cg = sparse(gen_dme.bus, (1:ng)', gen_dme.status, obj.n, ng);
-
-            %% number of generators at each bus that are ON
-            bus_gen_status = Cg * ones(ng, 1);
-
-            isref = obj.isref & bus_gen_status;
-            ispv  = obj.ispv  & bus_gen_status;
-            ispq  = obj.ispq | ~bus_gen_status;
-
-            %% pick a new reference bus if for some reason there is none
-            %% (may have been shut down)
-            if ~any(isref)
-                k = find(ispv, 1);  %% find the first PV bus ...
-                if isempty(k)
-                    error('dme_bus_mpc2/bus_types: must have at least one REF or PV bus');
-                end
-                ispv(k)  = 0;       %% ...and change it to a REF bus
-                isref(k) = 1;
-            end
-
-            %% package up bus type vector
-            btv = isref * REF + ispv * PV + ispq * PQ;
-        end
 
         function obj = update(obj, dm, Va, Vm, lamP, lamQ, muVmin, muVmax)
             %% obj.update(dm, Va)
