@@ -34,7 +34,7 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, Sg, Vg);
+            dme.update(dm, 'Sg', Sg, 'Vg', Vg);
         end
 
         %%-----  OPF methods  -----
@@ -130,7 +130,9 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, Sg, Vg, muPmin, muPmax, muQmin, muQmax);
+            dme.update(dm, 'Sg', Sg, 'Vg', Vg, ...
+                'muPmin', muPmin, 'muPmax', muPmax, ...
+                'muQmin', muQmin, 'muQmax', muQmax);
         end
     end     %% methods
 end         %% classdef

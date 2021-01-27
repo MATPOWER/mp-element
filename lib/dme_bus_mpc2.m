@@ -98,32 +98,42 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             obj.Vmax = bus(obj.on, VMAX);
         end
 
-
-        function obj = update(obj, dm, Va, Vm, lamP, lamQ, muVmin, muVmax)
-            %% obj.update(dm, Va)
-            %% obj.update(dm, Va, Vm)
-            %% obj.update(dm, Va, [], lamP)
-            %% obj.update(dm, Va, Vm, lamP, lamQ, muVmin, muVmax)
+        function obj = update(obj, dm, varargin)
+            %% obj.update(dm, name1, val1, name2, val2, ...)
+            %% obj.update(dm, idx, name1, val1, name2, val2, ...)
 
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-            if nargin < 4 || isempty(Vm)
-                Vm = 1;
+            n = length(varargin);
+            if rem(n, 2)    %% odd
+                idx = obj.on(varargin{1});
+                s = 2;      %% starting arg index
+            else            %% even
+                idx = obj.on;
+                s = 1;      %% starting arg index
             end
-
-            dm.mpc.bus(obj.on, VA) = Va * 180/pi;
-            dm.mpc.bus(obj.on, VM) = Vm;
-            
-            if nargin > 4
-                dm.mpc.bus(obj.on, LAM_P) = lamP / dm.baseMVA;
-                if nargin > 5
-                    dm.mpc.bus(obj.on, LAM_Q) = lamQ / dm.baseMVA;
-                    if nargin > 6
-                        dm.mpc.bus(obj.on, MU_VMIN) = muVmin;
-                        dm.mpc.bus(obj.on, MU_VMAX) = muVmax;
-                    end
+            for k = s:2:n-1
+                val = varargin{k+1};
+                switch varargin{k}
+                    case 'Va'
+                        dm.mpc.bus(idx, VA) = val * 180/pi;
+                    case 'Vm'
+                        dm.mpc.bus(idx, VM) = val;
+                    case 'bus_type'
+                        obj.isref = (val == REF);   %% bus is ref?
+                        obj.ispv  = (val == PV);    %% bus is PV?
+                        obj.ispq  = (val == PQ);    %% bus is PQ?
+                        dm.mpc.bus(idx, BUS_TYPE) = val;
+                    case 'lamP'
+                        dm.mpc.bus(idx, LAM_P) = val / dm.baseMVA;
+                    case 'lamQ'
+                        dm.mpc.bus(idx, LAM_Q) = val / dm.baseMVA;
+                    case 'muVmin'
+                        dm.mpc.bus(idx, MU_VMIN) = val;
+                    case 'muVmax'
+                        dm.mpc.bus(idx, MU_VMAX) = val;
                 end
             end
         end

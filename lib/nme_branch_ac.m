@@ -46,7 +46,7 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, Sf, St);
+            dme.update(dm, 'Sf', Sf, 'St', St);
         end
 
         %%-----  OPF methods  -----
@@ -127,7 +127,8 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, Sf, St, muSf, muSt, muAngmin, muAngmax);
+            dme.update(dm, 'Sf', Sf, 'St', St, 'muSf', muSf, 'muSt', muSt, ...
+                'muAngmin', muAngmin, 'muAngmax', muAngmax);
         end
     end     %% methods
 end         %% classdef

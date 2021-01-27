@@ -66,28 +66,49 @@ classdef dme_branch_mpc2 < dme_branch & dm_format_mpc2
             obj.rate_a = branch(obj.on, RATE_A) / dm.baseMVA;
         end
 
-        function obj = update(obj, dm, Sf, St, muSf, muSt, muAngmin, muAngmax)
-            %% obj.update(dm, Sf, St)
-            %% obj.update(dm, Sf, St, muSf, muSt)
-            %% obj.update(dm, Sf, St, muSf, muSt, muAngmin, muAngmax)
+        function obj = update(obj, dm, varargin)
+            %% obj.update(dm, name1, val1, name2, val2, ...)
+            %% obj.update(dm, idx, name1, val1, name2, val2, ...)
 
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
                 TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
             baseMVA = dm.baseMVA;
- 
-            dm.mpc.branch(obj.on, PF) = real(Sf) * baseMVA;
-            dm.mpc.branch(obj.on, PT) = real(St) * baseMVA;
-            dm.mpc.branch(obj.on, QF) = imag(Sf) * baseMVA;
-            dm.mpc.branch(obj.on, QT) = imag(St) * baseMVA;
 
-            if nargin > 4
-                dm.mpc.branch(obj.on, MU_SF) = muSf / baseMVA;
-                dm.mpc.branch(obj.on, MU_ST) = muSt / baseMVA;
-                if nargin > 6
-                    dm.mpc.branch(obj.on, MU_ANGMIN) = muAngmin * pi/180;
-                    dm.mpc.branch(obj.on, MU_ANGMAX) = muAngmax * pi/180;
+            n = length(varargin);
+            if rem(n, 2)    %% odd
+                idx = obj.on(varargin{1});
+                s = 2;      %% starting arg index
+            else            %% even
+                idx = obj.on;
+                s = 1;      %% starting arg index
+            end
+            for k = s:2:n-1
+                val = varargin{k+1};
+                switch varargin{k}
+                    case 'Sf'
+                        dm.mpc.branch(idx, PF) = real(val) * baseMVA;
+                        dm.mpc.branch(idx, QF) = imag(val) * baseMVA;
+                    case 'St'
+                        dm.mpc.branch(idx, PT) = real(val) * baseMVA;
+                        dm.mpc.branch(idx, QT) = imag(val) * baseMVA;
+                    case 'Pf'
+                        dm.mpc.branch(idx, PF) = val * baseMVA;
+                    case 'Pt'
+                        dm.mpc.branch(idx, PT) = val * baseMVA;
+                    case 'Qf'
+                        dm.mpc.branch(idx, QF) = val * baseMVA;
+                    case 'Qt'
+                        dm.mpc.branch(idx, QT) = val * baseMVA;
+                    case {'muSf', 'muPf'}
+                        dm.mpc.branch(idx, MU_SF) = val / baseMVA;
+                    case {'muSt', 'muPt'}
+                        dm.mpc.branch(idx, MU_ST) = val / baseMVA;
+                    case 'muAngmin'
+                        dm.mpc.branch(idx, MU_ANGMIN) = val * pi/180;
+                    case 'muAngmax'
+                        dm.mpc.branch(idx, MU_ANGMAX) = val * pi/180;
                 end
             end
         end

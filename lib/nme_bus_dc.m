@@ -35,7 +35,7 @@ classdef nme_bus_dc < nme_bus & mp_form_dc
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, Va);
+            dme.update(dm, 'Va', Va, 'Vm', 1);
         end
 
         %%-----  OPF methods  -----
@@ -53,7 +53,7 @@ classdef nme_bus_dc < nme_bus & mp_form_dc
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, Va, [], lamP);
+            dme.update(dm, 'Va', Va, 'Vm', 1, 'lamP', lamP);
         end
     end     %% methods
 end         %% classdef

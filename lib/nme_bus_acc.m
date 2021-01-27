@@ -34,7 +34,7 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, angle(V), abs(V));
+            dme.update(dm, 'Va', angle(V), 'Vm', abs(V));
         end
 
         %%-----  OPF methods  -----
@@ -210,7 +210,8 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, angle(V), abs(V), lamP, lamQ, muVmin, muVmax);
+            dme.update(dm, 'Va', angle(V), 'Vm', abs(V), ...
+                'lamP', lamP, 'lamQ', lamQ, 'muVmin', muVmin, 'muVmax', muVmax);
         end
     end     %% methods
 end         %% classdef

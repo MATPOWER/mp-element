@@ -195,18 +195,9 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             [A, l, u] = makeAvl(mpc);
         end
 
-        function obj = update(obj, dm, Sg, Vg, muPmin, muPmax, muQmin, muQmax)
-            %% obj.update(dm, Sg)
-            %% obj.update(dm, Sg, Vg)
-            %% obj.update(dm, Pg, muPmin, muPmax)
-            %% obj.update(dm, Sg, Vg, muPmin, muPmax, muQmin, muQmax)
-
-            %% input arg handling
-            if nargin == 5
-                muPmax = muPmin;
-                muPmin = Vg;
-                Vg = [];
-            end
+        function obj = update(obj, dm, varargin)
+            %% obj.update(dm, name1, val1, name2, val2, ...)
+            %% obj.update(dm, idx, name1, val1, name2, val2, ...)
 
             %% define named indices into data matrices
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
@@ -214,21 +205,34 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
             baseMVA = dm.baseMVA;
 
-            dm.mpc.gen(obj.on, PG) = real(Sg) * baseMVA;
-            if ~isreal(Sg)
-                dm.mpc.gen(obj.on, QG) = imag(Sg) * baseMVA;
+            n = length(varargin);
+            if rem(n, 2)    %% odd
+                idx = obj.on(varargin{1});
+                s = 2;      %% starting arg index
+            else            %% even
+                idx = obj.on;
+                s = 1;      %% starting arg index
             end
-
-            if nargin > 3 && ~isempty(Vg)
-                dm.mpc.gen(obj.on, VG) = Vg;
-            end
-
-            if nargin > 4
-                dm.mpc.gen(obj.on, MU_PMIN) = muPmin / baseMVA;
-                dm.mpc.gen(obj.on, MU_PMAX) = muPmax / baseMVA;
-                if nargin > 6
-                    dm.mpc.gen(obj.on, MU_QMIN) = muQmin / baseMVA;
-                    dm.mpc.gen(obj.on, MU_QMAX) = muQmax / baseMVA;
+            for k = s:2:n-1
+                val = varargin{k+1};
+                switch varargin{k}
+                    case 'Sg'
+                        dm.mpc.gen(idx, PG) = real(val) * baseMVA;
+                        dm.mpc.gen(idx, QG) = imag(val) * baseMVA;
+                    case 'Pg'
+                        dm.mpc.gen(idx, PG) = val * baseMVA;
+                    case 'Qg'
+                        dm.mpc.gen(idx, QG) = val * baseMVA;
+                    case 'Vg'
+                        dm.mpc.gen(idx, VG) = val;
+                    case 'muPmin'
+                        dm.mpc.gen(idx, MU_PMIN) = val / baseMVA;
+                    case 'muPmax'
+                        dm.mpc.gen(idx, MU_PMAX) = val / baseMVA;
+                    case 'muQmin'
+                        dm.mpc.gen(idx, MU_QMIN) = val / baseMVA;
+                    case 'muQmax'
+                        dm.mpc.gen(idx, MU_QMAX) = val / baseMVA;
                 end
             end
         end
