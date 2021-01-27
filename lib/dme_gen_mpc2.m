@@ -236,5 +236,54 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
                 end
             end
         end
+
+        function [mn, mx, both] = violated_q_lims(obj, dm, mpopt)
+            %% [mn, mx, both] = obj.violated_q_lims(dm, mpopt)
+            %%  indices of online gens with violated Q lims
+
+            %% define named indices into data matrices
+            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
+                MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
+                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
+
+            gen = obj.get_table(dm);
+            on = obj.on;
+
+            %% find gens with violated Q constraints
+            mx = find( gen(on, QG) > gen(on, QMAX) + mpopt.opf.violation );
+            mn = find( gen(on, QG) < gen(on, QMIN) - mpopt.opf.violation );
+            both = union(mx', mn')';    %% transposes handle fact that
+                                        %% union of scalars is a row vector
+
+            if ~isempty(both)   %% we have some Q limit violations
+                %% first check for INFEASIBILITY
+                %% find available online gens at REF and PV buses
+                bus_dme = dm.elm_by_name('bus');
+                remaining = find(   bus_dme.isref(obj.bus(obj.on)) | ...
+                                    bus_dme.ispv( obj.bus(obj.on)) );
+
+                if length(both) == length(remaining) && ...
+                        all(both == remaining) && (isempty(mx) || isempty(mn))
+                    %% all remaining PV/REF gens are violating AND all are
+                    %% violating same limit (all violating Qmin or all Qmax)
+                    mn = [];
+                    mx = [];
+                else
+                    %% one at a time?
+                    if mpopt.pf.enforce_q_lims == 2
+                        %% fix largest violation, ignore the rest
+                        [junk, k] = max([gen(mx, QG) - gen(mx, QMAX);
+                                         gen(mn, QMIN) - gen(mn, QG)]);
+                        if k > length(mx)
+                            mn = mn(k-length(mx));
+                            mx = [];
+                        else
+                            mx = mx(k);
+                            mn = [];
+                        end
+                    end
+                end
+            end
+        end
     end     %% methods
 end         %% classdef

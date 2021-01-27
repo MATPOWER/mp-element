@@ -38,6 +38,33 @@ classdef mp_task_pf < mp_task
             obj.dc = strcmp(upper(mpopt.model), 'DC');
         end
 
+        function [dm, td] = next_dm(obj, mm, nm, dm, td, mpopt)
+            if ~obj.dc && mpopt.pf.enforce_q_lims
+                %% initialize task data
+                if isempty(td)
+                    bus_dme =  dm.elm_by_name('bus');
+                    gen_dme =  dm.elm_by_name('gen');
+                    ref = find(bus_dme.isref);
+                    td = struct( ...        %% task data
+                        'ref', ref, ...                 %% ref bus indices
+                        'Varef', bus_dme.Va0(ref), ...  %% ref bus V angles
+                        'limited', [], ...              %% indices of fixed Q gens
+                        'fixedQg', zeros(gen_dme.n, 1));%% Q output of fixed Q gens
+                end
+                [success, d, td] = dm.pf_enforce_q_lims(td, nm, mpopt);
+                if ~success                 %% entire task fails if Q lim
+                    obj.success = success;  %% enforcement indicates failure
+                end
+                if isempty(d)   %% Q limits are satisfied
+                    dm = [];
+                else            %% use new data model to satisfy limits
+                    dm = obj.data_model_build(d, mpopt);
+                end
+            else        %% don't enforce generator Q limits, once is enough
+                dm = [];
+            end
+        end
+
         %%-----  data model methods  -----
         function dm = data_model_update(obj, mm, nm, dm, mpopt)
             nm.pf_data_model_update(mm, nm, dm, mpopt);
