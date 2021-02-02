@@ -61,14 +61,14 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                     obj.nz = obj.nz + nme.nz * nme.nk;  %% number of z_ vars
                 end
             end
-            
+
             if obj.np ~= 0      %% skip for empty model
                 %% create nodes and node voltage state variables
                 obj.add_nodes(obj, dm);
-            
+
                 %% create non-voltage states and corresponding state variables
                 obj.add_states(obj, dm);
-            
+
                 %% build params
                 obj.build_params(obj, dm);
             end
