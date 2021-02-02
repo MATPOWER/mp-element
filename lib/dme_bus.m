@@ -26,5 +26,31 @@ classdef dme_bus < dm_element
             obj.name = 'bus';
             obj.table = 'bus';
         end
+
+        function bt = bus_type(obj, dm, idx)
+            if nargin > 2
+                bt = dm.node_type_vector(obj.isref(idx), obj.ispv(idx), obj.ispq(idx));
+            else
+                bt = dm.node_type_vector(obj.isref, obj.ispv, obj.ispq);
+            end
+        end
+
+        function obj = set_bus_type_ref(obj, idx)
+            obj.isref(idx) = 1;
+            obj.ispv( idx) = 0;
+            obj.ispq( idx) = 0;
+        end
+
+        function obj = set_bus_type_pv(obj, idx)
+            obj.isref(idx) = 0;
+            obj.ispv( idx) = 1;
+            obj.ispq( idx) = 0;
+        end
+
+        function obj = set_bus_type_pq(obj, idx)
+            obj.isref(idx) = 0;
+            obj.ispv( idx) = 0;
+            obj.ispq( idx) = 1;
+        end
     end     %% methods
 end         %% classdef
