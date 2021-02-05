@@ -55,10 +55,12 @@ classdef mp_task < handle
 
             %% build data model
             dm = obj.data_model_build(d, mpopt);
+            obj.dm = dm;
 
             while ~isempty(dm)      %% begin data model loop
                 %% build network model
                 nm = obj.network_model_build(dm, mpopt);
+                obj.nm = nm;
 
                 %% print initial output
                 if mpopt.verbose && obj.i_dm == 1
@@ -70,6 +72,7 @@ classdef mp_task < handle
                 while ~isempty(nm)      %% begin network model loop
                     %% build math model
                     mm = obj.math_model_build(nm, dm, mpopt);
+                    obj.mm = mm;
 
                     while ~isempty(mm)      %% begin math model loop
                         if mm.getN('var') ~= 0  %% model is NOT empty
@@ -92,6 +95,7 @@ classdef mp_task < handle
 
                         [mm, nm, dm, td] = obj.next_mm(mm, nm, dm, td, mpopt);
                         if ~isempty(mm)
+                            obj.mm = mm;
                             obj.i_mm = obj.i_mm + 1;
                         end
                     end                 %% end math model loop
@@ -104,6 +108,7 @@ classdef mp_task < handle
 
                         [nm, dm, td] = obj.next_nm(obj.mm, nm, dm, td, mpopt);
                         if ~isempty(nm)
+                            obj.nm = nm;
                             obj.i_nm = obj.i_nm + 1;
                         end
                     end
@@ -118,6 +123,7 @@ classdef mp_task < handle
 
                 [dm, td] = obj.next_dm(obj.mm, obj.nm, dm, td, mpopt);
                 if ~isempty(dm)
+                    obj.dm = dm;
                     obj.i_dm = obj.i_dm + 1;
                 end
             end                 %% end data model loop
@@ -181,7 +187,6 @@ classdef mp_task < handle
         function dm = data_model_create(obj, d, mpopt)
             dm_class = obj.data_model_class(d, mpopt);
             dm = dm_class();
-            obj.dm = dm;
         end
 
         function dm = data_model_build(obj, d, mpopt)
@@ -238,7 +243,6 @@ classdef mp_task < handle
         function nm = network_model_create(obj, dm, mpopt)
             nm_class = obj.network_model_class(dm, mpopt);
             nm = nm_class().init_set_types();
-            obj.nm = nm;
         end
 
         function nm = network_model_build(obj, dm, mpopt)
@@ -279,7 +283,6 @@ classdef mp_task < handle
 %             mm_class = obj.math_model_class(nm, dm, mpopt);
 %             mm = mm_class();
             mm = opt_model().init_set_types();
-            obj.mm = mm;
         end
 
         function mm = math_model_build(obj, nm, dm, mpopt)
