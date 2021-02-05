@@ -11,14 +11,14 @@ function [v0, vl, vu, vt] = params_var(obj, vtype, name, idx)
 %   integer and binary variables, respectively.
 %
 %   Examples:
-%       [x, xmin, xmax] = obj.params_var();
+%       [x0, xmin, xmax] = obj.params_var();
 %       [Pg, Pmin, Pmax] = obj.params_var('Pg');
 %       [zij0, zijmin, zijmax, ztype] = obj.params_var('z', {i, j});
 %   
-%   See also OPT_MODEL.
+%   See also OPT_MODEL/PARAMS_VAR.
 
 %   MATPOWER
-%   Copyright (c) 2008-2017, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2008-2021, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -81,7 +81,7 @@ if nargin < 3
     end
 else
     if isfield(var.idx.N, name)
-        if nargin < 4
+        if nargin < 4 || isempty(idx)
             v0 = var.data.v0.(name);
             vl = var.data.vl.(name);
             vu = var.data.vu.(name);
