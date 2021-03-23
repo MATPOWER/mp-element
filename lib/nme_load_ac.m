@@ -26,88 +26,88 @@ classdef nme_load_ac < nme_load% & mp_form_ac
 %                 obj.inln = @(x_, sysx, idx)port_inj_current_nln(obj, Sd, x_, sysx, idx);
                 obj.snln = @(x_, sysx, idx)port_inj_power_nln(obj, Sd, x_, sysx, idx);
             end
+        end
 
-%             function [I, Iv1, Iv2, Izr, Izi] = port_inj_current_nln(obj, Sd, x_, sysx, idx)
-%                 if nargin < 5
-%                     idx = [];
-%                     if nargin < 4
-%                         sysx = 1;
-%                     end
+%         function [I, Iv1, Iv2, Izr, Izi] = port_inj_current_nln(obj, Sd, x_, sysx, idx)
+%             if nargin < 5
+%                 idx = [];
+%                 if nargin < 4
+%                     sysx = 1;
 %                 end
+%             end
 % 
-%                 [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
+%             [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
+%             if isempty(idx)
+%                 Sdi = Sd;
+%             else
+%                 Sdi = Sd(idx);
+%             end
+%             S = abs(vi_) .* Sdi;
+%             I = S ./ vi_;
+% 
+%             if nargout > 1
+%                 nv = length(v_);
+%                 nz = length(z_);
+%                 ni = length(S);
 %                 if isempty(idx)
-%                     Sdi = Sd;
-%                 else
-%                     Sdi = Sd(idx);
+%                     idx = (1:ni);
 %                 end
-%                 S = abs(vi_) .* Sdi;
-%                 I = S ./ vi_;
-% 
-%                 if nargout > 1
-%                     nv = length(v_);
-%                     nz = length(z_);
-%                     ni = length(S);
-%                     if isempty(idx)
-%                         idx = (1:ni);
-%                     end
-%                     Sv1 = sparse(ni, nv);
-%                     Sv2 = sparse(1:ni, idx, Sdi, ni, nv);
-%                     if nargout > 3
-%                         Szr = sparse(ni, nz);
-%                         Szi = Szr;
-%                     end
-%                     if sysx
-%                         Ct = obj.C';
-%                         Sv1 = Sv1 * Ct;
-%                         Sv2 = Sv2 * Ct;
-%                         if nargout > 3  %% Szr, Szi are empty, but num of rows is needed
-%                             Dt = obj.D';
-%                             Szr = Szr * Dt;
-%                             Szi = Szi * Dt;
-%                         end
+%                 Sv1 = sparse(ni, nv);
+%                 Sv2 = sparse(1:ni, idx, Sdi, ni, nv);
+%                 if nargout > 3
+%                     Szr = sparse(ni, nz);
+%                     Szi = Szr;
+%                 end
+%                 if sysx
+%                     Ct = obj.C';
+%                     Sv1 = Sv1 * Ct;
+%                     Sv2 = Sv2 * Ct;
+%                     if nargout > 3  %% Szr, Szi are empty, but num of rows is needed
+%                         Dt = obj.D';
+%                         Szr = Szr * Dt;
+%                         Szi = Szi * Dt;
 %                     end
 %                 end
 %             end
+%         end
 
-            function [S, Sv1, Sv2, Szr, Szi] = port_inj_power_nln(obj, Sd, x_, sysx, idx)
-                if nargin < 5
-                    idx = [];
-                    if nargin < 4
-                        sysx = 1;
-                    end
+        function [S, Sv1, Sv2, Szr, Szi] = port_inj_power_nln(obj, Sd, x_, sysx, idx)
+            if nargin < 5
+                idx = [];
+                if nargin < 4
+                    sysx = 1;
                 end
+            end
 
-                [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
+            [v_, z_, vi_] = obj.x2vz(x_, sysx, idx);
+            if isempty(idx)
+                Sdi = Sd;
+            else
+                Sdi = Sd(idx);
+            end
+            S = abs(vi_) .* Sdi;
+
+            if nargout > 1
+                nv = length(v_);
+                nz = length(z_);
+                ni = length(S);
                 if isempty(idx)
-                    Sdi = Sd;
-                else
-                    Sdi = Sd(idx);
+                    idx = (1:ni);
                 end
-                S = abs(vi_) .* Sdi;
-
-                if nargout > 1
-                    nv = length(v_);
-                    nz = length(z_);
-                    ni = length(S);
-                    if isempty(idx)
-                        idx = (1:ni);
-                    end
-                    Sv1 = sparse(ni, nv);
-                    Sv2 = sparse(1:ni, idx, Sdi, ni, nv);
-                    if nargout > 3
-                        Szr = sparse(ni, nz);
-                        Szi = Szr;
-                    end
-                    if sysx
-                        Ct = obj.C';
-                        Sv1 = Sv1 * Ct;
-                        Sv2 = Sv2 * Ct;
-                        if nargout > 3  %% Szr, Szi are empty, but num of rows is needed
-                            Dt = obj.D';
-                            Szr = Szr * Dt;
-                            Szi = Szi * Dt;
-                        end
+                Sv1 = sparse(ni, nv);
+                Sv2 = sparse(1:ni, idx, Sdi, ni, nv);
+                if nargout > 3
+                    Szr = sparse(ni, nz);
+                    Szi = Szr;
+                end
+                if sysx
+                    Ct = obj.C';
+                    Sv1 = Sv1 * Ct;
+                    Sv2 = Sv2 * Ct;
+                    if nargout > 3  %% Szr, Szi are empty, but num of rows is needed
+                        Dt = obj.D';
+                        Szr = Szr * Dt;
+                        Szi = Szi * Dt;
                     end
                 end
             end
