@@ -192,15 +192,10 @@ classdef mp_task < handle
         function dm = data_model_build(obj, d, mpopt)
             if isa(d, 'mp_data')
                 dm = d;
-                obj.dm = dm;
             else
                 dm = obj.data_model_create(d, mpopt);
                 [dm, d] = obj.data_model_build_pre(dm, d, mpopt);
-                if iscell(d)
-                    dm.build(d{:});
-                else
-                    dm.build(d);
-                end
+                dm.build(d);
                 dm = obj.data_model_build_post(dm, mpopt);
             end
         end

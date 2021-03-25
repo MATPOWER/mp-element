@@ -16,9 +16,11 @@ classdef mp_task_cpf < mp_task_pf
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%     properties
-%     end
-    
+    properties
+        dmt         %% target data model
+        nmt         %% target network model
+    end
+
     methods
         %% constructor
         function obj = mp_task_cpf()
@@ -41,12 +43,26 @@ classdef mp_task_cpf < mp_task_pf
         end
 
         %%-----  data model methods  -----
+        function dm = data_model_build(obj, d, mpopt)
+            if iscell(d) && length(d) == 2
+                dm      = data_model_build@mp_task_pf(obj, d{1}, mpopt);
+                obj.dmt = data_model_build@mp_task_pf(obj, d{2}, mpopt);
+            else
+                error('mp_task_cpf: data_model_build: d must be 2-element cell array');
+            end
+        end
+
 
         %%-----  network model methods  -----
+        function nm = network_model_build(obj, dm, mpopt)
+            nm      = network_model_build@mp_task_pf(obj, dm, mpopt);
+            obj.nmt = network_model_build@mp_task_pf(obj, obj.dmt, mpopt);
+        end
+
 
         %%-----  mathematical model methods  -----
         function mm = math_model_build_pre(obj, mm, nm, dm, mpopt)
-            mm.userdata.aux_data = nm.cpf_aux_data(dm, mpopt);
+            mm.userdata.aux_data = nm.cpf_aux_data(obj.nmt, dm, obj.dmt, mpopt);
         end
 
         function obj = math_model_add_vars(obj, mm, nm, dm, mpopt)

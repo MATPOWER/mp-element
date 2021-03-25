@@ -392,6 +392,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
                         %% check for existence of remaining slack/PV bus
                         try
+                            %% potentially pick new reference bus
                             [ref, pv, pq] = obj.node_types(obj, dm);
                         catch
                             s.done = 1;
@@ -400,10 +401,9 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
                         if ~s.done
                             %% get target case data, network models
-                            pf = ad.target_pf;
-                            dmt = pf.dm;
-                            nmt = pf.nm;
-                            
+                            dmt = ad.dmt;
+                            nmt = ad.nmt;
+
                             %% change node type in target case
                             nmt.set_node_type_pq(dmt, idx);
 

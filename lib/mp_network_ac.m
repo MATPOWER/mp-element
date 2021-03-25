@@ -507,17 +507,12 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
 
         %%-----  CPF methods  -----
-        function ad = cpf_aux_data(obj, dm, mpopt)
+        function ad = cpf_aux_data(obj, nmt, dm, dmt, mpopt)
             ad = obj.pf_aux_data(dm, mpopt);
 
-            %% build data/network models for target case
-            pf = mp_task_pf();
-            [d, mpopt] = pf.run_pre(dm.aux_data, mpopt);
-            dmt = pf.data_model_build(d, mpopt);
-            nmt = pf.network_model_build(dmt, mpopt);
-
             ad.xfer = obj.cpf_xfer(nmt);
-            ad.target_pf = pf;
+            ad.nmt = nmt;
+            ad.dmt = dmt;
             ad.mpopt = mpopt;
         end
 

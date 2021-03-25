@@ -26,12 +26,9 @@ classdef mp_data_mpc2 < mp_data
                     @dme_branch_mpc2, @dme_shunt_mpc2 };
         end
 
-        function obj = build(obj, mpc, aux_data)
+        function obj = build(obj, mpc)
             obj.mpc = loadcase(mpc);
             obj.baseMVA = obj.mpc.baseMVA;
-            if nargin > 2
-                obj.aux_data = aux_data;
-            end
             build@mp_data(obj, mpc);
         end
 
