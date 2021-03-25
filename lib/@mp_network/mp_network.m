@@ -567,7 +567,6 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
         opt = pf_solve_opts(obj, mm, dm, mpopt)
 
-
         %%-----  CPF methods  -----
         function cpf_add_constraints(obj, mm, nm, dm, mpopt)
             %% system constraints
@@ -608,11 +607,13 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                 'adapt_step_tol',   mpopt.cpf.adapt_step_tol, ...
                 'target_lam_tol',   mpopt.cpf.target_lam_tol, ...
                 'nose_tol',         mpopt.cpf.nose_tol, ...
+                'output_fcn',       @(cbx, varargin)cpf_pne_output_fcn(obj, ad, cbx, varargin{:}), ...
                 'plot',             struct( ...
                     'level',            mpopt.cpf.plot.level, ...
                     'idx',              mpopt.cpf.plot.bus, ...
-                    'idx_default',      @()cpf_plot_idx_default(obj, ad), ...
-                    'yfcn',             @(x,idx)cpf_plot_yfcn(obj, mm, ad, x, idx), ...
+                    'idx_default',      @()cpf_plot_idx_default(obj, dm, ad), ...
+                    'yname',            'V', ...
+                    'yfcn',             @(v_,idx)cpf_plot_yfcn(obj, dm, ad, v_, idx), ...
                     'title',            'Voltage at Bus %d', ...
                     'title2',           'Voltage at Multiple Buses', ...
                     'ylabel',           'Voltage Magnitude', ...
@@ -621,22 +622,55 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             opt = obj.cpf_add_callbacks(opt, mm, dm, mpopt);
         end
 
-        function y = cpf_plot_yfcn(obj, mm, ad, x, bus_idx)
-            [~, i] = ismember(bus_idx, ad.pq);
-            if any(i == 0)
-                k = find(i == 0);
+        function rv = cpf_pne_output_fcn(obj, ad, cbx, x, x_hat)
+            %% cbx     = obj.cpf_pne_history(ad, cbx, x, x_hat)
+            %% results = obj.cpf_pne_history(ad, cbx, results)
+            if nargin == 5      %% store values in callback state
+                rv = cbx;
+                [V_hat, ~] = obj.cpf_convert_x(x_hat, ad, 1);
+                [V,     ~] = obj.cpf_convert_x(x,     ad, 1);
+                if isfield(cbx, 'V')    %% append values (ITERATION)
+                    rv.lam_hat = [ rv.lam_hat x_hat(end) ];
+                    rv.lam     = [ rv.lam     x(end)     ];
+                    rv.V_hat   = [ rv.V_hat   V_hat ];
+                    rv.V       = [ rv.V       V     ];
+                else                    %% initialize values (INITIAL)
+                    rv.lam_hat = x_hat(end);
+                    rv.lam     = x(end);
+                    rv.V_hat   = V_hat;
+                    rv.V       = V;
+                end
+            else                        %% copy fields to results (FINAL)
+                rv = x;
+                rv.lam_hat = cbx.lam_hat;
+                rv.lam     = cbx.lam;
+                rv.max_lam = max(cbx.lam);
+                rv.V_hat   = cbx.V_hat;
+                rv.V       = cbx.V;
+            end
+        end
+
+        function y = cpf_plot_yfcn(obj, dm, ad, v_, bus_num)
+            %% find node idx from external bus number
+            b2i = dm.elm_by_name('bus').ID2i;   %% bus num to idx mapping
+            nidx = obj.get_node_idx('bus');
+
+            k = find( bus_num < 0 | bus_num > length(b2i) );
+            if ~isempty(k)
                 error('mpe_network/cpf_plot_yfcn: %d is not a valid bus number for CPF voltage plot', bus_idx(k));
             end
-            idx = ad.npv + ad.npq + i;
-            y = x(idx, :);
+
+            idx = nidx(b2i(bus_num));
+            y = abs(v_(idx, :));
         end
 
-        function idx = cpf_plot_idx_default(obj, ad)
+        function idx = cpf_plot_idx_default(obj, dm, ad)
             %% plot voltage of PQ bus with max transfer as default
-            [~, i] = max(ad.xfer(ad.pq));
-            idx = ad.pq(i);
+            nidx = obj.get_node_idx('bus');     %% node indices of buses
+            [~, i] = max(abs(ad.xfer(ad.pq)) .* ismember(ad.pq, nidx));
+            bi = ad.pq(i);                      %% index of bus w/max transfer
+            idx = dm.elm_by_name('bus').ID(bi); %% bus num of same bus
         end
-
 
         %%-----  OPF methods  -----
         function obj = opf_add_vars(obj, mm, nm, dm, mpopt)
