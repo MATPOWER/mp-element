@@ -525,7 +525,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             if norm(Y-Yt, Inf) > tol || norm(L-Lt, Inf) > tol || ...
                     norm(M-Mt, Inf) > tol || norm(N-Nt, Inf) > tol || ...
                     norm(i-it, Inf) > tol
-                error('mpe_network_ac/cpf_aux_data: base and target cases must differ only in direct power injections')
+                error('mpe_network_ac/cpf_xfer: base and target cases must differ only in direct power injections')
             end
 
             %% create transfer vector from diff between base & target cases
