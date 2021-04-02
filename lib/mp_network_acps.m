@@ -317,6 +317,14 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             mm.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end
 
+        function opt = cpf_solve_opts_warmstart(obj, opt, mm)
+            ws = opt.warmstart;
+            ad = mm.get_userdata('aux_data');
+
+            %% set starting point to where previous continuation left off
+            opt.x0 = [angle(ws.V([ad.pv; ad.pq])); abs(ws.V(ad.pq)); ws.lam];
+        end
+
         function ef = cpf_event_qlim(obj, cx, opt, mm, dm, mpopt)
             ad = mm.get_userdata('aux_data');
 
@@ -397,6 +405,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                         catch
                             s.done = 1;
                             s.done_msg = 'No REF or PV nodes remaining.';
+                            break;
                         end
 
                         if ~s.done
@@ -408,139 +417,34 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                             nmt.set_node_type_pq(dmt, idx);
 
                             %% zero out Q transfer for bus
-                            ad.xfer(idx) = 0;
+                            ss = obj.set_type_idx_map('zi', idx);
+                            obj.zi.data.v0.(ss.name)(ss.i) = imag(z_(idx));
+                            nmt.zi.data.v0.(ss.name)(ss.i) = imag(z_(idx));
 
-                            %% if slack changed, zero out P transfer
+                            %% if slack changed ...
                             if ref ~= ad.ref
-                                ad.xfer(ref) = ad.xfer(ref) - real(ad.xfer(ref));
+                                %% find zr corresponding to all zr at ref node
+                                zref = find(CC(ad.ref, :));
+                                ss = obj.set_type_idx_map('zr', zref);
+
+                                %% zero out P transfer at old ref
+                                for kk = 1:length(ss)
+                                    obj.zr.data.v0.(ss(kk).name)(ss(kk).i) = real(z_(zref(kk)));
+                                    nmt.zr.data.v0.(ss(kk).name)(ss(kk).i) = real(z_(zref(kk)));
+                                end
+
+                                %% update voltage angle at new ref node
+                                ss = obj.set_type_idx_map('va', ref);
+                                obj.va.data.v0.(ss.name)(ss.i) = angle(v_(ref));
+                                nmt.va.data.v0.(ss.name)(ss.i) = angle(v_(ref));
                             end
-
-                            %% update aux data for math model
-                            ad.ref  = ref;
-                            ad.nref = length(ref);
-                            ad.pv   = pv;
-                            ad.npv  = length(pv);
-                            ad.pq   = pq;
-                            ad.npq  = length(pq);
-                            mm.userdata.aux_data = ad;
-
-                            nx.this_step = 0;
-keyboard
-                        %%    update bus types, in base and target cases
-                        %%    select new slack bus if necessary
-                        %%    (saving old 1st to be able to check for changes)
-                        %%    update Q for newly limited inj in base & target (zero out transfer)
-                        %%    if slack changed do the same for P at new slack bus
-                        %%    nx.this_step = 0
                         end
                     end
+                    s.done = 1;
+                    s.warmstart = struct('nmt', nmt, 'dmt', dmt);
                     s.evnts(i).msg = msg;
                 end
             end
-
-
-%             %% handle event
-%             for i = 1:length(s.evnts)
-%                 if strcmp(evnts(i).name, 'QLIM') && evnts(i).zero
-% %                     %% get updated MPC, if necessary
-% %                     if isempty(mpc)
-% %                         d = cb_data;
-% %                         if length(d.ref) ~= 1
-% %                             error('cpf_qlim_event_cb: ''cpf.enforce_qlims'' option only valid for systems with exactly one REF bus')
-% %                         end
-% %                         mpc = cpf_current_mpc(d.mpc_base, d.mpc_target, ...
-% %                             d.Ybus, d.Yf, d.Yt, d.ref, d.pv, d.pq, nx.V, nx.x(end), d.mpopt);
-% %                         ng = size(mpc.gen, 1);
-% %                         i2e_bus = mpc.order.bus.i2e;
-% %                         i2e_gen = mpc.order.gen.i2e;
-% %                     end
-% 
-%                     %% find the generator(s) and which lim(s)
-%                     if opt.verbose > 3
-%                         msg = sprintf('%s\n    ', evnts(i).msg);
-%                     else
-%                         msg = '';
-%                     end
-%                     ig = evnts(i).idx;
-%                     for j = 1:length(ig)
-%                         g = ig(j);                  %% index of gen of interest
-%                         maxlim = 1;
-%                         if g > obj.nz
-%                             g = g - obj.nz;
-%                             maxlim = 0;
-%                         end
-% %                         ib = mpc.gen(g, GEN_BUS);   %% corresponding bus index
-%                         ib = g;
-%                         [~, mn, mx] = obj.params_var('zi');
-%                         if maxlim
-%                             msg = sprintf('%sgen %d @ bus %d reached %g MVAr Qmax lim @ lambda = %.4g : bus %d converted to PQ', ...
-%                                 msg, g, ib, mx(g), nx.x(end), ib);
-%                         else
-%                             msg = sprintf('%sgen %d @ bus %d reached %g MVAr Qmin lim @ lambda = %.4g : bus %d converted to PQ', ...
-%                                 msg, g, ib, mn(g), nx.x(end), ib);
-%                         end
-% %                         if maxlim
-% %                             msg = sprintf('%sgen %d @ bus %d reached %g MVAr Qmax lim @ lambda = %.4g : bus %d converted to PQ', ...
-% %                                 msg, i2e_gen(g), i2e_bus(ib), mpc.gen(g, QMAX), nx.x(end), i2e_bus(ib));
-% %                         else
-% %                             msg = sprintf('%sgen %d @ bus %d reached %g MVAr Qmin lim @ lambda = %.4g : bus %d converted to PQ', ...
-% %                                 msg, i2e_gen(g), i2e_bus(ib), mpc.gen(g, QMIN), nx.x(end), i2e_bus(ib));
-% %                         end
-% 
-% %                         %% set Qg to exact limit and convert the generator's bus to PQ bus
-% %                         if maxlim
-% %                             mpc.gen(g, QG) = mpc.gen(g, QMAX);
-% %                         else
-% %                             mpc.gen(g, QG) = mpc.gen(g, QMIN);
-% %                         end
-% %                         mpc.bus(ib, BUS_TYPE) = PQ;
-% % 
-% %                         %% infeasibility check
-% %                         on = find(mpc.gen(:, GEN_STATUS) > 0 & ...  %% which generators are on?
-% %                                   mpc.bus(mpc.gen(:, GEN_BUS), BUS_TYPE) ~= PQ);  %% ... and are not PQ buses
-% % 
-% %                         if isempty(on)
-% %                             s.done = 1;
-% %                             s.done_msg = 'No REF or PV buses remaining.';
-% %                         else
-% %                             oldref = cb_data.ref;   %% save previous ref bus
-% %                             [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
-% %                             if oldref ~= ref        %% ref bus changed
-% %                                 mpc.bus(ref, BUS_TYPE) = REF;
-% %                             end
-% % 
-% %                             %% update new bus types, including in base and target cases
-% %                             cb_data.ref = ref;
-% %                             cb_data.pv  = pv;
-% %                             cb_data.pq  = pq;
-% %                             cb_data.mpc_base.bus(  :, BUS_TYPE) = mpc.bus(:, BUS_TYPE);
-% %                             cb_data.mpc_target.bus(:, BUS_TYPE) = mpc.bus(:, BUS_TYPE);
-% %             
-% %                             %% update QG for Q limited gen in base and target
-% %                             %% (no more reactive transfer for this gen)
-% %                             cb_data.mpc_base.gen(  g, QG) = mpc.gen(g, QG);
-% %                             cb_data.mpc_target.gen(g, QG) = mpc.gen(g, QG);
-% % 
-% %                             %% update PG for previous slack gen in base and target
-% %                             %% (no more active transfer for this gen)
-% %                             if oldref ~= ref
-% %                                 cb_data.mpc_base.gen(  g, PG) = mpc.gen(g,PG);
-% %                                 cb_data.mpc_target.gen(g, PG) = mpc.gen(g,PG);
-% %                             end
-% %                 
-% %                             %% update functions
-% %                             b = cb_data.mpc_base;
-% %                             t = cb_data.mpc_target;
-% %                             cb_data.Sbusb = @(Vm)makeSbus(b.baseMVA, b.bus, b.gen, d.mpopt, Vm);
-% %                             cb_data.Sbust = @(Vm)makeSbus(t.baseMVA, t.bus, t.gen, d.mpopt, Vm);
-%                 
-%                             %% set size of next step to zero
-%                             nx.this_step = 0;
-% %                         end
-%                     end
-%                     evnts(i).msg = msg;
-%                 end
-%             end
         end
 
         %%-----  OPF methods  -----

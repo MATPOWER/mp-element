@@ -620,6 +620,13 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                     'legend',           'Bus %d'    ) ...
             );
             opt = obj.cpf_add_callbacks(opt, mm, dm, mpopt);
+            if isfield(mm.userdata, 'warmstart')
+                %% set warmstart option
+                opt.warmstart = mm.userdata.warmstart;
+                mm.userdata = rmfield(mm.userdata, 'warmstart');
+
+                opt = obj.cpf_solve_opts_warmstart(opt, mm);
+            end
         end
 
         function rv = cpf_pne_output_fcn(obj, ad, cbx, x, x_hat)

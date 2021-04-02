@@ -32,6 +32,28 @@ classdef mp_task_cpf < mp_task_pf
         end
 
         %%-----  task methods  -----
+        function [mm, nm, dm, td] = next_mm(obj, mm, nm, dm, td, mpopt)
+            %% return new math model, or empty matrix if finished
+            if isfield(mm.soln.output, 'warmstart')
+                %% get warmstart info
+                ws = mm.soln.output.warmstart;
+                ws.lam = ws.cbx.default.lam(end);
+                ws.V = ws.cbx.default.V(:, end);
+                obj.nmt = ws.nmt;
+                obj.dmt = ws.dmt;
+
+                %% update network and data models with current solution
+                obj.nm = obj.network_model_update(mm, nm);
+                obj.dm = obj.data_model_update(mm, obj.nm, dm, mpopt);
+
+                %% create new math model
+                mm = obj.math_model_build(nm, dm, mpopt);
+                mm.userdata.warmstart = ws;
+            else
+                mm = [];
+            end
+        end
+
         function [d, mpopt] = run_pre(obj, d, mpopt)
             if ~isa(d, 'mp_data')
                 if ~iscell(d) || length(d) < 2
