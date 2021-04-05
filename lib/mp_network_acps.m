@@ -357,6 +357,11 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             evnts = s.evnts;
             for i = 1:length(evnts)
                 if strcmp(evnts(i).name, 'QLIM') && evnts(i).zero
+                    ad = mm.get_userdata('aux_data');
+                    if ad.nref ~= 1
+                        error('mp_network_acps/cpf_callback_qlim: ''cpf.enforce_qlims'' option only valid for systems with exactly one REF bus');
+                    end
+
                     efidx = evnts(i).idx;       %% event function index
                     [~, zi_min, zi_max] = obj.params_var('zi'); %% bounds on zi
                     if opt.verbose > 3
@@ -391,12 +396,11 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                                 nx.x(end), nlabel);
 
                         %% set Q to exact limit
-                        ad = mm.get_userdata('aux_data');
                         [v_, z_] = obj.cpf_convert_x(nx.x, ad);
                         z_(idx) = real(z_(idx)) + 1j * lim / dm.baseMVA;
 
                         %% change node type to PQ
-                        obj.set_node_type_pq(dm, idx);
+                        obj.set_node_type_pq(dm, nidx);
 
                         %% check for existence of remaining slack/PV bus
                         try
@@ -414,7 +418,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                             nmt = ad.nmt;
 
                             %% change node type in target case
-                            nmt.set_node_type_pq(dmt, idx);
+                            nmt.set_node_type_pq(dmt, nidx);
 
                             %% zero out Q transfer for bus
                             ss = obj.set_type_idx_map('zi', idx);
@@ -440,8 +444,14 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                             end
                         end
                     end
-                    s.done = 1;
-                    s.warmstart = struct('nmt', nmt, 'dmt', dmt);
+                    if ~s.done
+                        s.done = 1;
+                        s.warmstart = struct('nmt', nmt, 'dmt', dmt);
+                    end
+                    s.evnts(i).msg = msg;
+                end
+            end
+        end
                     s.evnts(i).msg = msg;
                 end
             end
