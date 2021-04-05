@@ -291,8 +291,24 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
 
         %%-----  CPF methods  -----
-        function varargout = cpf_convert_x(obj, varargin)
-            [varargout{1:nargout}] = obj.pf_convert_x(varargin{:});
+        function [vx_, z_, x_] = cpf_convert_x(obj, mmx, ad, only_v)
+            %% update voltages and get base z_
+            [vx_, z_] = obj.pf_convert_x(mmx(1:end-1), ad, 1);  %% only v
+
+            %% update z_ based on lambda
+            lam = mmx(end);
+            z_ = z_ - mmx(end) * ad.zz;
+
+            %% update z, if requested
+            if nargin < 4 || ~only_v
+                z_ = obj.pf_update_z(vx_, z_, ad);
+            end
+
+            if nargout < 2
+                vx_ = [vx_; z_];
+            elseif nargout > 2
+                x_ = [vx_; z_];
+            end
         end
 
         function [f, J] = cpf_equations(obj, x, ad)
@@ -321,8 +337,15 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             ws = opt.warmstart;
             ad = mm.get_userdata('aux_data');
 
-            %% set starting point to where previous continuation left off
-            opt.x0 = [angle(ws.V([ad.pv; ad.pq])); abs(ws.V(ad.pq)); ws.lam];
+            %% update warm start states and tangent vectors
+            opt.warmstart.x  = [angle(ws.cV([ad.pv; ad.pq])); abs(ws.cV(ad.pq)); ws.clam];
+            opt.warmstart.xp = [angle(ws.pV([ad.pv; ad.pq])); abs(ws.pV(ad.pq)); ws.plam];
+            opt.x0 = opt.warmstart.x;   %% ignored, overridden by warmstart.x
+
+            %% reduce tangent vectors for this mm
+            k = [ad.pv; ad.pq; obj.nv/2 + ad.pq; obj.nv+1];
+            opt.warmstart.z  = opt.warmstart.z(k);
+            opt.warmstart.zp = opt.warmstart.zp(k);
         end
 
         function ef = cpf_event_qlim(obj, cx, opt, mm, dm, mpopt)
@@ -345,6 +368,25 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
             %% assemble event function value
             ef = [v_Qmax; v_Qmin] * dm.baseMVA;
+        end
+
+        function ef = cpf_event_plim(obj, cx, opt, mm, dm, mpopt)
+            ad = mm.get_userdata('aux_data');
+
+            %% convert cx.x back to v_, z_
+            [v_, z_] = obj.cpf_convert_x(cx.x, ad);
+
+            %% limit violations
+            [~, ~, zr_max] = obj.params_var('zr'); %% bounds on zr
+            v_Pmax = real(z_) - zr_max;
+
+            %% ignore those that are already at their max limit
+            if isfield(cx.cb, 'plim') && ~isempty(cx.cb.plim.idx)
+                v_Pmax(cx.cb.plim.idx) = NaN;
+            end
+
+            %% assemble event function value
+            ef = v_Pmax * dm.baseMVA;
         end
 
         function [nx, cx, s] = cpf_callback_qlim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt)
@@ -452,6 +494,101 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                 end
             end
         end
+
+        function [nx, cx, s] = cpf_callback_plim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt)
+            %% skip if finalize or done
+            if k < 0 || s.done
+                return;
+            elseif k == 0 && ~isfield(cx.cb, 'plim')
+                cx.cb.plim.idx = [];
+            end
+
+            %% handle event
+            evnts = s.evnts;
+            for i = 1:length(evnts)
+                if strcmp(evnts(i).name, 'PLIM') && evnts(i).zero
+                    ad = mm.get_userdata('aux_data');
+                    if ad.nref ~= 1
+                        error('mp_network_acps/cpf_callback_plim: ''cpf.enforce_plims'' option only valid for systems with exactly one REF bus');
+                    end
+
+                    efidx = evnts(i).idx;       %% event function index
+                    [~, ~, zr_max] = obj.params_var('zr'); %% bounds on zr
+                    if opt.verbose > 3
+                        msg = sprintf('%s\n    ', evnts(i).msg);
+                    else
+                        msg = '';
+                    end
+                    for j = 1:length(efidx)
+                        %% find index of z var
+                        idx = efidx(j);         %% index of z var
+                        lim = zr_max(idx) * dm.baseMVA;
+
+                        %% get label for z var
+                        zlabel = obj.set_type_label('state', idx, dm);
+
+                        %% get label for corresponding node
+                        CC = obj.C * obj.get_params([], 'N') * obj.D';
+                        nidx = find(CC(:, idx));
+                        nlabel = obj.set_type_label('node', nidx, dm);
+
+                        msg = sprintf('%s%s @ %s reached %g MW Pmax lim @ lambda = %.4g', ...
+                                msg, zlabel, nlabel, lim, nx.x(end));
+
+                        %% set P to exact limit
+                        [v_, z_] = obj.cpf_convert_x(nx.x, ad);
+                        z_(idx) = lim / dm.baseMVA + 1j * imag(z_(idx));
+
+                        dmt = ad.dmt;
+                        nmt = ad.nmt;
+
+                        %% find zr corresponding to all zr at this node
+                        k = find(CC(nidx, :));
+                        ss = obj.set_type_idx_map('zr', k);
+
+                        %% set z to limit at this node
+                        for kk = 1:length(ss)
+                            obj.zr.data.v0.(ss(kk).name)(ss(kk).i) = real(z_(k(kk)));
+                            nmt.zr.data.v0.(ss(kk).name)(ss(kk).i) = real(z_(k(kk)));
+                        end
+
+                        %% save index of element at limit
+                        nx.cb.plim.idx = [nx.cb.plim.idx; idx];
+
+                        %% if it is at the ref node
+                        if nidx == ad.ref
+                            %% find free injections (not at max lim)
+                            free = ones(obj.nz, 1);
+                            free(nx.cb.plim.idx) = 0;
+
+                            %% first node with any free injection
+                            ref = find(any(CC * spdiags(free, 0, obj.nz, obj.nz), 2));
+                            if isempty(ref)
+                                s.done = 1;
+                                s.done_msg = 'All generators at Pmax';
+                                break;
+                            else
+                                %% convert this node to PV, new ref bus to REF
+                                obj.set_node_type_pv(dm, nidx);
+                                nmt.set_node_type_pv(dmt, nidx);
+                                obj.set_node_type_ref(dm, ref);
+                                nmt.set_node_type_ref(dmt, ref);
+
+                                %% update voltage angle at new ref node
+                                ss = obj.set_type_idx_map('va', ref);
+                                obj.va.data.v0.(ss.name)(ss.i) = angle(v_(ref));
+                                nmt.va.data.v0.(ss.name)(ss.i) = angle(v_(ref));
+
+                                rlabel = obj.set_type_label('node', ref, dm);
+                                msg = sprintf('%s : ref changed from %s to %s', ...
+                                    msg, nlabel, rlabel);
+                            end
+                        end
+                    end
+                    if ~s.done
+                        s.done = 1;
+                        s.warmstart = struct('nmt', nmt, 'dmt', dmt);
+                    end
                     s.evnts(i).msg = msg;
                 end
             end

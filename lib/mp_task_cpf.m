@@ -36,9 +36,25 @@ classdef mp_task_cpf < mp_task_pf
             %% return new math model, or empty matrix if finished
             if isfield(mm.soln.output, 'warmstart')
                 %% get warmstart info
+                ad = mm.get_userdata('aux_data');
                 ws = mm.soln.output.warmstart;
-                ws.lam = ws.cbx.default.lam(end);
-                ws.V = ws.cbx.default.V(:, end);
+
+                %% save solved voltages and lambda for current & prev step
+                ws.clam = ws.x(end);
+                ws.plam = ws.xp(end);
+                [ws.cV, ~] = nm.cpf_convert_x(ws.x, ad);
+                [ws.pV, ~] = nm.cpf_convert_x(ws.xp, ad);
+
+                %% expand tangent z to all nodes + lam, for current & prev step
+                z  = ws.z;
+                zp = ws.zp;
+                ws.z  = zeros(nm.nv, 1);
+                ws.zp = zeros(nm.nv, 1);
+                k = [ad.pv; ad.pq; nm.nv/2 + ad.pq; nm.nv+1];
+                ws.z(k)  = z;
+                ws.zp(k) = zp;
+
+                %% save updated target models
                 obj.nmt = ws.nmt;
                 obj.dmt = ws.dmt;
 

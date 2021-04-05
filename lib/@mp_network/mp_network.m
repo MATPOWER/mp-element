@@ -530,6 +530,16 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
+        function set_node_type_pv(obj, dm, idx)
+            %% obj.set_node_type_pv(dm, idx)
+            %% idx is internal nme index
+            s = obj.set_type_idx_map('node', idx, dm, 1);
+            for k = 1:length(s)
+                nme = obj.elm_by_name(s(k).name);
+                nme.set_node_type_pv(obj, dm, s(k).i);
+            end
+        end
+
         function set_node_type_pq(obj, dm, idx)
             %% obj.set_node_type_pq(dm, idx)
             %% idx is internal nme index

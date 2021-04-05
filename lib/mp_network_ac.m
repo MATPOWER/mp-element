@@ -510,13 +510,13 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         function ad = cpf_aux_data(obj, nmt, dm, dmt, mpopt)
             ad = obj.pf_aux_data(dm, mpopt);
 
-            ad.xfer = obj.cpf_xfer(nmt);
+            [ad.xfer, ad.zz] = obj.cpf_xfer(nmt);
             ad.nmt = nmt;
             ad.dmt = dmt;
             ad.mpopt = mpopt;
         end
 
-        function xfer = cpf_xfer(obj, nmt)
+        function [xfer, zz] = cpf_xfer(obj, nmt)
             %% ensure base and target parameters are identical,
             %% except for fixed power injections & states
             [Y,  L,  M,  N,  i,  s ] = obj.get_params();
@@ -531,9 +531,9 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% create transfer vector from diff between base & target cases
             z0  = obj.params_var('zr') + 1j * obj.params_var('zi');
             z0t = nmt.params_var('zr') + 1j * nmt.params_var('zi');
-            sg = N * (z0 - z0t);
-
-            xfer = obj.C * (s - st + sg);
+            ss = s - st;
+            zz = z0 - z0t;
+            xfer = obj.C * (ss + N * zz);
         end
 
         function cpf_add_vars(obj, mm, nm, dm, mpopt)
@@ -564,8 +564,17 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                     @(k, nx, cx, px, s, opt)cpf_callback_qlim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt), ...
                     41 };
             end
-        end
 
+            if plim
+                opt.events{end+1} = { ...
+                    'PLIM', ...
+                    @(cx, opt)cpf_event_plim(obj, cx, opt, mm, dm, mpopt), ...
+                    mpopt.cpf.p_lims_tol };
+                opt.callbacks{end+1} = { ...
+                    @(k, nx, cx, px, s, opt)cpf_callback_plim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt), ...
+                    40 };
+            end
+        end
 
         %%-----  OPF methods  -----
         function [g, dg] = opf_current_balance_fcn(obj, x_)
