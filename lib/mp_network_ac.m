@@ -369,7 +369,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             opt.verbose = mpopt.verbose;
         end
 
-        function z_ = pf_update_z(obj, x_, z_, ad)
+        function z_ = pf_update_z(obj, v_, z_, ad)
             %% update/allocate slack node active power injections
             %% and slack/PV node reactive power injections
 
@@ -379,7 +379,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% compute power injection at slack/PV nodes
             rpv = [ad.ref; ad.pv];      %% slack and PV nodes
             idx = find(any(obj.C(rpv, :), 1));  %% ports connected to slack/PV nodes
-            Sinj = obj.port_inj_power([x_; z_], 1, idx);
+            Sinj = obj.port_inj_power([v_; z_], 1, idx);
             Sref = obj.C(ad.ref, idx) * Sinj;
             Spv  = obj.C(ad.pv,  idx) * Sinj;
 
@@ -554,7 +554,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             if ~isfield(opt, 'callbacks') || isempty(opt.callbacks)
                 opt.callbacks = {};
             end
-            
+
             if qlim
                 opt.events{end+1} = { ...
                     'QLIM', ...

@@ -135,7 +135,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
             end
         end
 
-        function z = pf_update_z(obj, x, z, ad)
+        function z = pf_update_z(obj, v, z, ad)
             %% update/allocate slack node active power injections
             
             %% coefficient matrix for power injection states at slack bus
@@ -144,7 +144,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
 
             %% power injections at slack nodes
             idx = find(any(obj.C(ad.ref, :), 1));  %% ports connected to slack nodes
-            Pref = obj.C(ad.ref, idx) * obj.port_inj_power([x; z], 1, idx);
+            Pref = obj.C(ad.ref, idx) * obj.port_inj_power([v; z], 1, idx);
 
             %% allocate active power at slack nodes to 1st direct inj state
             %% find all z (except first one) with direct injection at each
