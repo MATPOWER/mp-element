@@ -376,6 +376,22 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             end
         end
 
+        function ef = cpf_event_vlim(obj, cx, opt, mm, dm, mpopt)
+            %% convert cx.x back to v_
+            ad = mm.get_userdata('aux_data');
+
+            %% get current node voltage magnitudes and bounds
+            [v_, ~] = obj.cpf_convert_x(cx.x, ad, 1);
+            [~, vm_min, vm_max] = obj.params_var('vm');
+
+            %% voltage magnitude violations
+            v_Vmin = vm_min - abs(v_);
+            v_Vmax = abs(v_) - vm_max;
+
+            %% assemble event function value
+            ef = [v_Vmin; v_Vmax];
+        end
+
         function ef = cpf_event_qlim(obj, cx, opt, mm, dm, mpopt)
             ad = mm.get_userdata('aux_data');
 
@@ -497,6 +513,82 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
                         msg = sprintf('%sbranch flow limit reached\nbranch: %s -- %s at limit of %g MVA @ lambda = %.4g, in %d continuation steps',...
                             msg, flabel, tlabel, rate_a(L), nx.x(end), k);
+                    end
+
+                    %% prepare to terminate
+                    s.done = 1;
+                    s.done_msg = msg;
+                end
+            end
+        end
+
+        function [nx, cx, s] = cpf_callback_vlim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt)
+            %% initialize
+            if k == 0   %% check for base case voltage violations
+                %% convert cx.x back to v_
+                ad = mm.get_userdata('aux_data');
+
+                %% get current node voltage magnitudes and bounds
+                [v_, ~] = obj.cpf_convert_x(cx.x, ad, 1);
+                [~, vm_min, vm_max] = obj.params_var('vm');
+
+                %% violated voltage magnitudes
+                if any(abs(v_) < vm_min) || any(abs(v_) > vm_max)
+                    %% find node(s) with violated lim(s)
+                    ib = find([abs(v_) < vm_min; abs(v_) > vm_max]);
+                    nb = length(vm_min);
+                    msg = '';
+                    for j = 1:length(ib)
+                        b = ib(j);          %% index of critical node event of interest
+                        if b > nb
+                            b = b - nb;
+                            nlabel = obj.set_type_label('node', b, dm);
+                            msg = sprintf('%snode voltage magnitude limit violated in base case: %s exceeds Vmax limit %g p.u.',...
+                               msg, nlabel, vm_max(b));
+                        else
+                            nlabel = obj.set_type_label('node', b, dm);
+                            msg = sprintf('%snode voltage magnitude limit violated in base case: %s exceeds Vmin limit %g p.u.',...
+                               msg, nlabel, vm_min(b));
+                        end
+                    end
+
+                    %% prepare to terminate
+                    s.done = 1;
+                    s.done_msg = msg;
+                end
+            end
+
+            %% skip if finalize or done
+            if k < 0 || s.done
+                return;
+            end
+
+            %% handle event
+            evnts = s.evnts;
+            for i = 1:length(evnts)
+                if strcmp(evnts(i).name, 'VLIM') && evnts(i).zero
+                    if opt.verbose > 3
+                        msg = sprintf('%s\n    ', evnts(i).msg);
+                    else
+                        msg = '';
+                    end
+
+                    %% find the bus(es) and which lim(s)
+                    ib = evnts(i).idx;
+                    [~, vm_min, vm_max] = obj.params_var('vm');
+                    nb = length(vm_min);
+                    for j = 1:length(ib)
+                        b = ib(j);          %% index of critical node event of interest
+                        if b > nb
+                            b = b - nb;
+                            nlabel = obj.set_type_label('node', b, dm);
+                            msg = sprintf('%snode voltage magnitude limit reached\n%s at Vmax limit %g p.u. @ lambda = %.4g, in %d continuation steps',...
+                                msg, nlabel, vm_max(b), nx.x(end), k);
+                        else
+                            nlabel = obj.set_type_label('node', b, dm);
+                            msg = sprintf('%snode voltage magnitude limit reached\n%s at Vmin limit %g p.u. @ lambda = %.4g, in %d continuation steps',...
+                                msg, nlabel, vm_min(b), nx.x(end), k);
+                        end
                     end
 
                     %% prepare to terminate
