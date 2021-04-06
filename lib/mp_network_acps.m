@@ -348,6 +348,34 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             opt.warmstart.zp = opt.warmstart.zp(k);
         end
 
+        function ef = cpf_event_flim(obj, cx, opt, mm, dm, mpopt)
+            %% get branch flow constraints
+            branch_nme = obj.elm_by_name('branch');
+            branch_dme = branch_nme.data_model_element(dm);
+            rate_a = branch_dme.rate_a * dm.baseMVA;
+            ibr = find(rate_a ~= 0 & rate_a < 1e10);
+            nl2 = length(ibr);          %% number of constrained branches
+
+            if nl2
+                nl = branch_nme.nk;     %% port indexes
+
+                %% convert cx.x back to x_
+                ad = mm.get_userdata('aux_data');
+                x_ = obj.cpf_convert_x(cx.x, ad);
+
+                %% branch flows
+                Sf = branch_nme.port_inj_power(x_, 1, ibr)    * dm.baseMVA;
+                St = branch_nme.port_inj_power(x_, 1, nl+ibr) * dm.baseMVA;
+                Sf = sqrt(Sf .* conj(Sf));
+                St = sqrt(St .* conj(St));
+
+                %% branch flow lim event function
+                ef = max(Sf, St) - rate_a(ibr);
+            else
+                ef = NaN;
+            end
+        end
+
         function ef = cpf_event_qlim(obj, cx, opt, mm, dm, mpopt)
             ad = mm.get_userdata('aux_data');
 
@@ -387,6 +415,95 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
             %% assemble event function value
             ef = v_Pmax * dm.baseMVA;
+        end
+
+        function [nx, cx, s] = cpf_callback_flim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt)
+            %% initialize
+            if k == 0   %% check for base case flow violations
+                %% get branch flow constraints
+                branch_nme = obj.elm_by_name('branch');
+                branch_dme = branch_nme.data_model_element(dm);
+                rate_a = branch_dme.rate_a * dm.baseMVA;
+                ibr = find(rate_a ~= 0 & rate_a < 1e10);
+                nl2 = length(ibr);          %% number of constrained branches
+
+                if nl2
+                    nl = branch_nme.nk;     %% port indexes
+
+                    %% convert cx.x back to x_
+                    ad = mm.get_userdata('aux_data');
+                    x_ = obj.cpf_convert_x(cx.x, ad);
+
+                    %% branch flows
+                    Sf = branch_nme.port_inj_power(x_, 1, ibr)    * dm.baseMVA;
+                    St = branch_nme.port_inj_power(x_, 1, nl+ibr) * dm.baseMVA;
+                    Sf = sqrt(Sf .* conj(Sf));
+                    St = sqrt(St .* conj(St));
+
+                    %% violated branch flows
+                    if any(max(Sf, St) > rate_a(ibr))
+                        %% find the lines and which lim(s)
+                        iL = find(max(Sf, St) > rate_a(ibr));
+                        msg = '';
+                        for j = 1:length(iL)
+                            L = ibr(iL(j));
+                            fidx = find(branch_nme.C(:, L));
+                            tidx = find(branch_nme.C(:, nl+L));
+                            flabel = obj.set_type_label('node', fidx, dm);
+                            tlabel = obj.set_type_label('node', tidx, dm);
+
+                            msg = sprintf('%sbranch flow limit violated in base case: %s -- %s exceeds limit of %g MVA\n',...
+                                msg, flabel, tlabel, rate_a(L));
+                        end
+
+                        %% prepare to terminate
+                        s.done = 1;
+                        s.done_msg = msg;
+                    end
+                end
+            end
+
+            %% skip if finalize or done
+            if k < 0 || s.done
+                return;
+            end
+
+            %% handle event
+            evnts = s.evnts;
+            for i = 1:length(evnts)
+                if strcmp(evnts(i).name, 'FLIM') && evnts(i).zero
+                    if opt.verbose > 3
+                        msg = sprintf('%s\n    ', evnts(i).msg);
+                    else
+                        msg = '';
+                    end
+
+                    %% get branch flow constraints
+                    branch_nme = obj.elm_by_name('branch');
+                    branch_dme = branch_nme.data_model_element(dm);
+                    rate_a = branch_dme.rate_a * dm.baseMVA;
+                    ibr = find(rate_a ~= 0 & rate_a < 1e10);
+                    nl2 = length(ibr);          %% number of constrained branches
+                    nl = branch_nme.nk;     %% port indexes
+
+                    %% find branch(es) with violated lim(s)
+                    iL = evnts(i).idx;
+                    for j = 1:length(iL)
+                        L = ibr(iL(j)); %% index of critical branch event of interest
+                        fidx = find(branch_nme.C(:, L));
+                        tidx = find(branch_nme.C(:, nl+L));
+                        flabel = obj.set_type_label('node', fidx, dm);
+                        tlabel = obj.set_type_label('node', tidx, dm);
+
+                        msg = sprintf('%sbranch flow limit reached\nbranch: %s -- %s at limit of %g MVA @ lambda = %.4g, in %d continuation steps',...
+                            msg, flabel, tlabel, rate_a(L), nx.x(end), k);
+                    end
+
+                    %% prepare to terminate
+                    s.done = 1;
+                    s.done_msg = msg;
+                end
+            end
         end
 
         function [nx, cx, s] = cpf_callback_qlim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt)
