@@ -30,11 +30,10 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
             %% generator active power
             ss = nm.get_idx('state');
             Sg = nm.soln.z(ss.i1.gen:ss.iN.gen);
-            Vg = abs(obj.C' * nm.soln.v);
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, 'Sg', Sg, 'Vg', Vg);
+            dme.update(dm, 'Sg', Sg);
         end
 
         %%-----  OPF methods  -----
