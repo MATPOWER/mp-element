@@ -301,7 +301,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
             %% update z, if requested
             if nargin < 4 || ~only_v
-                z_ = obj.pf_update_z(vx_, z_, ad);
+                z_ = obj.pf_update_z(vx_, z_, ad, mmx(end));
             end
 
             if nargout < 2
