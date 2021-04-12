@@ -46,11 +46,18 @@ classdef mp_task_pf < mp_task
                     gen_dme =  dm.elm_by_name('gen');
                     ref = find(bus_dme.isref);
                     td = struct( ...        %% task data
+                        'iterations', 0, ...            %% total PF iterations
                         'ref', ref, ...                 %% ref bus indices
                         'Varef', bus_dme.Va0(ref), ...  %% ref bus V angles
                         'limited', [], ...              %% indices of fixed Q gens
                         'fixedQg', zeros(gen_dme.n, 1));%% Q output of fixed Q gens
                 end
+
+                %% adjust iteration count for previous runs
+                td.iterations = td.iterations + mm.soln.output.iterations;
+                mm.soln.output.iterations = td.iterations;
+
+                %% enforce Q limits
                 [success, d, td] = dm.pf_enforce_q_lims(td, nm, mpopt);
                 if ~success                 %% entire task fails if Q lim
                     obj.success = success;  %% enforcement indicates failure
