@@ -57,11 +57,13 @@ classdef mp_task < handle
             obj.i_mm = 0;   %% iteration counter for math model loop
 
             %% build data model
+            obj.i_dm = obj.i_dm + 1;
             dm = obj.data_model_build(d, mpopt);
             obj.dm = dm;
 
             while ~isempty(dm)      %% begin data model loop
                 %% build network model
+                obj.i_nm = obj.i_nm + 1;
                 nm = obj.network_model_build(dm, mpopt);
                 obj.nm = nm;
 
@@ -74,6 +76,7 @@ classdef mp_task < handle
 
                 while ~isempty(nm)      %% begin network model loop
                     %% build math model
+                    obj.i_mm = obj.i_mm + 1;
                     mm = obj.math_model_build(nm, dm, mpopt);
                     obj.mm = mm;
 
