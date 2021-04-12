@@ -3,7 +3,9 @@ classdef mp_task_cpf < mp_task_pf
 %   MP_TASK_CPF provides implementation for continuation power flow problem.
 %
 %   Properties
-%       ?
+%       dmt
+%       nmt
+%       warmstart
 %
 %   Methods
 %       ?
@@ -19,6 +21,7 @@ classdef mp_task_cpf < mp_task_pf
     properties
         dmt         %% target data model
         nmt         %% target network model
+        warmstart   %% warm start data
     end
 
     methods
@@ -32,6 +35,16 @@ classdef mp_task_cpf < mp_task_pf
         end
 
         %%-----  task methods  -----
+        function [d, mpopt] = run_pre(obj, d, mpopt)
+            if ~isa(d, 'mp_data')
+                if ~iscell(d) || length(d) < 2
+                    error('mp_task_cpf/run_pre: input cases must be provided in a 2-element cell array, specifying the base and target cases, respectively')
+                end
+                d{1} = run_pre@mp_task_pf(obj, d{1}, mpopt);
+                d{2} = run_pre@mp_task_pf(obj, d{2}, mpopt);
+            end
+        end
+
         function [mm, nm, dm] = next_mm(obj, mm, nm, dm, mpopt)
             %% return new math model, or empty matrix if finished
             if isfield(mm.soln.output, 'warmstart')
@@ -53,6 +66,7 @@ classdef mp_task_cpf < mp_task_pf
                 k = [ad.pv; ad.pq; nm.nv/2 + ad.pq; nm.nv+1];
                 ws.z(k)  = z;
                 ws.zp(k) = zp;
+                obj.warmstart = ws;
 
                 %% save updated target models
                 obj.nmt = ws.nmt;
@@ -64,19 +78,8 @@ classdef mp_task_cpf < mp_task_pf
 
                 %% create new math model
                 mm = obj.math_model_build(nm, dm, mpopt);
-                mm.userdata.warmstart = ws;
             else
                 mm = [];
-            end
-        end
-
-        function [d, mpopt] = run_pre(obj, d, mpopt)
-            if ~isa(d, 'mp_data')
-                if ~iscell(d) || length(d) < 2
-                    error('mp_task_cpf/run_pre: input cases must be provided in a 2-element cell array, specifying the base and target cases, respectively')
-                end
-                d{1} = run_pre@mp_task_pf(obj, d{1}, mpopt);
-                d{2} = run_pre@mp_task_pf(obj, d{2}, mpopt);
             end
         end
 
@@ -113,6 +116,12 @@ classdef mp_task_cpf < mp_task_pf
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)
             opt = nm.cpf_solve_opts(mm, dm, mpopt);
+
+            %% add the warmstart options, if available
+            if ~isempty(obj.warmstart)
+                opt = nm.cpf_solve_opts_warmstart(opt, obj.warmstart, mm);
+                obj.warmstart = [];     %% delete warmstart data from task
+            end
             obj.mm_opt = opt;
         end
     end     %% methods

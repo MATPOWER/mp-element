@@ -333,19 +333,19 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             mm.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end
 
-        function opt = cpf_solve_opts_warmstart(obj, opt, mm)
-            ws = opt.warmstart;
+        function opt = cpf_solve_opts_warmstart(obj, opt, ws, mm)
             ad = mm.get_userdata('aux_data');
 
             %% update warm start states and tangent vectors
-            opt.warmstart.x  = [angle(ws.cV([ad.pv; ad.pq])); abs(ws.cV(ad.pq)); ws.clam];
-            opt.warmstart.xp = [angle(ws.pV([ad.pv; ad.pq])); abs(ws.pV(ad.pq)); ws.plam];
-            opt.x0 = opt.warmstart.x;   %% ignored, overridden by warmstart.x
+            ws.x  = [angle(ws.cV([ad.pv; ad.pq])); abs(ws.cV(ad.pq)); ws.clam];
+            ws.xp = [angle(ws.pV([ad.pv; ad.pq])); abs(ws.pV(ad.pq)); ws.plam];
+            opt.x0 = ws.x;   %% ignored, overridden by ws.x
 
             %% reduce tangent vectors for this mm
             k = [ad.pv; ad.pq; obj.nv/2 + ad.pq; obj.nv+1];
-            opt.warmstart.z  = opt.warmstart.z(k);
-            opt.warmstart.zp = opt.warmstart.zp(k);
+            ws.z  = ws.z(k);
+            ws.zp = ws.zp(k);
+            opt.warmstart = ws;
         end
 
         function ef = cpf_event_flim(obj, cx, opt, mm, dm, mpopt)
