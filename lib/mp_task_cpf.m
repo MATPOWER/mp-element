@@ -32,7 +32,7 @@ classdef mp_task_cpf < mp_task_pf
         end
 
         %%-----  task methods  -----
-        function [mm, nm, dm, td] = next_mm(obj, mm, nm, dm, td, mpopt)
+        function [mm, nm, dm] = next_mm(obj, mm, nm, dm, mpopt)
             %% return new math model, or empty matrix if finished
             if isfield(mm.soln.output, 'warmstart')
                 %% get warmstart info

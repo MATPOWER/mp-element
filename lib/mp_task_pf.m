@@ -3,13 +3,19 @@ classdef mp_task_pf < mp_task
 %   MP_TASK_PF provides implementation for power flow problem.
 %
 %   Properties
-%       ?
+%       dc
+%       iterations
+%       ref
+%       ref0
+%       va_ref0
+%       fixed_q_idx
+%       fixed_q_qty
 %
 %   Methods
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -18,6 +24,12 @@ classdef mp_task_pf < mp_task
 
     properties
         dc      %% true if DC network model (cached in run_pre(), from mpopt)
+        iterations
+        ref
+        ref0
+        va_ref0
+        fixed_q_idx
+        fixed_q_qty
     end
 
     methods
@@ -38,31 +50,18 @@ classdef mp_task_pf < mp_task
             obj.dc = strcmp(upper(mpopt.model), 'DC');
         end
 
-        function [dm, td] = next_dm(obj, mm, nm, dm, td, mpopt)
+        function dm = next_dm(obj, mm, nm, dm, mpopt)
             if ~obj.dc && mpopt.pf.enforce_q_lims
-                %% initialize task data
-                if isempty(td)
-                    bus_dme =  dm.elm_by_name('bus');
-                    gen_dme =  dm.elm_by_name('gen');
-                    ref = find(bus_dme.isref);
-                    td = struct( ...        %% task data
-                        'iterations', 0, ...            %% total PF iterations
-                        'ref', ref, ...                 %% ref bus indices
-                        'Varef', bus_dme.Va0(ref), ...  %% ref bus V angles
-                        'limited', [], ...              %% indices of fixed Q gens
-                        'fixedQg', zeros(gen_dme.n, 1));%% Q output of fixed Q gens
-                end
-
                 %% adjust iteration count for previous runs
-                td.iterations = td.iterations + mm.soln.output.iterations;
-                mm.soln.output.iterations = td.iterations;
+                obj.iterations = obj.iterations + mm.soln.output.iterations;
+                mm.soln.output.iterations = obj.iterations;
 
                 %% enforce Q limits
-                [success, d, td] = dm.pf_enforce_q_lims(td, nm, mpopt);
+                [success, d, obj] = dm.pf_enforce_q_lims(obj, nm, mpopt);
                 if ~success                 %% entire task fails if Q lim
                     obj.success = success;  %% enforcement indicates failure
                 end
-                if isempty(d)   %% Q limits are satisfied
+                if isempty(d)   %% Q limits are satisfied (or failed)
                     dm = [];
                 else            %% use new data model to satisfy limits
                     dm = obj.data_model_build(d, mpopt);
@@ -98,6 +97,15 @@ classdef mp_task_pf < mp_task
                     end
                 case 'DC'
                     nm_class = @mp_network_dc;
+            end
+        end
+
+        function nm = network_model_build_post(obj, nm, dm, mpopt)
+            %% initialize task data, if non-empty AC case with Q lim enforced
+            if ~obj.dc && mpopt.pf.enforce_q_lims ~= 0 && nm.np ~= 0
+                if obj.i_nm == 1
+                    obj.iterations = 0;
+                end
             end
         end
 

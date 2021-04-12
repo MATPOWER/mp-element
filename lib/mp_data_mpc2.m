@@ -138,7 +138,7 @@ classdef mp_data_mpc2 < mp_data
             end
         end
 
-        function [success, d, td] = pf_enforce_q_lims(obj, td, nm, mpopt);
+        function [success, d, pf] = pf_enforce_q_lims(obj, pf, nm, mpopt);
             gen_dme = obj.elm_by_name('gen');
             [mn, mx, both] = gen_dme.violated_q_lims(obj, mpopt);
 
@@ -158,12 +158,12 @@ classdef mp_data_mpc2 < mp_data
                     end
 
                     %% save corresponding limit values
-                    td.fixedQg(mx) = gen_dme.Qmax(mx);
-                    td.fixedQg(mn) = gen_dme.Qmin(mn);
+                    pf.fixed_q_qty(mx) = gen_dme.Qmax(mx);
+                    pf.fixed_q_qty(mn) = gen_dme.Qmin(mn);
                     mx = [mx;mn];
 
                     %% set Qg to binding limit
-                    gen_dme.update(obj, mx, 'Qg', td.fixedQg(mx));
+                    gen_dme.update(obj, mx, 'Qg', pf.fixed_q_qty(mx));
 
                     %% convert to PQ bus
                     bus_dme = obj.elm_by_name('bus');
@@ -189,7 +189,7 @@ classdef mp_data_mpc2 < mp_data
                     end
 
                     %% save indices to list of Q limited gens
-                    td.limited = [td.limited; mx];
+                    pf.fixed_q_idx = [pf.fixed_q_idx; mx];
 
                     %% set d to the updated mpc for next step
                     d = obj.mpc;

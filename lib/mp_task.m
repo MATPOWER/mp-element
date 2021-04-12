@@ -15,13 +15,17 @@ classdef mp_task < handle
 %       mm_opt - solve options for mathematical model
 %       tag - task tag - e.g. 'PF', 'CPF', 'OPF'
 %       name - task name - e.g. 'Power Flow', etc.
+%       i_dm - iteration counter for data model loop
+%       i_nm - iteration counter for network model loop
+%       i_mm - iteration counter for math model loop
 %       success - success flag, 1 - math model solved, 0 - didn't solve
+%       message - output message
 %
 %   Methods
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -48,10 +52,9 @@ classdef mp_task < handle
             [d, mpopt] = obj.run_pre(d, mpopt);
 
             %% initialize
-            obj.i_dm = 1;   %% iteration counter for data model loop
-            obj.i_nm = 1;   %% iteration counter for network model loop
-            obj.i_mm = 1;   %% iteration counter for math model loop
-            td = [];        %% task data
+            obj.i_dm = 0;   %% iteration counter for data model loop
+            obj.i_nm = 0;   %% iteration counter for network model loop
+            obj.i_mm = 0;   %% iteration counter for math model loop
 
             %% build data model
             dm = obj.data_model_build(d, mpopt);
@@ -93,7 +96,7 @@ classdef mp_task < handle
                             repeat_mm = 0;
                         end
 
-                        [mm, nm, dm, td] = obj.next_mm(mm, nm, dm, td, mpopt);
+                        [mm, nm, dm] = obj.next_mm(mm, nm, dm, mpopt);
                         if ~isempty(mm)
                             obj.mm = mm;
                             obj.i_mm = obj.i_mm + 1;
@@ -106,7 +109,7 @@ classdef mp_task < handle
                     else
                         nm = obj.network_model_update(obj.mm, nm);
 
-                        [nm, dm, td] = obj.next_nm(obj.mm, nm, dm, td, mpopt);
+                        [nm, dm] = obj.next_nm(obj.mm, nm, dm, mpopt);
                         if ~isempty(nm)
                             obj.nm = nm;
                             obj.i_nm = obj.i_nm + 1;
@@ -121,7 +124,7 @@ classdef mp_task < handle
                     fprintf('%s\n', obj.message);
                 end
 
-                [dm, td] = obj.next_dm(obj.mm, obj.nm, dm, td, mpopt);
+                dm = obj.next_dm(obj.mm, obj.nm, dm, mpopt);
                 if ~isempty(dm)
                     obj.dm = dm;
                     obj.i_dm = obj.i_dm + 1;
@@ -129,17 +132,17 @@ classdef mp_task < handle
             end                 %% end data model loop
         end
 
-        function [mm, nm, dm, td] = next_mm(obj, mm, nm, dm, td, mpopt)
+        function [mm, nm, dm] = next_mm(obj, mm, nm, dm, mpopt)
             %% return new math model, or empty matrix if finished
             mm = [];
         end
 
-        function [nm, dm, td] = next_nm(obj, mm, nm, dm, td, mpopt)
+        function [nm, dm] = next_nm(obj, mm, nm, dm, mpopt)
             %% return new network model, or empty matrix if finished
             nm = [];
         end
 
-        function [dm, td] = next_dm(obj, mm, nm, dm, td, mpopt)
+        function dm = next_dm(obj, mm, nm, dm, mpopt)
             %% return new data model, or empty matrix if finished
             dm = [];
         end
