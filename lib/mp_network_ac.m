@@ -309,6 +309,22 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             obj.soln.gs_ = obj.port_inj_power(obj.soln.x);
         end
 
+        function va = get_va(obj, idx)
+            if isfield(obj.soln, 'v')           %% solved value
+                if nargin < 2 || isempty(idx)
+                    va = angle(obj.soln.v);
+                else
+                    va = angle(obj.soln.v(idx));
+                end
+            else                                %% initial value
+                if nargin < 2 || isempty(idx)
+                    va = obj.initial_voltage_angle();
+                else
+                    va = obj.initial_voltage_angle(idx);
+                end
+            end
+        end
+
 
         %%-----  PF methods  -----
         function ad = pf_aux_data(obj, dm, mpopt)

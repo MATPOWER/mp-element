@@ -104,7 +104,16 @@ classdef mp_task_pf < mp_task
             %% initialize task data, if non-empty AC case with Q lim enforced
             if ~obj.dc && mpopt.pf.enforce_q_lims ~= 0 && nm.np ~= 0
                 if obj.i_nm == 1
+                    [ref, ~, ~] = nm.node_types(obj, dm);
+                    gen_dme =  dm.elm_by_name('gen');
                     obj.iterations = 0;
+                    obj.ref0 = ref;             %% initial ref node indices
+                    obj.ref = ref;              %% current ref node indices
+                    obj.va_ref0 = nm.get_va(ref);%% initial ref node voltage angles
+                    obj.fixed_q_idx = [];       %% indices of fixed Q gens
+                    obj.fixed_q_qty = zeros(gen_dme.n, 1);  %% Q output of fixed Q gens
+                else        %% update index of ref bus
+                    [obj.ref, ~, ~] = nm.node_types(obj, dm);
                 end
             end
         end
@@ -113,6 +122,15 @@ classdef mp_task_pf < mp_task
             %% convert solved state from math model to network model soln
             [nm.soln.v, nm.soln.z, nm.soln.x] = nm.pf_convert_x(mm.soln.x, ...
                                                 mm.get_userdata('aux_data'));
+
+            %% if ref node has been changed, adjust voltage angles
+            %% to make angle at original ref node = specified value
+            if ~obj.dc && obj.i_nm > 1 && obj.ref ~= obj.ref0
+                vm = abs(nm.soln.v);
+                va = angle(nm.soln.v);
+                va = va - va(obj.ref0) + obj.va_ref0;
+                nm.soln.v = vm .* exp(1j * va);
+            end
         end
 
         %%-----  mathematical model methods  -----

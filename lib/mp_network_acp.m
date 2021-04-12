@@ -36,6 +36,13 @@ classdef mp_network_acp < mp_network_ac% & mp_form_acp
             obj.set_types.vm = 'VOLTAGE MAG VARS (vm)';
         end
 
+        function va = initial_voltage_angle(obj, idx)
+            va = obj.params_var('va');
+            if nargin > 1 && ~isempty(idx)
+                va = va(idx);
+            end
+        end
+
 
         %%-----  OPF methods  -----
         function [vx_, z_, x_] = opf_convert_x(obj, mmx, ad)

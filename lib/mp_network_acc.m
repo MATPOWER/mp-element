@@ -36,6 +36,16 @@ classdef mp_network_acc < mp_network_ac% & mp_form_acc
             obj.set_types.vi = 'IMAG VOLTAGE VARS (vi)';
         end
 
+        function va = initial_voltage_angle(obj, idx)
+            vr = obj.params_var('vr');  %% inital value
+            vi = obj.params_var('vi');  %% inital value
+            if nargin < 2 || isempty(idx)
+                va = angle(vr + 1j * vi);
+            else
+                va = angle(vr(idx) + 1j * vi(idx));
+            end
+        end
+
 
         %%-----  OPF methods  -----
         function [vx_, z_, x_] = opf_convert_x(obj, mmx, ad)
