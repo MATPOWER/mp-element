@@ -65,35 +65,33 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
 
             gen_dme = dm.elm_by_name('gen');
             ng = gen_dme.n;
-            on = gen_dme.on;
+            nb = obj.n;
+            gbus = obj.i2on(gen_dme.bus(gen_dme.on));   %% buses of online gens
             bus = obj.get_table(dm);
             gen = gen_dme.get_table(dm);
 
             %% update bus types based on connected generator status
             %% gen connection matrix, element i, j is 1 if gen j @ bus i is ON
-            Cg = sparse(gen_dme.bus(on), (1:ng)', 1, obj.n, ng);
+            Cg = sparse(gbus, (1:ng)', 1, nb, ng);
             bus_gen_status = Cg * ones(ng, 1);  %% num of gens ON at each bus
 %             obj.isref = obj.isref & bus_gen_status;
               % above line would affect OPF (not just PF, CPF) where REF is
               % used only as angle reference and does not require an online gen
-            obj.ispv  = obj.ispv  & bus_gen_status;
-            obj.ispq  = obj.ispq | ~bus_gen_status;
+            obj.ispv = obj.ispv &  bus_gen_status;
+            obj.ispq = obj.ispq | ~bus_gen_status;
 %             obj.ensure_ref_bus();   %% pick a new ref bus if one does not exist
 
             %% initialize voltage from bus table
-            Va = bus(:, VA) * pi/180;
-            Vm = bus(:, VM);
+            obj.Va0 = bus(obj.on, VA) * pi/180;
+            obj.Vm0 = bus(obj.on, VM);
 
             %% pull PV bus voltage magnitudes from mpc.gen(:, VG)
-            gbus = gen_dme.bus(gen_dme.on);     %% buses of online gens
-            vcb = ones(obj.nr, 1);  %% create mask of voltage-controlled buses
+            vcb = ones(nb, 1);      %% create mask of voltage-controlled buses
             vcb(obj.ispq) = 0;      %% exclude PQ buses
-            %% find indices of online at online v-c buses
-            k = find(obj.status(gbus) & vcb(gbus));
-            Vm(gbus(k)) = gen(gen_dme.on(k), VG);
+            %% find indices of online gens at online v-c buses
+            k = find(vcb(gbus));
+            obj.Vm0(gbus(k)) = gen(gen_dme.on(k), VG);
 
-            obj.Vm0 = Vm(obj.on);
-            obj.Va0 = Va(obj.on);
             obj.Vmin = bus(obj.on, VMIN);
             obj.Vmax = bus(obj.on, VMAX);
         end

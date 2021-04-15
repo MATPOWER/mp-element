@@ -26,6 +26,7 @@ classdef dm_element < handle
         status          %% nr x 1 vector of on/off status for elements
         on              %% n x 1 vector of row indices of online elements
         off             %% (nr-n) x 1 vector of row indices of offline elements
+        i2on            %% nr x 1 vector mapping row index to index in on/off respectively
     end     %% properties
 
     methods
@@ -92,6 +93,9 @@ classdef dm_element < handle
                 obj.on  = find(  obj.status );
                 obj.off = find( ~obj.status );
                 obj.n   = length(obj.on);
+                obj.i2on = zeros(obj.nr, 1);
+                obj.i2on(obj.on ) = (1:obj.n);
+                obj.i2on(obj.off) = (1:length(obj.off));
             end
         end
 

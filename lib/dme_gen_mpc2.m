@@ -259,8 +259,8 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
                 %% first check for INFEASIBILITY
                 %% find available online gens at REF and PV buses
                 bus_dme = dm.elm_by_name('bus');
-                remaining = find(   bus_dme.isref(obj.bus(obj.on)) | ...
-                                    bus_dme.ispv( obj.bus(obj.on)) );
+                gbus = bus_dme.i2on(obj.bus(obj.on));   %% buses of online gens
+                remaining = find( bus_dme.isref(gbus) | bus_dme.ispv( gbus) );
 
                 if length(both) == length(remaining) && ...
                         all(both == remaining) && (isempty(mx) || isempty(mn))

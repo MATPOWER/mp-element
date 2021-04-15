@@ -42,8 +42,9 @@ classdef dme_shunt_mpc2 < dme_shunt & dm_format_mpc2
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS] = idx_bus;
 
             tab = obj.get_table(dm);
-            obj.Gs = tab(obj.bus(obj.on), GS) / dm.baseMVA;
-            obj.Bs = tab(obj.bus(obj.on), BS) / dm.baseMVA;
+            bidx = obj.bus(obj.on);             %% buses of shunts
+            obj.Gs = tab(bidx, GS) / dm.baseMVA;
+            obj.Bs = tab(bidx, BS) / dm.baseMVA;
         end
     end     %% methods
 end         %% classdef

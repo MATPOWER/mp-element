@@ -42,8 +42,9 @@ classdef dme_load_mpc2 < dme_load & dm_format_mpc2
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD] = idx_bus;
 
             tab = obj.get_table(dm);
-            obj.Pd = tab(obj.bus(obj.on), PD) / dm.baseMVA;
-            obj.Qd = tab(obj.bus(obj.on), QD) / dm.baseMVA;
+            bidx = obj.bus(obj.on);             %% buses of loads
+            obj.Pd = tab(bidx, PD) / dm.baseMVA;
+            obj.Qd = tab(bidx, QD) / dm.baseMVA;
         end
 
         function [s, Sd, Y] = sys_wide_zip_loads(obj, dm)

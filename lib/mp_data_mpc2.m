@@ -168,11 +168,12 @@ classdef mp_data_mpc2 < mp_data
                     %% convert to PQ bus
                     bus_dme = obj.elm_by_name('bus');
                     ref0 = find(bus_dme.isref);
-                    if length(ref0) > 1 && any(bus_dme.isref(gen_dme.bus(mx)))
+                    bidx = bus_dme.i2on(gen_dme.bus(gen_dme.on(mx)));   %% bus of mx
+                    if length(ref0) > 1 && any(bus_dme.isref(bidx))
                         error('mp_data_mpc2/pf_enforce_q_lims: Sorry, MATPOWER cannot enforce Q limits for slack buses in systems with multiple slacks.');
                     end
                     %% set bus type to PQ
-                    bus_dme.set_bus_type_pq(gen_dme.bus(mx));
+                    bus_dme.set_bus_type_pq(bidx);
                     %% potentially pick new slack bus
                     ntv = nm.node_types(nm, obj);       %% node type vector
                     [i1, iN] = nm.get_node_idx('bus');  %% bus node indices
@@ -289,11 +290,12 @@ classdef mp_data_mpc2 < mp_data
         function obj = set_bus_v_lims_via_vg(obj, use_vg)
             bus_dme = obj.elm_by_name('bus');
             gen_dme = obj.elm_by_name('gen');
+            gbus = bus_dme.i2on(gen_dme.bus(gen_dme.on));   %% buses of online gens
             nb = bus_dme.n;
             ng = gen_dme.n;
 
             %% gen connection matrix, element i, j is 1 if, generator j at bus i is ON
-            Cg = sparse(gen_dme.bus, (1:ng)', 1, nb, ng);
+            Cg = sparse(gbus, (1:ng)', 1, nb, ng);
             Vbg = Cg * sparse(1:ng, 1:ng, gen_dme.Vg, ng, ng);
             Vmax = max(Vbg, [], 2); %% zero for non-gen buses, else max Vg of gens @ bus
             ib = find(Vmax);                %% buses with online gens

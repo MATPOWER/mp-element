@@ -38,11 +38,13 @@ classdef nme_gen < nm_element
 
         function obj = build_params(obj, nm, dm)
             dme = obj.data_model_element(dm);
+            bus_dme = dm.elm_by_name('bus');
 
             %% incidence matrices
             nidx = nm.get_node_idx('bus');      %% node indices for 'bus'
             sidx = nm.get_state_idx(obj.name);  %% state indices for 'gen'
-            idx = nidx(dme.bus);                %% node indices for gens
+            bidx = bus_dme.i2on(dme.bus(dme.on));%% online bus indices for gens
+            idx = nidx(bidx);                   %% node indices for gens
             obj.C = obj.incidence_matrix(nm.getN('node'), idx);
             obj.D = obj.incidence_matrix(nm.getN('state'), sidx);
         end

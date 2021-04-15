@@ -22,11 +22,14 @@ classdef nme_branch < nm_element
 
         function obj = build_params(obj, nm, dm)
             dme = obj.data_model_element(dm);
+            bus_dme = dm.elm_by_name('bus');
 
             %% incidence matrices
             nidx = nm.get_node_idx('bus');  %% node indices for 'bus'
-            fidx = nidx(dme.fbus);          %% branch "from" port node indices
-            tidx = nidx(dme.tbus);          %% branch "to" port node indices
+            fbidx = bus_dme.i2on(dme.fbus(dme.on));%% online bus indices branch "from"
+            tbidx = bus_dme.i2on(dme.tbus(dme.on));%% online bus indices branch "to"
+            fidx = nidx(fbidx);             %% branch "from" port node indices
+            tidx = nidx(tbidx);             %% branch "to" port node indices
             obj.C = obj.incidence_matrix(nm.getN('node'), fidx, tidx);
             obj.D = obj.incidence_matrix(nm.getN('state'));
         end
