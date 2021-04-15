@@ -697,7 +697,9 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                     end
                     if ~s.done
                         s.done = 1;
-                        s.warmstart = struct('nmt', nmt, 'dmt', dmt);
+                        dir_from_jac_eigs = isempty(find(nx.z(ad.npv+ad.npq+1:end-1) > 0, 1));
+                        s.warmstart = struct('nmt', nmt, 'dmt', dmt, ...
+                            'dir_from_jac_eigs', dir_from_jac_eigs);
                     end
                     s.evnts(i).msg = msg;
                 end
