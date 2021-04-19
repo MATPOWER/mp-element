@@ -297,11 +297,11 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
             %% update z_ based on lambda
             lam = mmx(end);
-            z_ = z_ - mmx(end) * ad.zz;
+            z_ = z_ - lam * ad.zz;
 
             %% update z, if requested
             if nargin < 4 || ~only_v
-                z_ = obj.pf_update_z(vx_, z_, ad, mmx(end));
+                z_ = obj.pf_update_z(vx_, z_, ad, lam);
             end
 
             if nargout < 2

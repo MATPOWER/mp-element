@@ -82,5 +82,15 @@ classdef dme_load_mpc2 < dme_load & dm_format_mpc2
                 s = []; Sd = []; Y = [];
             end
         end
+
+        function dm = parameterized(obj, dm, dmb, dmt, lam)
+            %% define named indices into data matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+
+            cols = [PD QD];
+            dm.mpc.bus(:, cols) = dmb.mpc.bus(:, cols) + ...
+                lam * (dmt.mpc.bus(:, cols) - dmb.mpc.bus(:, cols));
+        end
     end     %% methods
 end         %% classdef

@@ -595,6 +595,13 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             obj.cpf_add_node_balance_constraints(mm, dm, mpopt);
         end
 
+        function obj = cpf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% each element updates its data model
+            for nme = obj.elm_list
+                nme{1}.cpf_data_model_update(mm, nm, dm, mpopt);
+            end
+        end
+
         function opt = cpf_solve_opts(obj, mm, dm, mpopt)
             ad = mm.get_userdata('aux_data');
             if mpopt.verbose > 4

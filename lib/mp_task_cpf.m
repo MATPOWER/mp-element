@@ -19,8 +19,8 @@ classdef mp_task_cpf < mp_task_pf
 %   See https://matpower.org for more info.
 
     properties
-        dmt         %% target data model
-        nmt         %% target network model
+        dmt         %% data model for target case
+        nmt         %% network model for target case
         warmstart   %% warm start data
     end
 
@@ -72,9 +72,15 @@ classdef mp_task_cpf < mp_task_pf
                 obj.nmt = ws.nmt;
                 obj.dmt = ws.dmt;
 
-                %% update network and data models with current solution
+                %% update network model with current solution
                 obj.nm = obj.network_model_update(mm, nm);
-                obj.dm = obj.data_model_update(mm, obj.nm, dm, mpopt);
+
+                %% update data model voltages only
+                %% preserve original base/target specifications
+                for k = 1:obj.nm.node.NS
+                    nme = obj.nm.elm_by_name(obj.nm.node.order(k).name);
+                    nme.pf_data_model_update(mm, obj.nm, obj.dm, mpopt);
+                end
 
                 %% create new math model
                 mm = obj.math_model_build(nm, dm, mpopt);
@@ -93,11 +99,21 @@ classdef mp_task_cpf < mp_task_pf
             end
         end
 
+        function dm = data_model_update(obj, mm, nm, dm, mpopt)
+            nm.cpf_data_model_update(mm, nm, dm, mpopt);
+        end
+
 
         %%-----  network model methods  -----
         function nm = network_model_build(obj, dm, mpopt)
             nm      = network_model_build@mp_task_pf(obj, dm, mpopt);
             obj.nmt = network_model_build@mp_task_pf(obj, obj.dmt, mpopt);
+        end
+
+        function nm = network_model_convert_x(obj, mm, nm)
+            %% convert solved state from math model to network model soln
+            [nm.soln.v, nm.soln.z, nm.soln.x] = nm.cpf_convert_x(mm.soln.x, ...
+                                                mm.get_userdata('aux_data'));
         end
 
 

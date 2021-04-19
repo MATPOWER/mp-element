@@ -528,15 +528,17 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
         %%-----  CPF methods  -----
         function ad = cpf_aux_data(obj, nmt, dm, dmt, mpopt)
-            ad = obj.pf_aux_data(dm, mpopt);
+            ad  = obj.pf_aux_data(dm,  mpopt);
+            adt = nmt.pf_aux_data(dmt, mpopt);
 
-            ad = obj.cpf_xfer(nmt, ad);
+            ad = obj.cpf_xfer(nmt, ad, adt);
             ad.nmt = nmt;
+            ad.dmb = dm.copy(); %% save copy of unmodified base case data model
             ad.dmt = dmt;
-            ad.mpopt = mpopt;
+            ad.adt = adt;
         end
 
-        function ad = cpf_xfer(obj, nmt, ad)
+        function ad = cpf_xfer(obj, nmt, ad, adt)
             %% ensure base and target parameters are identical,
             %% except for fixed power injections & states
             [Y,  L,  M,  N,  i,  s ] = obj.get_params();
@@ -548,23 +550,24 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 error('mpe_network_ac/cpf_xfer: base and target cases must differ only in direct power injections')
             end
 
-            %% base and target states
-            z0  = obj.params_var('zr') + 1j * obj.params_var('zi');
-            z0t = nmt.params_var('zr') + 1j * nmt.params_var('zi');
+            %% nodal transfer from direct power injection states
+            NN = obj.C * N;
+            NNt = obj.C * Nt;
+            LL = obj.C * L;
+            LLt = obj.C * Lt;
+            zzr = ad.zr - adt.zr;
+            zzi = ad.zi - adt.zi;
+            kref = find(any(LL(ad.ref, :), 1) | any(NN(ad.ref, :), 1));
+            kpv  = find(any(LL(ad.pv,  :), 1) | any(NN(ad.pv,  :), 1));
+            zzr(kref) = 0;   %% zero active transfer at slack node
+            zzi(kpv)  = 0;   %% zero reactive transfer at PV nodes
 
             %% nodal transfer from constant power injections
-            ad.ss = obj.C * (s - st);
-
-            %% nodal transfer from direct power injection states
-            N = obj.C * N;
-            ad.zz = z0 - z0t;
-            k = find(any(N(ad.ref, :), 1)); %% for slack node injections
-            ad.zz(k) = 1j * imag(ad.zz(k)); %% zero out active transfer
-            k = find(any(N(ad.pv, :), 1));  %% for PV node injections
-            ad.zz(k) = real(ad.zz(k));      %% zero out reactive transfer
+            ss = obj.C * (s - st);
 
             %% create transfer vector from diff between base & target cases
-            ad.xfer = ad.ss + N * ad.zz;
+            ad.zz   = zzr + 1j * zzi;
+            ad.xfer = ss + NN * ad.zz;
         end
 
         function cpf_add_vars(obj, mm, nm, dm, mpopt)

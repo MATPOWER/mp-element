@@ -46,5 +46,15 @@ classdef dme_shunt_mpc2 < dme_shunt & dm_format_mpc2
             obj.Gs = tab(bidx, GS) / dm.baseMVA;
             obj.Bs = tab(bidx, BS) / dm.baseMVA;
         end
+
+        function dm = parameterized(obj, dm, dmb, dmt, lam)
+            %% define named indices into data matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+
+            cols = [GS BS];
+            dm.mpc.bus(:, cols) = dmb.mpc.bus(:, cols) + ...
+                lam * (dmt.mpc.bus(:, cols) - dmb.mpc.bus(:, cols));
+        end
     end     %% methods
 end         %% classdef
