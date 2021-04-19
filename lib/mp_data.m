@@ -31,7 +31,7 @@ classdef mp_data < mpe_container
 
             %% make copies of each individual element
             for k = 1:length(obj.elm_list)
-                obj.elm_list{k} = obj.elm_list{k}.copy();
+                new_obj.elm_list{k} = new_obj.elm_list{k}.copy();
             end
         end
 
