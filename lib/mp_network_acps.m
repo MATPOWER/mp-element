@@ -337,40 +337,6 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             f = (1-lam) * fb + lam * ft;
         end
 
-%         function [f, J] = cpf_equations(obj, x, ad)
-%             %% index vector
-%             pvq = [ad.pv; ad.pq];
-%             nmt = ad.nmt;
-%             lam = x(end);
-% 
-%             %% update network model states (x_) from math model state (x)
-%             xb_ = obj.pf_convert_x(x, ad, 1);
-%             xt_ = nmt.pf_convert_x(x, ad.adt, 1);
-% 
-%             %% incidence matrix
-%             C = obj.C;
-% 
-%             %% Jacobian
-%             if nargout > 1
-%                 %% get port power injections with derivatives
-%                 [Sb, Sbva, Sbvm] = obj.port_inj_power(xb_, 1);
-%                 [St, Stva, Stvm] = nmt.port_inj_power(xt_, 1);
-% 
-%                 SSva = C * ((1 - lam) * Sbva + lam * Stva);
-%                 SSvm = C * ((1 - lam) * Sbvm + lam * Stvm);
-%                 SSlam = C * (St - Sb);
-%                 J = [   real(SSva(pvq,   pvq))  real(SSvm(pvq,   ad.pq)) real(SSlam(pvq,   1));
-%                         imag(SSva(ad.pq, pvq))  imag(SSvm(ad.pq, ad.pq)) imag(SSlam(ad.pq, 1))    ];
-%             else
-%                 %% get port power injections (w/o derivatives)
-%                 Sb = obj.port_inj_power(xb_, 1);
-%                 St = nmt.port_inj_power(xt_, 1);
-%             end
-%             %% nodal power balance
-%             SS = C * ((1 - lam) * Sb + lam * St);
-%             f = [real(SS(pvq)); imag(SS(ad.pq))];
-%         end
-
         function cpf_add_node_balance_constraints(obj, mm, dm, mpopt)
             ad = mm.get_userdata('aux_data');
             

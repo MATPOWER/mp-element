@@ -530,14 +530,14 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             ad  = obj.pf_aux_data(dm,  mpopt);
             adt = nmt.pf_aux_data(dmt, mpopt);
 
-            ad = obj.cpf_xfer(nmt, ad, adt);
+            ad = obj.cpf_check_xfer(nmt, ad, adt);
             ad.nmt = nmt;
             ad.dmb = dm.copy(); %% save copy of unmodified base case data model
             ad.dmt = dmt;
             ad.adt = adt;
         end
 
-        function ad = cpf_xfer(obj, nmt, ad, adt)
+        function ad = cpf_check_xfer(obj, nmt, ad, adt)
             %% ensure base and target parameters are identical,
             %% except for fixed power injections & states
             [L,  N,  i,  s ] = obj.get_params([], {'L', 'N', 'i', 's'});
@@ -555,13 +555,16 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             kpv  = find(any(LL(ad.pv,  :), 1) | any(NN(ad.pv,  :), 1));
             zzr(kref) = 0;   %% zero active transfer at slack node
             zzi(kpv)  = 0;   %% zero reactive transfer at PV nodes
+            zz = zzr + 1j * zzi;
 
             %% nodal transfer from constant power injections
             ss = obj.C * (s - st);
 
-            %% create transfer vector from diff between base & target cases
-            ad.zz   = zzr + 1j * zzi;
-            ad.xfer = ss + NN * ad.zz;
+            %% create transfer vector from diff in direct power injections
+            %% between base and target, from constant power elements and
+            %% direct power injection states, used only to auto select
+            %% largest transfer bus for default voltage nose-curve plot
+            ad.xfer = ss + NN * zz;
 
             %% Power flow equations must be linear in lambda. To do that
             %% we must ensure that ...
@@ -570,20 +573,20 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             [vat, vmt] = obj.va_vm(adt.v1, adt.v2);
             rpv = [ad.ref; ad.pv];
             if norm(va(ad.ref)-vat(ad.ref), Inf) > tol
-                error('mpe_network_ac/cpf_xfer: base and target cases must have identical voltages angles at reference nodes.')
+                error('mpe_network_ac/cpf_check_xfer: base and target cases must have identical voltages angles at reference nodes.')
             end
             if norm(vm(rpv)-vmt(rpv), Inf) > tol
-                error('mpe_network_ac/cpf_xfer: base and target cases must have identical voltage magnitudes at reference and PV nodes.')
+                error('mpe_network_ac/cpf_check_xfer: base and target cases must have identical voltage magnitudes at reference and PV nodes.')
             end
             %% 2. Elements of z that vary with lambda must have only constant
             %%    coefficients, i.e. corresponding columns of L and N must be
             %%    identical in base and target models.
-            k = find(ad.zz);
+            k = find(zz);
             if norm(LL(:,k) - LLt(:,k), Inf) > tol
-                error('mpe_network_ac/cpf_xfer: base and target cases must have identical coefficients for any current injection state variables that vary from base to target.')
+                error('mpe_network_ac/cpf_check_xfer: base and target cases must have identical coefficients for any current injection state variables that vary from base to target.')
             end
             if norm(NN(:,k) - NNt(:,k), Inf) > tol
-                error('mpe_network_ac/cpf_xfer: base and target cases must have identical coefficients for any power injection state variables that vary from base to target.')
+                error('mpe_network_ac/cpf_check_xfer: base and target cases must have identical coefficients for any power injection state variables that vary from base to target.')
             end
         end
 
