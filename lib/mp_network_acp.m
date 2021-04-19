@@ -43,6 +43,10 @@ classdef mp_network_acp < mp_network_ac% & mp_form_acp
             end
         end
 
+        function [va, vm] = va_vm(obj, v1, v2)
+            va = v1;
+            vm = v2;
+        end
 
         %%-----  OPF methods  -----
         function [vx_, z_, x_] = opf_convert_x(obj, mmx, ad)

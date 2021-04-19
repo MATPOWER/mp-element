@@ -46,6 +46,12 @@ classdef mp_network_acc < mp_network_ac% & mp_form_acc
             end
         end
 
+        function [va, vm] = va_vm(obj, v1, v2)
+            v_ = v1 + 1j * v2;
+            va = angle(v_);
+            vm = abs(v_);
+        end
+
 
         %%-----  OPF methods  -----
         function [vx_, z_, x_] = opf_convert_x(obj, mmx, ad)

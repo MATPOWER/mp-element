@@ -74,9 +74,11 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             %% ... = obj.pf_convert(mmx, ad, only_v)
 
             %% update v_, z_ from mmx
-            ad.v1([ad.pv; ad.pq]) = mmx(1:ad.npv+ad.npq);                   %% va
-            ad.v2(ad.pq)          = mmx(ad.npv+ad.npq+1:ad.npv+2*ad.npq);   %% vm
-            vx_ = ad.v2 .* exp(1j * ad.v1);
+            v1 = ad.v1;
+            v2 = ad.v2;
+            v1([ad.pv; ad.pq]) = mmx(1:ad.npv+ad.npq);                  %% va
+            v2(ad.pq)          = mmx(ad.npv+ad.npq+1:ad.npv+2*ad.npq);  %% vm
+            vx_ = v2 .* exp(1j * v1);
             z_ = ad.zr + 1j * ad.zi;
 
             %% update z, if requested
@@ -292,16 +294,25 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
         %%-----  CPF methods  -----
         function [vx_, z_, x_] = cpf_convert_x(obj, mmx, ad, only_v)
-            %% update voltages and get base z_
-            [vx_, z_] = obj.pf_convert_x(mmx(1:end-1), ad, 1);  %% only v
-
-            %% update z_ based on lambda
+            nmt = ad.nmt;
             lam = mmx(end);
-            z_ = z_ - lam * ad.zz;
 
-            %% update z, if requested
+            %% update voltages and get base z_
+            [vx_,  zb_] = obj.pf_convert_x(mmx(1:end-1), ad,     1);
+            [vxt_, zt_] = nmt.pf_convert_x(mmx(1:end-1), ad.adt, 1);
+            assert(norm(vx_-vxt_, Inf) < eps);
+
+            %% compute z_ as function of lambda
+            z_ = (1-lam) * zb_+ lam * zt_;
+
+            %% update dependent portions of z, if requested
             if nargin < 4 || ~only_v
-                z_ = obj.pf_update_z(vx_, z_, ad, lam);
+                rpv = [ad.ref; ad.pv];      %% slack and PV nodes
+                idx = find(any(obj.C(rpv, :), 1));  %% ports connected to slack/PV nodes
+                Sinjb = obj.port_inj_power([vx_; zb_], 1, idx);
+                Sinjt = nmt.port_inj_power([vx_; zt_], 1, idx);
+                Sinj = (1-lam) * Sinjb + lam * Sinjt;
+                z_ = obj.pf_update_z(vx_, z_, ad, Sinj, idx);
             end
 
             if nargout < 2
@@ -312,18 +323,53 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
         end
 
         function [f, J] = cpf_equations(obj, x, ad)
-            %% index vector
-            pvq = [ad.pv; ad.pq];
+            nmt = ad.nmt;
+            lam = x(end);
 
-            b = [ real(ad.xfer(pvq)); imag(ad.xfer(ad.pq)) ];
             if nargout > 1
-                [f, J] = obj.pf_node_balance_equations(x(1:end-1), ad);
-                J = [J -b];
+                [fb, Jb] = obj.pf_node_balance_equations(x(1:end-1), ad);
+                [ft, Jt] = nmt.pf_node_balance_equations(x(1:end-1), ad.adt);
+                J = [(1-lam) * Jb + lam * Jt    ft - fb];
             else
-                f = obj.pf_node_balance_equations(x(1:end-1), ad);
+                fb = obj.pf_node_balance_equations(x(1:end-1), ad);
+                ft = nmt.pf_node_balance_equations(x(1:end-1), ad.adt);
             end
-            f = f - b * x(end);
+            f = (1-lam) * fb + lam * ft;
         end
+
+%         function [f, J] = cpf_equations(obj, x, ad)
+%             %% index vector
+%             pvq = [ad.pv; ad.pq];
+%             nmt = ad.nmt;
+%             lam = x(end);
+% 
+%             %% update network model states (x_) from math model state (x)
+%             xb_ = obj.pf_convert_x(x, ad, 1);
+%             xt_ = nmt.pf_convert_x(x, ad.adt, 1);
+% 
+%             %% incidence matrix
+%             C = obj.C;
+% 
+%             %% Jacobian
+%             if nargout > 1
+%                 %% get port power injections with derivatives
+%                 [Sb, Sbva, Sbvm] = obj.port_inj_power(xb_, 1);
+%                 [St, Stva, Stvm] = nmt.port_inj_power(xt_, 1);
+% 
+%                 SSva = C * ((1 - lam) * Sbva + lam * Stva);
+%                 SSvm = C * ((1 - lam) * Sbvm + lam * Stvm);
+%                 SSlam = C * (St - Sb);
+%                 J = [   real(SSva(pvq,   pvq))  real(SSvm(pvq,   ad.pq)) real(SSlam(pvq,   1));
+%                         imag(SSva(ad.pq, pvq))  imag(SSvm(ad.pq, ad.pq)) imag(SSlam(ad.pq, 1))    ];
+%             else
+%                 %% get port power injections (w/o derivatives)
+%                 Sb = obj.port_inj_power(xb_, 1);
+%                 St = nmt.port_inj_power(xt_, 1);
+%             end
+%             %% nodal power balance
+%             SS = C * ((1 - lam) * Sb + lam * St);
+%             f = [real(SS(pvq)); imag(SS(ad.pq))];
+%         end
 
         function cpf_add_node_balance_constraints(obj, mm, dm, mpopt)
             ad = mm.get_userdata('aux_data');

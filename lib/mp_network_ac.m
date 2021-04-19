@@ -385,25 +385,24 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             opt.verbose = mpopt.verbose;
         end
 
-        function z_ = pf_update_z(obj, v_, z_, ad, lambda)
+        function z_ = pf_update_z(obj, v_, z_, ad, Sinj, idx)
             %% update/allocate slack node active power injections
             %% and slack/PV node reactive power injections
 
+            rpv = [ad.ref; ad.pv];      %% slack and PV nodes
+            if nargin < 5 | isempty(Sinj)
+                %% compute power injection at slack/PV nodes
+                idx = find(any(obj.C(rpv, :), 1));  %% ports connected to slack/PV nodes
+                Sinj = obj.port_inj_power([v_; z_], 1, idx);
+            end
+            Sref = obj.C(ad.ref, idx) * Sinj;
+            Spv  = obj.C(ad.pv,  idx) * Sinj;
+            Qpv = imag(Spv);
+
+            %%-----  active power at slack nodes  -----
             %% coefficient matrix for power injection states
             CC = obj.C * obj.get_params([], 'N') * obj.D';
 
-            %% compute power injection at slack/PV nodes
-            rpv = [ad.ref; ad.pv];      %% slack and PV nodes
-            idx = find(any(obj.C(rpv, :), 1));  %% ports connected to slack/PV nodes
-            Sinj = obj.port_inj_power([v_; z_], 1, idx);
-            Sref = obj.C(ad.ref, idx) * Sinj;
-            Spv  = obj.C(ad.pv,  idx) * Sinj;
-            if nargin > 4   %% for CPF, adjust by lambda
-                Sref = Sref - ad.xfer(ad.ref) * lambda;
-                Spv  = Spv  - ad.xfer(ad.pv)  * lambda;
-            end
-
-            %%-----  active power at slack nodes  -----
             %% coefficient matrix for power injection states for slack nodes
             CCref = CC(ad.ref, :);
             jr = find(any(CCref, 1));   %% indices of corresponding states
@@ -437,7 +436,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% coefficient matrix for power injection states for slack/PV nodes
             CCrpv = CC(rpv, :);
             jrpv = find(any(CCrpv, 1));
-            Qrpv = imag([Sref; Spv]) - CCrpv * imag(z_);
+            Qrpv = [imag(Sref); Qpv] - CCrpv * imag(z_);
 
             %% find all z with direct injection at each slack/PV node
             [i, j] = find(CCrpv);
@@ -541,14 +540,9 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         function ad = cpf_xfer(obj, nmt, ad, adt)
             %% ensure base and target parameters are identical,
             %% except for fixed power injections & states
-            [Y,  L,  M,  N,  i,  s ] = obj.get_params();
-            [Yt, Lt, Mt, Nt, it, st] = nmt.get_params();
+            [L,  N,  i,  s ] = obj.get_params([], {'L', 'N', 'i', 's'});
+            [Lt, Nt, it, st] = nmt.get_params([], {'L', 'N', 'i', 's'});
             tol = 1e-12;
-            if norm(Y-Yt, Inf) > tol || norm(L-Lt, Inf) > tol || ...
-                    norm(M-Mt, Inf) > tol || norm(N-Nt, Inf) > tol || ...
-                    norm(i-it, Inf) > tol
-                error('mpe_network_ac/cpf_xfer: base and target cases must differ only in direct power injections')
-            end
 
             %% nodal transfer from direct power injection states
             NN = obj.C * N;
@@ -568,6 +562,29 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% create transfer vector from diff between base & target cases
             ad.zz   = zzr + 1j * zzi;
             ad.xfer = ss + NN * ad.zz;
+
+            %% Power flow equations must be linear in lambda. To do that
+            %% we must ensure that ...
+            %% 1. Specified voltages do not vary with lambda.
+            [va,  vm ] = obj.va_vm( ad.v1,  ad.v2);
+            [vat, vmt] = obj.va_vm(adt.v1, adt.v2);
+            rpv = [ad.ref; ad.pv];
+            if norm(va(ad.ref)-vat(ad.ref), Inf) > tol
+                error('mpe_network_ac/cpf_xfer: base and target cases must have identical voltages angles at reference nodes.')
+            end
+            if norm(vm(rpv)-vmt(rpv), Inf) > tol
+                error('mpe_network_ac/cpf_xfer: base and target cases must have identical voltage magnitudes at reference and PV nodes.')
+            end
+            %% 2. Elements of z that vary with lambda must have only constant
+            %%    coefficients, i.e. corresponding columns of L and N must be
+            %%    identical in base and target models.
+            k = find(ad.zz);
+            if norm(LL(:,k) - LLt(:,k), Inf) > tol
+                error('mpe_network_ac/cpf_xfer: base and target cases must have identical coefficients for any current injection state variables that vary from base to target.')
+            end
+            if norm(NN(:,k) - NNt(:,k), Inf) > tol
+                error('mpe_network_ac/cpf_xfer: base and target cases must have identical coefficients for any power injection state variables that vary from base to target.')
+            end
         end
 
         function cpf_add_vars(obj, mm, nm, dm, mpopt)
