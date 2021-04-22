@@ -619,7 +619,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                 'adapt_step_tol',   mpopt.cpf.adapt_step_tol, ...
                 'target_lam_tol',   mpopt.cpf.target_lam_tol, ...
                 'nose_tol',         mpopt.cpf.nose_tol, ...
-                'output_fcn',       @(cbx, varargin)cpf_pne_output_fcn(obj, ad, cbx, varargin{:}), ...
+                'output_fcn',       @(varargin)cpf_pne_output_fcn(obj, ad, varargin{:}), ...
                 'plot',             struct( ...
                     'level',            mpopt.cpf.plot.level, ...
                     'idx',              mpopt.cpf.plot.bus, ...
@@ -634,31 +634,14 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             opt = obj.cpf_add_callbacks(opt, mm, dm, mpopt);
         end
 
-        function rv = cpf_pne_output_fcn(obj, ad, cbx, x, x_hat)
-            %% cbx     = obj.cpf_pne_history(ad, cbx, x, x_hat)
-            %% results = obj.cpf_pne_history(ad, cbx, results)
-            if nargin == 5      %% store values in callback state
-                rv = cbx;
+        function [names, vals] = cpf_pne_output_fcn(obj, ad, x, x_hat)
+            %% [names, vals] = obj.cpf_pne_history(ad, x, x_hat)
+            %% names = obj.cpf_pne_history(ad)
+            names = {'V_hat', 'V'};
+            if nargin > 2
                 [V_hat, ~] = obj.cpf_convert_x(x_hat, ad, 1);
                 [V,     ~] = obj.cpf_convert_x(x,     ad, 1);
-                if isfield(cbx, 'V')    %% append values (ITERATION)
-                    rv.lam_hat = [ rv.lam_hat x_hat(end) ];
-                    rv.lam     = [ rv.lam     x(end)     ];
-                    rv.V_hat   = [ rv.V_hat   V_hat ];
-                    rv.V       = [ rv.V       V     ];
-                else                    %% initialize values (INITIAL)
-                    rv.lam_hat = x_hat(end);
-                    rv.lam     = x(end);
-                    rv.V_hat   = V_hat;
-                    rv.V       = V;
-                end
-            else                        %% copy fields to results (FINAL)
-                rv = x;
-                rv.lam_hat = cbx.lam_hat;
-                rv.lam     = cbx.lam;
-                rv.max_lam = max(cbx.lam);
-                rv.V_hat   = cbx.V_hat;
-                rv.V       = cbx.V;
+                vals = {V_hat, V};
             end
         end
 
