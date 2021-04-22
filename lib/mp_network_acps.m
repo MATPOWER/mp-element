@@ -295,14 +295,14 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
         %%-----  CPF methods  -----
         function [vx_, z_, x_] = cpf_convert_x(obj, mmx, ad, only_v)
             nmt = ad.nmt;
-            lam = mmx(end);
+            lam = mmx(end);     %% continuation parameter lambda
 
             %% update voltages and get base z_
             [vx_,  zb_] = obj.pf_convert_x(mmx(1:end-1), ad,     1);
             [vxt_, zt_] = nmt.pf_convert_x(mmx(1:end-1), ad.adt, 1);
             assert(norm(vx_-vxt_, Inf) < eps);
 
-            %% compute z_ as function of lambda
+            %% compute z_ as function of continuation parameter lambda
             z_ = (1-lam) * zb_+ lam * zt_;
 
             %% update dependent portions of z, if requested
@@ -324,7 +324,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
         function [f, J] = cpf_equations(obj, x, ad)
             nmt = ad.nmt;
-            lam = x(end);
+            lam = x(end);   %% continuation parameter lambda
 
             if nargout > 1
                 [fb, Jb] = obj.pf_node_balance_equations(x(1:end-1), ad);
@@ -437,8 +437,8 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             v_Pmax = real(z_) - zr_max;
 
             %% ignore those that are already at their max limit
-            if isfield(cx.cb, 'plim') && ~isempty(cx.cb.plim.idx)
-                v_Pmax(cx.cb.plim.idx) = NaN;
+            if isfield(cx.cbs, 'plim') && ~isempty(cx.cbs.plim.idx)
+                v_Pmax(cx.cbs.plim.idx) = NaN;
             end
 
             %% assemble event function value
@@ -722,8 +722,8 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             %% skip if finalize or done
             if k < 0 || s.done
                 return;
-            elseif k == 0 && ~isfield(cx.cb, 'plim')
-                cx.cb.plim.idx = [];
+            elseif k == 0 && ~isfield(cx.cbs, 'plim')
+                cx.cbs.plim.idx = [];
             end
 
             %% handle event
@@ -776,13 +776,13 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                         end
 
                         %% save index of element at limit
-                        nx.cb.plim.idx = [nx.cb.plim.idx; idx];
+                        nx.cbs.plim.idx = [nx.cbs.plim.idx; idx];
 
                         %% if it is at the ref node
                         if nidx == ad.ref
                             %% find free injections (not at max lim)
                             free = ones(obj.nz, 1);
-                            free(nx.cb.plim.idx) = 0;
+                            free(nx.cbs.plim.idx) = 0;
 
                             %% first node with any free injection
                             ref = find(any(CC * spdiags(free, 0, obj.nz, obj.nz), 2));

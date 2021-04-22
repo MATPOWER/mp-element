@@ -52,13 +52,14 @@ classdef mp_task_cpf < mp_task_pf
                 ad = mm.get_userdata('aux_data');
                 ws = mm.soln.output.warmstart;
 
-                %% save solved voltages and lambda for current & prev step
+                %% save parameter lambda and solved voltages
+                %% for current & prev step
                 ws.clam = ws.x(end);
                 ws.plam = ws.xp(end);
                 [ws.cV, ~] = nm.cpf_convert_x(ws.x, ad);
                 [ws.pV, ~] = nm.cpf_convert_x(ws.xp, ad);
 
-                %% expand tangent z to all nodes + lam, for current & prev step
+                %% expand tangent z to all nodes + lambda, for cur & prev step
                 z  = ws.z;
                 zp = ws.zp;
                 ws.z  = zeros(nm.nv, 1);

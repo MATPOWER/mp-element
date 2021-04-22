@@ -566,8 +566,8 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% largest transfer bus for default voltage nose-curve plot
             ad.xfer = ss + NN * zz;
 
-            %% Power flow equations must be linear in lambda. To do that
-            %% we must ensure that ...
+            %% Power flow equations must be linear in continuation parameter
+            %% lambda. To do that we must ensure that ...
             %% 1. Specified voltages do not vary with lambda.
             [va,  vm ] = obj.va_vm( ad.v1,  ad.v2);
             [vat, vmt] = obj.va_vm(adt.v1, adt.v2);
