@@ -497,11 +497,11 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             end
 
             %% handle event
-            evnts = s.evnts;
-            for i = 1:length(evnts)
-                if strcmp(evnts(i).name, 'FLIM') && evnts(i).zero
+            ev = s.events;
+            for i = 1:length(ev)
+                if strcmp(ev(i).name, 'FLIM') && ev(i).zero
                     if opt.verbose > 3
-                        msg = sprintf('%s\n    ', evnts(i).msg);
+                        msg = sprintf('%s\n    ', ev(i).msg);
                     else
                         msg = '';
                     end
@@ -515,7 +515,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                     nl = branch_nme.nk;     %% port indexes
 
                     %% find branch(es) with violated lim(s)
-                    iL = evnts(i).idx;
+                    iL = ev(i).idx;         %% event function index
                     for j = 1:length(iL)
                         L = ibr(iL(j)); %% index of critical branch event of interest
                         fidx = find(branch_nme.C(:, L));
@@ -576,17 +576,17 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             end
 
             %% handle event
-            evnts = s.evnts;
-            for i = 1:length(evnts)
-                if strcmp(evnts(i).name, 'VLIM') && evnts(i).zero
+            ev = s.events;
+            for i = 1:length(ev)
+                if strcmp(ev(i).name, 'VLIM') && ev(i).zero
                     if opt.verbose > 3
-                        msg = sprintf('%s\n    ', evnts(i).msg);
+                        msg = sprintf('%s\n    ', ev(i).msg);
                     else
                         msg = '';
                     end
 
                     %% find the bus(es) and which lim(s)
-                    ib = evnts(i).idx;
+                    ib = ev(i).idx;         %% event function index
                     [~, vm_min, vm_max] = obj.params_var('vm');
                     nb = length(vm_min);
                     for j = 1:length(ib)
@@ -617,18 +617,18 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             end
 
             %% handle event
-            evnts = s.evnts;
-            for i = 1:length(evnts)
-                if strcmp(evnts(i).name, 'QLIM') && evnts(i).zero
+            ev = s.events;
+            for i = 1:length(ev)
+                if strcmp(ev(i).name, 'QLIM') && ev(i).zero
                     ad = mm.get_userdata('aux_data');
                     if ad.nref ~= 1
                         error('mp_network_acps/cpf_callback_qlim: ''cpf.enforce_qlims'' option only valid for systems with exactly one REF bus');
                     end
 
-                    efidx = evnts(i).idx;       %% event function index
+                    efidx = ev(i).idx;          %% event function index
                     [~, zi_min, zi_max] = obj.params_var('zi'); %% bounds on zi
                     if opt.verbose > 3
-                        msg = sprintf('%s\n    ', evnts(i).msg);
+                        msg = sprintf('%s\n    ', ev(i).msg);
                     else
                         msg = '';
                     end
@@ -713,7 +713,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                         s.warmstart = struct('nmt', nmt, 'dmt', dmt, ...
                             'dir_from_jac_eigs', dir_from_jac_eigs);
                     end
-                    s.evnts(i).msg = msg;
+                    s.events(i).msg = msg;
                 end
             end
         end
@@ -727,18 +727,18 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             end
 
             %% handle event
-            evnts = s.evnts;
-            for i = 1:length(evnts)
-                if strcmp(evnts(i).name, 'PLIM') && evnts(i).zero
+            ev = s.events;
+            for i = 1:length(ev)
+                if strcmp(ev(i).name, 'PLIM') && ev(i).zero
                     ad = mm.get_userdata('aux_data');
                     if ad.nref ~= 1
                         error('mp_network_acps/cpf_callback_plim: ''cpf.enforce_plims'' option only valid for systems with exactly one REF bus');
                     end
 
-                    efidx = evnts(i).idx;       %% event function index
+                    efidx = ev(i).idx;          %% event function index
                     [~, ~, zr_max] = obj.params_var('zr'); %% bounds on zr
                     if opt.verbose > 3
-                        msg = sprintf('%s\n    ', evnts(i).msg);
+                        msg = sprintf('%s\n    ', ev(i).msg);
                     else
                         msg = '';
                     end
@@ -812,7 +812,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                         s.done = 1;
                         s.warmstart = struct('nmt', nmt, 'dmt', dmt);
                     end
-                    s.evnts(i).msg = msg;
+                    s.events(i).msg = msg;
                 end
             end
         end
