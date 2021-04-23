@@ -360,7 +360,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             opt.warmstart = ws;
         end
 
-        function ef = cpf_event_flim(obj, cx, opt, mm, dm, mpopt)
+        function efv = cpf_event_flim(obj, cx, opt, mm, dm, mpopt)
             %% get branch flow constraints
             branch_nme = obj.elm_by_name('branch');
             branch_dme = branch_nme.data_model_element(dm);
@@ -382,13 +382,13 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                 St = sqrt(St .* conj(St));
 
                 %% branch flow lim event function
-                ef = max(Sf, St) - rate_a(ibr);
+                efv = max(Sf, St) - rate_a(ibr);
             else
-                ef = NaN;
+                efv = NaN;
             end
         end
 
-        function ef = cpf_event_vlim(obj, cx, opt, mm, dm, mpopt)
+        function efv = cpf_event_vlim(obj, cx, opt, mm, dm, mpopt)
             %% convert cx.x back to v_
             ad = mm.get_userdata('aux_data');
 
@@ -401,10 +401,10 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             v_Vmax = abs(v_) - vm_max;
 
             %% assemble event function value
-            ef = [v_Vmin; v_Vmax];
+            efv = [v_Vmin; v_Vmax];
         end
 
-        function ef = cpf_event_qlim(obj, cx, opt, mm, dm, mpopt)
+        function efv = cpf_event_qlim(obj, cx, opt, mm, dm, mpopt)
             ad = mm.get_userdata('aux_data');
 
             %% convert cx.x back to v_, z_
@@ -423,10 +423,10 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             v_Qmin(jrpv) = zi_min(jrpv) - imag(z_(jrpv));
 
             %% assemble event function value
-            ef = [v_Qmax; v_Qmin] * dm.baseMVA;
+            efv = [v_Qmax; v_Qmin] * dm.baseMVA;
         end
 
-        function ef = cpf_event_plim(obj, cx, opt, mm, dm, mpopt)
+        function efv = cpf_event_plim(obj, cx, opt, mm, dm, mpopt)
             ad = mm.get_userdata('aux_data');
 
             %% convert cx.x back to v_, z_
@@ -442,7 +442,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             end
 
             %% assemble event function value
-            ef = v_Pmax * dm.baseMVA;
+            efv = v_Pmax * dm.baseMVA;
         end
 
         function [nx, cx, s] = cpf_callback_flim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt)
