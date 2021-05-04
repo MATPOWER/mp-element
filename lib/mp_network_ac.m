@@ -390,7 +390,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% and slack/PV node reactive power injections
 
             rpv = [ad.ref; ad.pv];      %% slack and PV nodes
-            if nargin < 5 | isempty(Sinj)
+            if nargin < 5 || isempty(Sinj)
                 %% compute power injection at slack/PV nodes
                 idx = find(any(obj.C(rpv, :), 1));  %% ports connected to slack/PV nodes
                 Sinj = obj.port_inj_power([v_; z_], 1, idx);
