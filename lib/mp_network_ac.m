@@ -595,6 +595,72 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             mm.add_var('lambda', 1, 0);
         end
 
+        function cpf_add_constraints(obj, mm, nm, dm, mpopt)
+            %% system constraints
+            obj.cpf_add_system_constraints(mm, dm, mpopt);
+            
+%             %% each element adds its CPF constraints
+%             for mpe = obj.mpe_list
+%                 mpe{1}.cpf_add_constraints(mm, nm, dm, mpopt);
+%             end
+        end
+
+        function cpf_add_system_constraints(obj, mm, dm, mpopt)
+            %% can be overridden to add additional system constraints
+
+            %% node balance constraints
+            obj.cpf_add_node_balance_constraints(mm, dm, mpopt);
+        end
+
+        function obj = cpf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% each element updates its data model
+            for nme = obj.elm_list
+                nme{1}.cpf_data_model_update(mm, nm, dm, mpopt);
+            end
+        end
+
+        function opt = cpf_solve_opts(obj, mm, dm, mpopt)
+            ad = mm.get_userdata('aux_data');
+            opt = mpopt2pneopt(mpopt);
+            opt.output_fcn = @(varargin)cpf_pne_output_fcn(obj, ad, varargin{:});
+            opt.plot.idx_default = @()cpf_plot_idx_default(obj, dm, ad);
+            opt.plot.yfcn = @(v_,idx)cpf_plot_yfcn(obj, dm, ad, v_, idx);
+            opt = obj.cpf_add_callbacks(opt, mm, dm, mpopt);
+        end
+
+        function [names, vals] = cpf_pne_output_fcn(obj, ad, x, x_hat)
+            %% [names, vals] = obj.cpf_pne_history(ad, x, x_hat)
+            %% names = obj.cpf_pne_history(ad)
+            names = {'V_hat', 'V'};
+            if nargin > 2
+                [V_hat, ~] = obj.cpf_convert_x(x_hat, ad, 1);
+                [V,     ~] = obj.cpf_convert_x(x,     ad, 1);
+                vals = {V_hat, V};
+            end
+        end
+
+        function y = cpf_plot_yfcn(obj, dm, ad, v_, bus_num)
+            %% find node idx from external bus number
+            b2i = dm.elm_by_name('bus').ID2i;   %% bus num to idx mapping
+            nidx = obj.get_node_idx('bus');
+
+            k = find( bus_num < 0 | bus_num > length(b2i) );
+            if ~isempty(k)
+                error('mpe_network/cpf_plot_yfcn: %d is not a valid bus number for CPF voltage plot', bus_idx(k));
+            end
+
+            idx = nidx(b2i(bus_num));
+            y = abs(v_(idx, :));
+        end
+
+        function idx = cpf_plot_idx_default(obj, dm, ad)
+            %% plot voltage of PQ bus with max transfer as default
+            nidx = obj.get_node_idx('bus');     %% node indices of buses
+            [~, i] = max(abs(ad.xfer(ad.pq)) .* ismember(ad.pq, nidx));
+            bi = ad.pq(i);                      %% index of bus w/max transfer
+            idx = dm.elm_by_name('bus').ID(bi); %% bus num of same bus
+        end
+
         function opt = cpf_add_callbacks(obj, opt, mm, dm, mpopt)
             qlim = mpopt.cpf.enforce_q_lims;    %% enforce reactive limits
             plim = mpopt.cpf.enforce_p_lims;    %% enforce active limits
@@ -647,6 +713,365 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 opt.callbacks{end+1} = { ...
                     @(k, nx, cx, px, s, opt)cpf_callback_plim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt), ...
                     40 };
+            end
+        end
+
+        function efv = cpf_event_flim(obj, cx, opt, mm, dm, mpopt)
+            %% get branch flow constraints
+            branch_nme = obj.elm_by_name('branch');
+            branch_dme = branch_nme.data_model_element(dm);
+            rate_a = branch_dme.rate_a * dm.baseMVA;
+            ibr = find(rate_a ~= 0 & rate_a < 1e10);
+            nl2 = length(ibr);          %% number of constrained branches
+
+            if nl2
+                nl = branch_nme.nk;     %% port indexes
+
+                %% convert cx.x back to x_
+                ad = mm.get_userdata('aux_data');
+                x_ = obj.cpf_convert_x(cx.x, ad);
+
+                %% branch flows
+                Sf = branch_nme.port_inj_power(x_, 1, ibr)    * dm.baseMVA;
+                St = branch_nme.port_inj_power(x_, 1, nl+ibr) * dm.baseMVA;
+                Sf = sqrt(Sf .* conj(Sf));
+                St = sqrt(St .* conj(St));
+
+                %% branch flow lim event function
+                efv = max(Sf, St) - rate_a(ibr);
+            else
+                efv = NaN;
+            end
+        end
+
+        function efv = cpf_event_qlim(obj, cx, opt, mm, dm, mpopt)
+            ad = mm.get_userdata('aux_data');
+
+            %% convert cx.x back to v_, z_
+            [v_, z_] = obj.cpf_convert_x(cx.x, ad);
+
+            %% coefficient matrix for power injection states
+            rpv = [ad.ref; ad.pv];      %% slack and PV nodes
+            CCrpv = obj.C(rpv, :) * obj.get_params([], 'N') * obj.D';
+            jrpv = find(any(CCrpv, 1)); %% indices for states at slack/PV nodes
+
+            %% limit violations at slack/PV nodes
+            [~, zi_min, zi_max] = obj.params_var('zi'); %% bounds on zi
+            v_Qmax = NaN(obj.nz, 1);
+            v_Qmin = v_Qmax;
+            v_Qmax(jrpv) = imag(z_(jrpv)) - zi_max(jrpv);
+            v_Qmin(jrpv) = zi_min(jrpv) - imag(z_(jrpv));
+
+            %% assemble event function value
+            efv = [v_Qmax; v_Qmin] * dm.baseMVA;
+        end
+
+        function efv = cpf_event_plim(obj, cx, opt, mm, dm, mpopt)
+            ad = mm.get_userdata('aux_data');
+
+            %% convert cx.x back to v_, z_
+            [v_, z_] = obj.cpf_convert_x(cx.x, ad);
+
+            %% limit violations
+            [~, ~, zr_max] = obj.params_var('zr'); %% bounds on zr
+            v_Pmax = real(z_) - zr_max;
+
+            %% ignore those that are already at their max limit
+            if isfield(cx.cbs, 'plim') && ~isempty(cx.cbs.plim.idx)
+                v_Pmax(cx.cbs.plim.idx) = NaN;
+            end
+
+            %% assemble event function value
+            efv = v_Pmax * dm.baseMVA;
+        end
+
+        function [nx, cx, s] = cpf_callback_flim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt)
+            %% initialize
+            if k == 0   %% check for base case flow violations
+                %% get branch flow constraints
+                branch_nme = obj.elm_by_name('branch');
+                branch_dme = branch_nme.data_model_element(dm);
+                rate_a = branch_dme.rate_a * dm.baseMVA;
+                ibr = find(rate_a ~= 0 & rate_a < 1e10);
+                nl2 = length(ibr);          %% number of constrained branches
+
+                if nl2
+                    nl = branch_nme.nk;     %% port indexes
+
+                    %% convert cx.x back to x_
+                    ad = mm.get_userdata('aux_data');
+                    x_ = obj.cpf_convert_x(cx.x, ad);
+
+                    %% branch flows
+                    Sf = branch_nme.port_inj_power(x_, 1, ibr)    * dm.baseMVA;
+                    St = branch_nme.port_inj_power(x_, 1, nl+ibr) * dm.baseMVA;
+                    Sf = sqrt(Sf .* conj(Sf));
+                    St = sqrt(St .* conj(St));
+
+                    %% violated branch flows
+                    if any(max(Sf, St) > rate_a(ibr))
+                        %% find the lines and which lim(s)
+                        iL = find(max(Sf, St) > rate_a(ibr));
+                        msg = '';
+                        for j = 1:length(iL)
+                            L = ibr(iL(j));
+                            fidx = find(branch_nme.C(:, L));
+                            tidx = find(branch_nme.C(:, nl+L));
+                            flabel = obj.set_type_label('node', fidx, dm);
+                            tlabel = obj.set_type_label('node', tidx, dm);
+
+                            msg = sprintf('%sbranch flow limit violated in base case: %s -- %s exceeds limit of %g MVA\n',...
+                                msg, flabel, tlabel, rate_a(L));
+                        end
+
+                        %% prepare to terminate
+                        s.done = 1;
+                        s.done_msg = msg;
+                    end
+                end
+            end
+
+            %% skip if finalize or done
+            if k < 0 || s.done
+                return;
+            end
+
+            %% handle event
+            ev = pne_detected_event(s.events, 'FLIM', 1);   %% zero only
+            if ~isempty(ev)
+                if opt.verbose > 3
+                    msg = sprintf('%s\n    ', ev.msg);
+                else
+                    msg = '';
+                end
+
+                %% get branch flow constraints
+                branch_nme = obj.elm_by_name('branch');
+                branch_dme = branch_nme.data_model_element(dm);
+                rate_a = branch_dme.rate_a * dm.baseMVA;
+                ibr = find(rate_a ~= 0 & rate_a < 1e10);
+                nl2 = length(ibr);      %% number of constrained branches
+                nl = branch_nme.nk;     %% port indexes
+
+                %% find branch(es) with violated lim(s)
+                iL = ev.idx;            %% event function index
+                for j = 1:length(iL)
+                    L = ibr(iL(j)); %% index of critical branch event of interest
+                    fidx = find(branch_nme.C(:, L));
+                    tidx = find(branch_nme.C(:, nl+L));
+                    flabel = obj.set_type_label('node', fidx, dm);
+                    tlabel = obj.set_type_label('node', tidx, dm);
+
+                    msg = sprintf('%sbranch flow limit reached\nbranch: %s -- %s at limit of %g MVA @ lambda = %.4g, in %d continuation steps',...
+                        msg, flabel, tlabel, rate_a(L), nx.x(end), k);
+                end
+
+                %% prepare to terminate
+                s.done = 1;
+                s.done_msg = msg;
+            end
+        end
+
+        function [nx, cx, s] = cpf_callback_qlim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt)
+            %% skip if initialize, finalize or done
+            if k <= 0 || s.done
+                return;
+            end
+
+            %% handle event
+            [ev, i] = pne_detected_event(s.events, 'QLIM', 1);  %% zero only
+            if ~isempty(ev)
+                ad = mm.get_userdata('aux_data');
+                if ad.nref ~= 1
+                    error('mp_network_acps/cpf_callback_qlim: ''cpf.enforce_qlims'' option only valid for systems with exactly one REF bus');
+                end
+
+                efidx = ev.idx;             %% event function index
+                [~, zi_min, zi_max] = obj.params_var('zi'); %% bounds on zi
+                if opt.verbose > 3
+                    msg = sprintf('%s\n    ', ev.msg);
+                else
+                    msg = '';
+                end
+                for j = 1:length(efidx)
+                    %% find index of z var
+                    idx = efidx(j);         %% index of z var
+                    if idx <= obj.nz
+                        maxlim = 1;         %% Qmax violation
+                        lim = zi_max(idx) * dm.baseMVA;
+                        lim_type = 'Qmax';
+                    else
+                        idx = idx - obj.nz; %% correct index of z var
+                        maxlim = 0;         %% Qmin violation
+                        lim = zi_min(idx) * dm.baseMVA;
+                        lim_type = 'Qmin';
+                    end
+
+                    %% get label for z var
+                    zlabel = obj.set_type_label('state', idx, dm);
+
+                    %% get label for corresponding node
+                    CC = obj.C * obj.get_params([], 'N') * obj.D';
+                    nidx = find(CC(:, idx));
+                    nlabel = obj.set_type_label('node', nidx, dm);
+
+                    msg = sprintf('%s%s @ %s reached %g MVAr %s lim @ lambda = %.4g : %s converted to PQ', ...
+                            msg, zlabel, nlabel, lim, lim_type, ...
+                            nx.x(end), nlabel);
+
+                    %% set Q to exact limit
+                    [v_, z_] = obj.cpf_convert_x(nx.x, ad);
+                    z_(idx) = real(z_(idx)) + 1j * lim / dm.baseMVA;
+
+                    %% change node type to PQ
+                    obj.set_node_type_pq(dm, nidx);
+
+                    %% check for existence of remaining slack/PV bus
+                    try
+                        %% potentially pick new reference bus
+                        [ref, pv, pq] = obj.node_types(obj, dm);
+                    catch
+                        s.done = 1;
+                        s.done_msg = 'No REF or PV nodes remaining.';
+                        break;
+                    end
+
+                    if ~s.done
+                        %% get target case data, network models
+                        dmt = ad.dmt;
+                        nmt = ad.nmt;
+
+                        %% change node type in target case
+                        nmt.set_node_type_pq(dmt, nidx);
+
+                        %% zero out Q transfer for bus
+                        ss = obj.set_type_idx_map('zi', idx);
+                        obj.zi.data.v0.(ss.name)(ss.i) = imag(z_(idx));
+                        nmt.zi.data.v0.(ss.name)(ss.i) = imag(z_(idx));
+
+                        %% if slack changed ...
+                        if ref ~= ad.ref
+                            %% find zr corresponding to all zr at ref node
+                            zref = find(CC(ad.ref, :));
+                            ss = obj.set_type_idx_map('zr', zref);
+
+                            %% zero out P transfer at old ref
+                            for kk = 1:length(ss)
+                                obj.zr.data.v0.(ss(kk).name)(ss(kk).i) = real(z_(zref(kk)));
+                                nmt.zr.data.v0.(ss(kk).name)(ss(kk).i) = real(z_(zref(kk)));
+                            end
+
+                            %% update voltage angle at new ref node
+                            ss = obj.set_type_idx_map('va', ref);
+                            obj.va.data.v0.(ss.name)(ss.i) = angle(v_(ref));
+                            nmt.va.data.v0.(ss.name)(ss.i) = angle(v_(ref));
+                        end
+                    end
+                end
+                if ~s.done
+                    s.done = 1;
+                    dir_from_jac_eigs = isempty(find(nx.z(ad.npv+ad.npq+1:end-1) > 0, 1));
+                    s.warmstart = struct('nmt', nmt, 'dmt', dmt, ...
+                        'dir_from_jac_eigs', dir_from_jac_eigs);
+                end
+                s.events(i).msg = msg;
+            end
+        end
+
+        function [nx, cx, s] = cpf_callback_plim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt)
+            %% skip if finalize or done
+            if k < 0 || s.done
+                return;
+            elseif k == 0 && ~isfield(cx.cbs, 'plim')
+                cx.cbs.plim.idx = [];
+            end
+
+            %% handle event
+            [ev, i] = pne_detected_event(s.events, 'PLIM', 1);  %% zero only
+            if ~isempty(ev)
+                ad = mm.get_userdata('aux_data');
+                if ad.nref ~= 1
+                    error('mp_network_acps/cpf_callback_plim: ''cpf.enforce_plims'' option only valid for systems with exactly one REF bus');
+                end
+
+                efidx = ev.idx;             %% event function index
+                [~, ~, zr_max] = obj.params_var('zr'); %% bounds on zr
+                if opt.verbose > 3
+                    msg = sprintf('%s\n    ', ev.msg);
+                else
+                    msg = '';
+                end
+                for j = 1:length(efidx)
+                    %% find index of z var
+                    idx = efidx(j);         %% index of z var
+                    lim = zr_max(idx) * dm.baseMVA;
+
+                    %% get label for z var
+                    zlabel = obj.set_type_label('state', idx, dm);
+
+                    %% get label for corresponding node
+                    CC = obj.C * obj.get_params([], 'N') * obj.D';
+                    nidx = find(CC(:, idx));
+                    nlabel = obj.set_type_label('node', nidx, dm);
+
+                    msg = sprintf('%s%s @ %s reached %g MW Pmax lim @ lambda = %.4g', ...
+                            msg, zlabel, nlabel, lim, nx.x(end));
+
+                    %% set P to exact limit
+                    [v_, z_] = obj.cpf_convert_x(nx.x, ad);
+                    z_(idx) = lim / dm.baseMVA + 1j * imag(z_(idx));
+
+                    dmt = ad.dmt;
+                    nmt = ad.nmt;
+
+                    %% find zr corresponding to all zr at this node
+                    k = find(CC(nidx, :));
+                    ss = obj.set_type_idx_map('zr', k);
+
+                    %% set z to limit at this node
+                    for kk = 1:length(ss)
+                        obj.zr.data.v0.(ss(kk).name)(ss(kk).i) = real(z_(k(kk)));
+                        nmt.zr.data.v0.(ss(kk).name)(ss(kk).i) = real(z_(k(kk)));
+                    end
+
+                    %% save index of element at limit
+                    nx.cbs.plim.idx = [nx.cbs.plim.idx; idx];
+
+                    %% if it is at the ref node
+                    if nidx == ad.ref
+                        %% find free injections (not at max lim)
+                        free = ones(obj.nz, 1);
+                        free(nx.cbs.plim.idx) = 0;
+
+                        %% first node with any free injection
+                        ref = find(any(CC * spdiags(free, 0, obj.nz, obj.nz), 2));
+                        if isempty(ref)
+                            s.done = 1;
+                            s.done_msg = 'All generators at Pmax';
+                            break;
+                        else
+                            %% convert this node to PV, new ref bus to REF
+                            obj.set_node_type_pv(dm, nidx);
+                            nmt.set_node_type_pv(dmt, nidx);
+                            obj.set_node_type_ref(dm, ref);
+                            nmt.set_node_type_ref(dmt, ref);
+
+                            %% update voltage angle at new ref node
+                            ss = obj.set_type_idx_map('va', ref);
+                            obj.va.data.v0.(ss.name)(ss.i) = angle(v_(ref));
+                            nmt.va.data.v0.(ss.name)(ss.i) = angle(v_(ref));
+
+                            rlabel = obj.set_type_label('node', ref, dm);
+                            msg = sprintf('%s : ref changed from %s to %s', ...
+                                msg, nlabel, rlabel);
+                        end
+                    end
+                end
+                if ~s.done
+                    s.done = 1;
+                    s.warmstart = struct('nmt', nmt, 'dmt', dmt);
+                end
+                s.events(i).msg = msg;
             end
         end
 

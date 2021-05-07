@@ -578,71 +578,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         opt = pf_solve_opts(obj, mm, dm, mpopt)
 
         %%-----  CPF methods  -----
-        function cpf_add_constraints(obj, mm, nm, dm, mpopt)
-            %% system constraints
-            obj.cpf_add_system_constraints(mm, dm, mpopt);
-            
-%             %% each element adds its CPF constraints
-%             for mpe = obj.mpe_list
-%                 mpe{1}.cpf_add_constraints(mm, nm, dm, mpopt);
-%             end
-        end
-
-        function cpf_add_system_constraints(obj, mm, dm, mpopt)
-            %% can be overridden to add additional system constraints
-
-            %% node balance constraints
-            obj.cpf_add_node_balance_constraints(mm, dm, mpopt);
-        end
-
-        function obj = cpf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% each element updates its data model
-            for nme = obj.elm_list
-                nme{1}.cpf_data_model_update(mm, nm, dm, mpopt);
-            end
-        end
-
-        function opt = cpf_solve_opts(obj, mm, dm, mpopt)
-            ad = mm.get_userdata('aux_data');
-            opt = mpopt2pneopt(mpopt);
-            opt.output_fcn = @(varargin)cpf_pne_output_fcn(obj, ad, varargin{:});
-            opt.plot.idx_default = @()cpf_plot_idx_default(obj, dm, ad);
-            opt.plot.yfcn = @(v_,idx)cpf_plot_yfcn(obj, dm, ad, v_, idx);
-            opt = obj.cpf_add_callbacks(opt, mm, dm, mpopt);
-        end
-
-        function [names, vals] = cpf_pne_output_fcn(obj, ad, x, x_hat)
-            %% [names, vals] = obj.cpf_pne_history(ad, x, x_hat)
-            %% names = obj.cpf_pne_history(ad)
-            names = {'V_hat', 'V'};
-            if nargin > 2
-                [V_hat, ~] = obj.cpf_convert_x(x_hat, ad, 1);
-                [V,     ~] = obj.cpf_convert_x(x,     ad, 1);
-                vals = {V_hat, V};
-            end
-        end
-
-        function y = cpf_plot_yfcn(obj, dm, ad, v_, bus_num)
-            %% find node idx from external bus number
-            b2i = dm.elm_by_name('bus').ID2i;   %% bus num to idx mapping
-            nidx = obj.get_node_idx('bus');
-
-            k = find( bus_num < 0 | bus_num > length(b2i) );
-            if ~isempty(k)
-                error('mpe_network/cpf_plot_yfcn: %d is not a valid bus number for CPF voltage plot', bus_idx(k));
-            end
-
-            idx = nidx(b2i(bus_num));
-            y = abs(v_(idx, :));
-        end
-
-        function idx = cpf_plot_idx_default(obj, dm, ad)
-            %% plot voltage of PQ bus with max transfer as default
-            nidx = obj.get_node_idx('bus');     %% node indices of buses
-            [~, i] = max(abs(ad.xfer(ad.pq)) .* ismember(ad.pq, nidx));
-            bi = ad.pq(i);                      %% index of bus w/max transfer
-            idx = dm.elm_by_name('bus').ID(bi); %% bus num of same bus
-        end
+        %% See mp_network_ac.
 
         %%-----  OPF methods  -----
         function obj = opf_add_vars(obj, mm, nm, dm, mpopt)
