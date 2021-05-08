@@ -261,44 +261,25 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %%      ID - external ID (i.e. corresp. element ID in data model)
             %%      j - (only for group_by_name == 1), corresponding index of
             %%          set type (i.e. node, port or state)
-            s = set_type_idx_map@mp_idx_manager(obj, set_type, idxs);
-            n = length(idxs(:));
-            if nargin > 3
+
+            if nargin < 5
+                group_by_name = 0;
+                if nargin < 4
+                    dm = [];
+                end
+            end
+
+            s = set_type_idx_map@mp_idx_manager(obj, ...
+                                            set_type, idxs, group_by_name);
+            n = length(s(:));
+            if nargin > 3 && ~isempty(dm)
                 for k = 1:n
                     dme = dm.elm_by_name(s(k).name);
-                    s(k).e = dme.on(s(k).i);        %% external index
-                    if isempty(dme.ID)
-                        s(k).ID = s(k).e;
-                    else
-                        s(k).ID = dme.ID(s(k).e);   %% external ID
-                    end
-                end
-
-                %% consolidate indices into vectors for each unique
-                %% name/idx pair, if requested
-                if nargin > 4 && group_by_name
-                    %% extract fields
-                    [name, idx, i, e, ID] = deal(cell(size(idxs)));
-                    [name{:}] = deal(s.name);
-                    [idx{:}]  = deal(s.idx);
-                    [i{:}]  = deal(s.i);    i = cell2mat(i);
-                    [e{:}]  = deal(s.e);    e = cell2mat(e);
-                    [ID{:}] = deal(s.ID);   ID = cell2mat(ID);
-
-                    %% find unique name/idx
-                    name_idx = cellfun(@join_name_idx, name, idx, ...
-                        'UniformOutput', 0);
-                    [c, ia, ic] = unique(name_idx);
-
-                    %% recreate struct, grouped by name/idx
-                    c0 = cell(size(c));
-                    s = struct('name', name(ia), 'idx', idx(ia), ...
-                        'i', c0, 'e', c0, 'ID', c0, 'j', c0);
-                    for k = 1:length(ia)
-                        s(k).i  = i(ic == k);
-                        s(k).e  = e(ic == k);
-                        s(k).ID = ID(ic == k);
-                        s(k).j = idxs(ic == k);
+                    s(k).e = zeros(size(s(k).i));
+                    s(k).e(:) = dme.on(s(k).i);         %% external index
+                    s(k).ID = s(k).e;
+                    if ~isempty(dme.ID)
+                        s(k).ID(:) = dme.ID(s(k).e);    %% external ID
                     end
                 end
             end
@@ -722,11 +703,3 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
     end     %% methods
 end         %% classdef
-
-function name_idx = join_name_idx(name, idx)
-    if isempty(idx)
-        name_idx = name;
-    else
-        name_idx = [name sprintf('_%d', idx{:})];
-    end
-end
