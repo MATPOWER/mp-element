@@ -420,9 +420,9 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         function [i1, iN] = get_set_type_idx(obj, node_state, name)
             %% private method
             %% [i1 iN] = obj.get_set_type_idx(node_state, name)
-            %% nidx = obj.get_set_type_idx(node_state, name), where
-            %%      nidx = [i1:iN]' or
-            %%      nidx = {[i1(1):iN(1)]', ..., [i1(n):iN(n)]'}
+            %% stidx = obj.get_set_type_idx(node_state, name), where
+            %%      stidx = [i1:iN]' or
+            %%      stidx = {[i1(1):iN(1)]', ..., [i1(n):iN(n)]'}
             idx = obj.get_idx(node_state);
             i1 = idx.i1.(name);
             iN = idx.iN.(name);
