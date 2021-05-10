@@ -36,16 +36,21 @@ classdef nme_gen < nm_element
             nm.add_state(obj.name, ng);
         end
 
+        function idx = node_indices(obj, nm, dm, dme)
+            bus_dme = dm.elm_by_name('bus');
+            nidx = nm.get_node_idx('bus');  %% node indices for 'bus'
+            b = dme.bus(dme.on);
+            bidx = bus_dme.i2on(b);         %% online bus indices for gens
+            idx = nidx(bidx);               %% node indices for gens
+        end
+
         function obj = build_params(obj, nm, dm)
             dme = obj.data_model_element(dm);
-            bus_dme = dm.elm_by_name('bus');
 
             %% incidence matrices
-            nidx = nm.get_node_idx('bus');      %% node indices for 'bus'
+            nidx = obj.node_indices(nm, dm, dme);
             sidx = nm.get_state_idx(obj.name);  %% state indices for 'gen'
-            bidx = bus_dme.i2on(dme.bus(dme.on));%% online bus indices for gens
-            idx = nidx(bidx);                   %% node indices for gens
-            obj.C = obj.incidence_matrix(nm.getN('node'), idx);
+            obj.C = obj.incidence_matrix(nm.getN('node'), nidx);
             obj.D = obj.incidence_matrix(nm.getN('state'), sidx);
         end
 
