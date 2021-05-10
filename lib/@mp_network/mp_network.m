@@ -168,7 +168,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         function obj = add_vvars(obj, nm, dm, idx)
             for k = 1:length(obj.node.order)
                 nme = obj.elm_by_name(obj.node.order(k).name);
-                nme.add_vvars(obj, dm, obj.state.order(k).idx);
+                nme.add_vvars(obj, dm, obj.node.order(k).idx);
             end
             for vtype = obj.model_vvars
                 obj.nv = obj.nv + obj.getN(vtype{1});
