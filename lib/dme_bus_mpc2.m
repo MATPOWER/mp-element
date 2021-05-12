@@ -55,6 +55,34 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             obj.ispq  = obj.ispq(obj.on);
         end
 
+        function [gbus, ig] = gbus_vector(obj, gen_dme)
+            %% buses of online gens
+            gbus = obj.i2on(gen_dme.bus(gen_dme.on));
+            ig = [];
+        end
+
+        function Vm0 = set_Vm0(obj, bus, gen, gen_dme, gbus, ig)
+            %% define named indices into data matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
+               MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
+               QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
+
+            Vm0 = bus(obj.on, VM);
+
+            %% pull PV bus voltage magnitudes from mpc.gen(:, VG)
+            vcb = ones(obj.n, 1);   %% create mask of voltage-controlled buses
+            vcb(obj.ispq) = 0;      %% exclude PQ buses
+            %% find indices of online gens at online v-c buses
+            k = find(vcb(gbus));
+            if isempty(ig)
+                Vm0(gbus(k)) = gen(gen_dme.on(k), VG);
+            else
+                Vm0(gbus(k)) = gen(gen_dme.on(ig(k)), VG);
+            end
+        end
+
         function obj = build_params(obj, dm)
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
@@ -64,9 +92,9 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
             gen_dme = dm.elm_by_name('gen');
-            ng = gen_dme.n;
+            [gbus, ig] = obj.gbus_vector(gen_dme);
             nb = obj.n;
-            gbus = obj.i2on(gen_dme.bus(gen_dme.on));   %% buses of online gens
+            ng = length(gbus);
             bus = obj.get_table(dm);
             gen = gen_dme.get_table(dm);
 
@@ -83,15 +111,7 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
 
             %% initialize voltage from bus table
             obj.Va0 = bus(obj.on, VA) * pi/180;
-            obj.Vm0 = bus(obj.on, VM);
-
-            %% pull PV bus voltage magnitudes from mpc.gen(:, VG)
-            vcb = ones(nb, 1);      %% create mask of voltage-controlled buses
-            vcb(obj.ispq) = 0;      %% exclude PQ buses
-            %% find indices of online gens at online v-c buses
-            k = find(vcb(gbus));
-            obj.Vm0(gbus(k)) = gen(gen_dme.on(k), VG);
-
+            obj.Vm0 = obj.set_Vm0(bus, gen, gen_dme, gbus, ig);
             obj.Vmin = bus(obj.on, VMIN);
             obj.Vmax = bus(obj.on, VMAX);
         end
@@ -117,6 +137,14 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             set_bus_type_pq@dme_bus(obj, dm, idx);  %% call parent
         end
 
+        function midx = dme_idx2mpc_idx(obj, didx)
+            if nargin > 1
+                midx = obj.on(didx);
+            else
+                midx = obj.on;
+            end
+        end
+
         function obj = update(obj, dm, varargin)
             %% obj.update(dm, name1, val1, name2, val2, ...)
             %% obj.update(dm, idx, name1, val1, name2, val2, ...)
@@ -127,10 +155,10 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
 
             n = length(varargin);
             if rem(n, 2)    %% odd
-                idx = obj.on(varargin{1});
+                idx = obj.dme_idx2mpc_idx(varargin{1});
                 s = 2;      %% starting arg index
             else            %% even
-                idx = obj.on;
+                idx = obj.dme_idx2mpc_idx();
                 s = 1;      %% starting arg index
             end
             for k = s:2:n-1
