@@ -440,19 +440,46 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
-        function [ref, pv, pq] = node_types(obj, nm, dm, skip_ensure_ref)
-            %%           ntv = obj.node_types(nm, dm)
-            %% [ref, pv, pq] = obj.node_types(nm, dm)
+        function [ref, pv, pq, by_elm] = node_types(obj, nm, dm, skip_ensure_ref)
+            %%          ntv          = obj.node_types(nm, dm)
+            %%         [ntv, by_elm] = obj.node_types(nm, dm)
+            %% [ref, pv, pq]         = obj.node_types(nm, dm)
+            %% [ref, pv, pq, by_elm] = obj.node_types(nm, dm)
+            %%  where by_elm(k) is a struct for the k-th node-creating element
+            %%  type, with fields:
+            %%      'name' - name of corresponding node-creating element type
+            %%      'ntv' - node type vector (if by_elm is 2nd output arg)
+            %%      'ref'/'pv'/'pq' - index vectors into elements of
+            %%          corresponding node-creating element type  (if by_elm
+            %%          is 4th output arg)
             if nargin < 4
                 skip_ensure_ref = 0;
             end
 
+            %% empty cell array for initialization
+            c0 = cell(length(obj.node.order), 1);
+
             %% get node types from each node-creating NME
-            if nargout > 1
-                [rr, vv, qq] = deal(cell(length(obj.node.order), 1));
+            if nargout > 2
+                %% initialize outputs
+                [rr, vv, qq] = deal(c0);
+                if nargout > 3
+                    by_elm = struct('name', c0, 'ref', c0, 'pv', c0, 'pq', c0);
+                end
+
+                %% get node types for each node-creating element type
                 for k = 1:obj.node.NS
-                    nme = obj.elm_by_name(obj.node.order(k).name);
+                    name = obj.node.order(k).name;
+                    i0 = obj.node.idx.i1.(name) - 1;
+                    nme = obj.elm_by_name(name);
                     [rr{k}, vv{k}, qq{k}] = nme.node_types(obj, dm);
+                    if nargout > 3
+                        by_elm(k).name = name;
+                        by_elm(k).ref = rr{k};
+                        by_elm(k).pv  = vv{k};
+                        by_elm(k).pq  = qq{k};
+                    end
+                    [rr{k}, vv{k}, qq{k}] = deal(rr{k}+i0, vv{k}+i0, qq{k}+i0);
                 end
                 [ref, pv, pq] = ...     %% concatenate into single vectors
                     deal(vertcat(rr{:}), vertcat(vv{:}), vertcat(qq{:}));
@@ -460,10 +487,21 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                     [ref, pv, pq] = obj.ensure_ref_node(dm, ref, pv, pq);
                 end
             else
-                tt = cell(length(obj.node.order), 1);
+                %% initialize outputs
+                tt = c0;
+                if nargout > 3
+                    by_elm = struct('name', c0, 'ntv', c0);
+                end
+
+                %% get node types for each node-creating element type
                 for k = 1:length(obj.node.order)
-                    nme = obj.elm_by_name(obj.node.order(k).name);
+                    name = obj.node.order(k).name;
+                    nme = obj.elm_by_name(name);
                     tt{k} = nme.node_types(obj, dm);
+                    if nargout > 1
+                        by_elm(k).name = name;
+                        by_elm(k).ntv = tt{k};
+                    end
                 end
                 ref = vertcat(tt{:});       %% concatenate into a single vector
                 if ~skip_ensure_ref
