@@ -337,7 +337,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             zi = obj.params_var(zvars{2});
 
             %% get node types
-            [ref, pv, pq] = obj.node_types(obj, dm);
+            [ref, pv, pq, by_elm] = obj.node_types(obj, dm);
 
             %% create aux_data struct
             ad = struct( ...
@@ -350,7 +350,8 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 'pv',  pv, ...              %% PV node indices
                 'npv', length(pv), ...      %% number of PV nodes
                 'pq',  pq, ...              %% PQ node indices
-                'npq', length(pq) ...       %% number of PQ nodes
+                'npq', length(pq), ...      %% number of PQ nodes
+                'node_type_by_elm', by_elm ...  %% node type by element type
             );
         end
 

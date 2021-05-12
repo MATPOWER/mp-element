@@ -40,15 +40,27 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
             %% index vectors
             ad = mm.get_userdata('aux_data');
-            pvq = [ad.pv; ad.pq];
 
             %% voltage angles
             st = obj.(vvars{1});
             for k = 1:st.NS
                 name = st.order(k).name;
+                pv = ad.node_type_by_elm(k).pv;
+                npv = length(pv);
                 if isempty(st.order(k).idx)
                     d = st.data;
-                    mm.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
+                    mm.add_var([name '_pv'], npv, d.v0.(name)(pv), d.vl.(name)(pv), d.vu.(name)(pv));
+                else
+                    error('mp_network_acps/pf_add_vars: handling of indexed sets not implmented here (yet)');
+                end
+            end
+            for k = 1:st.NS
+                name = st.order(k).name;
+                pq = ad.node_type_by_elm(k).pq;
+                npq = length(pq);
+                if isempty(st.order(k).idx)
+                    d = st.data;
+                    mm.add_var([name '_pq'], npq, d.v0.(name)(pq), d.vl.(name)(pq), d.vu.(name)(pq));
                 else
                     error('mp_network_acps/pf_add_vars: handling of indexed sets not implmented here (yet)');
                 end
@@ -58,9 +70,11 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             st = obj.(vvars{2});
             for k = 1:st.NS
                 name = st.order(k).name;
+                pq = ad.node_type_by_elm(k).pq;
+                npq = length(pq);
                 if isempty(st.order(k).idx)
                     d = st.data;
-                    mm.add_var(name, ad.npq, d.v0.(name)(ad.pq), d.vl.(name)(ad.pq), d.vu.(name)(ad.pq));
+                    mm.add_var([name '_pq'], npq, d.v0.(name)(pq), d.vl.(name)(pq), d.vu.(name)(pq));
                 else
                     error('mp_network_acps/pf_add_vars: handling of indexed sets not implmented here (yet)');
                 end

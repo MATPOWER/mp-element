@@ -27,9 +27,22 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
             st = obj.(vvars{1});
             for k = 1:st.NS
                 name = st.order(k).name;
+                pq = ad.node_type_by_elm(k).pq;
+                npq = length(pq);
                 if isempty(st.order(k).idx)
                     d = st.data;
-                    mm.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
+                    mm.add_var([name '_pq'], npq, d.v0.(name)(pq), d.vl.(name)(pq), d.vu.(name)(pq));
+                else
+                    error('mp_network_accs/pf_add_vars: handling of indexed sets not implmented here (yet)');
+                end
+            end
+            for k = 1:st.NS
+                name = st.order(k).name;
+                pv = ad.node_type_by_elm(k).pv;
+                npv = length(pv);
+                if isempty(st.order(k).idx)
+                    d = st.data;
+                    mm.add_var([name '_pv'], npv, d.v0.(name)(pv), d.vl.(name)(pv), d.vu.(name)(pv));
                 else
                     error('mp_network_accs/pf_add_vars: handling of indexed sets not implmented here (yet)');
                 end
@@ -39,9 +52,22 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
             st = obj.(vvars{2});
             for k = 1:st.NS
                 name = st.order(k).name;
+                pq = ad.node_type_by_elm(k).pq;
+                npq = length(pq);
                 if isempty(st.order(k).idx)
                     d = st.data;
-                    mm.add_var(name, ad.npq+ad.npv, d.v0.(name)(pqv), d.vl.(name)(pqv), d.vu.(name)(pqv));
+                    mm.add_var([name '_pq'], npq, d.v0.(name)(pq), d.vl.(name)(pq), d.vu.(name)(pq));
+                else
+                    error('mp_network_accs/pf_add_vars: handling of indexed sets not implmented here (yet)');
+                end
+            end
+            for k = 1:st.NS
+                name = st.order(k).name;
+                pv = ad.node_type_by_elm(k).pv;
+                npv = length(pv);
+                if isempty(st.order(k).idx)
+                    d = st.data;
+                    mm.add_var([name '_pv'], npv, d.v0.(name)(pv), d.vl.(name)(pv), d.vu.(name)(pv));
                 else
                     error('mp_network_accs/pf_add_vars: handling of indexed sets not implmented here (yet)');
                 end
