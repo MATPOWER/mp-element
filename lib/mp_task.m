@@ -168,11 +168,13 @@ classdef mp_task < handle
             end
         end
 
-        function print_soln(obj, fname)
-            if isempty(fname)
-                fprintf('-- %s print_soln()\n', obj.tag);
-            else
-                fprintf('-- %s print_soln(''%s'')\n', obj.tag, fname);
+        function print_soln(obj, fname, mpopt)
+            if mpopt.out.all
+                if isempty(fname)
+                    fprintf('-- %s print_soln()\n', obj.tag);
+                else
+                    fprintf('-- %s print_soln(''%s'')\n', obj.tag, fname);
+                end
             end
         end
 

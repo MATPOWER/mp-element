@@ -25,7 +25,7 @@ task = mp_task_class();
 task.run(m, mpopt);
 
 %% pretty-print results to console & possibly to file
-task.print_soln(fname);
+task.print_soln(fname, mpopt);
 
 %% save solved case
 if ~isempty(solvedcase) && task.success
