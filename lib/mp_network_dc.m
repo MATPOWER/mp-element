@@ -215,5 +215,28 @@ classdef mp_network_dc < mp_network & mp_form_dc
         function names = opf_legacy_user_var_names(obj)
             names = {'Va', 'Pg'};
         end
+
+        function opt = opf_solve_opts(obj, mm, dm, mpopt)
+            opt = mpopt2qpopt(mpopt, mm.problem_type());
+
+            switch opt.alg
+                case {'MIPS', 'IPOPT'}
+                    if mpopt.opf.start < 2
+                        %% initialize interior point
+                        x0 = obj.opf_interior_x0(mm, dm);
+
+                        %% set voltages
+                        %% Va equal to angle of 1st ref bus
+                        vv = mm.get_idx();
+                        bus_dme = dm.elm_by_name('bus');
+                        Varefs = bus_dme.Va0(find(bus_dme.isref));
+                        x0(vv.i1.Va:vv.iN.Va) = Varefs(1);  %% angles set to first reference angle
+
+                        opt.x0 = x0;
+                    end
+                case 'OSQP'
+                    opt.x0 = [];        %% disable provided starting point
+            end
+        end
     end     %% methods
 end         %% classdef

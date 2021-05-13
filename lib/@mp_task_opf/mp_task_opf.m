@@ -130,59 +130,7 @@ classdef mp_task_opf < mp_task
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)
-            if strcmp(mm.problem_type(), 'NLP')
-                opt = mpopt2nlpopt(mpopt, mm.problem_type());
-            else
-                opt = mpopt2qpopt(mpopt, mm.problem_type());
-            end
-
-            if obj.dc && strcmp(opt.alg, 'OSQP')
-                opt.x0 = [];    %% disable provided starting point for OSQP
-            end
-
-            if mpopt.opf.start < 2 && (~obj.dc || ...
-                    strcmp(opt.alg, 'MIPS') || strcmp(opt.alg, 'IPOPT'))
-                [x0, xmin, xmax] = mm.params_var();     %% init var & bounds
-                s = 1;                      %% set init point inside bounds by s
-                lb = xmin; ub = xmax;
-                lb(xmin == -Inf) = -1e10;   %% replace Inf with numerical proxies
-                ub(xmax ==  Inf) =  1e10;   %% temporarily to avoid errors in next line
-                x0 = (lb + ub) / 2;         %% set x0 mid-way between bounds
-                k = find(xmin == -Inf & xmax < Inf);    %% if only bounded above
-                x0(k) = xmax(k) - s;                    %% set just below upper bound
-                k = find(xmin > -Inf & xmax == Inf);    %% if only bounded below
-                x0(k) = xmin(k) + s;                    %% set just above lower bound
-
-                vv = mm.get_idx();
-                bus_dme = dm.elm_by_name('bus');
-                gen_nme = nm.elm_by_name('gen');
-                if obj.dc
-                    Varefs = bus_dme.Va0(find(bus_dme.isref));
-                    x0(vv.i1.Va:vv.iN.Va) = Varefs(1);  %% angles set to first reference angle
-                else
-                    Varefs = bus_dme.Va0(find(bus_dme.isref));
-                    Vmax = min(bus_dme.Vmax, 1.5);
-                    Vmin = max(bus_dme.Vmin, 0.5);
-                    Vm = (Vmax + Vmin) / 2;
-                    if mpopt.opf.v_cartesian
-                        V = Vm * exp(1j*Varefs(1));
-                        x0(vv.i1.Vr:vv.iN.Vr) = real(V);
-                        x0(vv.i1.Vi:vv.iN.Vi) = imag(V);
-                    else
-                        x0(vv.i1.Va:vv.iN.Va) = Varefs(1);  %% angles set to first reference angle
-                        x0(vv.i1.Vm:vv.iN.Vm) = Vm;         %% voltage magnitudes
-                    end
-                end
-                if gen_nme.cost.pwl.n > 0
-                    gen_dme = dm.elm_by_name('gen');
-                    ipwl = gen_nme.cost.pwl.i;
-                    maxgc = gen_dme.max_pwl_gencost(ipwl, dm);
-                    x0(vv.i1.y:vv.iN.y) = maxgc + 0.1 * abs(maxgc);
-                end
-
-                opt.x0 = x0;
-            end
-
+            opt = nm.opf_solve_opts(mm, dm, mpopt);
             obj.mm_opt = opt;
         end
 

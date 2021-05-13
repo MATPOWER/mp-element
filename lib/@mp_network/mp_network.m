@@ -739,5 +739,29 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                 nme{1}.opf_data_model_update(mm, nm, dm, mpopt);
             end
         end
+
+        function x0 = opf_interior_x0(obj, mm, dm)
+            %% generic interior point
+            [x0, xmin, xmax] = mm.params_var();     %% init var & bounds
+            s = 1;                      %% set init point inside bounds by s
+            lb = xmin; ub = xmax;
+            lb(xmin == -Inf) = -1e10;   %% replace Inf with numerical proxies
+            ub(xmax ==  Inf) =  1e10;   %% temporarily to avoid errors in next line
+            x0 = (lb + ub) / 2;         %% set x0 mid-way between bounds
+            k = find(xmin == -Inf & xmax < Inf);    %% if only bounded above
+            x0(k) = xmax(k) - s;                    %% set just below upper bound
+            k = find(xmin > -Inf & xmax == Inf);    %% if only bounded below
+            x0(k) = xmin(k) + s;                    %% set just above lower bound
+
+            %% set gen cost variables to something feasible
+            gen_nme = obj.elm_by_name('gen');
+            if gen_nme.cost.pwl.n > 0
+                vv = mm.get_idx();
+                gen_dme = dm.elm_by_name('gen');
+                ipwl = gen_nme.cost.pwl.i;
+                maxgc = gen_dme.max_pwl_gencost(ipwl, dm);
+                x0(vv.i1.y:vv.iN.y) = maxgc + 0.1 * abs(maxgc);
+            end
+        end
     end     %% methods
 end         %% classdef

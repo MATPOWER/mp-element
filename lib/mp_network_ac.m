@@ -1140,5 +1140,34 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 mm.add_nln_constraint(uc{k}{:});
             end
         end
+
+        function opt = opf_solve_opts(obj, mm, dm, mpopt)
+            opt = mpopt2nlpopt(mpopt, mm.problem_type());
+
+            if mpopt.opf.start < 2
+                %% initialize interior point
+                x0 = obj.opf_interior_x0(mm, dm);
+
+                %% set voltages
+                %% Va equal to angle of 1st ref bus
+                %% Vm equal to avg of clipped limits
+                vv = mm.get_idx();
+                bus_dme = dm.elm_by_name('bus');
+                Varefs = bus_dme.Va0(find(bus_dme.isref));
+                Vmax = min(bus_dme.Vmax, 1.5);
+                Vmin = max(bus_dme.Vmin, 0.5);
+                Vm = (Vmax + Vmin) / 2;
+                if mpopt.opf.v_cartesian
+                    V = Vm * exp(1j*Varefs(1));
+                    x0(vv.i1.Vr:vv.iN.Vr) = real(V);
+                    x0(vv.i1.Vi:vv.iN.Vi) = imag(V);
+                else
+                    x0(vv.i1.Va:vv.iN.Va) = Varefs(1);  %% angles set to first reference angle
+                    x0(vv.i1.Vm:vv.iN.Vm) = Vm;         %% voltage magnitudes
+                end
+
+                opt.x0 = x0;
+            end
+        end
     end     %% methods
 end         %% classdef
