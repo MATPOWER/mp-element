@@ -1,4 +1,4 @@
-classdef nme_bus_ld_acp_node_test < nme_bus_acp
+classdef nme_bus_ld_acp_node_test < nme_bus_nld_acp_node_test
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -15,24 +15,9 @@ classdef nme_bus_ld_acp_node_test < nme_bus_acp
     methods
         %% constructor
         function obj = nme_bus_ld_acp_node_test()
-            obj@nme_bus_acp();
+            obj@nme_bus_nld_acp_node_test();
             obj.name = 'bus_ld';
             obj.np = 1;             %% this is a 1 port element
-        end
-
-        function obj = add_vvars(obj, nm, dm, idx)
-            dme = obj.data_model_element(dm);
-            nb = obj.nk;
-
-            %% prepare angle bounds for ref buses
-            Vamin = -Inf(nb, 1);
-            Vamax =  Inf(nb, 1);
-            k = find(dme.isref);
-            Vamin(k) = dme.Va0(k);
-            Vamax(k) = dme.Va0(k);
-
-            nm.add_var('va', ['va_' obj.name], nb, dme.Va0, Vamin, Vamax);
-            nm.add_var('vm', ['vm_' obj.name], nb, dme.Vm0, dme.Vmin, dme.Vmax);
         end
 
         function obj = build_params(obj, nm, dm)

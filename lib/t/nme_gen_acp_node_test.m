@@ -20,14 +20,16 @@ classdef nme_gen_acp_node_test < nme_gen_acp
             bus_nld_dme = dm.elm_by_name('bus_nld');
             bus_ld_dme  = dm.elm_by_name('bus_ld');
             if ~isempty(bus_nld_dme)
+                bc = bus_nld_dme.bus_class;
                 nidx_nld = nm.get_node_idx('bus_nld');  %% node indices for 'bus_nld'
-                bidx(bt == 1) = bus_nld_dme.i2on(b(bt == 1));   %% online bus_nld indices for gens
-                idx(bt == 1) = nidx_nld(bidx(bt == 1)); %% node indices for gens
+                bidx(bt == bc) = bus_nld_dme.i2on(b(bt == bc)); %% online bus_nld indices for gens
+                idx(bt == bc) = nidx_nld(bidx(bt == bc));   %% node indices for gens
             end
             if ~isempty(bus_ld_dme)
+                bc = bus_ld_dme.bus_class;
                 nidx_ld  = nm.get_node_idx('bus_ld');   %% node indices for 'bus_ld'
-                bidx(bt == 2) = bus_ld_dme.i2on( b(bt == 2));   %% online bus_ld indices for gens
-                idx(bt == 2) = nidx_ld( bidx(bt == 2)); %% node indices for gens
+                bidx(bt == bc) = bus_ld_dme.i2on( b(bt == bc)); %% online bus_ld indices for gens
+                idx(bt == bc) = nidx_ld( bidx(bt == bc));   %% node indices for gens
             end
         end
     end     %% methods

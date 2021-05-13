@@ -59,10 +59,14 @@ classdef dme_branch_mpc2_node_test < dme_branch_mpc2
             obj.tbus = b2i(tab(:, T_BUS));
             obj.fbus_type = zeros(size(obj.fbus));
             obj.tbus_type = zeros(size(obj.tbus));
-            obj.fbus_type(fk_nld) = 1;
-            obj.tbus_type(tk_nld) = 1;
-            obj.fbus_type(fk_ld ) = 2;
-            obj.tbus_type(tk_ld ) = 2;
+            if ~isempty(dme_nld)
+                obj.fbus_type(fk_nld) = dme_nld.bus_class;
+                obj.tbus_type(tk_nld) = dme_nld.bus_class;
+            end
+            if ~isempty(dme_ld)
+                obj.fbus_type(fk_ld ) = dme_ld.bus_class;
+                obj.tbus_type(tk_ld ) = dme_ld.bus_class;
+            end
         end
 
         function obj = update_status(obj, dm)
@@ -73,8 +77,8 @@ classdef dme_branch_mpc2_node_test < dme_branch_mpc2
                 bs_nld = dme_nld.status;    %% bus_nld status
 
                 %% update status of branches connected to isolated/offline buses
-                fk_nld = find(obj.fbus_type == 1);
-                tk_nld = find(obj.tbus_type == 1);
+                fk_nld = find(obj.fbus_type == dme_nld.bus_class);
+                tk_nld = find(obj.tbus_type == dme_nld.bus_class);
                 obj.status(fk_nld) = obj.status(fk_nld) & bs_nld(obj.fbus(fk_nld));
                 obj.status(tk_nld) = obj.status(tk_nld) & bs_nld(obj.tbus(tk_nld));
             end
@@ -82,8 +86,8 @@ classdef dme_branch_mpc2_node_test < dme_branch_mpc2
                 bs_ld = dme_ld.status;      %% bus_ld status
 
                 %% update status of branches connected to isolated/offline buses
-                fk_ld  = find(obj.fbus_type == 2);
-                tk_ld  = find(obj.tbus_type == 2);
+                fk_ld  = find(obj.fbus_type == dme_ld.bus_class);
+                tk_ld  = find(obj.tbus_type == dme_ld.bus_class);
                 obj.status(fk_ld ) = obj.status(fk_ld ) & bs_ld( obj.fbus(fk_ld ));
                 obj.status(tk_ld ) = obj.status(tk_ld ) & bs_ld( obj.tbus(tk_ld ));
             end

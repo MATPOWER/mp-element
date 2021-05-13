@@ -22,18 +22,20 @@ classdef nme_branch_acp_node_test < nme_branch_acp
             bus_nld_dme = dm.elm_by_name('bus_nld');
             bus_ld_dme  = dm.elm_by_name('bus_ld');
             if ~isempty(bus_nld_dme)
+                bc = bus_nld_dme.bus_class;
                 nidx_nld = nm.get_node_idx('bus_nld');  %% node indices for 'bus_nld'
-                fbidx(bf == 1) = bus_nld_dme.i2on(f(bf == 1));  %% online bus_nld indices branch "from"
-                tbidx(bt == 1) = bus_nld_dme.i2on(t(bt == 1));  %% online bus_nld indices branch "to"
-                fidx(bf == 1) = nidx_nld(fbidx(bf == 1));   %% branch "from" port node indices
-                tidx(bt == 1) = nidx_nld(tbidx(bt == 1));   %% branch "to" port node indices
+                fbidx(bf == bc) = bus_nld_dme.i2on(f(bf == bc));%% online bus_nld indices branch "from"
+                tbidx(bt == bc) = bus_nld_dme.i2on(t(bt == bc));%% online bus_nld indices branch "to"
+                fidx(bf == bc) = nidx_nld(fbidx(bf == bc)); %% branch "from" port node indices
+                tidx(bt == bc) = nidx_nld(tbidx(bt == bc)); %% branch "to" port node indices
             end
             if ~isempty(bus_ld_dme)
+                bc = bus_ld_dme.bus_class;
                 nidx_ld  = nm.get_node_idx('bus_ld');   %% node indices for 'bus_ld'
-                fbidx(bf == 2) = bus_ld_dme.i2on( f(bf == 2));  %% online bus_ld indices branch "from"
-                tbidx(bt == 2) = bus_ld_dme.i2on( t(bt == 2));  %% online bus_ld indices branch "to"
-                fidx(bf == 2) = nidx_ld( fbidx(bf == 2));   %% branch "from" port node indices
-                tidx(bt == 2) = nidx_ld( tbidx(bt == 2));   %% branch "to" port node indices
+                fbidx(bf == bc) = bus_ld_dme.i2on( f(bf == bc));%% online bus_ld indices branch "from"
+                tbidx(bt == bc) = bus_ld_dme.i2on( t(bt == bc));%% online bus_ld indices branch "to"
+                fidx(bf == bc) = nidx_ld( fbidx(bf == bc)); %% branch "from" port node indices
+                tidx(bt == bc) = nidx_ld( tbidx(bt == bc)); %% branch "to" port node indices
             end
         end
     end     %% methods

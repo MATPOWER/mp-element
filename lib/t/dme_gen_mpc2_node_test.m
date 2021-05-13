@@ -54,8 +54,12 @@ classdef dme_gen_mpc2_node_test < dme_gen_mpc2
             k_ld  = find(b2i_ld( tab(:, GEN_BUS)));
             obj.bus = b2i(tab(:, GEN_BUS));
             obj.bus_type = zeros(size(obj.bus));
-            obj.bus_type(k_nld) = 1;
-            obj.bus_type(k_ld ) = 2;
+            if ~isempty(dme_nld)
+                obj.bus_type(k_nld) = dme_nld.bus_class;
+            end
+            if ~isempty(dme_ld)
+                obj.bus_type(k_ld ) = dme_ld.bus_class;
+            end
         end
 
         function obj = update_status(obj, dm)
@@ -66,14 +70,14 @@ classdef dme_gen_mpc2_node_test < dme_gen_mpc2
                 bs_nld = dme_nld.status;    %% bus_nld status
 
                 %% update status of gens at isolated/offline buses
-                k_nld = find(obj.bus_type == 1);
+                k_nld = find(obj.bus_type == dme_nld.bus_class);
                 obj.status(k_nld) = obj.status(k_nld) & bs_nld(obj.bus(k_nld));
             end
             if ~isempty(dme_ld)
                 bs_ld = dme_ld.status;      %% bus_ld status
 
                 %% update status of gens at isolated/offline buses
-                k_ld  = find(obj.bus_type == 2);
+                k_ld  = find(obj.bus_type == dme_ld.bus_class);
                 obj.status(k_ld ) = obj.status(k_ld ) & bs_ld( obj.bus(k_ld ));
             end
 

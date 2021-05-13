@@ -1,4 +1,4 @@
-classdef dme_bus_ld_mpc2_node_test < dme_bus_mpc2
+classdef dme_bus_ld_mpc2_node_test < dme_bus_nld_mpc2_node_test
 %DME_BUS_LD_MPC2_NODE_TEST  MATPOWER data model bus table for MATPOWER case format v2
 
 %   MATPOWER
@@ -10,7 +10,6 @@ classdef dme_bus_ld_mpc2_node_test < dme_bus_mpc2
 %   See https://matpower.org for more info.
 
     properties
-        bidx    %% indices into bus matrix (all rows) for "load buses"
         Pd      %% active power demand (p.u.) for loads at buses that are on
         Qd      %% reactive power demand (p.u.) for loads at buses that are on
         Gs      %% shunt conductance (p.u. active power demanded at
@@ -22,32 +21,16 @@ classdef dme_bus_ld_mpc2_node_test < dme_bus_mpc2
     methods
         %% constructor
         function obj = dme_bus_ld_mpc2_node_test()
-            obj@dme_bus_mpc2();     %% call parent constructor
+            obj@dme_bus_nld_mpc2_node_test();   %% call parent constructor
+            obj.bus_class = 2;
             obj.name = 'bus_ld';
         end
 
-        function nr = count(obj, dm)
+        function bidx = mpc_idx(obj, tab)
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS] = idx_bus;
 
-            if isfield(dm.mpc, obj.table)
-                tab = dm.mpc.(obj.table);
-                obj.bidx = find(tab(:, PD) | tab(:, QD) | tab(:, GS) | tab(:, BS));
-                nr = length(obj.bidx);
-            else
-                nr = 0;
-            end
-            obj.nr = nr;
-        end
-
-        function tab = get_table(obj, dm)
-            tab = dm.mpc.(obj.table)(obj.bidx, :);
-        end
-
-        function [gbus, ig] = gbus_vector(obj, gen_dme)
-            %% buses of online gens
-            ig = find(gen_dme.bus_type == 2);
-            gbus = obj.i2on(gen_dme.bus(gen_dme.on(gen_dme.bus_type == 2)));
+            bidx = find(tab(:, PD) | tab(:, QD) | tab(:, GS) | tab(:, BS));
         end
 
         function obj = build_params(obj, dm)
@@ -61,14 +44,6 @@ classdef dme_bus_ld_mpc2_node_test < dme_bus_mpc2
             obj.Qd = tab(obj.on, QD) / dm.baseMVA;
             obj.Gs = tab(obj.on, GS) / dm.baseMVA;
             obj.Bs = tab(obj.on, BS) / dm.baseMVA;
-        end
-
-        function midx = dme_idx2mpc_idx(obj, didx)
-            if nargin > 1
-                midx = obj.bidx(obj.on(didx));
-            else
-                midx = obj.bidx(obj.on);
-            end
         end
     end     %% methods
 end         %% classdef
