@@ -13,23 +13,18 @@ classdef nme_gen_acp_node_test < nme_gen_acp
 %     
     methods
         function idx = node_indices(obj, nm, dm, dme)
-            b = dme.bus(dme.on);        %% gen "bus"
-            bt = dme.bus_type(dme.on);  %% gen "bus type"
+            b = dme.bus(dme.on);        %% gen bus index vector
+            bt = dme.bus_etv(dme.on);   %% gen bus element type vector
             bidx = zeros(size(b));
             idx = zeros(size(b));
-            bus_nld_dme = dm.elm_by_name('bus_nld');
-            bus_ld_dme  = dm.elm_by_name('bus_ld');
-            if ~isempty(bus_nld_dme)
-                bc = bus_nld_dme.bus_class;
-                nidx_nld = nm.get_node_idx('bus_nld');  %% node indices for 'bus_nld'
-                bidx(bt == bc) = bus_nld_dme.i2on(b(bt == bc)); %% online bus_nld indices for gens
-                idx(bt == bc) = nidx_nld(bidx(bt == bc));   %% node indices for gens
-            end
-            if ~isempty(bus_ld_dme)
-                bc = bus_ld_dme.bus_class;
-                nidx_ld  = nm.get_node_idx('bus_ld');   %% node indices for 'bus_ld'
-                bidx(bt == bc) = bus_ld_dme.i2on( b(bt == bc)); %% online bus_ld indices for gens
-                idx(bt == bc) = nidx_ld( bidx(bt == bc));   %% node indices for gens
+            for k = 1:dme.nbet
+                bus_dme = dm.elm_by_name(dme.bus_elm_types{k});
+                if ~isempty(bus_dme)
+                    beti = bus_dme.bus_eti;
+                    nidx = nm.get_node_idx(dme.bus_elm_types{k});   %% node indices for bus element type
+                    bidx(bt == beti) = bus_dme.i2on(b(bt == beti)); %% online bus indices for gens
+                    idx(bt == beti) = nidx(bidx(bt == beti));   %% node indices for gens
+                end
             end
         end
     end     %% methods

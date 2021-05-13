@@ -36,16 +36,5 @@ classdef nme_bus_ld_acp_node_test < nme_bus_nld_acp_node_test
             %% constant power loads
             obj.s = dme.Pd + 1j * dme.Qd;           %% complex power demand
         end
-
-        %%-----  PF methods  -----
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% complex bus voltages
-            nn = nm.get_idx('node');
-            V = nm.soln.v(nn.i1.(obj.name):nn.iN.(obj.name));
-
-            %% update in the data model
-            dme = obj.data_model_element(dm);
-            dme.update(dm, 'Va', angle(V), 'Vm', abs(V));
-        end
     end     %% methods
 end         %% classdef

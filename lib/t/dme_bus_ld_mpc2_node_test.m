@@ -2,7 +2,7 @@ classdef dme_bus_ld_mpc2_node_test < dme_bus_nld_mpc2_node_test
 %DME_BUS_LD_MPC2_NODE_TEST  MATPOWER data model bus table for MATPOWER case format v2
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -22,7 +22,7 @@ classdef dme_bus_ld_mpc2_node_test < dme_bus_nld_mpc2_node_test
         %% constructor
         function obj = dme_bus_ld_mpc2_node_test()
             obj@dme_bus_nld_mpc2_node_test();   %% call parent constructor
-            obj.bus_class = 2;
+            obj.bus_eti = 2;        %% bus element type index, 2 => bus_ld
             obj.name = 'bus_ld';
         end
 

@@ -2,7 +2,7 @@ classdef dme_bus_nld_mpc2_node_test < dme_bus_mpc2
 %DME_BUS_NLD_MPC2_NODE_TEST  MATPOWER data model bus table for MATPOWER case format v2
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -10,7 +10,7 @@ classdef dme_bus_nld_mpc2_node_test < dme_bus_mpc2
 %   See https://matpower.org for more info.
 
     properties
-        bus_class   %% 1 = bus_nld, 2 = bus_ld
+        bus_eti %% bus element type index, 1 = bus_nld, 2 = bus_ld
         bidx    %% indices into bus matrix (all rows) for this type of bus
     end     %% properties
 
@@ -18,7 +18,7 @@ classdef dme_bus_nld_mpc2_node_test < dme_bus_mpc2
         %% constructor
         function obj = dme_bus_nld_mpc2_node_test()
             obj@dme_bus_mpc2();     %% call parent constructor
-            obj.bus_class = 1;
+            obj.bus_eti = 1;        %% bus element type index, 1 => bus_nld
             obj.name = 'bus_nld';
         end
 
@@ -46,8 +46,8 @@ classdef dme_bus_nld_mpc2_node_test < dme_bus_mpc2
 
         function [gbus, ig] = gbus_vector(obj, gen_dme)
             %% buses of online gens
-            ig = find(gen_dme.bus_type == obj.bus_class);
-            gbus = obj.i2on(gen_dme.bus(gen_dme.on(gen_dme.bus_type == obj.bus_class)));
+            ig = find(gen_dme.bus_etv == obj.bus_eti);
+            gbus = obj.i2on(gen_dme.bus(gen_dme.on(gen_dme.bus_etv == obj.bus_eti)));
         end
 
         function midx = dme_idx2mpc_idx(obj, didx)
