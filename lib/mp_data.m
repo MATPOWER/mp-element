@@ -78,5 +78,25 @@ classdef mp_data < mpe_container
                 n = dme.n;
             end
         end
+
+        function display(obj)
+%             if have_feature('octave')
+%                 struct(obj)
+%             else
+%                 display@handle(obj)
+%             end
+            fprintf('DATA MODEL CLASS : %s\n', class(obj));
+
+            %% elements
+            fprintf('\nELEMENTS\n')
+            fprintf('========\n')
+            fprintf(' i     name        table       nr         n      class\n');
+            fprintf('-- -----------   ---------  --------  --------  --------------------\n');
+            for k = 1:length(obj.elm_list)
+                dme = obj.elm_list{k};
+                fprintf('%2d %9s %12s %9d %9d    %s\n', k, dme.name, dme.table, dme.nr, dme.n, class(dme));
+%                 dme
+            end
+        end
     end     %% methods
 end         %% classdef

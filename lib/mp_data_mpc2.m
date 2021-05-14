@@ -86,7 +86,7 @@ classdef mp_data_mpc2 < mp_data
         end
 
         function display(obj)
-            fprintf('Data Model class : %s\n', class(obj));
+            display@mp_data(obj);
             mpc = obj.mpc
         end
 

@@ -173,23 +173,23 @@ classdef nm_element < handle
 %             else
 %                 display@handle(obj)
 %             end
-            fprintf('ELEMENT NAME           : %s\n', obj.name);
-            fprintf('ELEMENT CLASS          : %s\n', class(obj));
-            fprintf('# OF ELEMENTS          : %d\n', obj.nk);
-            fprintf('# OF PORTS/ELEM        : %d\n', obj.np);
-            fprintf('# OF NON-V STATES/ELEM : %d\n', obj.nz);
+            fprintf('NETWORK MODEL ELEMENT NAME  : %s\n', obj.name);
+            fprintf('NETWORK MODEL ELEMENT CLASS : %s\n', class(obj));
+            fprintf('    # OF ELEMENTS           : %d\n', obj.nk);
+            fprintf('    # OF PORTS/ELEM         : %d\n', obj.np);
+            fprintf('    # OF NON-V STATES/ELEM  : %d\n', obj.nz);
             if isa(obj, 'mp_form')
-                fprintf('FORMULATION NAME       : %s\n', obj.form_name());
-                fprintf('FORMULATION TAG        : %s\n', obj.form_tag());
-                fprintf('FORMULATION CLASS      : %s\n', obj.find_form_class());
-                fprintf('MODEL PARAMETERS');
+                fprintf('    FORMULATION NAME        : %s\n', obj.form_name());
+                fprintf('    FORMULATION TAG         : %s\n', obj.form_tag());
+                fprintf('    FORMULATION CLASS       : %s\n', obj.find_form_class());
+                fprintf('    MODEL PARAMETERS');
                 model_params = obj.model_params();
                 for j = 1:length(model_params)
                     pn = model_params{j};   %% parameter name
                     if j == 1
-                        fmt = '%6s : ';
+                        fmt = '%7s : ';
                     else
-                        fmt = '%22s : ';
+                        fmt = '%27s : ';
                     end
                     if isempty(obj.(pn))
                         fprintf([fmt '-\n'], pn);

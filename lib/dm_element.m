@@ -101,5 +101,18 @@ classdef dm_element < handle
 
         function obj = build_params(obj, dm)
         end
+
+        function display(obj)
+%             if have_feature('octave')
+%                 struct(obj)
+%             else
+%                 display@handle(obj)
+%             end
+            fprintf('DATA MODEL ELEMENT NAME  : %s\n', obj.name);
+            fprintf('DATA MODEL ELEMENT CLASS : %s\n', class(obj));
+            fprintf('    ELEMENT TABLE        : %s\n', obj.table);
+            fprintf('    # OF ROWS            : %d\n', obj.nr);
+            fprintf('    # OF ONLINE ELEMENTS : %d\n', obj.n);
+        end
     end     %% methods
 end         %% classdef
