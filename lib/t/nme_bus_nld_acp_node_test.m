@@ -44,5 +44,29 @@ classdef nme_bus_nld_acp_node_test < nme_bus_acp
             dme = obj.data_model_element(dm);
             dme.update(dm, 'Va', angle(V), 'Vm', abs(V));
         end
+
+        %%-----  OPF methods  -----
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% complex bus voltages
+            nn = nm.get_idx('node');
+            V = nm.soln.v(nn.i1.(obj.name):nn.iN.(obj.name));
+
+            %% shadow prices on voltage magnitudes
+            vv = mm.get_idx('var');
+            lambda = mm.soln.lambda;
+            vVm = ['vm_' obj.name];
+            muVmin = lambda.lower(vv.i1.(vVm):vv.iN.(vVm));
+            muVmax = lambda.upper(vv.i1.(vVm):vv.iN.(vVm));
+
+            %% shadow prices on node power balance
+            [lamP, lamQ] = nm.opf_node_power_balance_prices(mm);
+            lamP = lamP(nn.i1.(obj.name):nn.iN.(obj.name)); %% for (obj.name) nodes only
+            lamQ = lamQ(nn.i1.(obj.name):nn.iN.(obj.name)); %% for (obj.name) nodes only
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.update(dm, 'Va', angle(V), 'Vm', abs(V), ...
+                'lamP', lamP, 'lamQ', lamQ, 'muVmin', muVmin, 'muVmax', muVmax);
+        end
     end     %% methods
 end         %% classdef

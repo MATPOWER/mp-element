@@ -25,5 +25,42 @@ classdef mp_network_acps_node_test < mp_network_acps
             %%              (if obj.node is empty) in BUILD() and DISPLAY(),
             %%              after object construction, but before object use.
         end
+
+        %%-----  OPF methods  -----
+        function opt = opf_solve_opts(obj, mm, dm, mpopt)
+            opt = mpopt2nlpopt(mpopt, mm.problem_type());
+
+            if mpopt.opf.start < 2
+                %% initialize interior point
+                x0 = obj.opf_interior_x0(mm, dm);
+
+                %% set voltages
+                %% Va equal to angle of 1st ref bus
+                %% Vm equal to avg of clipped limits
+                vv = mm.get_idx();
+                gen_dme = dm.elm_by_name('gen');
+                Varefs = [];
+                for k = gen_dme.nbet:-1:1
+                    bus_dme{k} = dm.elm_by_name(gen_dme.bus_elm_types{k});
+                    if ~isempty(bus_dme{k})
+                        Varefs_k = bus_dme{k}.Va0(find(bus_dme{k}.isref));
+                        Varefs = [Varefs_k; Varefs];
+                    end
+                end
+                for k = 1:gen_dme.nbet
+                    if ~isempty(bus_dme{k})
+                        Vmax = min(bus_dme{k}.Vmax, 1.5);
+                        Vmin = max(bus_dme{k}.Vmin, 0.5);
+                        Vm = (Vmax + Vmin) / 2;
+                        vVa = ['va_' gen_dme.bus_elm_types{k}];
+                        vVm = ['vm_' gen_dme.bus_elm_types{k}];
+                        x0(vv.i1.(vVa):vv.iN.(vVa)) = Varefs(1);%% angles set to first reference angle
+                        x0(vv.i1.(vVm):vv.iN.(vVm)) = Vm;       %% voltage magnitudes
+                    end
+                end
+
+                opt.x0 = x0;
+            end
+        end
     end     %% methods
 end         %% classdef
