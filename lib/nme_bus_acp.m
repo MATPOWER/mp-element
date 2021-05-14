@@ -46,7 +46,7 @@ classdef nme_bus_acp < nme_bus & mp_form_acp
             V = nm.soln.v(nn.i1.bus:nn.iN.bus);
 
             %% shadow prices on voltage magnitudes
-            [vv, nne] = mm.get_idx('var', 'nle');
+            vv = mm.get_idx('var');
             lambda = mm.soln.lambda;
             muVmin = lambda.lower(vv.i1.Vm:vv.iN.Vm);
             muVmax = lambda.upper(vv.i1.Vm:vv.iN.Vm);
