@@ -173,14 +173,11 @@ classdef mp_data_mpc2 < mp_data
                         error('mp_data_mpc2/pf_enforce_q_lims: Sorry, MATPOWER cannot enforce Q limits for slack buses in systems with multiple slacks.');
                     end
                     %% set bus type to PQ
-                    bus_dme.set_bus_type_pq(bidx);
+                    bus_dme.set_bus_type_pq(obj, bidx);
                     %% potentially pick new slack bus
                     ntv = nm.node_types(nm, obj);       %% node type vector
                     [i1, iN] = nm.get_node_idx('bus');  %% bus node indices
                     btv = ntv(i1:iN);                   %% bus type vector
-
-                    %% update bus types in data model
-                    bus_dme.update(obj, 'bus_type', btv);
 
                     %% indicate if there's been a change in slack bus
                     ref = obj.node_type_ref(btv);       %% new ref bus indices

@@ -35,19 +35,19 @@ classdef dme_bus < dm_element
             end
         end
 
-        function obj = set_bus_type_ref(obj, idx)
+        function obj = set_bus_type_ref(obj, dm, idx)
             obj.isref(idx) = 1;
             obj.ispv( idx) = 0;
             obj.ispq( idx) = 0;
         end
 
-        function obj = set_bus_type_pv(obj, idx)
+        function obj = set_bus_type_pv(obj, dm, idx)
             obj.isref(idx) = 0;
             obj.ispv( idx) = 1;
             obj.ispq( idx) = 0;
         end
 
-        function obj = set_bus_type_pq(obj, idx)
+        function obj = set_bus_type_pq(obj, dm, idx)
             obj.isref(idx) = 0;
             obj.ispv( idx) = 0;
             obj.ispq( idx) = 1;

@@ -933,6 +933,10 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                     catch
                         s.done = 1;
                         s.done_msg = 'No REF or PV nodes remaining.';
+
+                        %% undo change of last REF to PQ
+                        obj.set_node_type_ref(dm, ad.ref);
+
                         break;
                     end
 

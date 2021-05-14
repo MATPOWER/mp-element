@@ -39,15 +39,15 @@ classdef nme_bus < nm_element
         end
 
         function set_node_type_ref(obj, nm, dm, idx)
-            obj.data_model_element(dm).set_bus_type_ref(idx);
+            obj.data_model_element(dm).set_bus_type_ref(dm, idx);
         end
 
         function set_node_type_pv(obj, nm, dm, idx)
-            obj.data_model_element(dm).set_bus_type_pv(idx);
+            obj.data_model_element(dm).set_bus_type_pv(dm, idx);
         end
 
         function set_node_type_pq(obj, nm, dm, idx)
-            obj.data_model_element(dm).set_bus_type_pq(idx);
+            obj.data_model_element(dm).set_bus_type_pq(dm, idx);
         end
     end     %% methods
 end         %% classdef

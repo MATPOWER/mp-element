@@ -96,6 +96,27 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             obj.Vmax = bus(obj.on, VMAX);
         end
 
+        function obj = set_bus_type_ref(obj, dm, idx)
+            %% define named indices into data matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE] = idx_bus;
+            dm.mpc.bus(idx, BUS_TYPE) = REF;
+            set_bus_type_ref@dme_bus(obj, dm, idx); %% call parent
+        end
+
+        function obj = set_bus_type_pv(obj, dm, idx)
+            %% define named indices into data matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE] = idx_bus;
+            dm.mpc.bus(idx, BUS_TYPE) = PV;
+            set_bus_type_pv@dme_bus(obj, dm, idx);  %% call parent
+        end
+
+        function obj = set_bus_type_pq(obj, dm, idx)
+            %% define named indices into data matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE] = idx_bus;
+            dm.mpc.bus(idx, BUS_TYPE) = PQ;
+            set_bus_type_pq@dme_bus(obj, dm, idx);  %% call parent
+        end
+
         function obj = update(obj, dm, varargin)
             %% obj.update(dm, name1, val1, name2, val2, ...)
             %% obj.update(dm, idx, name1, val1, name2, val2, ...)
