@@ -659,76 +659,80 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         function opf_add_legacy_user_vars(obj, mm, dm, mpopt)
-            z = dm.user_mods.z;
-
             %% save data
             mm.userdata.user_vars = obj.opf_legacy_user_var_names();
 
             %% add any user-defined vars
-            if z.nz > 0
-                mm.add_var('z', z.nz, z.z0, z.zl, z.zu);
-                mm.userdata.user_vars{end+1} = 'z';
+            if isfield(dm.user_mods, 'z')
+                z = dm.user_mods.z;
+                if z.nz > 0
+                    mm.add_var('z', z.nz, z.z0, z.zl, z.zu);
+                    mm.userdata.user_vars{end+1} = 'z';
+                end
             end
         end
 
         function opf_add_legacy_user_constraints(obj, mm, dm, mpopt)
-            lin = dm.user_mods.lin;
-
             %% user-defined linear constraints
-            if lin.nlin
-                uv = mm.get_userdata('user_vars');
-                mm.add_lin_constraint('usr', lin.A, lin.l, lin.u, uv);
+            if isfield(dm.user_mods, 'lin')
+                lin = dm.user_mods.lin;
+                if lin.nlin
+                    uv = mm.get_userdata('user_vars');
+                    mm.add_lin_constraint('usr', lin.A, lin.l, lin.u, uv);
+                end
             end
         end
 
         function opf_add_legacy_user_costs(obj, mm, dm, dc)
-            user_cost = dm.user_mods.cost;
-            if user_cost.nw
-                uv = mm.get_userdata('user_vars');
-                mm.add_legacy_cost('usr', user_cost, uv);
-            end
+            if isfield(dm.user_mods, 'cost')
+                user_cost = dm.user_mods.cost;
+                if user_cost.nw
+                    uv = mm.get_userdata('user_vars');
+                    mm.add_legacy_cost('usr', user_cost, uv);
+                end
 
-            %% implement legacy user costs using quadratic or general non-linear costs
-            cp = mm.params_legacy_cost();   %% construct/fetch the parameters
-            [N, H, Cw, rh, m] = deal(cp.N, cp.H, cp.Cw, cp.rh, cp.mm);
-            [nw, nx] = size(N);
-            if nw
-                if any(cp.dd ~= 1) || any(cp.kk)    %% not simple quadratic form
-                    if dc                           %% (includes "dead zone" or
-                        if any(cp.dd ~= 1)          %%  quadratic "penalty")
-                            error('mp_network/opf_add_legacy_user_costs: DC OPF can only handle legacy user-defined costs with d = 1');
+                %% implement legacy user costs using quadratic or general non-linear costs
+                cp = mm.params_legacy_cost();   %% construct/fetch the parameters
+                [N, H, Cw, rh, m] = deal(cp.N, cp.H, cp.Cw, cp.rh, cp.mm);
+                [nw, nx] = size(N);
+                if nw
+                    if any(cp.dd ~= 1) || any(cp.kk)    %% not simple quadratic form
+                        if dc                           %% (includes "dead zone" or
+                            if any(cp.dd ~= 1)          %%  quadratic "penalty")
+                                error('mp_network/opf_add_legacy_user_costs: DC OPF can only handle legacy user-defined costs with d = 1');
+                            end
+                            if any(cp.kk)
+                                error('mp_network/opf_add_legacy_user_costs: DC OPF can only handle legacy user-defined costs with no "dead zone", i.e. k = 0');
+                            end
+                        else
+                            %% use general nonlinear cost to implement legacy user cost
+                            legacy_cost_fcn = @(x)opf_legacy_user_cost_fcn(x, cp);
+                            mm.add_nln_cost('usr', 1, legacy_cost_fcn);
                         end
-                        if any(cp.kk)
-                            error('mp_network/opf_add_legacy_user_costs: DC OPF can only handle legacy user-defined costs with no "dead zone", i.e. k = 0');
-                        end
-                    else
-                        %% use general nonlinear cost to implement legacy user cost
-                        legacy_cost_fcn = @(x)opf_legacy_user_cost_fcn(x, cp);
-                        mm.add_nln_cost('usr', 1, legacy_cost_fcn);
+                    else                                %% simple quadratic form
+                        %% use a quadratic cost to implement legacy user cost
+                        %% f = 1/2 * w'*H*w + Cw'*w, where w = diag(m)*(N*x - rh)
+                        %% Let: MN = diag(m)*N
+                        %%      MR = M * rh
+                        %%      HMR  = H  * MR;
+                        %%      HtMR = H' * MR;
+                        %%  =>   w = MN*x - MR
+                        %% f = 1/2 * (MN*x - MR)'*H*(MN*x - MR) + Cw'*(MN*x - MR)
+                        %%   = 1/2 * x'*MN'*H*MN*x +
+                        %%          (Cw'*MN - 1/2 * MR'*(H+H')*MN)*x +
+                        %%          1/2 * MR'*H*MR - Cw'*MR
+                        %%   = 1/2 * x'*Q*w + c'*x + k
+
+                        M    = sparse(1:nw, 1:nw, m, nw, nw);
+                        MN   = M * N;
+                        MR   = M * rh;
+                        HMR  = H  * MR;
+                        HtMR = H' * MR;
+                        Q = MN' * H * MN;
+                        c = full(MN' * (Cw - 1/2*(HMR+HtMR)));
+                        k = (1/2 * HtMR - Cw)' * MR;
+                        mm.add_quad_cost('usr', Q, c, k);
                     end
-                else                                %% simple quadratic form
-                    %% use a quadratic cost to implement legacy user cost
-                    %% f = 1/2 * w'*H*w + Cw'*w, where w = diag(m)*(N*x - rh)
-                    %% Let: MN = diag(m)*N
-                    %%      MR = M * rh
-                    %%      HMR  = H  * MR;
-                    %%      HtMR = H' * MR;
-                    %%  =>   w = MN*x - MR
-                    %% f = 1/2 * (MN*x - MR)'*H*(MN*x - MR) + Cw'*(MN*x - MR)
-                    %%   = 1/2 * x'*MN'*H*MN*x +
-                    %%          (Cw'*MN - 1/2 * MR'*(H+H')*MN)*x +
-                    %%          1/2 * MR'*H*MR - Cw'*MR
-                    %%   = 1/2 * x'*Q*w + c'*x + k
-
-                    M    = sparse(1:nw, 1:nw, m, nw, nw);
-                    MN   = M * N;
-                    MR   = M * rh;
-                    HMR  = H  * MR;
-                    HtMR = H' * MR;
-                    Q = MN' * H * MN;
-                    c = full(MN' * (Cw - 1/2*(HMR+HtMR)));
-                    k = (1/2 * HtMR - Cw)' * MR;
-                    mm.add_quad_cost('usr', Q, c, k);
                 end
             end
         end
