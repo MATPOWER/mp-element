@@ -117,16 +117,8 @@ classdef mp_task_opf < mp_task
             obj.mm = mm;
         end
 
-        function obj = math_model_add_vars(obj, mm, nm, dm, mpopt)
-            nm.opf_add_vars(mm, nm, dm, mpopt);
-        end
-
-        function obj = math_model_add_constraints(obj, mm, nm, dm, mpopt)
-            nm.opf_add_constraints(mm, nm, dm, mpopt);
-        end
-
-        function obj = math_model_add_costs(obj, mm, nm, dm, mpopt)
-            nm.opf_add_costs(mm, nm, dm, mpopt);
+        function obj = math_model_build_it(obj, mm, nm, dm, mpopt)
+            nm.opf_build_math_model(mm, dm, mpopt);
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)

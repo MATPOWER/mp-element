@@ -295,10 +295,8 @@ classdef mp_task < handle
                 mm = obj.math_model_build_pre(mm, nm, dm, mpopt);
 
                 %% add variables, constraints, costs
-                obj.math_model_add_vars(mm, nm, dm, mpopt);
-                obj.math_model_add_constraints(mm, nm, dm, mpopt);
-                obj.math_model_add_costs(mm, nm, dm, mpopt);
-                
+                obj.math_model_build_it(mm, nm, dm, mpopt);
+
                 %% add user customization
                 mm = obj.math_model_build_post(mm, nm, dm, mpopt);
             end
@@ -308,15 +306,6 @@ classdef mp_task < handle
         end
 
         function mm = math_model_build_post(obj, mm, nm, dm, mpopt)
-        end
-
-        function obj = math_model_add_vars(obj, mm, nm, dm, mpopt)
-        end
-
-        function obj = math_model_add_constraints(obj, mm, nm, dm, mpopt)
-        end
-
-        function obj = math_model_add_costs(obj, mm, nm, dm, mpopt)
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)

@@ -134,16 +134,8 @@ classdef mp_task_pf < mp_task
         end
 
         %%-----  mathematical model methods  -----
-        function mm = math_model_build_pre(obj, mm, nm, dm, mpopt)
-            mm.userdata.aux_data = nm.pf_aux_data(dm, mpopt);
-        end
-
-        function obj = math_model_add_vars(obj, mm, nm, dm, mpopt)
-            nm.pf_add_vars(mm, nm, dm, mpopt);
-        end
-
-        function obj = math_model_add_constraints(obj, mm, nm, dm, mpopt)
-            nm.pf_add_constraints(mm, nm, dm, mpopt);
+        function obj = math_model_build_it(obj, mm, nm, dm, mpopt)
+            nm.pf_build_math_model(mm, dm, mpopt);
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)

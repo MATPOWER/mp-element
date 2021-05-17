@@ -570,6 +570,12 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         %%-----  PF methods  -----
+        function mm = pf_build_math_model(obj, mm, dm, mpopt)
+            mm.userdata.aux_data = obj.pf_aux_data(dm, mpopt);
+            obj.pf_add_vars(mm, obj, dm, mpopt);
+            obj.pf_add_constraints(mm, obj, dm, mpopt);
+        end
+
         function obj = pf_add_constraints(obj, mm, nm, dm, mpopt)
             %% system constraints
             obj.pf_add_system_constraints(mm, dm, mpopt);
@@ -597,9 +603,19 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         opt = pf_solve_opts(obj, mm, dm, mpopt)
 
         %%-----  CPF methods  -----
-        %% See mp_network_ac.
+        function mm = cpf_build_math_model(obj, mm, nmt, dm, dmt, mpopt)
+            mm.userdata.aux_data = obj.cpf_aux_data(nmt, dm, dmt, mpopt);
+            obj.cpf_add_vars(mm, obj, dm, mpopt);
+            obj.cpf_add_constraints(mm, obj, dm, mpopt);
+        end
 
         %%-----  OPF methods  -----
+        function mm = opf_build_math_model(obj, mm, dm, mpopt)
+            obj.opf_add_vars(mm, obj, dm, mpopt);
+            obj.opf_add_constraints(mm, obj, dm, mpopt);
+            obj.opf_add_costs(mm, obj, dm, mpopt);
+        end
+
         function obj = opf_add_vars(obj, mm, nm, dm, mpopt)
             %% add network voltage and non-voltage state variables
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
