@@ -91,12 +91,26 @@ classdef mp_data < mpe_container
             %% elements
             fprintf('\nELEMENTS\n')
             fprintf('========\n')
-            fprintf(' i     name        table       nr         n      class\n');
+            fprintf(' i  name          table        nr         n      class\n');
             fprintf('-- -----------   ---------  --------  --------  --------------------\n');
             for k = 1:length(obj.elm_list)
                 dme = obj.elm_list{k};
-                fprintf('%2d %9s %12s %9d %9d    %s\n', k, dme.name, dme.table, dme.nr, dme.n, class(dme));
+                fprintf('%2d  %-13s %-10s %6d %9d    %s\n', k, dme.name, dme.table, dme.nr, dme.n, class(dme));
 %                 dme
+            end
+
+            %% user data
+            fields = fieldnames(obj.userdata);
+            if ~isempty(fields)
+                fprintf('\nUSER DATA\n')
+                fprintf('=========\n')
+                fprintf('  name                         size       class\n');
+                fprintf(' ------------------------   -----------  --------------------\n');
+                for k = 1:length(fields)
+                    f = obj.userdata.(fields{k});
+                    [m, n] = size(f);
+                    fprintf('  %-24s  %5dx%-5d   %s\n', fields{k}, m, n, class(f));
+                end
             end
         end
     end     %% methods

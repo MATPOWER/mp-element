@@ -47,11 +47,11 @@ end
 model_params = obj.model_params();
 fprintf('ELEMENTS\n')
 fprintf('========\n')
-fprintf('       name          N      np    nz    class, param(m,n))\n');
-fprintf('  ------------   --------  ----  ----  --------------------\n');
+fprintf('  name               N      np    nz    class, param(m,n))\n');
+fprintf(' -------------   --------  ----  ----  --------------------\n');
 for k = 1:length(obj.elm_list)
     nme = obj.elm_list{k};
-    fprintf(' %11s %11d %5d %5d    %s', nme.name, nme.nk, nme.np, nme.nz, class(nme));
+    fprintf('  %-10s %11d %5d %5d    %s', nme.name, nme.nk, nme.np, nme.nz, class(nme));
     
     for j = 1:length(model_params)
         pn = model_params{j};   %% parameter name
@@ -62,4 +62,18 @@ for k = 1:length(obj.elm_list)
     end
     fprintf('\n');
 %     nme
+end
+
+%% user data
+fields = fieldnames(obj.userdata);
+if ~isempty(fields)
+    fprintf('\nUSER DATA\n')
+    fprintf('=========\n')
+    fprintf('  name                         size       class\n');
+    fprintf(' ------------------------   -----------  --------------------\n');
+    for k = 1:length(fields)
+        f = obj.userdata.(fields{k});
+        [m, n] = size(f);
+        fprintf('  %-24s  %5dx%-5d   %s\n', fields{k}, m, n, class(f));
+    end
 end
