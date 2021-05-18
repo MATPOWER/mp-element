@@ -109,16 +109,12 @@ classdef mp_task_opf < mp_task
         end
 
         %%-----  mathematical model methods  -----
-        function mm = math_model_create(obj, nm, dm, mpopt)
-            %% switch back to simple opt_model, if possible
-            %% I believe opf_model is required for callback functions
-            %% that extract mpc from the mm
-            mm = opf_model(dm.mpc).init_set_types();
-            obj.mm = mm;
-        end
-
-        function obj = math_model_build_it(obj, mm, nm, dm, mpopt)
-            nm.opf_build_math_model(mm, dm, mpopt);
+        function mm_class = math_model_class(obj, nm, dm, mpopt)
+            %% Switch back to mp_math_opf (based on opt_model), if possible.
+            %% Currently requires mp_math_opf_legacy (based on opf_model)
+            %% to support legacy cost functions and callback functions that
+            %% expect to find mpc in mm.mpc.
+            mm_class = @mp_math_opf_legacy;
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)

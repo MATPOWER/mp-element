@@ -527,7 +527,10 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
 
         %%-----  CPF methods  -----
-        function ad = cpf_aux_data(obj, nmt, dm, dmt, mpopt)
+        function ad = cpf_aux_data(obj, dm, mpopt)
+            dmt =  dm.userdata.target;
+            nmt = obj.userdata.target;
+
             ad  = obj.pf_aux_data(dm,  mpopt);
             adt = nmt.pf_aux_data(dmt, mpopt);
 

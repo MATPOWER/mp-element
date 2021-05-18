@@ -17,7 +17,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         port = [];
         state = [];
     end
-    
+
     methods
         %% constructor
         function obj = mp_network()
@@ -570,12 +570,6 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         %%-----  PF methods  -----
-        function mm = pf_build_math_model(obj, mm, dm, mpopt)
-            mm.userdata.aux_data = obj.pf_aux_data(dm, mpopt);
-            obj.pf_add_vars(mm, obj, dm, mpopt);
-            obj.pf_add_constraints(mm, obj, dm, mpopt);
-        end
-
         function obj = pf_add_constraints(obj, mm, nm, dm, mpopt)
             %% system constraints
             obj.pf_add_system_constraints(mm, dm, mpopt);
@@ -603,19 +597,9 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         opt = pf_solve_opts(obj, mm, dm, mpopt)
 
         %%-----  CPF methods  -----
-        function mm = cpf_build_math_model(obj, mm, nmt, dm, dmt, mpopt)
-            mm.userdata.aux_data = obj.cpf_aux_data(nmt, dm, dmt, mpopt);
-            obj.cpf_add_vars(mm, obj, dm, mpopt);
-            obj.cpf_add_constraints(mm, obj, dm, mpopt);
-        end
+        %% See mp_network_ac.
 
         %%-----  OPF methods  -----
-        function mm = opf_build_math_model(obj, mm, dm, mpopt)
-            obj.opf_add_vars(mm, obj, dm, mpopt);
-            obj.opf_add_constraints(mm, obj, dm, mpopt);
-            obj.opf_add_costs(mm, obj, dm, mpopt);
-        end
-
         function obj = opf_add_vars(obj, mm, nm, dm, mpopt)
             %% add network voltage and non-voltage state variables
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
@@ -700,12 +684,10 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         function opf_add_legacy_user_costs(obj, mm, dm, dc)
-            if isfield(dm.user_mods, 'cost')
+            if isfield(dm.user_mods, 'cost') && dm.user_mods.cost.nw
                 user_cost = dm.user_mods.cost;
-                if user_cost.nw
-                    uv = mm.get_userdata('user_vars');
-                    mm.add_legacy_cost('usr', user_cost, uv);
-                end
+                uv = mm.get_userdata('user_vars');
+                mm.add_legacy_cost('usr', user_cost, uv);
 
                 %% implement legacy user costs using quadratic or general non-linear costs
                 cp = mm.params_legacy_cost();   %% construct/fetch the parameters

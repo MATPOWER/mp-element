@@ -3,8 +3,6 @@ classdef mp_task_cpf < mp_task_pf
 %   MP_TASK_CPF provides implementation for continuation power flow problem.
 %
 %   Properties
-%       dmt
-%       nmt
 %       warmstart
 %
 %   Methods
@@ -19,8 +17,6 @@ classdef mp_task_cpf < mp_task_pf
 %   See https://matpower.org for more info.
 
     properties
-        dmt         %% data model for target case
-        nmt         %% network model for target case
         warmstart   %% warm start data
     end
 
@@ -70,8 +66,8 @@ classdef mp_task_cpf < mp_task_pf
                 obj.warmstart = ws;
 
                 %% save updated target models
-                obj.nmt = ws.nmt;
-                obj.dmt = ws.dmt;
+                nm.userdata.target = ws.nmt;
+                dm.userdata.target = ws.dmt;
 
                 %% update network model with current solution
                 obj.nm = obj.network_model_update(mm, nm);
@@ -93,8 +89,9 @@ classdef mp_task_cpf < mp_task_pf
         %%-----  data model methods  -----
         function dm = data_model_build(obj, d, mpopt)
             if iscell(d) && length(d) == 2
-                dm      = data_model_build@mp_task_pf(obj, d{1}, mpopt);
-                obj.dmt = data_model_build@mp_task_pf(obj, d{2}, mpopt);
+                dm  = data_model_build@mp_task_pf(obj, d{1}, mpopt);
+                dmt = data_model_build@mp_task_pf(obj, d{2}, mpopt);
+                dm.userdata.target = dmt;
             else
                 error('mp_task_cpf: data_model_build: d must be 2-element cell array');
             end
@@ -107,8 +104,10 @@ classdef mp_task_cpf < mp_task_pf
 
         %%-----  network model methods  -----
         function nm = network_model_build(obj, dm, mpopt)
-            nm      = network_model_build@mp_task_pf(obj, dm, mpopt);
-            obj.nmt = network_model_build@mp_task_pf(obj, obj.dmt, mpopt);
+            dmt = dm.userdata.target;
+            nm  = network_model_build@mp_task_pf(obj, dm,  mpopt);
+            nmt = network_model_build@mp_task_pf(obj, dmt, mpopt);
+            nm.userdata.target = nmt;
         end
 
         function nm = network_model_convert_x(obj, mm, nm)
@@ -119,8 +118,8 @@ classdef mp_task_cpf < mp_task_pf
 
 
         %%-----  mathematical model methods  -----
-        function obj = math_model_build_it(obj, mm, nm, dm, mpopt)
-            nm.cpf_build_math_model(mm, obj.nmt, dm, obj.dmt, mpopt);
+        function mm_class = math_model_class(obj, nm, dm, mpopt)
+            mm_class = @mp_math_cpf;
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)

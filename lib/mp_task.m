@@ -278,14 +278,12 @@ classdef mp_task < handle
         end
 
         %%-----  mathematical model methods  -----
-%         function mm_class = math_model_class(obj, nm, dm, mpopt)
-%             mm_class = @opt_model;
-%         end
+        function mm_class = math_model_class(obj, nm, dm, mpopt)
+        end
 
         function mm = math_model_create(obj, nm, dm, mpopt)
-%             mm_class = obj.math_model_class(nm, dm, mpopt);
-%             mm = mm_class();
-            mm = opt_model().init_set_types();
+            mm_class = obj.math_model_class(nm, dm, mpopt);
+            mm = mm_class().init_set_types();
         end
 
         function mm = math_model_build(obj, nm, dm, mpopt)
@@ -293,11 +291,7 @@ classdef mp_task < handle
 
             if nm.np ~= 0       %% skip for empty model
                 mm = obj.math_model_build_pre(mm, nm, dm, mpopt);
-
-                %% add variables, constraints, costs
-                obj.math_model_build_it(mm, nm, dm, mpopt);
-
-                %% add user customization
+                mm.build(nm, dm, mpopt);
                 mm = obj.math_model_build_post(mm, nm, dm, mpopt);
             end
         end

@@ -134,8 +134,8 @@ classdef mp_task_pf < mp_task
         end
 
         %%-----  mathematical model methods  -----
-        function obj = math_model_build_it(obj, mm, nm, dm, mpopt)
-            nm.pf_build_math_model(mm, dm, mpopt);
+        function mm_class = math_model_class(obj, nm, dm, mpopt)
+            mm_class = @mp_math_pf;
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)
