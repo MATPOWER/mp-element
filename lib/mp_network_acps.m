@@ -305,7 +305,6 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             x = [angle(v_(pvq)); abs(v_(pq))];
         end
 
-
         %%-----  CPF methods  -----
         function [vx_, z_, x_] = cpf_convert_x(obj, mmx, ad, only_v)
             nmt = ad.nmt;
@@ -359,6 +358,17 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             mm.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end
 
+        function varargout = cpf_expand_z_warmstart(obj, ad, varargin)
+            %% expand input tangent z vectors to all nodes + lambda
+            varargout = cell(size(varargin));
+            i = [ad.pv; ad.pq; obj.nv/2 + ad.pq; obj.nv+1];
+            for k = 1:length(varargin)
+                z = zeros(obj.nv, 1);
+                z(i) = varargin{k};
+                varargout{k} = z;
+            end
+        end
+
         function opt = cpf_solve_opts_warmstart(obj, opt, ws, mm)
             ad = mm.get_userdata('aux_data');
 
@@ -368,9 +378,9 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             opt.x0 = ws.x;   %% ignored, overridden by ws.x
 
             %% reduce tangent vectors for this mm
-            k = [ad.pv; ad.pq; obj.nv/2 + ad.pq; obj.nv+1];
-            ws.z  = ws.z(k);
-            ws.zp = ws.zp(k);
+            i = [ad.pv; ad.pq; obj.nv/2 + ad.pq; obj.nv+1];
+            ws.z  = ws.z(i);
+            ws.zp = ws.zp(i);
             opt.warmstart = ws;
         end
 

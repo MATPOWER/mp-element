@@ -325,7 +325,6 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             end
         end
 
-
         %%-----  PF methods  -----
         function ad = pf_aux_data(obj, dm, mpopt)
             %% get model variables
@@ -524,7 +523,6 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             z0 = z_(jrpv);
             z_(jrpv) = z0 - 1j * (CCrpv(:, jrpv) \ Qrpv + imag(z0));
         end
-
 
         %%-----  CPF methods  -----
         function ad = cpf_aux_data(obj, dm, mpopt)

@@ -56,13 +56,9 @@ classdef mp_task_cpf < mp_task_pf
                 [ws.pV, ~] = nm.cpf_convert_x(ws.xp, ad);
 
                 %% expand tangent z to all nodes + lambda, for cur & prev step
-                z  = ws.z;
-                zp = ws.zp;
-                ws.z  = zeros(nm.nv, 1);
-                ws.zp = zeros(nm.nv, 1);
-                k = [ad.pv; ad.pq; nm.nv/2 + ad.pq; nm.nv+1];
-                ws.z(k)  = z;
-                ws.zp(k) = zp;
+                [ws.z, ws.zp] = nm.cpf_expand_z_warmstart(ad, ws.z, ws.zp);
+
+                %% set warmstart for next math model
                 obj.warmstart = ws;
 
                 %% save updated target models
