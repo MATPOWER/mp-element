@@ -97,11 +97,6 @@ classdef mp_task_cpf < mp_task_pf
             end
         end
 
-        function dm = data_model_update(obj, mm, nm, dm, mpopt)
-            nm.cpf_data_model_update(mm, nm, dm, mpopt);
-        end
-
-
         %%-----  network model methods  -----
         function nm = network_model_build(obj, dm, mpopt)
             dmt = dm.userdata.target;
@@ -110,27 +105,19 @@ classdef mp_task_cpf < mp_task_pf
             nm.userdata.target = nmt;
         end
 
-        function nm = network_model_convert_x(obj, mm, nm)
-            %% convert solved state from math model to network model soln
-            [nm.soln.v, nm.soln.z, nm.soln.x] = nm.cpf_convert_x(mm.soln.x, ...
-                                                mm.get_userdata('aux_data'));
-        end
-
-
         %%-----  mathematical model methods  -----
         function mm_class = math_model_class(obj, nm, dm, mpopt)
             mm_class = @mp_math_cpf;
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)
-            opt = nm.cpf_solve_opts(mm, dm, mpopt);
+            opt = math_model_opt@mp_task(obj, mm, nm, dm, mpopt);
 
             %% add the warmstart options, if available
             if ~isempty(obj.warmstart)
                 opt = nm.cpf_solve_opts_warmstart(opt, obj.warmstart, mm);
                 obj.warmstart = [];     %% delete warmstart data from task
             end
-            obj.mm_opt = opt;
         end
     end     %% methods
 end         %% classdef

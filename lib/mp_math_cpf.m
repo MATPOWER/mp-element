@@ -27,5 +27,19 @@ classdef mp_math_cpf < mp_math
             nm.cpf_add_vars(obj, nm, dm, mpopt);
             nm.cpf_add_constraints(obj, nm, dm, mpopt);
         end
+
+        function dm = data_model_update(obj, nm, dm, mpopt)
+            nm.cpf_data_model_update(obj, nm, dm, mpopt);
+        end
+
+        function nm = network_model_x_soln(obj, nm)
+            %% convert solved state from math model to network model soln
+            [nm.soln.v, nm.soln.z, nm.soln.x] = ...
+                nm.cpf_convert_x(obj.soln.x, obj.get_userdata('aux_data'));
+        end
+
+        function opt = solve_opts(obj, nm, dm, mpopt)
+            opt = nm.cpf_solve_opts(obj, dm, mpopt);
+        end
     end     %% methods
 end         %% classdef

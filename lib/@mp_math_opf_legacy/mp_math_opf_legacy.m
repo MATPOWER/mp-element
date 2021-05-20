@@ -87,6 +87,16 @@ classdef mp_math_opf_legacy < mp_math_opf
         function obj = build(obj, nm, dm, mpopt)
             obj.mpc = dm.mpc;
             build@mp_math_opf(obj, nm, dm, mpopt);
+
+            if strcmp(nm.form_tag, 'dc') && toggle_softlims(obj.mpc, 'status')
+                %% user data required by toggle_softlims
+                branch_nme = nm.elm_by_name('branch');
+                [Bbr, pbr] = branch_nme.get_params(1:branch_nme.nk, {'B', 'p'});
+                obj.userdata.Bf = Bbr * branch_nme.C';
+                obj.userdata.Pfinj = pbr;
+            end
+
+            obj = dm.run_userfcn(obj, mpopt);
         end
     end     %% methods
 end         %% classdef

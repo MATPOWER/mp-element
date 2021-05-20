@@ -72,9 +72,6 @@ classdef mp_task_pf < mp_task
         end
 
         %%-----  data model methods  -----
-        function dm = data_model_update(obj, mm, nm, dm, mpopt)
-            nm.pf_data_model_update(mm, nm, dm, mpopt);
-        end
 
         %%-----  network model methods  -----
         function nm_class = network_model_class_default(obj, dm, mpopt)
@@ -118,10 +115,8 @@ classdef mp_task_pf < mp_task
             end
         end
 
-        function nm = network_model_convert_x(obj, mm, nm)
-            %% convert solved state from math model to network model soln
-            [nm.soln.v, nm.soln.z, nm.soln.x] = nm.pf_convert_x(mm.soln.x, ...
-                                                mm.get_userdata('aux_data'));
+        function nm = network_model_x_soln(obj, mm, nm)
+            nm = network_model_x_soln@mp_task(obj, mm, nm);
 
             %% if ref node has been changed, adjust voltage angles
             %% to make angle at original ref node = specified value
@@ -136,11 +131,6 @@ classdef mp_task_pf < mp_task
         %%-----  mathematical model methods  -----
         function mm_class = math_model_class(obj, nm, dm, mpopt)
             mm_class = @mp_math_pf;
-        end
-
-        function opt = math_model_opt(obj, mm, nm, dm, mpopt)
-            opt = nm.pf_solve_opts(mm, dm, mpopt);
-            obj.mm_opt = opt;
         end
     end     %% methods
 end         %% classdef

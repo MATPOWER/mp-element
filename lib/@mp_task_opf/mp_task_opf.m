@@ -76,10 +76,6 @@ classdef mp_task_opf < mp_task
             end
         end
 
-        function dm = data_model_update(obj, mm, nm, dm, mpopt)
-            nm.opf_data_model_update(mm, nm, dm, mpopt);
-        end
-
         %%-----  network model methods  -----
         function nm_class = network_model_class_default(obj, dm, mpopt)
             if obj.dc
@@ -102,12 +98,6 @@ classdef mp_task_opf < mp_task
             end
         end
 
-        function nm = network_model_convert_x(obj, mm, nm)
-            %% convert solved state from math model to network model soln
-            [nm.soln.v, nm.soln.z, nm.soln.x] = nm.opf_convert_x(mm.soln.x, ...
-                                                mm.get_userdata('aux_data'));
-        end
-
         %%-----  mathematical model methods  -----
         function mm_class = math_model_class(obj, nm, dm, mpopt)
             %% Switch back to mp_math_opf (based on opt_model), if possible.
@@ -115,23 +105,6 @@ classdef mp_task_opf < mp_task
             %% to support legacy cost functions and callback functions that
             %% expect to find mpc in mm.mpc.
             mm_class = @mp_math_opf_legacy;
-        end
-
-        function opt = math_model_opt(obj, mm, nm, dm, mpopt)
-            opt = nm.opf_solve_opts(mm, dm, mpopt);
-            obj.mm_opt = opt;
-        end
-
-        function mm = math_model_build_post(obj, mm, nm, dm, mpopt)
-            if obj.dc
-                %% user data required by toggle_softlims
-                branch_nme = nm.elm_by_name('branch');
-                [Bbr, pbr] = branch_nme.get_params(1:branch_nme.nk, {'B', 'p'});
-                mm.userdata.Bf = Bbr * branch_nme.C';
-                mm.userdata.Pfinj = pbr;
-            end
-
-            mm = dm.run_userfcn(mm, mpopt);
         end
     end     %% methods
 end         %% classdef

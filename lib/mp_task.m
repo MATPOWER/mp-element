@@ -59,13 +59,13 @@ classdef mp_task < handle
             %% build data model
             obj.i_dm = obj.i_dm + 1;
             dm = obj.data_model_build(d, mpopt);
-            obj.dm = dm;
+            obj.dm = dm;    %% stash current data model in task object
 
-            while ~isempty(dm)      %% begin data model loop
+            while ~isempty(dm)  %% begin data model loop
                 %% build network model
                 obj.i_nm = obj.i_nm + 1;
                 nm = obj.network_model_build(dm, mpopt);
-                obj.nm = nm;
+                obj.nm = nm;    %% stash current network model in task object
 
                 %% print initial output
                 if mpopt.verbose && obj.i_dm == 1
@@ -74,16 +74,22 @@ classdef mp_task < handle
                     fprintf('%s -- %s formulation\n', obj.name, nm.form_name());
                 end
 
-                while ~isempty(nm)      %% begin network model loop
+                while ~isempty(nm)  %% begin network model loop
                     %% build math model
                     obj.i_mm = obj.i_mm + 1;
                     mm = obj.math_model_build(nm, dm, mpopt);
-                    obj.mm = mm;
+                    obj.mm = mm;    %% stash current math model in task object
 
-                    while ~isempty(mm)      %% begin math model loop
-                        if mm.getN('var') ~= 0  %% model is NOT empty
+                    while ~isempty(mm)  %% begin math model loop
+                        if mm.getN('var') == 0  %% model IS empty
+                            obj.success = 0;
+                            obj.message = sprintf('%s not valid : MATPOWER model contains no connected buses', obj.tag);
+                            repeat_mm = 0;
+                        else                    %% model is NOT empty
                             %% get solve options
                             mm_opt = obj.math_model_opt(mm, nm, dm, mpopt);
+                            obj.mm_opt = mm_opt;    %% stash math model solve
+                                                    %% options in task object
 
                             %% solve mathematical model
                             mm.solve(mm_opt);
@@ -93,10 +99,6 @@ classdef mp_task < handle
                             else
                                 obj.message = sprintf('%s failed', obj.tag);
                             end
-                        else                    %% model IS empty
-                            obj.success = 0;
-                            obj.message = sprintf('%s not valid : MATPOWER model contains no connected buses', obj.tag);
-                            repeat_mm = 0;
                         end
 
                         [mm, nm, dm] = obj.next_mm(mm, nm, dm, mpopt);
@@ -105,29 +107,31 @@ classdef mp_task < handle
                             obj.i_mm = obj.i_mm + 1;
                         end
                     end                 %% end math model loop
+                    mm = obj.mm;        %% use stashed math model below
 
                     %% update network model with math model solution
                     if nm.np == 0
                         nm = [];
                     else
-                        nm = obj.network_model_update(obj.mm, nm);
+                        nm = obj.network_model_update(mm, nm);
 
-                        [nm, dm] = obj.next_nm(obj.mm, nm, dm, mpopt);
+                        [nm, dm] = obj.next_nm(mm, nm, dm, mpopt);
                         if ~isempty(nm)
                             obj.nm = nm;
                             obj.i_nm = obj.i_nm + 1;
                         end
                     end
                 end                 %% end network model loop
+                nm = obj.nm;        %% use stashed network model below
 
                 %% update data model with network model solution
-                dm = obj.data_model_update(obj.mm, obj.nm, dm, mpopt);
-                dm = obj.data_model_update_post(obj.mm, obj.nm, dm, mpopt);
+                dm = mm.data_model_update(nm, dm, mpopt);
+                dm = obj.data_model_update_post(mm, nm, dm, mpopt);
                 if mpopt.verbose
                     fprintf('%s\n', obj.message);
                 end
 
-                dm = obj.next_dm(obj.mm, obj.nm, dm, mpopt);
+                dm = obj.next_dm(mm, nm, dm, mpopt);
                 if ~isempty(dm)
                     obj.dm = dm;
                     obj.i_dm = obj.i_dm + 1;
@@ -220,10 +224,6 @@ classdef mp_task < handle
 %             dm.ext2int(mpopt);
         end
 
-%         function dm = data_model_update(obj, mm, nm, dm, mpopt)
-%             %% e.g. update data model with network model solution
-%         end
-
         function dm = data_model_update_post(obj, mm, nm, dm, mpopt)
 %             if mpopt.verbose, fprintf('-- %s data_model_update_post()\n', obj.tag); end
 %             dm.int2ext(mpopt);
@@ -266,14 +266,15 @@ classdef mp_task < handle
         function nm = network_model_build_post(obj, nm, dm, mpopt)
         end
 
-        function nm = network_model_convert_x(obj, mm, nm)
+        function nm = network_model_x_soln(obj, mm, nm)
+            nm = mm.network_model_x_soln(nm);
         end
 
         function nm = network_model_update(obj, mm, nm)
-            %% convert solved state from math model to network model soln
-            obj.network_model_convert_x(mm, nm);
+            %% save network state solution (convert from math model state)
+            obj.network_model_x_soln(mm, nm);
 
-            %% save port injections
+            %% save port injection solution
             nm.port_inj_soln();
         end
 
@@ -290,19 +291,20 @@ classdef mp_task < handle
             mm = obj.math_model_create(nm, dm, mpopt);
 
             if nm.np ~= 0       %% skip for empty model
-                mm = obj.math_model_build_pre(mm, nm, dm, mpopt);
+%                 mm = obj.math_model_build_pre(mm, nm, dm, mpopt);
                 mm.build(nm, dm, mpopt);
-                mm = obj.math_model_build_post(mm, nm, dm, mpopt);
+%                 mm = obj.math_model_build_post(mm, nm, dm, mpopt);
             end
         end
 
-        function mm = math_model_build_pre(obj, mm, nm, dm, mpopt)
-        end
-
-        function mm = math_model_build_post(obj, mm, nm, dm, mpopt)
-        end
+%         function mm = math_model_build_pre(obj, mm, nm, dm, mpopt)
+%         end
+% 
+%         function mm = math_model_build_post(obj, mm, nm, dm, mpopt)
+%         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)
+            opt = mm.solve_opts(nm, dm, mpopt);
         end
     end     %% methods
 end         %% classdef
