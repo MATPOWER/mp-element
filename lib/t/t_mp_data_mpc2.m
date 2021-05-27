@@ -38,7 +38,7 @@ tests = {
 };
 nt = length(tests);
 
-t_begin(66*nt, quiet);
+t_begin(66*nt + 2, quiet);
 
 for k = 1:nt
     if isa(tests{k}{2}, 'mp_data')
@@ -127,5 +127,14 @@ for k = 1:nt
     t_is(shunt.on, [1;2], 12, [t 'shunt.on']);
     t_ok(isempty(shunt.off), [t 'shunt.off']);
 end
+
+t = 'modify_element_classes : ';
+dm = mp_data_mpc2;
+e = {@dme_bus_mpc2, @dme_gen_mpc2, @dme_load_mpc2, @dme_branch_mpc2, @dme_shunt_mpc2};
+t_ok(isequal(dm.element_classes, e), [t 'before']);
+dm.modify_element_classes({'dme_shunt', @dme_gizmo_mpc2, {@dme_gen, 'dme_gen'}});
+e = {@dme_bus_mpc2, @dme_gen, @dme_load_mpc2, @dme_branch_mpc2, @dme_gizmo_mpc2};
+t_ok(isequal(dm.element_classes, e), [t 'after']);
+
 
 t_end;

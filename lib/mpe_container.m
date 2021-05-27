@@ -19,12 +19,14 @@ classdef mpe_container < handle
 
     methods
         function obj = modify_element_classes(obj, class_list)
-            %% each element in class_list is either:
+            %% each element in the class_list cell array is either:
             %%  1 - a handle to a constructor to be appended to
             %%      obj.element_classes, or
             %%  2 - a 2-element cell array {A,B} where A is a handle to
             %%      a constructor to replace any element E in the list for
             %%      which isa(E(), B) is true, i.e. B is a char array
+            %%  3 - a char array B, where any element E in the list for
+            %%      which isa(E(), B) is true is removed from the list
             if ~iscell(class_list)
                 class_list = {class_list};
             end
@@ -36,6 +38,11 @@ classdef mpe_container < handle
                     i = find(cellfun(@(e)isa(e(), c{2}), ec0)); %% find c{2}
                     if ~isempty(i)
                         ec{i} = c{1};                   %% replace with c{1}
+                    end
+                elseif ischar(c)
+                    i = find(cellfun(@(e)isa(e(), c), ec0));    %% find c
+                    if ~isempty(i)
+                        ec(i) = [];                     %% delete
                     end
                 else                %% it's a single function handle
                     ec{end+1} = c;  %%      append it
