@@ -26,10 +26,9 @@ classdef mp_data_mpc2 < mp_data
                     @dme_branch_mpc2, @dme_shunt_mpc2 };
         end
 
-        function obj = build(obj, mpc)
+        function obj = load(obj, mpc)
             obj.mpc = loadcase(mpc);
             obj.baseMVA = obj.mpc.baseMVA;
-            build@mp_data(obj, mpc);
         end
 
         function ntv = node_type_vector(obj, isref, ispv, ispq)

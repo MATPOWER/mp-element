@@ -11,6 +11,7 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
 
 %     properties
 %     end     %% properties
+
     methods
         %% constructor
         function obj = dme_bus_mpc2()
