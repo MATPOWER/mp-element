@@ -30,6 +30,7 @@ end
 tests = {};
 
 %% MATPOWER base test
+tests{end+1} = 't_mp_table';
 tests{end+1} = 't_mp_data_mpc2';
 tests{end+1} = 't_nm_element';
 tests{end+1} = 't_port_inj_current_acc';
