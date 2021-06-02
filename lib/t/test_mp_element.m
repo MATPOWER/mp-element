@@ -37,6 +37,7 @@ tests{end+1} = 't_port_inj_current_acp';
 tests{end+1} = 't_port_inj_power_acc';
 tests{end+1} = 't_port_inj_power_acp';
 tests{end+1} = 't_node_test';
+tests{end+1} = 't_run_mp';
 
 %% run the tests
 all_ok = t_run_tests( tests, verbose );
