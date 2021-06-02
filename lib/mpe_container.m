@@ -18,6 +18,13 @@ classdef mpe_container < handle
     end     %% properties
 
     methods
+        function obj = copy_elements(obj)
+            %% make copies of each individual element
+            for k = 1:length(obj.elm_list)
+                obj.elm_list{k} = obj.elm_list{k}.copy();
+            end
+        end
+
         function obj = modify_element_classes(obj, class_list)
             %% each element in the class_list cell array is either:
             %%  1 - a handle to a constructor to be appended to

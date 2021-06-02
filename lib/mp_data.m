@@ -16,7 +16,7 @@ classdef mp_data < mpe_container
 
     methods
         function new_obj = copy(obj)
-            %% start with shallow copy of object
+            %% make shallow copy of object
             new_obj = eval(class(obj));  %% create new object
             if have_feature('octave')
                 s1 = warning('query', 'Octave:classdef-to-struct');
@@ -31,9 +31,7 @@ classdef mp_data < mpe_container
             end
 
             %% make copies of each individual element
-            for k = 1:length(obj.elm_list)
-                new_obj.elm_list{k} = new_obj.elm_list{k}.copy();
-            end
+            new_obj.copy_elements();
         end
 
         function obj = build(obj, d)
