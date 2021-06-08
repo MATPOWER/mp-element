@@ -104,19 +104,11 @@ for k = 1:nc
     t_is(T.boo(var5 == 1), var5(var5 == 1), 12, [t 'get T.boo(var5 == 1)']);
 
     %% set full variables
-    if skip
-        T.igr(:) = var1(end:-1:1);
-        T.flt(:) = var2(end:-1:1);
-        T.str(:) = var3(end:-1:1);
-        T.dbl(:) = var4(end:-1:1);
-        T.boo(:) = var5(end:-1:1);
-    else
-        T.igr = var1(end:-1:1);
-        T.flt = var2(end:-1:1);
-        T.str = var3(end:-1:1);
-        T.dbl = var4(end:-1:1);
-        T.boo = var5(end:-1:1);
-    end
+    T.igr = var1(end:-1:1);
+    T.flt = var2(end:-1:1);
+    T.str = var3(end:-1:1);
+    T.dbl = var4(end:-1:1);
+    T.boo = var5(end:-1:1);
     t_is(T.igr, var1(end:-1:1), 12, [t 'set T.igr']);
     t_is(T.flt, var2(end:-1:1), 12, [t 'set T.flt']);
     t_ok(isequal(T.str, var3(end:-1:1)), [t 'set T.str']);
@@ -126,9 +118,7 @@ for k = 1:nc
     %% set indexed variables
     T.igr(2) = 55;
     T.flt(4:6) = [0.4 0.5 0.6];
-    if ~skip
-        T.str{3} = 'tres';
-    end
+    T.str{3} = 'tres';
     T.str(6:-1:4) = {'seis'; 'cinco'; 'cuatro'};
     T.dbl([5;3]) = [pi; exp(1)];
     T.boo(var5 == 1) = false;
@@ -136,8 +126,7 @@ for k = 1:nc
     v1 = var1(end:-1:1); v1(2) = 55;
     v2 = var2(end:-1:1); v2(4:6) = [0.4 0.5 0.6];
     v3 = var3(end:-1:1);
-    if ~skip, v3{3} = 'tres'; end
-    v3(6:-1:4) = {'seis'; 'cinco'; 'cuatro'};
+    v3(6:-1:3) = {'seis'; 'cinco'; 'cuatro'; 'tres'};
     v4 = var4(end:-1:1); v4([5;3]) = [pi; exp(1)];
     v5 = var5(end:-1:1); v5(var5 == 1) = false;
     t_is(T.igr, v1, 12, [t 'set T.igr(2)']);

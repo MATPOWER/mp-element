@@ -1,4 +1,4 @@
-classdef mp_table < handle %mpe_container
+classdef mp_table < handle
 %MP_TABLE  Very basic TABLE class for Octave or older Matlab.
 
 %   MATPOWER
@@ -23,7 +23,7 @@ classdef mp_table < handle %mpe_container
             if nargin
                 %% extract named arguments
                 [var_names, row_names, dim_names, args] = ...
-                        obj.extract_named_args(args);
+                    extract_named_args(obj, args);
 
                 %% set default variable names
                 nv = length(args);          %% number of variables
@@ -46,7 +46,7 @@ classdef mp_table < handle %mpe_container
                     warning('mp_table: ignoring %d extra VariableNames provided', length(var_names)-nv);
                 end
                 nr = size(args{1}, 1);      %% number of rows
-                for k = 2:length(args)
+                for k = 2:nv
                     if size(args{k}, 1) ~= nr
                         error('mp_table: variable %d expected to have %d rows', k, nr);
                     end
@@ -61,33 +61,53 @@ classdef mp_table < handle %mpe_container
             end
         end
 
-        function h = height(obj)
-            if isempty(obj.Properties.VariableValues)
-                h = 0;
-            else
-                h = size(obj.Properties.VariableValues{1}, 1);
-            end
-        end
+        function new_obj = copy(obj)
+            new_obj = eval(class(obj));  %% create new object
 
-        function w = width(obj)
-            w = length(obj.Properties.VariableValues);
+            %% make copies of properties
+            if have_feature('octave')
+                s1 = warning('query', 'Octave:classdef-to-struct');
+                warning('off', 'Octave:classdef-to-struct');
+            end
+            props = fieldnames(obj);
+            if have_feature('octave')
+                warning(s1.state, 'Octave:classdef-to-struct');
+            end
+            for k = 1:length(props)
+                new_obj.(props{k}) = obj.(props{k});
+            end
+
+            %% make copies of values
+            for k = 1:length(obj.Properties.VariableValues)
+                if isobject(obj.Properties.VariableValues{k}) && ...
+                        ismethod(obj.Properties.VariableValues{k}, 'copy')
+                    new_obj.Properties.VariableValues{k} = ...
+                        copy(obj.Properties.VariableValues{k});
+                end
+            end
         end
 
         function varargout = size(obj, dim)
             varargout = cell(1, nargout);
+            w = length(obj.Properties.VariableValues);
+            if w
+                h = size(obj.Properties.VariableValues{1}, 1);
+            else
+                h = 0;
+            end
             if nargin == 2
                 if dim == 1
-                  varargout{1} = obj.height();
+                  varargout{1} = h;
                 elseif dim == 2
-                  varargout{1} = obj.width();
+                  varargout{1} = w;
                 else
                   varargout{1} = 1;
                 end
             elseif nargout == 0 || nargout == 1
-                varargout{1} = [obj.height(), obj.width()];
+                varargout{1} = [h, w];
             else
-                varargout{1} = obj.height();
-                varargout{2} = obj.width();
+                varargout{1} = h;
+                varargout{2} = w;
                 [varargout{3:end}] = deal(1);
             end
         end
@@ -102,9 +122,9 @@ classdef mp_table < handle %mpe_container
                         b = p.VariableValues{p.Map.(s(1).subs)};
                     end
                 case '()'
-                    b = obj(s(1).subs);
+                    b = obj(s(1).subs{:});
                 case '{}'
-                    b = obj{s(1).subs};
+                    b = obj{s(1).subs{:}};
             end
             if length(s) > 1    %% recurse
                 b = subsref(b, s(2:end));
@@ -134,15 +154,15 @@ classdef mp_table < handle %mpe_container
                     end
                 case '()'
                     if R
-                        obj(s(1).subs) = subsasgn(obj(s(1).subs), s(2:end), b);
+                        obj(s(1).subs{:}) = subsasgn(obj(s(1).subs{:}), s(2:end), b);
                     else
-                        obj(s(1).subs) = b;
+                        obj(s(1).subs{:}) = b;
                     end
                 case '{}'
                     if R
-                        obj{s(1).subs} = subsasgn(obj{s(1).subs}, s(2:end), b);
+                        obj{s(1).subs{:}} = subsasgn(obj{s(1).subs{:}}, s(2:end), b);
                     else
-                        obj{s(1).subs} = b;
+                        obj{s(1).subs{:}} = b;
                     end
             end
         end
