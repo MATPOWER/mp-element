@@ -7,8 +7,8 @@ classdef mp_mapped_array < handle
 %       VALS - cell array of values to be stored
 %       NAMES - cell array of names for each element in VALS,
 %           where a valid name is any valid variable name, except
-%           'p_', 'add_name', 'add_elements', 'delete_elements', 'copy'
-%           and 'display'
+%           'p_', 'add_name', 'add_elements', 'delete_elements', 
+%           'is_index_name', 'name2idx', 'copy' and 'display'
 %
 %   Currently, arrays are only 1-D.
 %
@@ -32,6 +32,12 @@ classdef mp_mapped_array < handle
     end     %% properties
 
     methods
+        function obj = mp_mapped_array(varargin)
+            if nargin
+                obj = add_elements(obj, varargin{:});
+            end
+        end
+
         function new_obj = copy(obj)
             new_obj = eval(class(obj));  %% create new object
             my_ismethod = @ismethod;
@@ -43,8 +49,7 @@ classdef mp_mapped_array < handle
                 if have_feature('octave', 'vnum') < 6
                     %% Octave 5 ismethod() does not find methods defined in
                     %% classdef file, so we use our own here
-                    my_ismethod = @(o,n)any(cellfun(@(x)strcmp(x.Name, n), ...
-                                    meta.class.fromName(class(o)).MethodList));
+                    my_ismethod = @(o, n)octave5_ismethod_override(o, n);
                 end
             end
             props = fieldnames(obj);
@@ -60,12 +65,6 @@ classdef mp_mapped_array < handle
                 if isobject(obj.p_.vals{k}) && my_ismethod(obj.p_.vals{k}, 'copy')
                     new_obj.p_.vals{k} = copy(obj.p_.vals{k});
                 end
-            end
-        end
-
-        function obj = mp_mapped_array(varargin)
-            if nargin
-                obj = add_elements(obj, varargin{:});
             end
         end
 
@@ -95,10 +94,13 @@ classdef mp_mapped_array < handle
         end
 
         function obj = add_names(obj, i0, names)
+            if ~iscell(names)
+                names = {names};
+            end
             N = length(names);
             for k = 1:N
                 if isfield(obj.p_.map, names{k}) && obj.p_.map.(names{k}) ~= k
-                    error('mp_mapped_array: ''%s'' already refers to element %k', ...
+                    error('mp_mapped_array: ''%s'' already refers to element %d', ...
                         names{k}, obj.p_.map.(names{k}));
                 end
             end
@@ -110,25 +112,20 @@ classdef mp_mapped_array < handle
         end
 
         function obj = add_elements(obj, vals, names)
-            if iscell(vals)
-                N0 = length(obj.p_.vals);
-                N = length(vals);
-                if N0
-                    obj.p_.vals(end+1:end+N) = vals;
-                    obj.p_.names(end+1:end+N)  = cell(1, N);
-                else
-                    obj.p_.vals = vals;
-                    obj.p_.names  = cell(1, N);
-                end
+            if ~iscell(vals)
+                vals = {vals};
+            end
+            N0 = length(obj.p_.vals);
+            N = length(vals);
+            if N0
+                obj.p_.vals(end+1:end+N) = vals;
+                obj.p_.names(end+1:end+N)  = cell(1, N);
             else
-                error('mp_mapped_array/add_elements: VALS must be a cell array');
+                obj.p_.vals = vals;
+                obj.p_.names  = cell(1, N);
             end
             if nargin > 2
-                if iscell(names)
-                    add_names(obj, N0+1, names);
-                else
-                    error('mp_mapped_array/add_elements: NAMES must be a cell array');
-                end
+                add_names(obj, N0+1, names);
             end
         end
 
@@ -161,6 +158,18 @@ classdef mp_mapped_array < handle
             end
         end
 
+        function TorF = is_index_name(obj, name)
+            TorF = isfield(obj.p_.map, name);
+        end
+
+        function idx = name2idx(obj, name)
+            idx = obj.p_.map.(name);
+        end
+
+%         function name = idx2name(obj, idx)
+%             name = ;
+%         end
+
         function varargout = subsref(obj, s)
             R = length(s) > 1;      %% need to recurse
             switch s(1).type
@@ -174,6 +183,10 @@ classdef mp_mapped_array < handle
                         end
                     else    %% method calls or properties
                         switch s(1).subs
+                            case 'is_index_name'
+                                varargout{1} = is_index_name(obj, s(2).subs{:});
+                            case 'name2idx'
+                                varargout{1} = name2idx(obj, s(2).subs{:});
                             case 'add_names'
                                 varargout{1} = add_names(obj, s(2).subs{:});
                             case 'add_elements'
@@ -184,10 +197,18 @@ classdef mp_mapped_array < handle
                                 varargout{1} = copy(obj, s(2).subs{:});
                             case 'display'
                                 display(obj, s(2).subs{:});
-                            otherwise       %% properties
+                            case 'p_'   %% properties
                                 if R
-                                    [varargout{1:nargout}] = subsref(obj.(s(1).subs), ...
+                                    [varargout{1:nargout}] = subsref(obj.p_, ...
                                         s(2:end));
+                                else
+                                    varargout{1} = obj.p_;
+                                end
+                            otherwise   %% unknown methods or properties
+                                        %% e.g. defined by sub-class
+                                if R
+                                    [varargout{1:nargout}] = ...
+                                        subsref(obj.(s(1).subs), s(2:end));
                                 else
                                     varargout{1} = obj.(s(1).subs);
                                 end

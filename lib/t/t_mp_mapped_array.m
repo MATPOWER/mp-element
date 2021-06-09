@@ -20,13 +20,12 @@ else
     verbose = 1;
 end
 
-t_begin(60, quiet);
+t_begin(69, quiet);
 
 %% set up example data
 vals = {[1;2;3], {'one','two','three'}, struct('a',10,'b',20), mp_mapped_array()};
 names = {'vector', 'cellstr', 'struct', 'object'};
-m0 = cell2struct(num2cell(1:4), names, 2);
-
+% m0 = cell2struct(num2cell(1:4), names, 2);
 N = length(vals);
 
 t = 'A = mp_mapped_array() : ';
@@ -47,6 +46,19 @@ t_ok(isa(A, 'mp_mapped_array'), [t 'class']);
 t_is(length(A), 4, 12, [t 'length']);
 t_ok(isequal(A.p_.vals, vals), [t 'vals']);
 t_ok(isequal(A.p_.names, names), [t 'names']);
+
+t = 'is_index_name : ';
+t_ok(A.is_index_name('vector'), [t 'vector']);
+t_ok(A.is_index_name('cellstr'), [t 'cellstr']);
+t_ok(A.is_index_name('struct'), [t 'struct']);
+t_ok(A.is_index_name('object'), [t 'object']);
+t_ok(~A.is_index_name('random'), [t 'random']);
+
+t = 'name2idx : ';
+t_is(A.name2idx('vector'), 1, 12, [t 'vector']);
+t_is(A.name2idx('cellstr'), 2, 12, [t 'cellstr']);
+t_is(A.name2idx('struct'), 3, 12, [t 'struct']);
+t_is(A.name2idx('object'), 4, 12, [t 'object']);
 
 t = 'subsref : ';
 t_ok(isequal(A.cellstr, vals{2}), [t 'b = A.<name>']);
