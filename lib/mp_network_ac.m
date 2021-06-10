@@ -39,16 +39,16 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             obj.s = obj.stack_vector_params('s');
 
             %% add general nonlinear function if any element has one defined
-            for k = 1:length(obj.elm_list)
-                if ~isempty(obj.elm_list{k}.inln)
+            for k = 1:length(obj.elements)
+                if ~isempty(obj.elements{k}.inln)
                     obj.inln_list{end+1} = k;
-                    if ~isempty(obj.elm_list{k}.inln_hess)
+                    if ~isempty(obj.elements{k}.inln_hess)
                         obj.inln_hess_list{end+1} = k;
                     end
                 end
-                if ~isempty(obj.elm_list{k}.snln)
+                if ~isempty(obj.elements{k}.snln)
                     obj.snln_list{end+1} = k;
-                    if ~isempty(obj.elm_list{k}.snln_hess)
+                    if ~isempty(obj.elements{k}.snln_hess)
                         obj.snln_hess_list{end+1} = k;
                     end
                 end
@@ -102,8 +102,8 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 ss = obj.get_idx('state');
             end
             for kk = obj.(fcn_list)
-                k = kk{1};      %% index into obj.elm_list
-                nme = obj.elm_list{k};
+                k = kk{1};      %% index into obj.elements
+                nme = obj.elements{k};
                 i1 = pp.i1.(nme.name)(1);
                 iN = pp.iN.(nme.name)(end);
 
@@ -205,8 +205,8 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 ss = obj.get_idx('state');
             end
             for kk = obj.(fcn_list)
-                k = kk{1};      %% index into obj.elm_list
-                nme = obj.elm_list{k};
+                k = kk{1};      %% index into obj.elements
+                nme = obj.elements{k};
                 i1 = pp.i1.(nme.name)(1);
                 iN = pp.iN.(nme.name)(end);
 
@@ -457,7 +457,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
                 %% This code is currently not designed to handle injections
                 %% from states that affect more than a single node, so we
-                %% throw an error if we find such a case
+                %% throw a warning if we find such a case
                 if any(sum(CCrpv ~= 0) > 1)
                     k = find(sum(CCrpv ~= 0) > 1);
                     warning('pf_update_z:multiple_nodes', ...
@@ -616,8 +616,8 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
         function obj = cpf_data_model_update(obj, mm, nm, dm, mpopt)
             %% each element updates its data model
-            for nme = obj.elm_list
-                nme{1}.cpf_data_model_update(mm, nm, dm, mpopt);
+            for k = 1:length(obj.elements)
+                obj.elements{k}.cpf_data_model_update(mm, nm, dm, mpopt);
             end
         end
 

@@ -13,18 +13,10 @@ classdef mpe_container < handle
         element_classes %% cell array of function handles of
                         %% constructors for classes for individual
                         %% element types, filled by subclass constructor
-        elm_list        %% cell array of dm_element objects
-        elm_map         %% key = element name, val = index into elm_list
+        elements
     end     %% properties
 
     methods
-        function obj = copy_elements(obj)
-            %% make copies of each individual element
-            for k = 1:length(obj.elm_list)
-                obj.elm_list{k} = obj.elm_list{k}.copy();
-            end
-        end
-
         function obj = modify_element_classes(obj, class_list)
             %% each element in the class_list cell array is either:
             %%  1 - a handle to a constructor to be appended to
@@ -59,8 +51,8 @@ classdef mpe_container < handle
         end
 
         function elm = elm_by_name(obj, name)
-            if isfield(obj.elm_map, name)
-                elm = obj.elm_list{obj.elm_map.(name)};
+            if is_index_name(obj.elements, name)
+                elm = obj.elements.(name);
             else
                 elm = [];
             end

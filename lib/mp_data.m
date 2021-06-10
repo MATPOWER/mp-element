@@ -31,20 +31,18 @@ classdef mp_data < mpe_container
             end
 
             %% make copies of each individual element
-            new_obj.copy_elements();
+            new_obj.elements = new_obj.elements.copy();
         end
 
         function obj = build(obj, d)
             obj.load(d);
 
             %% create element objects for each class
-            i = 0;
+            obj.elements = mp_mapped_array();
             for c = obj.element_classes
                 dme = c{1}();       %% element constructor
                 if dme.count(obj)   %% set nr
-                    i = i + 1;
-                    obj.elm_list{i} = dme;
-                    obj.elm_map.(dme.name) = i;
+                    obj.elements.add_elements(dme, dme.name);
                 end
             end
 
@@ -54,20 +52,20 @@ classdef mp_data < mpe_container
         end
 
         function obj = initialize(obj, dm)
-            for dme = obj.elm_list
-                dme{1}.initialize(obj);
+            for k = 1:length(obj.elements)
+                obj.elements{k}.initialize(obj);
             end
         end
 
         function obj = update_status(obj, dm)
-            for dme = obj.elm_list
-                dme{1}.update_status(obj);
+            for k = 1:length(obj.elements)
+                obj.elements{k}.update_status(obj);
             end
         end
 
         function obj = build_params(obj, dm)
-            for dme = obj.elm_list
-                dme{1}.build_params(obj);
+            for k = 1:length(obj.elements)
+                obj.elements{k}.build_params(obj);
             end
         end
 
@@ -93,8 +91,8 @@ classdef mp_data < mpe_container
             fprintf('========\n')
             fprintf(' i  name          table        nr         n      class\n');
             fprintf('-- -----------   ---------  --------  --------  --------------------\n');
-            for k = 1:length(obj.elm_list)
-                dme = obj.elm_list{k};
+            for k = 1:length(obj.elements)
+                dme = obj.elements{k};
                 fprintf('%2d  %-13s %-10s %6d %9d    %s\n', k, dme.name, dme.table, dme.nr, dme.n, class(dme));
 %                 dme
             end

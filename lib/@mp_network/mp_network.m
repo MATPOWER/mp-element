@@ -50,13 +50,11 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
 
             %% create element objects for each class with data
-            i = 0;
+            obj.elements = mp_mapped_array();
             for c = obj.element_classes
                 nme = c{1}();       %% element constructor
                 if nme.count(dm)
-                    i = i + 1;
-                    obj.elm_list{i} = nme;
-                    obj.elm_map.(nme.name) = i;
+                    obj.elements.add_elements(nme, nme.name);
                     obj.np = obj.np + nme.np * nme.nk;  %% number of ports
                     obj.nz = obj.nz + nme.nz * nme.nk;  %% number of z_ vars
                 end
@@ -76,8 +74,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
         function obj = add_nodes(obj, nm, dm)
             %% each element adds its nodes
-            for nme = obj.elm_list
-                nme{1}.add_nodes(obj, dm);
+            for k = 1:length(obj.elements)
+                obj.elements{k}.add_nodes(obj, dm);
             end
             
             %% add voltage variables for each node
@@ -86,8 +84,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
         function obj = add_states(obj, nm, dm)
             %% each element adds its states
-            for nme = obj.elm_list
-                nme{1}.add_states(obj, dm);
+            for k = 1:length(obj.elements)
+                obj.elements{k}.add_states(obj, dm);
             end
             
             %% add state variables for each node
@@ -98,8 +96,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %% each element builds parameters, aggregate incidence matrices
             C = {};
             D = {};
-            for k = 1:length(obj.elm_list)
-                nme = obj.elm_list{k};
+            for k = 1:length(obj.elements)
+                nme = obj.elements{k};
                 nme.build_params(obj, dm);
                 C = horzcat(C, {nme.C});
                 D = horzcat(D, {nme.D});
@@ -130,19 +128,20 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             ss = {};
             last_i = 0;
             last_j = 0;
-            for nme = obj.elm_list
-                Mk = nme{1}.(name);
+            for k = 1:length(obj.elements)
+                nme = obj.elements{k};
+                Mk = nme.(name);
                 if ~isempty(Mk)
                     [i, j, s] = find(Mk);
                     ii = horzcat(ii, i + last_i);
                     jj = horzcat(jj, j + last_j);
                     ss = horzcat(ss, s);
                 end
-                m = nme{1}.nk * nme{1}.np;      %% total number of ports for class
+                m = nme.nk * nme.np;        %% total number of ports for class
                 if vnotz
                     n = m;
                 else
-                    n = nme{1}.nk * nme{1}.nz;  %% total number of states for class
+                    n = nme.nk * nme.nz;    %% total number of states for class
                 end
                 last_i = last_i + m;
                 last_j = last_j + n;
@@ -155,10 +154,11 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             nn = obj.getN('node');
             vv = {};
 
-            for nme = obj.elm_list
-                vk = nme{1}.(name);
+            for k = 1:length(obj.elements)
+                nme = obj.elements{k};
+                vk = nme.(name);
                 if isempty(vk)
-                    vk = zeros(nme{1}.nk * nme{1}.np, 1);
+                    vk = zeros(nme.nk * nme.np, 1);
                 end
                 vv = horzcat(vv, vk);
             end
@@ -575,8 +575,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             obj.pf_add_system_constraints(mm, dm, mpopt);
             
 %             %% each element adds its PF constraints
-%             for nme = obj.elm_list
-%                 nme{1}.pf_add_constraints(mm, nm, dm, mpopt);
+%             for k = 1:length(obj.elements)
+%                 obj.elements{k}.pf_add_constraints(mm, nm, dm, mpopt);
 %             end
         end
 
@@ -589,8 +589,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
             %% each element updates its data model
-            for nme = obj.elm_list
-                nme{1}.pf_data_model_update(mm, nm, dm, mpopt);
+            for k = 1:length(obj.elements)
+                obj.elements{k}.pf_data_model_update(mm, nm, dm, mpopt);
             end
         end
 
@@ -617,8 +617,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
             
             %% each element adds its OPF variables
-            for nme = obj.elm_list
-                nme{1}.opf_add_vars(mm, nm, dm, mpopt);
+            for k = 1:length(obj.elements)
+                obj.elements{k}.opf_add_vars(mm, nm, dm, mpopt);
             end
             
             %% legacy user-defined variables
@@ -630,8 +630,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             obj.opf_add_system_constraints(mm, dm, mpopt);
             
             %% each element adds its OPF constraints
-            for nme = obj.elm_list
-                nme{1}.opf_add_constraints(mm, nm, dm, mpopt);
+            for k = 1:length(obj.elements)
+                obj.elements{k}.opf_add_constraints(mm, nm, dm, mpopt);
             end
         end
 
@@ -640,8 +640,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             obj.opf_add_system_costs(mm, dm, mpopt);
             
             %% each element adds its OPF costs
-            for nme = obj.elm_list
-                nme{1}.opf_add_costs(mm, nm, dm, mpopt);
+            for k = 1:length(obj.elements)
+                obj.elements{k}.opf_add_costs(mm, nm, dm, mpopt);
             end
         end
 
@@ -737,8 +737,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% each element updates its data model
-            for nme = obj.elm_list
-                nme{1}.opf_data_model_update(mm, nm, dm, mpopt);
+            for k = 1:length(obj.elements)
+                obj.elements{k}.opf_data_model_update(mm, nm, dm, mpopt);
             end
         end
 

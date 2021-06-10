@@ -45,7 +45,7 @@ for k = 1:nt
         t = sprintf('%s.copy() : ', tests{k}{1});
         dm = tests{k}{2}.copy();
         tests{k}{2}.mpc = [];
-        tests{k}{2}.elm_list{1}.ID = [];
+        tests{k}{2}.elements{1}.ID = [];
     else
         t = sprintf('mp_data_mpc2().build(%s) : ', tests{k}{1});
         dm = mp_data_mpc2().build(tests{k}{2});
@@ -53,19 +53,19 @@ for k = 1:nt
     t_ok(strcmp(dm.mpc.version, '2'), [t 'mpc version']);
     t_ok(iscell(dm.element_classes), [t 'iscell(dm.element_classes)']);
     t_is(length(dm.element_classes), 5, 12, [t 'length(dm.element_classes)']);
-    t_ok(iscell(dm.elm_list), [t 'iscell(dm.elm_list)']);
-    t_is(length(dm.elm_list), 5, 12, [t 'length(dm.elm_list)']);
-    t_ok(isstruct(dm.elm_map), [t 'isstruct(dm.elm_map)']);
-    t_ok(isfield(dm.elm_map, 'bus'), [t 'dm.elm_map.bus exists']);
-    t_ok(isfield(dm.elm_map, 'gen'), [t 'dm.elm_map.gen exists']);
-    t_ok(isfield(dm.elm_map, 'load'), [t 'dm.elm_map.load exists']);
-    t_ok(isfield(dm.elm_map, 'branch'), [t 'dm.elm_map.branch exists']);
-    t_ok(isfield(dm.elm_map, 'shunt'), [t 'dm.elm_map.shunt exists']);
-    t_is(dm.elm_map.bus, 1, 12, [t 'dm.elm_map.bus']);
-    t_is(dm.elm_map.gen, 2, 12, [t 'dm.elm_map.gen']);
-    t_is(dm.elm_map.load, 3, 12, [t 'dm.elm_map.load']);
-    t_is(dm.elm_map.branch, 4, 12, [t 'dm.elm_map.branch']);
-    t_is(dm.elm_map.shunt, 5, 12, [t 'dm.elm_map.shunt']);
+    t_ok(isa(dm.elements, 'mp_mapped_array'), [t 'isa(dm.elements, ''mp_mapped_array'')']);
+    t_is(length(dm.elements), 5, 12, [t 'length(dm.elements)']);
+    t_ok(isa(dm.elements, 'mp_mapped_array'), [t 'isa(dm.elements, ''mp_mapped_array'')']);
+    t_ok(dm.elements.is_index_name('bus'), [t 'dm.elements.is_index_name(''bus'')']);
+    t_ok(dm.elements.is_index_name('gen'), [t 'dm.elements.is_index_name(''gen'')']);
+    t_ok(dm.elements.is_index_name('load'), [t 'dm.elements.is_index_name(''load'')']);
+    t_ok(dm.elements.is_index_name('branch'), [t 'dm.elements.is_index_name(''branch'')']);
+    t_ok(dm.elements.is_index_name('shunt'), [t 'dm.elements.is_index_name(''shunt'')']);
+    t_is(dm.elements.name2idx('bus'), 1, 12, [t 'dm.elements.name2idx(''bus'')']);
+    t_is(dm.elements.name2idx('gen'), 2, 12, [t 'dm.elements.name2idx(''gen'')']);
+    t_is(dm.elements.name2idx('load'), 3, 12, [t 'dm.elements.name2idx(''load'')']);
+    t_is(dm.elements.name2idx('branch'), 4, 12, [t 'dm.elements.name2idx(''branch'')']);
+    t_is(dm.elements.name2idx('shunt'), 5, 12, [t 'dm.elements.name2idx(''shunt'')']);
 
     bus = dm.elm_by_name('bus');
     t_ok(isa(bus, 'dme_bus_mpc2'), [t 'bus class']);
