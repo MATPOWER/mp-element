@@ -30,11 +30,12 @@ classdef dme_gen_mpc2_node_test < dme_gen_mpc2
             %% get bus mapping info
             obj.nbet = length(obj.bus_elm_types);
             for k = obj.nbet:-1:1
-                bus_dme{k} = dm.elm_by_name(obj.bus_elm_types{k});
-                if isempty(bus_dme{k})
-                    b2i_k{k} = [];
+                if dm.elements.is_index_name(obj.bus_elm_types{k})
+                    bus_dme{k} = dm.elements.(obj.bus_elm_types{k});
+                    b2i_k{k} = bus_dme{k}.ID2i;
                 else
-                    b2i_k{k} = bus_dme{k}.ID2i; %% bus element num to idx mapping
+                    bus_dme{k} = [];
+                    b2i_k{k} = [];
                 end
                 n(k) = length(b2i_k{k});
             end
@@ -64,8 +65,8 @@ classdef dme_gen_mpc2_node_test < dme_gen_mpc2
         function obj = update_status(obj, dm)
             %% get bus status info
             for k = 1:obj.nbet
-                bus_dme = dm.elm_by_name(obj.bus_elm_types{k});
-                if ~isempty(bus_dme)
+                if dm.elements.is_index_name(obj.bus_elm_types{k})
+                    bus_dme = dm.elements.(obj.bus_elm_types{k});
                     bs = bus_dme.status;    %% bus element status
 
                     %% update status of gens at isolated/offline buses

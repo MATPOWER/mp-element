@@ -20,8 +20,8 @@ classdef nme_branch_acp_node_test < nme_branch_acp
             tidx = zeros(size(t));
 
             for k = 1:dme.nbet
-                bus_dme = dm.elm_by_name(dme.bus_elm_types{k});
-                if ~isempty(bus_dme)
+                if dm.elements.is_index_name(dme.bus_elm_types{k})
+                    bus_dme = dm.elements.(dme.bus_elm_types{k});
                     beti = bus_dme.bus_eti;
                     nidx = nm.get_node_idx(dme.bus_elm_types{k});   %% node indices for bus element type
                     fbidx(bf == beti) = bus_dme.i2on(f(bf == beti));%% online bus indices of branch "from"

@@ -188,8 +188,8 @@ if mm.getN('var')
     %% if single-block PWL costs were converted to POLY, insert dummy y into x
     %% Note: The "y" portion of x will be nonsense, but everything should at
     %%       least be in the expected locations.
-    gen_dme = obj.dm.elm_by_name('gen');
-    if ~isempty(gen_dme) && ~isempty(gen_dme.pwl1)
+    gen_dme = obj.dm.elements.gen;
+    if ~isempty(gen_dme.pwl1)
         pwl1 = gen_dme.pwl1;
     else
         pwl1 = [];

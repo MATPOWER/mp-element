@@ -38,13 +38,15 @@ classdef mp_network_acps_node_test < mp_network_acps
                 %% Va equal to angle of 1st ref bus
                 %% Vm equal to avg of clipped limits
                 vv = mm.get_idx();
-                gen_dme = dm.elm_by_name('gen');
+                gen_dme = dm.elements.gen;
                 Varefs = [];
                 for k = gen_dme.nbet:-1:1
-                    bus_dme{k} = dm.elm_by_name(gen_dme.bus_elm_types{k});
-                    if ~isempty(bus_dme{k})
+                    if dm.elements.is_index_name(gen_dme.bus_elm_types{k})
+                        bus_dme{k} = dm.elements.(gen_dme.bus_elm_types{k});
                         Varefs_k = bus_dme{k}.Va0(find(bus_dme{k}.isref));
                         Varefs = [Varefs_k; Varefs];
+                    else
+                        bus_dme{k} = [];
                     end
                 end
                 for k = 1:gen_dme.nbet

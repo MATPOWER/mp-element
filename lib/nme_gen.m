@@ -37,7 +37,7 @@ classdef nme_gen < nm_element
         end
 
         function idx = node_indices(obj, nm, dm, dme)
-            bus_dme = dm.elm_by_name('bus');
+            bus_dme = dm.elements.bus;
             nidx = nm.get_node_idx('bus');  %% node indices for 'bus'
             b = dme.bus(dme.on);
             bidx = bus_dme.i2on(b);         %% online bus indices for gens

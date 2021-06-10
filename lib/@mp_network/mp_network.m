@@ -167,7 +167,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
         function obj = add_vvars(obj, nm, dm, idx)
             for k = 1:length(obj.node.order)
-                nme = obj.elm_by_name(obj.node.order(k).name);
+                nme = obj.elements.(obj.node.order(k).name);
                 nme.add_vvars(obj, dm, obj.node.order(k).idx);
             end
             for vtype = obj.model_vvars
@@ -177,7 +177,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
         function obj = add_zvars(obj, nm, dm, idx)
             for k = 1:length(obj.state.order)
-                nme = obj.elm_by_name(obj.state.order(k).name);
+                nme = obj.elements.(obj.state.order(k).name);
                 nme.add_zvars(obj, dm, obj.state.order(k).idx);
             end
         end
@@ -274,7 +274,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             n = length(s(:));
             if nargin > 3 && ~isempty(dm)
                 for k = 1:n
-                    dme = dm.elm_by_name(s(k).name);
+                    dme = dm.elements.(s(k).name);
                     s(k).e = zeros(size(s(k).i));
                     s(k).e(:) = dme.on(s(k).i);         %% external index
                     s(k).ID = s(k).e;
@@ -471,7 +471,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                 for k = 1:obj.node.NS
                     name = obj.node.order(k).name;
                     i0 = obj.node.idx.i1.(name) - 1;
-                    nme = obj.elm_by_name(name);
+                    nme = obj.elements.(name);
                     [rr{k}, vv{k}, qq{k}] = nme.node_types(obj, dm);
                     if nargout > 3
                         by_elm(k).name = name;
@@ -496,7 +496,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                 %% get node types for each node-creating element type
                 for k = 1:length(obj.node.order)
                     name = obj.node.order(k).name;
-                    nme = obj.elm_by_name(name);
+                    nme = obj.elements.(name);
                     tt{k} = nme.node_types(obj, dm);
                     if nargout > 1
                         by_elm(k).name = name;
@@ -544,7 +544,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %% idx is internal nme index
             s = obj.set_type_idx_map('node', idx, dm, 1);
             for k = 1:length(s)
-                nme = obj.elm_by_name(s(k).name);
+                nme = obj.elements.(s(k).name);
                 nme.set_node_type_ref(obj, dm, s(k).i);
             end
         end
@@ -554,7 +554,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %% idx is internal nme index
             s = obj.set_type_idx_map('node', idx, dm, 1);
             for k = 1:length(s)
-                nme = obj.elm_by_name(s(k).name);
+                nme = obj.elements.(s(k).name);
                 nme.set_node_type_pv(obj, dm, s(k).i);
             end
         end
@@ -564,7 +564,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %% idx is internal nme index
             s = obj.set_type_idx_map('node', idx, dm, 1);
             for k = 1:length(s)
-                nme = obj.elm_by_name(s(k).name);
+                nme = obj.elements.(s(k).name);
                 nme.set_node_type_pq(obj, dm, s(k).i);
             end
         end
@@ -756,10 +756,10 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             x0(k) = xmin(k) + s;                    %% set just above lower bound
 
             %% set gen cost variables to something feasible
-            gen_nme = obj.elm_by_name('gen');
+            gen_nme = obj.elements.gen;
             if gen_nme.cost.pwl.n > 0
                 vv = mm.get_idx();
-                gen_dme = dm.elm_by_name('gen');
+                gen_dme = dm.elements.gen;
                 ipwl = gen_nme.cost.pwl.i;
                 maxgc = gen_dme.max_pwl_gencost(ipwl, dm);
                 x0(vv.i1.y:vv.iN.y) = maxgc + 0.1 * abs(maxgc);

@@ -24,13 +24,12 @@ classdef mp_data_mpc2_node_test < mp_data_mpc2
 
         %%-----  OPF methods  -----
         function [A, l, u, i] = branch_angle_diff_constraint(obj, ignore);
-            branch_dme = obj.elm_by_name('branch');
+            branch_dme = obj.elements.branch;
             branch = branch_dme.get_table(obj);
             nb = 0;
             for k = 1:branch_dme.nbet
-                bus_dme = obj.elm_by_name(branch_dme.bus_elm_types{k});
-                if ~isempty(bus_dme)
-                    nb = nb + bus_dme.n;
+                if obj.elements.is_index_name(branch_dme.bus_elm_types{k})
+                    nb = nb + obj.elements.(branch_dme.bus_elm_types{k}).n;
                 end
             end
             mpopt = struct('opf', struct('ignore_angle_lim', ignore));

@@ -71,7 +71,7 @@ classdef mp_task_cpf < mp_task_pf
                 %% update data model voltages only
                 %% preserve original base/target specifications
                 for k = 1:obj.nm.node.NS
-                    nme = obj.nm.elm_by_name(obj.nm.node.order(k).name);
+                    nme = obj.nm.elements.(obj.nm.node.order(k).name);
                     nme.pf_data_model_update(mm, obj.nm, obj.dm, mpopt);
                 end
 

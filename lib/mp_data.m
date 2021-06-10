@@ -70,11 +70,10 @@ classdef mp_data < mpe_container
         end
 
         function n = online(obj, name)
-            dme = obj.elm_by_name(name);
-            if isempty(dme)
-                n = 0;
+            if obj.elements.is_index_name(name)
+                n = obj.elements.(name).n;
             else
-                n = dme.n;
+                n = 0;
             end
         end
 

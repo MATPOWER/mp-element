@@ -18,8 +18,8 @@ classdef nme_gen_acp_node_test < nme_gen_acp
             bidx = zeros(size(b));
             idx = zeros(size(b));
             for k = 1:dme.nbet
-                bus_dme = dm.elm_by_name(dme.bus_elm_types{k});
-                if ~isempty(bus_dme)
+                if dm.elements.is_index_name(dme.bus_elm_types{k})
+                    bus_dme = dm.elements.(dme.bus_elm_types{k});
                     beti = bus_dme.bus_eti;
                     nidx = nm.get_node_idx(dme.bus_elm_types{k});   %% node indices for bus element type
                     bidx(bt == beti) = bus_dme.i2on(b(bt == beti)); %% online bus indices for gens

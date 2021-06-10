@@ -90,7 +90,7 @@ classdef mp_math_opf_legacy < mp_math_opf
 
             if strcmp(nm.form_tag, 'dc') && toggle_softlims(obj.mpc, 'status')
                 %% user data required by toggle_softlims
-                branch_nme = nm.elm_by_name('branch');
+                branch_nme = nm.elements.branch;
                 [Bbr, pbr] = branch_nme.get_params(1:branch_nme.nk, {'B', 'p'});
                 obj.userdata.Bf = Bbr * branch_nme.C';
                 obj.userdata.Pfinj = pbr;

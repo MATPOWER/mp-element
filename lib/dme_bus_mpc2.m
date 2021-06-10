@@ -92,7 +92,7 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
                MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
-            gen_dme = dm.elm_by_name('gen');
+            gen_dme = dm.elements.gen;
             [gbus, ig] = obj.gbus_vector(gen_dme);
             nb = obj.n;
             ng = length(gbus);

@@ -60,7 +60,7 @@ classdef nm_element < handle
             if nargin < 3
                 name = obj.name;
             end
-            dme = dm.elm_by_name(name);
+            dme = dm.elements.(name);
         end
 
         function nk = count(obj, dm)

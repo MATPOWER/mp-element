@@ -50,7 +50,7 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
             mm.userdata.Apqdata = Apqdata;
 
             %% dispatchable load constant power factor constraint
-            [Avl, lvl, uvl] = dm.elm_by_name('gen').disp_load_constant_pf_constraint(dm);
+            [Avl, lvl, uvl] = dm.elements.gen.disp_load_constant_pf_constraint(dm);
             if ~isempty(Avl)
                 mm.add_lin_constraint('vl',  Avl, lvl, uvl,   {'Pg', 'Qg'});    %% nvl
             end

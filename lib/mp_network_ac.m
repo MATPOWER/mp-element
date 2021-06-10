@@ -643,7 +643,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
         function y = cpf_plot_yfcn(obj, dm, ad, v_, bus_num)
             %% find node idx from external bus number
-            b2i = dm.elm_by_name('bus').ID2i;   %% bus num to idx mapping
+            b2i = dm.elements.bus.ID2i;     %% bus num to idx mapping
             nidx = obj.get_node_idx('bus');
 
             k = find( bus_num < 0 | bus_num > length(b2i) );
@@ -660,7 +660,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             nidx = obj.get_node_idx('bus');     %% node indices of buses
             [~, i] = max(abs(ad.xfer(ad.pq)) .* ismember(ad.pq, nidx));
             bi = ad.pq(i);                      %% index of bus w/max transfer
-            idx = dm.elm_by_name('bus').ID(bi); %% bus num of same bus
+            idx = dm.elements.bus.ID(bi);       %% bus num of same bus
         end
 
         function opt = cpf_add_callbacks(obj, opt, mm, dm, mpopt)
@@ -720,7 +720,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
         function efv = cpf_event_flim(obj, cx, opt, mm, dm, mpopt)
             %% get branch flow constraints
-            branch_nme = obj.elm_by_name('branch');
+            branch_nme = obj.elements.branch;
             branch_dme = branch_nme.data_model_element(dm);
             rate_a = branch_dme.rate_a * dm.baseMVA;
             ibr = find(rate_a ~= 0 & rate_a < 1e10);
@@ -791,7 +791,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% initialize
             if k == 0   %% check for base case flow violations
                 %% get branch flow constraints
-                branch_nme = obj.elm_by_name('branch');
+                branch_nme = obj.elements.branch;
                 branch_dme = branch_nme.data_model_element(dm);
                 rate_a = branch_dme.rate_a * dm.baseMVA;
                 ibr = find(rate_a ~= 0 & rate_a < 1e10);
@@ -848,7 +848,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 end
 
                 %% get branch flow constraints
-                branch_nme = obj.elm_by_name('branch');
+                branch_nme = obj.elements.branch;
                 branch_dme = branch_nme.data_model_element(dm);
                 rate_a = branch_dme.rate_a * dm.baseMVA;
                 ibr = find(rate_a ~= 0 & rate_a < 1e10);
@@ -1158,7 +1158,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 %% Va equal to angle of 1st ref bus
                 %% Vm equal to avg of clipped limits
                 vv = mm.get_idx();
-                bus_dme = dm.elm_by_name('bus');
+                bus_dme = dm.elements.bus;
                 Varefs = bus_dme.Va0(find(bus_dme.isref));
                 Vmax = min(bus_dme.Vmax, 1.5);
                 Vmin = max(bus_dme.Vmin, 0.5);

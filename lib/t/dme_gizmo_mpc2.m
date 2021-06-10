@@ -22,7 +22,7 @@ classdef dme_gizmo_mpc2 < dme_gizmo & dm_format_mpc2
             BUS3 = 3;
 
             %% get bus mapping info
-            b2i = dm.elm_by_name('bus').ID2i;   %% bus num to idx mapping
+            b2i = dm.elements.bus.ID2i;     %% bus num to idx mapping
 
             %% set bus index vectors for port connectivity
             tab = obj.get_table(dm);
@@ -33,7 +33,7 @@ classdef dme_gizmo_mpc2 < dme_gizmo & dm_format_mpc2
 
         function obj = update_status(obj, dm)
             %% get bus status info
-            bs = dm.elm_by_name('bus').status;  %% bus status
+            bs = dm.elements.bus.status;    %% bus status
 
             %% update status of gizmoes connected to isolated/offline buses
             obj.status = obj.status & bs(obj.bus1) & ...

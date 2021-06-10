@@ -21,7 +21,7 @@ classdef nme_branch < nm_element
         end
 
         function [fidx, tidx] = node_indices(obj, nm, dm, dme)
-            bus_dme = dm.elm_by_name('bus');
+            bus_dme = dm.elements.bus;
             nidx = nm.get_node_idx('bus');  %% node indices for 'bus'
             f = dme.fbus(dme.on);
             t = dme.tbus(dme.on);

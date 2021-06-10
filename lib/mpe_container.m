@@ -49,13 +49,5 @@ classdef mpe_container < handle
             end
             obj.element_classes = ec;
         end
-
-        function elm = elm_by_name(obj, name)
-            if is_index_name(obj.elements, name)
-                elm = obj.elements.(name);
-            else
-                elm = [];
-            end
-        end
     end     %% methods
 end         %% classdef

@@ -30,7 +30,7 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             [GEN_BUS] = idx_gen;
 
             %% get bus mapping info
-            b2i = dm.elm_by_name('bus').ID2i;   %% bus num to idx mapping
+            b2i = dm.elements.bus.ID2i;     %% bus num to idx mapping
 
             %% set bus index vectors for port connectivity
             tab = obj.get_table(dm);
@@ -39,7 +39,7 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
 
         function obj = update_status(obj, dm)
             %% get bus status info
-            bs = dm.elm_by_name('bus').status;  %% bus status
+            bs = dm.elements.bus.status;    %% bus status
 
             %% update status of gens at isolated/offline buses
             obj.status = obj.status & bs(obj.bus);
@@ -258,7 +258,7 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             if ~isempty(both)   %% we have some Q limit violations
                 %% first check for INFEASIBILITY
                 %% find available online gens at REF and PV buses
-                bus_dme = dm.elm_by_name('bus');
+                bus_dme = dm.elements.bus;
                 gbus = bus_dme.i2on(obj.bus(obj.on));   %% buses of online gens
                 remaining = find( bus_dme.isref(gbus) | bus_dme.ispv( gbus) );
 

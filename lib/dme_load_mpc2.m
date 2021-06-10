@@ -28,7 +28,7 @@ classdef dme_load_mpc2 < dme_load & dm_format_mpc2
 
         function obj = update_status(obj, dm)
             %% get bus status info
-            bs = dm.elm_by_name('bus').status;  %% bus status
+            bs = dm.elements.bus.status;    %% bus status
 
             %% update status of gens at isolated/offline buses
             obj.status = obj.status & bs(obj.bus);

@@ -138,7 +138,7 @@ classdef mp_data_mpc2 < mp_data
         end
 
         function [success, d, pf] = pf_enforce_q_lims(obj, pf, nm, mpopt);
-            gen_dme = obj.elm_by_name('gen');
+            gen_dme = obj.elements.gen;
             [mn, mx, both] = gen_dme.violated_q_lims(obj, mpopt);
 
             if ~isempty(both)   %% we have some Q limit violations
@@ -165,7 +165,7 @@ classdef mp_data_mpc2 < mp_data
                     gen_dme.update(obj, mx, 'Qg', pf.fixed_q_qty(mx));
 
                     %% convert to PQ bus
-                    bus_dme = obj.elm_by_name('bus');
+                    bus_dme = obj.elements.bus;
                     ref0 = find(bus_dme.isref);
                     bidx = bus_dme.i2on(gen_dme.bus(gen_dme.on(mx)));   %% bus of mx
                     if length(ref0) > 1 && any(bus_dme.isref(bidx))
@@ -284,8 +284,8 @@ classdef mp_data_mpc2 < mp_data
         end
 
         function obj = set_bus_v_lims_via_vg(obj, use_vg)
-            bus_dme = obj.elm_by_name('bus');
-            gen_dme = obj.elm_by_name('gen');
+            bus_dme = obj.elements.bus;
+            gen_dme = obj.elements.gen;
             gbus = bus_dme.i2on(gen_dme.bus(gen_dme.on));   %% buses of online gens
             nb = bus_dme.n;
             ng = gen_dme.n;
@@ -318,14 +318,14 @@ classdef mp_data_mpc2 < mp_data
         end
 
         function [A, l, u, i] = branch_angle_diff_constraint(obj, ignore);
-            branch = obj.elm_by_name('branch').get_table(obj);
-            nb = obj.elm_by_name('bus').n;
+            branch = obj.elements.branch.get_table(obj);
+            nb = obj.elements.bus.n;
             mpopt = struct('opf', struct('ignore_angle_lim', ignore));
             [A, l, u, i]  = makeAang(obj.baseMVA, branch, nb, mpopt);
         end
 
         function [Ah, uh, Al, ul, data] = gen_pq_capability_constraint(obj);
-            gen_dme = obj.elm_by_name('gen');
+            gen_dme = obj.elements.gen;
             gen = gen_dme.get_table(obj);
             [Ah, uh, Al, ul, data] = makeApq(obj.baseMVA, gen(gen_dme.on, :));
         end

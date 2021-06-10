@@ -102,7 +102,7 @@ classdef mp_task_pf < mp_task
             if ~obj.dc && mpopt.pf.enforce_q_lims ~= 0 && nm.np ~= 0
                 if obj.i_nm == 1
                     [ref, ~, ~] = nm.node_types(obj, dm);
-                    gen_dme =  dm.elm_by_name('gen');
+                    gen_dme =  dm.elements.gen;
                     obj.iterations = 0;
                     obj.ref0 = ref;             %% initial ref node indices
                     obj.ref = ref;              %% current ref node indices

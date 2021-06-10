@@ -179,8 +179,8 @@ t = 'dc.port_inj_power(x, 1, [3;1])';
 P2  = dc.port_inj_power(x, 1, [3;1]);
 t_is(P2, eP([3;1]), 8, t);
 
-t = 'dc.elm_by_name(''gen'') : ';
-gen = dc.elm_by_name('gen');
+t = 'dc.elements.gen : ';
+gen = dc.elements.gen;
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
 t_ok(strcmp(class(gen), 'nme_gen_dc'), [t 'class']);
 
@@ -386,8 +386,8 @@ t_is(Svm1, Svm([3;2;1], :), 12, [t 'Svm']);
 t_is(Szr1, Szr([3;2;1], :), 12, [t 'Szr']);
 t_is(Szi1, Szi([3;2;1], :), 12, [t 'Szi']);
 
-t = 'ac.elm_by_name(''gen'') : ';
-gen = ac.elm_by_name('gen');
+t = 'ac.elements.gen : ';
+gen = ac.elements.gen;
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
 t_ok(strcmp(class(gen), 'nme_gen_acp'), [t 'class']);
 
@@ -782,8 +782,8 @@ t_is(Svm1, Svm([3;2;1], :), 12, [t 'Svm']);
 t_is(Szr1, Szr([3;2;1], :), 12, [t 'Szr']);
 t_is(Szi1, Szi([3;2;1], :), 12, [t 'Szi']);
 
-t = 'ac.elm_by_name(''gen'') : ';
-gen = ac.elm_by_name('gen');
+t = 'ac.elements.gen : ';
+gen = ac.elements.gen;
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
 t_ok(strcmp(class(gen), 'nme_gen_acp'), [t 'class']);
 
