@@ -82,14 +82,23 @@ classdef mp_task_cpf < mp_task_pf
             end
         end
 
-        %%-----  data model methods  -----
-        function dm = data_model_build(obj, d, mpopt)
+        %%-----  data model converter methods  -----
+        function dmc_class = dm_converter_class(obj, d, mpopt)
             if iscell(d) && length(d) == 2
-                dm  = data_model_build@mp_task_pf(obj, d{1}, mpopt);
-                dmt = data_model_build@mp_task_pf(obj, d{2}, mpopt);
+                dmc_class = dm_converter_class@mp_task(obj, d{1}, mpopt);
+            else
+                error('mp_task_cpf/dm_converter_class: d must be 2-element cell array');
+            end
+        end
+
+        %%-----  data model methods  -----
+        function dm = data_model_build(obj, d, dmc, mpopt)
+            if iscell(d) && length(d) == 2
+                dm  = data_model_build@mp_task_pf(obj, d{1}, dmc, mpopt);
+                dmt = data_model_build@mp_task_pf(obj, d{2}, dmc, mpopt);
                 dm.userdata.target = dmt;
             else
-                error('mp_task_cpf: data_model_build: d must be 2-element cell array');
+                error('mp_task_cpf/data_model_build: d must be 2-element cell array');
             end
         end
 

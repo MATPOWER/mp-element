@@ -26,6 +26,12 @@ classdef dme_bus_ld_mpc2_node_test < dme_bus_nld_mpc2_node_test
             obj.name = 'bus_ld';
         end
 
+        function var_names = table_var_names(obj)
+            var_names = horzcat( ...
+                table_var_names@dme_bus_nld_mpc2_node_test(obj), ...
+                {'pd', 'qd', 'gs', 'bs'} );
+        end
+
         function bidx = mpc_idx(obj, tab)
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS] = idx_bus;

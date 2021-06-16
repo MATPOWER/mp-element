@@ -23,8 +23,8 @@ else
 end
 
 casefile = 't_case9_gizmo';
-
 mpopt = mpoption('out.all', 0, 'verbose', 0);
+dmc = mp_dm_converter_mpc2().build();
 
 %%-----  DC formulation  -----
 t = 'mp_network_dc() : ';
@@ -50,8 +50,8 @@ t_ok(strcmp(dc.set_types.va, 'VOLTAGE VARS (va)'), [t 'set_types.va']);
 t_ok(strcmp(dc.set_types.z, 'NON-VOLTAGE VARS (z)'), [t 'set_types.z']);
 t_is(length(dc.elements), 0, 12, [t '# of element types']);
 
-t = 'dc.build(dm) : ';
-dm = mp_data_mpc2().build(rundcpf(loadcase(casefile), mpopt));
+t = 'dc.build(dm, dmc) : ';
+dm = mp_data_mpc2().build(rundcpf(loadcase(casefile), mpopt), dmc);
 mpc = dm.mpc;
 t_ok(mpc.success, [t 'solved power flow']);
 dc.build(dm);
@@ -227,7 +227,7 @@ t_ok(strcmp(ac.set_types.zi, 'NON-VOLTAGE VARS IMAG (zi)'), [t 'set_types.zi']);
 t_is(length(ac.elements), 0, 12, [t '# of element types']);
 
 t = 'ac.build(dm) : ';
-dm = mp_data_mpc2().build(runpf(loadcase(casefile), mpopt));
+dm = mp_data_mpc2().build(runpf(loadcase(casefile), mpopt), dmc);
 mpc = dm.mpc;
 t_ok(mpc.success, [t 'solved power flow']);
 ac.build(dm);
@@ -504,8 +504,6 @@ t_is(Igzi, Izi(2, :), 12, [t 'Izi']);
 %% AC Newton power flow
 t = 'mp_task_pf().run(mpc, mpopt) : ';
 mpc = loadcase(casefile);
-% ac = mp_network_acps().build(dm);
-% [v_, success, i] = ac.solve_power_flow(dm, mpopt);
 pf = mp_task_pf();
 success = pf.run(mpc, mpopt);
 v_ = pf.nm.soln.v;
@@ -554,12 +552,13 @@ mpc.gen(ref, PG) = 1.7165997325858 * mpc.baseMVA;
 mpc.gen(:, QG) = [0.2570733353840 0.0079004398259 -0.1749046999314].' * mpc.baseMVA;
 % mpopt = mpoption(mpopt, 'verbose', 2);
 pf = mp_task_pf();
+mpopt.exp.dmc_element_classes = @dmce_gizmo_mpc2;
+mpopt.exp.dm_element_classes = @dme_gizmo_mpc2;
 mpopt.exp.network_model_class = @mp_network_acps_test;
-dm = mp_data_mpc2().modify_element_classes(@dme_gizmo_mpc2).build(mpc);
 warn_id = 'pf_update_z:multiple_nodes';
 s1 = warning('query', warn_id);
 warning('off', warn_id);
-success = pf.run(dm, mpopt);
+success = pf.run(mpc, mpopt);
 warning(s1.state, warn_id);
 v_ = pf.nm.soln.v;
 success = pf.mm.soln.eflag > 0;
@@ -573,7 +572,8 @@ t_is(i, 4, 12, [t 'i']);
 t = 'ac.build(dm) : ';
 mpc.bus(:, VA) = angle(v_) * 180/pi;
 mpc.bus(:, VM) = abs(v_);
-dm = mp_data_mpc2().modify_element_classes(@dme_gizmo_mpc2).build(mpc);
+dmc = mp_dm_converter_mpc2().modify_element_classes(@dmce_gizmo_mpc2).build();
+dm = mp_data_mpc2().modify_element_classes(@dme_gizmo_mpc2).build(mpc, dmc);
 ac = mp_network_acps_test().build(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);

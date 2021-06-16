@@ -13,6 +13,8 @@ classdef dm_element < handle
 
     properties
         name = 'dm_element';
+        tab             %% main data table
+
         table           %% name of table to be checked for presence of this
                         %% element type
         id_col = 0;     %% column containing the unique ID
@@ -30,6 +32,10 @@ classdef dm_element < handle
     end     %% properties
 
     methods
+        function var_names = table_var_names(obj)
+            var_names = {'uid', 'name', 'status', 'source_uid'};
+        end
+
         function new_obj = copy(obj)
             %% make shallow copy of object
             new_obj = eval(class(obj));  %% create new object

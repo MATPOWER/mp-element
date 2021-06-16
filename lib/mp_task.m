@@ -33,6 +33,7 @@ classdef mp_task < handle
 %   See https://matpower.org for more info.
 
     properties
+        dmc     %% data model converter object
         dm      %% data model object
         nm      %% network model object
         mm      %% mathematical model object
@@ -51,6 +52,9 @@ classdef mp_task < handle
         function obj = run(obj, d, mpopt)
             [d, mpopt] = obj.run_pre(d, mpopt);
 
+            dmc = obj.dm_converter_create(d, mpopt);
+            obj.dmc = dmc;
+
             %% initialize
             obj.i_dm = 0;   %% iteration counter for data model loop
             obj.i_nm = 0;   %% iteration counter for network model loop
@@ -58,7 +62,7 @@ classdef mp_task < handle
 
             %% build data model
             obj.i_dm = obj.i_dm + 1;
-            dm = obj.data_model_build(d, mpopt);
+            dm = obj.data_model_build(d, dmc, mpopt);
             obj.dm = dm;    %% stash current data model in task object
 
             while ~isempty(dm)  %% begin data model loop
@@ -186,6 +190,37 @@ classdef mp_task < handle
             fprintf('-- %s save_soln(''%s'')\n', obj.tag, fname);
         end
 
+        %%-----  data model converter methods  -----
+        function dmc_class = dm_converter_class(obj, d, mpopt)
+            if isfield(mpopt.exp, 'dm_converter_class') && ...
+                    ~isempty(mpopt.exp.dm_converter_class)
+                dmc_class = mpopt.exp.dm_converter_class;
+            else
+                if ismpc2(d)
+                    dmc_class = @mp_dm_converter_mpc2;
+                else
+                    error('mp_task: input data format not recognized');
+                end
+            end
+        end
+
+        function dmc = dm_converter_create(obj, d, mpopt)
+            if isa(d, 'mp_data')
+                dmc = [];
+            else
+                dmc_class = obj.dm_converter_class(d, mpopt);
+                dmc = dmc_class();
+
+                %% add user-supplied elements to dm.element_classes
+                if isfield(mpopt.exp, 'dmc_element_classes') && ...
+                        ~isempty(mpopt.exp.dmc_element_classes)
+                    dmc.modify_element_classes(mpopt.exp.dmc_element_classes);
+                end
+
+                dmc.build();
+            end
+        end
+
         %%-----  data model methods  -----
         function dm_class = data_model_class(obj, d, mpopt)
             if isfield(mpopt.exp, 'data_model_class') && ...
@@ -201,13 +236,13 @@ classdef mp_task < handle
             dm = dm_class();
         end
 
-        function dm = data_model_build(obj, d, mpopt)
+        function dm = data_model_build(obj, d, dmc, mpopt)
             if isa(d, 'mp_data')
                 dm = d;
             else
                 dm = obj.data_model_create(d, mpopt);
                 [dm, d] = obj.data_model_build_pre(dm, d, mpopt);
-                dm.build(d);
+                dm.build(d, dmc);
                 dm = obj.data_model_build_post(dm, mpopt);
             end
         end
@@ -308,3 +343,9 @@ classdef mp_task < handle
         end
     end     %% methods
 end         %% classdef
+
+function TorF = ismpc2(d)
+    TorF = isstruct(d) && isfield(d, 'bus') && ...
+        isfield(d, 'gen') && isfield(d, 'branch') && ...
+        isfield(d, 'version') && strcmp(d.version, '2');
+end

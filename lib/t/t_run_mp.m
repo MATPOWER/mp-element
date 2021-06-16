@@ -20,7 +20,7 @@ else
     verbose = 1;
 end
 
-t_begin(20, quiet);
+t_begin(21, quiet);
 
 casefile = 'case9';
 casefilet = 'case9target';
@@ -28,6 +28,7 @@ opt = struct('verbose', 0);
 mpopt = mpoption(opt);
 mpopt = mpoption(mpopt, 'out.all', 0);
 
+dmc_class = @mp_dm_converter_mpc2;
 dm_class = @mp_data_mpc2;
 nm_class = @mp_network_acps;
 mm_classes = {
@@ -38,15 +39,19 @@ mm_classes = {
 tasks = {'PF', 'CPF', 'OPF'};
 d = {casefile, {casefile, casefilet}, casefile};
 
+t = 'build data model converter';
+dmc = dmc_class().build();
+t_ok(isa(dmc, 'mp_dm_converter'), t);
+
 t = 'build data model';
-dm = dm_class().build('case9');
+dm = dm_class().build('case9', dmc);
 t_ok(isa(dm, 'mp_data'), t);
 
 t = 'build network model';
 nm = nm_class().build(dm);
 t_ok(isa(nm, 'mp_network'), t);
 
-dm.userdata.target = dm_class().build('case9target');
+dm.userdata.target = dm_class().build('case9target', dmc);
 nm.userdata.target = nm_class().build(dm.userdata.target);
 
 for k = 1:length(mm_classes)

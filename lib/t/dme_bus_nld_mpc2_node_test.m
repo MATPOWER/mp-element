@@ -30,14 +30,9 @@ classdef dme_bus_nld_mpc2_node_test < dme_bus_mpc2
         end
 
         function nr = count(obj, dm)
-            if isfield(dm.mpc, obj.table)
-                tab = dm.mpc.(obj.table);
-                obj.bidx = obj.mpc_idx(tab);
-                nr = length(obj.bidx);
-            else
-                nr = 0;
-            end
-            obj.nr = nr;
+            nr = count@dme_bus_mpc2(obj, dm);
+            tab = dm.mpc.(obj.table);
+            obj.bidx = obj.mpc_idx(tab);
         end
 
         function tab = get_table(obj, dm)

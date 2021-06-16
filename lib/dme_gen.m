@@ -29,5 +29,11 @@ classdef dme_gen < dm_element
             obj.name = 'gen';
             obj.table = 'gen';
         end
+
+        function var_names = table_var_names(obj)
+            var_names = horzcat( table_var_names@dm_element(obj), ...
+                {'bus', 'vm_setpoint', 'pg_lb', 'pg_ub', 'qg_lb', 'qg_ub', ...
+                'pg', 'qg', 'in_service'});
+        end
     end     %% methods
 end         %% classdef

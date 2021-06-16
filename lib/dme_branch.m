@@ -27,5 +27,14 @@ classdef dme_branch < dm_element
             obj.name = 'branch';
             obj.table = 'branch';
         end
+
+        function var_names = table_var_names(obj)
+            var_names = horzcat( table_var_names@dm_element(obj), ...
+                {'bus_fr', 'bus_to', 'r', 'x', 'g_fr', 'b_fr', ...
+                'g_to', 'b_to', 'sm_ub_a', 'sm_ub_b', 'sm_ub_c', ...
+                'cm_ub_a', 'cm_ub_b', 'cm_ub_c', 'vad_lb', 'vad_ub', ...
+                'tm', 'ta', ... %% remove these when we separate out xformers
+                'pl_fr', 'ql_fr', 'pl_to', 'ql_to'});
+        end
     end     %% methods
 end         %% classdef

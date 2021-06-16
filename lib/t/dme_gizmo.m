@@ -22,5 +22,12 @@ classdef dme_gizmo < dm_element
             obj.name = 'gizmo';
             obj.table = 'gizmo';
         end
+
+        function var_names = table_var_names(obj)
+            var_names = horzcat( table_var_names@dm_element(obj), ...
+                {'bus_1', 'bus_2', 'bus_3', 'Y1r', 'Y1i', 'Y2r', 'Y2i', ...
+                'Lr', 'Li', 'Ir', 'Ii', 'M1r', 'M1i', 'M2r', 'M2i', ...
+                'Nr', 'Ni', 'Sr', 'Si', 'Zr1', 'Zi1', 'Zr2', 'Zi2'});
+        end
     end     %% methods
 end         %% classdef

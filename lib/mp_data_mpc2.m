@@ -26,9 +26,13 @@ classdef mp_data_mpc2 < mp_data
                     @dme_branch_mpc2, @dme_shunt_mpc2 };
         end
 
-        function obj = load(obj, mpc)
+        function obj = build(obj, mpc, dmc)
+            if nargin < 3
+                dmc = [];
+            end
             obj.mpc = loadcase(mpc);
             obj.baseMVA = obj.mpc.baseMVA;
+            build@mp_data(obj, mpc, dmc);
         end
 
         function ntv = node_type_vector(obj, isref, ispv, ispq)
@@ -109,6 +113,9 @@ classdef mp_data_mpc2 < mp_data
                 TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
+            %% fetch stashed data model converter object
+            dmc = obj.userdata.dmc;
+
             %% modify data model to form Bp (B prime)
             if nargout > 1      %% for both Bp and Bpp
                 mpc1 = obj.mpc;
@@ -119,7 +126,7 @@ classdef mp_data_mpc2 < mp_data
                 if strcmp(alg, 'FDXB')          %% if XB method
                     mpc1.branch(:, BR_R) = 0;   %% zero out line resistance
                 end
-                dm1 = feval(class(obj)).build(mpc1);
+                dm1 = feval(class(obj)).build(mpc1, dmc);
             else
                 mpc2 = obj.mpc;
             end
@@ -131,9 +138,9 @@ classdef mp_data_mpc2 < mp_data
             end
 
             if nargout > 1      %% for both Bp and Bpp
-                dm2 = feval(class(obj)).build(mpc2);
+                dm2 = feval(class(obj)).build(mpc2, dmc);
             else                %% for just Bpp
-                dm1 = feval(class(obj)).build(mpc2);
+                dm1 = feval(class(obj)).build(mpc2, dmc);
             end
         end
 

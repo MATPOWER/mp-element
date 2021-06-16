@@ -22,5 +22,11 @@ classdef dme_load < dm_element
             obj.name = 'load';
             obj.table = 'bus';
         end
+
+        function var_names = table_var_names(obj)
+            var_names = horzcat( table_var_names@dm_element(obj), ...
+                {'bus', 'pd', 'qd', 'pd_i', 'qd_i', 'pd_y', 'qd_y', ...
+                'p', 'q'});
+        end
     end     %% methods
 end         %% classdef

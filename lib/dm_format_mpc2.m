@@ -14,10 +14,10 @@ classdef dm_format_mpc2 < handle
 
     methods
         function nr = count(obj, dm)
-            if isfield(dm.mpc, obj.table)
-                nr = size(dm.mpc.(obj.table), 1);
-            else
+            if isempty(obj.tab)
                 nr = 0;
+            else
+                nr = size(obj.tab, 1);
             end
             obj.nr = nr;
         end

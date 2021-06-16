@@ -27,6 +27,12 @@ classdef dme_bus < dm_element
             obj.table = 'bus';
         end
 
+        function var_names = table_var_names(obj)
+            var_names = horzcat( table_var_names@dm_element(obj), ...
+                {'base_kv', 'type', 'area', 'zone', 'vm_lb', 'vm_ub', ...
+                'va', 'vm'});
+        end
+
         function bt = bus_type(obj, dm, idx)
             if nargin > 2
                 bt = dm.node_type_vector(obj.isref(idx), obj.ispv(idx), obj.ispq(idx));

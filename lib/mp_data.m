@@ -34,15 +34,24 @@ classdef mp_data < mpe_container
             new_obj.elements = new_obj.elements.copy();
         end
 
-        function obj = build(obj, d)
-            obj.load(d);
-
-            %% create element objects for each class
+        function obj = build(obj, d, dmc)
+            %% create empty element objects for each class
             obj.elements = mp_mapped_array();
-            for c = obj.element_classes
-                dme = c{1}();       %% element constructor
-                if dme.count(obj)   %% set nr
-                    obj.elements.add_elements(dme, dme.name);
+            for k = 1:length(obj.element_classes)
+                dme_class = obj.element_classes{k};
+                dme = dme_class();      %% element constructor
+                obj.elements.add_elements(dme, dme.name);
+            end
+
+            %% import data from external format
+            obj = dmc.import(obj, d);
+
+            %% count element objects for each class
+            %% remove if count is zero
+            for k = length(obj.elements):-1:1
+                obj.elements{k}.count(obj);     %% set nr
+                if obj.elements{k}.nr == 0
+                    obj.elements.delete_elements(k);
                 end
             end
 
