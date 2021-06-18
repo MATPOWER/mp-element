@@ -29,5 +29,35 @@ classdef dme_shunt < dm_element
             var_names = horzcat( table_var_names@dm_element(obj), ...
                 {'bus', 'gs', 'bs', 'p', 'q'});
         end
+
+        function nr = count(obj, dm)
+            nr = count@dm_element(obj, dm);
+            obj.bus = obj.tab.source_uid;
+        end
+
+        function obj = update_status(obj, dm)
+            %% get bus status info
+            bs = dm.elements.bus.status;    %% bus status
+
+            %% update status of gens at isolated/offline buses
+            obj.status = obj.status & bs(obj.bus);
+
+            %% call parent to fill in on/off
+            update_status@dm_element(obj, dm);
+        end
+
+        function obj = build_params(obj, dm)
+            obj.Gs = obj.tab.gs(obj.on) / dm.baseMVA;
+            obj.Bs = obj.tab.bs(obj.on) / dm.baseMVA;
+        end
+
+        function dm = parameterized(obj, dm, dmb, dmt, lam)
+            shunt = dm.elements.shunt;
+            b = dmb.elements.shunt.tab;     %% base shunt table
+            t = dmt.elements.shunt.tab;     %% target shunt table
+
+            shunt.tab.gs = b.gs + lam * (t.gs - b.gs);
+            shunt.tab.bs = b.bs + lam * (t.bs - b.bs);
+        end
     end     %% methods
 end         %% classdef

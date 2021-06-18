@@ -131,7 +131,7 @@ end
 
 t = 'modify_element_classes : ';
 dm = mp_data_mpc2;
-e = {@dme_bus_mpc2, @dme_gen_mpc2, @dme_load_mpc2, @dme_branch_mpc2, @dme_shunt_mpc2};
+e = {@dme_bus_mpc2, @dme_gen_mpc2, @dme_load_mpc2, @dme_branch_mpc2, @dme_shunt};
 t_ok(isequal(dm.element_classes, e), [t 'before']);
 dm.modify_element_classes({'dme_shunt', @dme_gizmo_mpc2, {@dme_gen, 'dme_gen'}});
 e = {@dme_bus_mpc2, @dme_gen, @dme_load_mpc2, @dme_branch_mpc2, @dme_gizmo_mpc2};

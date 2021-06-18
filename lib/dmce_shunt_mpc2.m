@@ -70,7 +70,7 @@ classdef dmce_shunt_mpc2 < dmc_element_mpc2 % & dmce_shunt
                     case 3
                         vals{k} = zeros(nr, 1);
                     case 4
-                        vals{k} = num2cell(obj.bus);
+                        vals{k} = r;
                     case 5
                         vals{k} = ones(nr, 1);
                 end

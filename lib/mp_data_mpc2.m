@@ -23,7 +23,7 @@ classdef mp_data_mpc2 < mp_data
             obj@mp_data();
             obj.element_classes = ...
                 { @dme_bus_mpc2, @dme_gen_mpc2, @dme_load_mpc2, ...
-                    @dme_branch_mpc2, @dme_shunt_mpc2 };
+                    @dme_branch_mpc2, @dme_shunt };
         end
 
         function obj = build(obj, mpc, dmc)
