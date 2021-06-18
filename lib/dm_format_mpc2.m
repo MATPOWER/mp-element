@@ -13,15 +13,6 @@ classdef dm_format_mpc2 < handle
 %     end     %% properties
 
     methods
-        function nr = count(obj, dm)
-            if isempty(obj.tab)
-                nr = 0;
-            else
-                nr = size(obj.tab, 1);
-            end
-            obj.nr = nr;
-        end
-
         function tab = get_table(obj, dm)
             tab = dm.mpc.(obj.table);
         end

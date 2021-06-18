@@ -52,6 +52,15 @@ classdef dm_element < handle
             end
         end
 
+        function nr = count(obj, dm)
+            if isempty(obj.tab)
+                nr = 0;
+            else
+                nr = size(obj.tab, 1);
+            end
+            obj.nr = nr;
+        end
+
         function obj = initialize(obj, dm)
             %% set the IDs
             ID = obj.get_ID(dm);
@@ -75,22 +84,12 @@ classdef dm_element < handle
         end
 
         function ID = get_ID(obj, dm)
-            tab = obj.get_table(dm);
-            if obj.id_col
-                ID = tab(:, obj.id_col);
-            else
-                ID = [];
-            end
+            ID = obj.tab.uid;
             obj.ID = ID;
         end
 
         function status = get_status(obj, dm)
-            tab = obj.get_table(dm);
-            if obj.st_col
-                status = tab(:, obj.st_col);
-            else
-                status = ones(obj.nr, 1);
-            end
+            status = obj.tab.status;
             obj.status = status;
         end
 

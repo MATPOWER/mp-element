@@ -86,8 +86,8 @@ for k = 1:nt
     t_ok(strcmp(gen.name, 'gen'), [t 'gen.name']);
     t_is(gen.nr, 4, 12, [t 'gen.nr']);
     t_is(gen.n, 3, 12, [t 'gen.n']);
-    t_ok(isempty(gen.ID), [t 'gen.ID']);
-    t_ok(isempty(gen.ID2i), [t 'gen.ID2i']);
+    t_is(gen.ID, [1:gen.nr]', 12, [t 'gen.ID']);
+    t_is(gen.ID2i, [1:gen.nr]', 12, [t 'gen.ID2i']);
     t_is(gen.status, [1;1;0;1], 12, [t 'gen.status']);
     t_is(gen.on, [1;2;4], 12, [t 'gen.on']);
     t_is(gen.off, 3, 12, [t 'gen.off']);
@@ -98,8 +98,8 @@ for k = 1:nt
     t_ok(strcmp(ld.name, 'load'), [t 'ld.name']);
     t_is(ld.nr, 3, 12, [t 'ld.nr']);
     t_is(ld.n, 3, 12, [t 'ld.n']);
-    t_ok(isempty(ld.ID), [t 'ld.ID']);
-    t_ok(isempty(ld.ID2i), [t 'ld.ID2i']);
+    t_is(ld.ID, [1:ld.nr]', 12, [t 'ld.ID']);
+    t_is(ld.ID2i, [1:ld.nr]', 12, [t 'ld.ID2i']);
     t_is(ld.status, [1;1;1], 12, [t 'ld.status']);
     t_is(ld.on, [1;2;3], 12, [t 'ld.on']);
     t_ok(isempty(ld.off), [t 'ld.off']);
@@ -110,20 +110,20 @@ for k = 1:nt
     t_ok(strcmp(branch.name, 'branch'), [t 'branch.name']);
     t_is(branch.nr, 10, 12, [t 'branch.nr']);
     t_is(branch.n, 9, 12, [t 'branch.n']);
-    t_ok(isempty(branch.ID), [t 'branch.ID']);
-    t_ok(isempty(branch.ID2i), [t 'branch.ID2i']);
+    t_is(branch.ID, [1:branch.nr]', 12, [t 'branch.ID']);
+    t_is(branch.ID2i, [1:branch.nr]', 12, [t 'branch.ID2i']);
     t_is(branch.status, [1;1;1;1;1;1;0;1;1;1], 12, [t 'branch.status']);
     t_is(branch.on, [1;2;3;4;5;6;8;9;10], 12, [t 'branch.on']);
     t_is(branch.off, 7, 12, [t 'branch.off']);
 
     shunt = dm.elements.shunt;
-    t_ok(isa(shunt, 'dme_shunt_mpc2'), [t 'shunt class']);
+    t_ok(isa(shunt, 'dme_shunt'), [t 'shunt class']);
     t_ok(isa(shunt, 'dm_element'), [t 'shunt isa dm_element']);
     t_ok(strcmp(shunt.name, 'shunt'), [t 'shunt.name']);
     t_is(shunt.nr, 2, 12, [t 'shunt.nr']);
     t_is(shunt.n, 2, 12, [t 'shunt.n']);
-    t_ok(isempty(shunt.ID), [t 'shunt.ID']);
-    t_ok(isempty(shunt.ID2i), [t 'shunt.ID2i']);
+    t_is(shunt.ID, [1:shunt.nr]', 12, [t 'shunt.ID']);
+    t_is(shunt.ID2i, [1:shunt.nr]', 12, [t 'shunt.ID2i']);
     t_is(shunt.status, [1;1], 12, [t 'shunt.status']);
     t_is(shunt.on, [1;2], 12, [t 'shunt.on']);
     t_ok(isempty(shunt.off), [t 'shunt.off']);
