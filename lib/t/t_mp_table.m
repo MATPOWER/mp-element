@@ -20,7 +20,7 @@ else
     verbose = 1;
 end
 
-nt = 38;
+nt = 40;
 skip_tests_for_tablicious = 1;
 table_classes = {@mp_table};
 class_names = {'mp_table'};
@@ -134,6 +134,13 @@ for k = 1:nc
     t_ok(isequal(T.str, v3), [t 'set T.str{3}']);
     t_is(T.dbl, v4, 12, [t 'set T.dbl([5;3])']);
     t_is(T.boo, v5, 12, [t 'set T.boo(var5 == 1)']);
+
+    %% value class, not handle class
+    t = 'value class, not handle';
+    T2 = T;
+    T.igr(2) = 2;
+    t_is(T.igr(2), 2, 12, t);
+    t_is(T2.igr(2), 55, 12, t);
 % show_me(T)
 end
 

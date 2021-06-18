@@ -1,4 +1,4 @@
-classdef mp_table < handle
+classdef mp_table
 %MP_TABLE  Very basic TABLE class for Octave or older Matlab.
 
 %   MATPOWER
