@@ -19,19 +19,5 @@ classdef dmc_element_mpc2 < dmc_element
             vmap.idx = cell2struct(vals, var_names, 2);
             vmap.tab = cell2struct(vals, var_names, 2);
         end
-
-        function dme = import(obj, dme, mpc)
-            var_names = dme.table_var_names();
-            var_vals  = obj.table_var_values(var_names, mpc);
-            if have_feature('table')
-                dme.tab = table(var_vals{:}, 'VariableNames', var_names);
-            else
-                dme.tab = mp_table(var_vals{:}, 'VariableNames', var_names);
-            end
-        end
-
-        function mpc = export(obj, dme, mpc)
-%             fprintf('''%s'' export\n', obj.name);
-        end
     end     %% methods
 end         %% classdef
