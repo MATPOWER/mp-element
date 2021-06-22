@@ -14,10 +14,14 @@ classdef dmc_element_mpc2 < dmc_element
 
     methods
         function vmap = table_var_map(obj, var_names)
+            %% vmap.(name).type = 0, 1, 2 ... (2 is default)
+            %% vmap.(name).args = <anything>, depends on type
+
+            %% initialize with vmap.(<name>).type = 2
+            %%             and vmap.(<name>).args = [], for all <name>
             vals = cell(size(var_names));
-            [vals{:}] = deal(0);
-            vmap.idx = cell2struct(vals, var_names, 2);
-            vmap.tab = cell2struct(vals, var_names, 2);
+            [vals{:}] = deal(struct('type', 0, 'args', 0));
+            vmap = cell2struct(vals, var_names, 2);
         end
     end     %% methods
 end         %% classdef

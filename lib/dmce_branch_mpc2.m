@@ -26,41 +26,41 @@ classdef dmce_branch_mpc2 < dmc_element_mpc2 % & dmce_branch
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
             %% map column indices for each name (0 for exceptions)
-           %vmap.idx.uid        = 0;
-           %vmap.idx.name       = 0;
-            vmap.idx.status     = BR_STATUS;
-           %vmap.idx.source_uid = 0;
-            vmap.idx.bus_fr     = F_BUS;
-            vmap.idx.bus_to     = T_BUS;
-            vmap.idx.r          = BR_R;
-            vmap.idx.x          = BR_X;
-            vmap.idx.g_fr       = 0;
-            vmap.idx.b_fr       = BR_B;
-            vmap.idx.g_to       = 0;
-            vmap.idx.b_to       = BR_B;
-            vmap.idx.sm_ub_a    = RATE_A;
-            vmap.idx.sm_ub_b    = RATE_B;
-            vmap.idx.sm_ub_c    = RATE_C;
-            vmap.idx.cm_ub_a    = RATE_A;
-            vmap.idx.cm_ub_b    = RATE_B;
-            vmap.idx.cm_ub_c    = RATE_C;
-            vmap.idx.vad_lb     = ANGMIN;
-            vmap.idx.vad_ub     = ANGMAX;
-            vmap.idx.tm         = TAP;
-            vmap.idx.ta         = SHIFT;
-            vmap.idx.pl_fr      = PF;
-            vmap.idx.ql_fr      = QF;
-            vmap.idx.pl_to      = PT;
-            vmap.idx.ql_to      = QT;
+           %vmap.uid.args        = 0;
+           %vmap.name.args       = 0;
+            vmap.status.args     = BR_STATUS;
+           %vmap.source_uid.args = 0;
+            vmap.bus_fr.args     = F_BUS;
+            vmap.bus_to.args     = T_BUS;
+            vmap.r.args          = BR_R;
+            vmap.x.args          = BR_X;
+            vmap.g_fr.args       = 0;
+            vmap.b_fr.args       = BR_B;
+            vmap.g_to.args       = 0;
+            vmap.b_to.args       = BR_B;
+            vmap.sm_ub_a.args    = RATE_A;
+            vmap.sm_ub_b.args    = RATE_B;
+            vmap.sm_ub_c.args    = RATE_C;
+            vmap.cm_ub_a.args    = RATE_A;
+            vmap.cm_ub_b.args    = RATE_B;
+            vmap.cm_ub_c.args    = RATE_C;
+            vmap.vad_lb.args     = ANGMIN;
+            vmap.vad_ub.args     = ANGMAX;
+            vmap.tm.args         = TAP;
+            vmap.ta.args         = SHIFT;
+            vmap.pl_fr.args      = PF;
+            vmap.ql_fr.args      = QF;
+            vmap.pl_to.args      = PT;
+            vmap.ql_to.args      = QT;
 
             %% map table for each name (0 for default mapping)
-            vmap.tab.uid        = 2;    %% consecutive IDs, starting at 1
-            vmap.tab.name       = 1;    %% empty char
-            vmap.tab.source_uid = 1;    %% empty char
-            vmap.tab.g_fr       = 3;    %% zeros
-            vmap.tab.b_fr       = 4;    %% div by 2
-            vmap.tab.g_to       = 3;    %% zeros
-            vmap.tab.b_to       = 4;    %% div by 2
+            vmap.uid.type        = 2;    %% consecutive IDs, starting at 1
+            vmap.name.type       = 1;    %% empty char
+            vmap.source_uid.type = 1;    %% empty char
+            vmap.g_fr.type       = 3;    %% zeros
+            vmap.b_fr.type       = 4;    %% div by 2
+            vmap.g_to.type       = 3;    %% zeros
+            vmap.b_to.type       = 4;    %% div by 2
         end
 
         function vals = table_var_values(obj, var_names, mpc)
@@ -71,9 +71,9 @@ classdef dmce_branch_mpc2 < dmc_element_mpc2 % & dmce_branch
             [nr, nc] = size(mpc.branch);
             for k = 1:length(var_names)
                 vn = var_names{k};
-                switch vmap.tab.(vn)
+                switch vmap.(vn).type
                     case 0      %% default 'branch' table
-                        c = vmap.idx.(vn);
+                        c = vmap.(vn).args;
                         if c > nc
                             vals{k} = zeros(nr, 1);
                         else
@@ -87,7 +87,7 @@ classdef dmce_branch_mpc2 < dmc_element_mpc2 % & dmce_branch
                     case 3
                         vals{k} = zeros(nr, 1);
                     case 4
-                        vals{k} = mpc.branch(:, vmap.idx.(vn)) / 2;
+                        vals{k} = mpc.branch(:, vmap.(vn).args) / 2;
                 end
             end
         end

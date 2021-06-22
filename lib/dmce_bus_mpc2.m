@@ -25,23 +25,23 @@ classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
             %% map column indices for each name (0 for exceptions)
-            vmap.idx.uid        = BUS_I;
-            vmap.idx.name       = 1;
-            vmap.idx.status     = BUS_TYPE;
-           %vmap.idx.source_uid = 0;
-            vmap.idx.base_kv    = BASE_KV;
-            vmap.idx.type       = BUS_TYPE;
-            vmap.idx.area       = BUS_AREA;
-            vmap.idx.zone       = ZONE;
-            vmap.idx.vm_lb      = VMIN;
-            vmap.idx.vm_ub      = VMAX;
-            vmap.idx.va         = VA;
-            vmap.idx.vm         = VM;
+            vmap.uid.args        = BUS_I;
+            vmap.name.args       = 1;
+            vmap.status.args     = BUS_TYPE;
+           %vmap.source_uid.args = 0;
+            vmap.base_kv.args    = BASE_KV;
+            vmap.type.args       = BUS_TYPE;
+            vmap.area.args       = BUS_AREA;
+            vmap.zone.args       = ZONE;
+            vmap.vm_lb.args      = VMIN;
+            vmap.vm_ub.args      = VMAX;
+            vmap.va.args         = VA;
+            vmap.vm.args         = VM;
 
             %% map table for each name (0 for default mapping)
-            vmap.tab.name       = 2;    %% mpc.bus_name
-            vmap.tab.status     = 3;    %% special logic for mpc.bus_types
-            vmap.tab.source_uid = 1;    %% empty char
+            vmap.name.type       = 2;    %% mpc.bus_name
+            vmap.status.type     = 3;    %% special logic for mpc.bus_types
+            vmap.source_uid.type = 1;    %% empty char
         end
 
         function vals = table_var_values(obj, var_names, mpc)
@@ -56,15 +56,15 @@ classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
             nr = size(mpc.bus, 1);
             for k = 1:length(var_names)
                 vn = var_names{k};
-                switch vmap.tab.(vn)
+                switch vmap.(vn).type
                     case 0      %% default 'bus' table
-                        vals{k} = mpc.bus(:, vmap.idx.(vn));
+                        vals{k} = mpc.bus(:, vmap.(vn).args);
                     case 1      %% empty char
                         vals{k} = cell(nr, 1);
                         [vals{k}{:}] = deal('');
                     case 2      %% 'bus_name'
                         if isfield(mpc, 'bus_name')
-                            vals{k} = mpc.bus_name(:, vmap.idx.(vn));
+                            vals{k} = mpc.bus_name(:, vmap.(vn).args);
                         else
                             vals{k} = cell(nr, 1);
                             [vals{k}{:}] = deal('');

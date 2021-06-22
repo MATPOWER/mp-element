@@ -26,39 +26,39 @@ classdef dmce_gizmo_mpc2 < dmc_element_mpc2 % & dmce_gizmo
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
             %% map column indices for each name (0 for exceptions)
-           %vmap.idx.uid        = 0;
-           %vmap.idx.name       = 0;
-           %vmap.idx.status     = 0;
-           %vmap.idx.source_uid = 0;
-            vmap.idx.bus_1      = 1;
-            vmap.idx.bus_2      = 2;
-            vmap.idx.bus_3      = 3;
-            vmap.idx.Y1r        = 4;
-            vmap.idx.Y1i        = 5;
-            vmap.idx.Y2r        = 6;
-            vmap.idx.Y2i        = 7;
-            vmap.idx.Lr         = 8;
-            vmap.idx.Li         = 9;
-            vmap.idx.Ir         = 10;
-            vmap.idx.Ii         = 11;
-            vmap.idx.M1r        = 12;
-            vmap.idx.M1i        = 13;
-            vmap.idx.M2r        = 14;
-            vmap.idx.M2i        = 15;
-            vmap.idx.Nr         = 16;
-            vmap.idx.Ni         = 17;
-            vmap.idx.Sr         = 18;
-            vmap.idx.Si         = 19;
-            vmap.idx.Zr1        = 20;
-            vmap.idx.Zi1        = 21;
-            vmap.idx.Zr2        = 22;
-            vmap.idx.Zi2        = 23;
+           %vmap.uid.args        = 0;
+           %vmap.name.args       = 0;
+           %vmap.status.args     = 0;
+           %vmap.source_uid.args = 0;
+            vmap.bus_1.args      = 1;
+            vmap.bus_2.args      = 2;
+            vmap.bus_3.args      = 3;
+            vmap.Y1r.args        = 4;
+            vmap.Y1i.args        = 5;
+            vmap.Y2r.args        = 6;
+            vmap.Y2i.args        = 7;
+            vmap.Lr.args         = 8;
+            vmap.Li.args         = 9;
+            vmap.Ir.args         = 10;
+            vmap.Ii.args         = 11;
+            vmap.M1r.args        = 12;
+            vmap.M1i.args        = 13;
+            vmap.M2r.args        = 14;
+            vmap.M2i.args        = 15;
+            vmap.Nr.args         = 16;
+            vmap.Ni.args         = 17;
+            vmap.Sr.args         = 18;
+            vmap.Si.args         = 19;
+            vmap.Zr1.args        = 20;
+            vmap.Zi1.args        = 21;
+            vmap.Zr2.args        = 22;
+            vmap.Zi2.args        = 23;
 
             %% map table for each name (0 for default mapping)
-            vmap.tab.uid        = 2;    %% consecutive IDs, starting at 1
-            vmap.tab.name       = 1;    %% empty char
-            vmap.tab.status     = 3;    %% ones
-            vmap.tab.source_uid = 1;    %% empty char
+            vmap.uid.type        = 2;    %% consecutive IDs, starting at 1
+            vmap.name.type       = 1;    %% empty char
+            vmap.status.type     = 3;    %% ones
+            vmap.source_uid.type = 1;    %% empty char
         end
 
         function vals = table_var_values(obj, var_names, mpc)
@@ -69,9 +69,9 @@ classdef dmce_gizmo_mpc2 < dmc_element_mpc2 % & dmce_gizmo
             [nr, nc] = size(mpc.gizmo);
             for k = 1:length(var_names)
                 vn = var_names{k};
-                switch vmap.tab.(vn)
+                switch vmap.(vn).type
                     case 0      %% default 'gizmo' table
-                        c = vmap.idx.(vn);
+                        c = vmap.(vn).args;
                         if c > nc
                             vals{k} = zeros(nr, 1);
                         else

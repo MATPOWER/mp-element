@@ -26,13 +26,13 @@ classdef dmce_bus_ld_mpc2_node_test < dmce_bus_nld_mpc2_node_test % & dmce_bus
                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
             %% map column indices for each name (0 for exceptions)
-            vmap.idx.pd = PD;
-            vmap.idx.qd = QD;
-            vmap.idx.gs = GS;
-            vmap.idx.bs = BS;
+            vmap.pd.args = PD;
+            vmap.qd.args = QD;
+            vmap.gs.args = GS;
+            vmap.bs.args = BS;
 
             %% map table for each name (0 for default mapping)
-            vmap.tab.source_uid = 4;    %% index in mpc.bus
+            vmap.source_uid.type = 4;    %% index in mpc.bus
         end
 
         function vals = table_var_values(obj, var_names, mpc)
@@ -49,15 +49,15 @@ classdef dmce_bus_ld_mpc2_node_test < dmce_bus_nld_mpc2_node_test % & dmce_bus
             nr = size(r, 1);
             for k = 1:length(var_names)
                 vn = var_names{k};
-                switch vmap.tab.(vn)
+                switch vmap.(vn).type
                     case 0      %% default 'bus' table
-                        vals{k} = mpc.bus(r, vmap.idx.(vn));
+                        vals{k} = mpc.bus(r, vmap.(vn).args);
                     case 1      %% empty char
                         vals{k} = cell(nr, 1);
                         [vals{k}{:}] = deal('');
                     case 2      %% 'bus_name'
                         if isfield(mpc, 'bus_name')
-                            vals{k} = mpc.bus_name(r, vmap.idx.(vn));
+                            vals{k} = mpc.bus_name(r, vmap.(vn).args);
                         else
                             vals{k} = cell(nr, 1);
                             [vals{k}{:}] = deal('');

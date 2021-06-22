@@ -26,33 +26,33 @@ classdef dmce_load_mpc2 < dmc_element_mpc2 % & dmce_load
                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
             %% map column indices for each name (0 for exceptions)
-           %vmap.idx.uid        = 0;
-           %vmap.idx.name       = 0;
-           %vmap.idx.status     = 0;
-           %vmap.idx.source_uid = 0;
-            vmap.idx.bus        = BUS_I;
-            vmap.idx.pd         = PD;
-            vmap.idx.qd         = QD;
-            vmap.idx.pd_i       = PD;
-            vmap.idx.qd_i       = QD;
-            vmap.idx.pd_z       = PD;
-            vmap.idx.qd_z       = QD;
-           %vmap.idx.p          = 0;
-           %vmap.idx.q          = 0;
+           %vmap.uid.args        = 0;
+           %vmap.name.args       = 0;
+           %vmap.status.args     = 0;
+           %vmap.source_uid.args = 0;
+            vmap.bus.args        = BUS_I;
+            vmap.pd.args         = PD;
+            vmap.qd.args         = QD;
+            vmap.pd_i.args       = PD;
+            vmap.qd_i.args       = QD;
+            vmap.pd_z.args       = PD;
+            vmap.qd_z.args       = QD;
+           %vmap.p.args          = 0;
+           %vmap.q.args          = 0;
 
             %% map table for each name (0 for default mapping)
-            vmap.tab.uid        = 2;    %% consecutive IDs, starting at 1
-            vmap.tab.name       = 1;    %% empty char
-            vmap.tab.status     = 6;    %% ones
-            vmap.tab.source_uid = 5;    %% index in mpc.bus
-            vmap.tab.pd         = 3;    %% nominal active load (constant power)
-            vmap.tab.qd         = 3;    %% nominal reactive load (constant power)
-            vmap.tab.pd_i       = 3;    %% nominal active load (constant current)
-            vmap.tab.qd_i       = 3;    %% nominal reactive load (constant current)
-            vmap.tab.pd_z       = 3;    %% nominal active load (constant impedance)
-            vmap.tab.qd_z       = 3;    %% nominal reactive load (constant impedance)
-            vmap.tab.p          = 4;    %% zeros
-            vmap.tab.q          = 4;    %% zeros
+            vmap.uid.type        = 2;    %% consecutive IDs, starting at 1
+            vmap.name.type       = 1;    %% empty char
+            vmap.status.type     = 6;    %% ones
+            vmap.source_uid.type = 5;    %% index in mpc.bus
+            vmap.pd.type         = 3;    %% nominal active load (constant power)
+            vmap.qd.type         = 3;    %% nominal reactive load (constant power)
+            vmap.pd_i.type       = 3;    %% nominal active load (constant current)
+            vmap.qd_i.type       = 3;    %% nominal reactive load (constant current)
+            vmap.pd_z.type       = 3;    %% nominal active load (constant impedance)
+            vmap.qd_z.type       = 3;    %% nominal reactive load (constant impedance)
+            vmap.p.type          = 4;    %% zeros
+            vmap.q.type          = 4;    %% zeros
         end
 
         function vals = table_var_values(obj, var_names, mpc)
@@ -72,16 +72,16 @@ classdef dmce_load_mpc2 < dmc_element_mpc2 % & dmce_load
             nr = size(r, 1);
             for k = 1:length(var_names)
                 vn = var_names{k};
-                switch vmap.tab.(vn)
+                switch vmap.(vn).type
                     case 0      %% default 'bus' table
-                        vals{k} = mpc.bus(r, vmap.idx.(vn));
+                        vals{k} = mpc.bus(r, vmap.(vn).args);
                     case 1      %% empty char
                         vals{k} = cell(nr, 1);
                         [vals{k}{:}] = deal('');
                     case 2
                         vals{k} = [1:nr]';
                     case 3      %% scaled nominal load
-                        vals{k} = sf.(vn) * mpc.bus(r, vmap.idx.(vn));
+                        vals{k} = sf.(vn) * mpc.bus(r, vmap.(vn).args);
                     case 4      %% zeros
                         vals{k} = zeros(nr, 1);
                     case 5

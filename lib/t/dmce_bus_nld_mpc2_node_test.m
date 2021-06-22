@@ -31,15 +31,15 @@ classdef dmce_bus_nld_mpc2_node_test < dmce_bus_mpc2 % & dmce_bus
             nr = size(r, 1);
             for k = 1:length(var_names)
                 vn = var_names{k};
-                switch vmap.tab.(vn)
+                switch vmap.(vn).type
                     case 0      %% default 'bus' table
-                        vals{k} = mpc.bus(r, vmap.idx.(vn));
+                        vals{k} = mpc.bus(r, vmap.(vn).args);
                     case 1      %% empty char
                         vals{k} = cell(nr, 1);
                         [vals{k}{:}] = deal('');
                     case 2      %% 'bus_name'
                         if isfield(mpc, 'bus_name')
-                            vals{k} = mpc.bus_name(r, vmap.idx.(vn));
+                            vals{k} = mpc.bus_name(r, vmap.(vn).args);
                         else
                             vals{k} = cell(nr, 1);
                             [vals{k}{:}] = deal('');

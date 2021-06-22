@@ -26,24 +26,24 @@ classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
             %% map column indices for each name (0 for exceptions)
-           %vmap.idx.uid        = 0;
-           %vmap.idx.name       = 0;
-            vmap.idx.status     = GEN_STATUS;
-           %vmap.idx.source_uid = 0;
-            vmap.idx.bus        = GEN_BUS;
-            vmap.idx.vm_setpoint= VG;
-            vmap.idx.pg_lb      = PMIN;
-            vmap.idx.pg_ub      = PMAX;
-            vmap.idx.qg_lb      = QMIN;
-            vmap.idx.qg_ub      = QMAX;
-            vmap.idx.pg         = PG;
-            vmap.idx.qg         = QG;
-            vmap.idx.in_service = GEN_STATUS;
+           %vmap.uid.args        = 0;
+           %vmap.name.args       = 0;
+            vmap.status.args     = GEN_STATUS;
+           %vmap.source_uid.args = 0;
+            vmap.bus.args        = GEN_BUS;
+            vmap.vm_setpoint.args = VG;
+            vmap.pg_lb.args      = PMIN;
+            vmap.pg_ub.args      = PMAX;
+            vmap.qg_lb.args      = QMIN;
+            vmap.qg_ub.args      = QMAX;
+            vmap.pg.args         = PG;
+            vmap.qg.args         = QG;
+            vmap.in_service.args = GEN_STATUS;
 
             %% map table for each name (0 for default mapping)
-            vmap.tab.uid        = 2;    %% consecutive IDs, starting at 1
-            vmap.tab.name       = 1;    %% empty char
-            vmap.tab.source_uid = 1;    %% empty char
+            vmap.uid.type        = 2;    %% consecutive IDs, starting at 1
+            vmap.name.type       = 1;    %% empty char
+            vmap.source_uid.type = 1;    %% empty char
         end
 
         function vals = table_var_values(obj, var_names, mpc)
@@ -54,9 +54,9 @@ classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
             nr = size(mpc.gen, 1);
             for k = 1:length(var_names)
                 vn = var_names{k};
-                switch vmap.tab.(vn)
+                switch vmap.(vn).type
                     case 0      %% default 'gen' table
-                        vals{k} = mpc.gen(:, vmap.idx.(vn));
+                        vals{k} = mpc.gen(:, vmap.(vn).args);
                     case 1      %% empty char
                         vals{k} = cell(nr, 1);
                         [vals{k}{:}] = deal('');
