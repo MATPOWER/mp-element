@@ -16,19 +16,30 @@ classdef nme_load_ac < nme_load% & mp_form_ac
             build_params@nme_load(obj, nm, dm);     %% call parent
 
             dme = obj.data_model_element(dm);
-            obj.s = dme.Pd + 1j * dme.Qd;           %% complex power demand
 
-            %% experimental system-wide ZIP loads (for backward compatibility)
-            [s, Sd, Y] = dme.sys_wide_zip_loads(dm);
-            if ~isempty(s)
-                obj.s = s;
-                obj.Y = Y;
-%                 obj.inln = @(x_, sysx, idx)port_inj_current_nln(obj, Sd, x_, sysx, idx);
+            %% constant complex power demand
+            obj.s = dme.Pd + 1j * dme.Qd;
+
+            %% nominal complex power from constant current demand
+            %% (scaled by voltage magnitude)
+            if any(dme.Pd_i) || any(dme.Qd_i)
+%                 obj.i = Pd_i - 1j Qd_i;   %% power as function of complex voltage, not voltage magnitude (as desired)
+                Sd = dme.Pd_i + 1j * dme.Qd_i;
                 obj.snln = @(x_, sysx, idx)port_inj_power_nln(obj, Sd, x_, sysx, idx);
+                obj.inln = @(x_, sysx, idx)port_inj_current_nln(obj, Sd, x_, sysx, idx);
+            end
+
+            %% nominal complex power from constant impedance demand
+            %% (scaled by voltage magnitude squared)
+            if any(dme.Pd_z) || any(dme.Qd_z)
+                Y = dme.Pd_z - 1j * dme.Qd_z;
+                nd = length(Y);
+                obj.Y = sparse(1:nd, 1:nd, Y, nd, nd);
             end
         end
 
-%         function [I, Iv1, Iv2, Izr, Izi] = port_inj_current_nln(obj, Sd, x_, sysx, idx)
+        function [I, Iv1, Iv2, Izr, Izi] = port_inj_current_nln(obj, Sd, x_, sysx, idx)
+            error('nme_load_ac/port_inj_current_nln: not yet implemented');
 %             if nargin < 5
 %                 idx = [];
 %                 if nargin < 4
@@ -69,7 +80,7 @@ classdef nme_load_ac < nme_load% & mp_form_ac
 %                     end
 %                 end
 %             end
-%         end
+        end
 
         function [S, Sv1, Sv2, Szr, Szi] = port_inj_power_nln(obj, Sd, x_, sysx, idx)
             if nargin < 5
