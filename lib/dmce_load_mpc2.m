@@ -16,80 +16,58 @@ classdef dmce_load_mpc2 < dmc_element_mpc2 % & dmce_load
     methods
         function obj = dmce_load_mpc2()
             obj.name = 'load';
+            obj.table = 'bus';
         end
 
-        function vmap = table_var_map(obj, var_names)
+        function [nr, nc, r] = get_size(obj, mpc)
+            %% define named indices into data matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+               VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+
+            tab = mpc.(obj.table);
+            r = find(tab(:, PD) | tab(:, QD));
+            obj.bus = r;
+            nr = size(r, 1);
+            nc = size(tab, 2);          %% use nc of default table
+        end
+
+        function vmap = table_var_map(obj, var_names, mpc)
             vmap = table_var_map@dmc_element_mpc2(obj, var_names);
 
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-            %% map column indices for each name (0 for exceptions)
-           %vmap.uid.args        = 0;
-           %vmap.name.args       = 0;
-           %vmap.status.args     = 0;
-           %vmap.source_uid.args = 0;
-            vmap.bus.args        = BUS_I;
-            vmap.pd.args         = PD;
-            vmap.qd.args         = QD;
-            vmap.pd_i.args       = PD;
-            vmap.qd_i.args       = QD;
-            vmap.pd_z.args       = PD;
-            vmap.qd_z.args       = QD;
-           %vmap.p.args          = 0;
-           %vmap.q.args          = 0;
+            %% get scale factors for system wide ZIP loads
+            zip_sf = obj.sys_wide_zip_loads(mpc);
+            sf_fcn = @(ob, vn)scale_factor_fcn(ob, vn, zip_sf);
 
-            %% map table for each name (0 for default mapping)
-            vmap.uid.type        = 2;    %% consecutive IDs, starting at 1
-            vmap.name.type       = 1;    %% empty char
-            vmap.status.type     = 6;    %% ones
-            vmap.source_uid.type = 5;    %% index in mpc.bus
-            vmap.pd.type         = 3;    %% nominal active load (constant power)
-            vmap.qd.type         = 3;    %% nominal reactive load (constant power)
-            vmap.pd_i.type       = 3;    %% nominal active load (constant current)
-            vmap.qd_i.type       = 3;    %% nominal reactive load (constant current)
-            vmap.pd_z.type       = 3;    %% nominal active load (constant impedance)
-            vmap.qd_z.type       = 3;    %% nominal reactive load (constant impedance)
-            vmap.p.type          = 4;    %% zeros
-            vmap.q.type          = 4;    %% zeros
+            %% map type for each name (default mapping is -1)
+            vmap.uid.type           = 3;    %% consecutive IDs, starting at 1
+            vmap.name.type          = 2;    %% empty char
+            vmap.status.type        = 1;    %% ones
+            vmap.source_uid.type    = 4;    %% index in mpc.bus
+            vmap.p.type             = 0;    %% zeros
+            vmap.q.type             = 0;    %% zeros
+
+            %% map arguments for each name
+           %vmap.uid.args           = [];
+           %vmap.name.args          = [];
+           %vmap.status.args        = [];
+           %vmap.source_uid.args    = [];
+            vmap.bus.args           = BUS_I;
+            vmap.pd.args            = {PD, sf_fcn};
+            vmap.qd.args            = {QD, sf_fcn};
+            vmap.pd_i.args          = {PD, sf_fcn};
+            vmap.qd_i.args          = {QD, sf_fcn};
+            vmap.pd_z.args          = {PD, sf_fcn};
+            vmap.qd_z.args          = {QD, sf_fcn};
+           %vmap.p.args             = [];
+           %vmap.q.args             = [];
         end
 
-        function vals = table_var_values(obj, var_names, mpc)
-            %% define named indices into data matrices
-            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-               VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-
-            %% get scale factors for system wide ZIP loads
-            sf = obj.sys_wide_zip_loads(mpc);
-
-            %% get variable map (all idx, tab = 0)
-            vmap = obj.table_var_map(var_names);
-
-            vals = cell(size(var_names));
-            r = find(mpc.bus(:, PD) | mpc.bus(:, QD));
-            obj.bus = r;
-            nr = size(r, 1);
-            for k = 1:length(var_names)
-                vn = var_names{k};
-                switch vmap.(vn).type
-                    case 0      %% default 'bus' table
-                        vals{k} = mpc.bus(r, vmap.(vn).args);
-                    case 1      %% empty char
-                        vals{k} = cell(nr, 1);
-                        [vals{k}{:}] = deal('');
-                    case 2
-                        vals{k} = [1:nr]';
-                    case 3      %% scaled nominal load
-                        vals{k} = sf.(vn) * mpc.bus(r, vmap.(vn).args);
-                    case 4      %% zeros
-                        vals{k} = zeros(nr, 1);
-                    case 5
-                        vals{k} = r;
-                    case 6
-                        vals{k} = ones(nr, 1);
-                end
-            end
+        function sf = scale_factor_fcn(obj, vn, zip_sf)
+            sf = zip_sf.(vn);   %% scale factor
         end
 
         function sf = sys_wide_zip_loads(obj, mpc)

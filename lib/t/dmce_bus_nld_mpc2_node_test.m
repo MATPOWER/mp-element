@@ -9,45 +9,25 @@ classdef dmce_bus_nld_mpc2_node_test < dmce_bus_mpc2 % & dmce_bus
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%     properties
-%     end     %% properties
+    properties
+        bus
+    end     %% properties%     end     %% properties
 
     methods
         function obj = dmce_bus_nld_mpc2_node_test()
             obj.name = 'bus_nld';
         end
 
-        function vals = table_var_values(obj, var_names, mpc)
+        function [nr, nc, r] = get_size(obj, mpc)
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-            %% initialize variable map (all idx, tab = 0)
-            vmap = obj.table_var_map(var_names);
-
-            vals = cell(size(var_names));
-
-            r = find(~mpc.bus(:, PD) & ~mpc.bus(:, QD) & ~mpc.bus(:, GS) & ~mpc.bus(:, BS));
+            tab = mpc.(obj.table);
+            r = find(~tab(:, PD) & ~tab(:, QD) & ~tab(:, GS) & ~tab(:, BS));
+            obj.bus = r;
             nr = size(r, 1);
-            for k = 1:length(var_names)
-                vn = var_names{k};
-                switch vmap.(vn).type
-                    case 0      %% default 'bus' table
-                        vals{k} = mpc.bus(r, vmap.(vn).args);
-                    case 1      %% empty char
-                        vals{k} = cell(nr, 1);
-                        [vals{k}{:}] = deal('');
-                    case 2      %% 'bus_name'
-                        if isfield(mpc, 'bus_name')
-                            vals{k} = mpc.bus_name(r, vmap.(vn).args);
-                        else
-                            vals{k} = cell(nr, 1);
-                            [vals{k}{:}] = deal('');
-                        end
-                    case 3      %% status field
-                        vals{k} = mpc.bus(r, BUS_TYPE) ~= NONE;
-                end
-            end
+            nc = size(tab, 2);          %% use nc of default table
         end
     end     %% methods
 end         %% classdef

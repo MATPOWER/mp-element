@@ -15,9 +15,10 @@ classdef dmce_branch_mpc2 < dmc_element_mpc2 % & dmce_branch
     methods
         function obj = dmce_branch_mpc2()
             obj.name = 'branch';
+            obj.table = 'branch';
         end
 
-        function vmap = table_var_map(obj, var_names)
+        function vmap = table_var_map(obj, var_names, mpc)
             vmap = table_var_map@dmc_element_mpc2(obj, var_names);
 
             %% define named indices into data matrices
@@ -25,71 +26,40 @@ classdef dmce_branch_mpc2 < dmc_element_mpc2 % & dmce_branch
                 TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
-            %% map column indices for each name (0 for exceptions)
-           %vmap.uid.args        = 0;
-           %vmap.name.args       = 0;
-            vmap.status.args     = BR_STATUS;
-           %vmap.source_uid.args = 0;
-            vmap.bus_fr.args     = F_BUS;
-            vmap.bus_to.args     = T_BUS;
-            vmap.r.args          = BR_R;
-            vmap.x.args          = BR_X;
-            vmap.g_fr.args       = 0;
-            vmap.b_fr.args       = BR_B;
-            vmap.g_to.args       = 0;
-            vmap.b_to.args       = BR_B;
-            vmap.sm_ub_a.args    = RATE_A;
-            vmap.sm_ub_b.args    = RATE_B;
-            vmap.sm_ub_c.args    = RATE_C;
-            vmap.cm_ub_a.args    = RATE_A;
-            vmap.cm_ub_b.args    = RATE_B;
-            vmap.cm_ub_c.args    = RATE_C;
-            vmap.vad_lb.args     = ANGMIN;
-            vmap.vad_ub.args     = ANGMAX;
-            vmap.tm.args         = TAP;
-            vmap.ta.args         = SHIFT;
-            vmap.pl_fr.args      = PF;
-            vmap.ql_fr.args      = QF;
-            vmap.pl_to.args      = PT;
-            vmap.ql_to.args      = QT;
+            %% map type for each name (default mapping is -1)
+            vmap.uid.type           = 3;    %% consecutive IDs, starting at 1
+            vmap.name.type          = 2;    %% empty char
+            vmap.source_uid.type    = 2;    %% empty char
+            vmap.g_fr.type          = 0;    %% zeros
+            vmap.g_to.type          = 0;    %% zeros
 
-            %% map table for each name (0 for default mapping)
-            vmap.uid.type        = 2;    %% consecutive IDs, starting at 1
-            vmap.name.type       = 1;    %% empty char
-            vmap.source_uid.type = 1;    %% empty char
-            vmap.g_fr.type       = 3;    %% zeros
-            vmap.b_fr.type       = 4;    %% div by 2
-            vmap.g_to.type       = 3;    %% zeros
-            vmap.b_to.type       = 4;    %% div by 2
-        end
-
-        function vals = table_var_values(obj, var_names, mpc)
-            %% get variable map (all idx, tab = 0)
-            vmap = obj.table_var_map(var_names);
-
-            vals = cell(size(var_names));
-            [nr, nc] = size(mpc.branch);
-            for k = 1:length(var_names)
-                vn = var_names{k};
-                switch vmap.(vn).type
-                    case 0      %% default 'branch' table
-                        c = vmap.(vn).args;
-                        if c > nc
-                            vals{k} = zeros(nr, 1);
-                        else
-                            vals{k} = mpc.branch(:, c);
-                        end
-                    case 1      %% empty char
-                        vals{k} = cell(nr, 1);
-                        [vals{k}{:}] = deal('');
-                    case 2
-                        vals{k} = [1:nr]';
-                    case 3
-                        vals{k} = zeros(nr, 1);
-                    case 4
-                        vals{k} = mpc.branch(:, vmap.(vn).args) / 2;
-                end
-            end
+            %% map arguments for each name
+           %vmap.uid.args           = [];
+           %vmap.name.args          = [];
+            vmap.status.args        = BR_STATUS;
+           %vmap.source_uid.args    = [];
+            vmap.bus_fr.args        = F_BUS;
+            vmap.bus_to.args        = T_BUS;
+            vmap.r.args             = BR_R;
+            vmap.x.args             = BR_X;
+           %vmap.g_fr.args          = [];
+            vmap.b_fr.args          = {BR_B, 0.5};
+           %vmap.g_to.args          = [];
+            vmap.b_to.args          = {BR_B, 0.5};
+            vmap.sm_ub_a.args       = RATE_A;
+            vmap.sm_ub_b.args       = RATE_B;
+            vmap.sm_ub_c.args       = RATE_C;
+            vmap.cm_ub_a.args       = RATE_A;
+            vmap.cm_ub_b.args       = RATE_B;
+            vmap.cm_ub_c.args       = RATE_C;
+            vmap.vad_lb.args        = ANGMIN;
+            vmap.vad_ub.args        = ANGMAX;
+            vmap.tm.args            = TAP;
+            vmap.ta.args            = SHIFT;
+            vmap.pl_fr.args         = PF;
+            vmap.ql_fr.args         = QF;
+            vmap.pl_to.args         = PT;
+            vmap.ql_to.args         = QT;
         end
     end     %% methods
 end         %% classdef
