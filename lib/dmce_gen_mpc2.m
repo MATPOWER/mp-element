@@ -19,7 +19,7 @@ classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
         end
 
         function vmap = table_var_map(obj, var_names, mpc)
-            vmap = table_var_map@dmc_element_mpc2(obj, var_names);
+            vmap = table_var_map@dmc_element_mpc2(obj, var_names, mpc);
 
             %% define named indices into data matrices
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...

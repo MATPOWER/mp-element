@@ -19,7 +19,7 @@ classdef dmce_branch_mpc2 < dmc_element_mpc2 % & dmce_branch
         end
 
         function vmap = table_var_map(obj, var_names, mpc)
-            vmap = table_var_map@dmc_element_mpc2(obj, var_names);
+            vmap = table_var_map@dmc_element_mpc2(obj, var_names, mpc);
 
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...

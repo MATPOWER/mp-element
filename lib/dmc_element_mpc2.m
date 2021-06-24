@@ -44,22 +44,21 @@ classdef dmc_element_mpc2 < dmc_element
             for k = 1:nv
                 vn = var_names{k};
                 vm = vmap.(vn);
-                args = vm.args;
                 switch vm.type      %% switch on type of mapping
                     case -1     %% column of default table
-                        %% args: c - column index
-                        %%       {c, sf} - col idx, scale factor
-                        %%          sf = constant or @fcn where
-                        %%              sf = fcn(obj, vn)
-                        if iscell(args)     %% get column index
-                            c = args{1};
-                            if isa(args{2}, 'function_handle')
-                                sf = args{2}(obj, vn);  %% scalar constant
+                        %% vm.args: c - column index
+                        %%          {c, sf} - col idx, scale factor
+                        %%              sf = constant or @fcn where
+                        %%                  sf = fcn(obj, vn)
+                        if iscell(vm.args)      %% get column index
+                            c = vm.args{1};
+                            if isa(vm.args{2}, 'function_handle')
+                                sf = vm.args{2}(obj, vn);   %% scalar constant
                             else
-                                sf = args{2};           %% scalar constant
+                                sf = vm.args{2};            %% scalar constant
                             end
                         else
-                            c = args;
+                            c = vm.args;
                             sf = 1;
                         end
                         if c > nc   %% default to zeros if mpc table does not

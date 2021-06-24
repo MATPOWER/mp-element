@@ -19,7 +19,7 @@ classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
         end
 
         function vmap = table_var_map(obj, var_names, mpc)
-            vmap = table_var_map@dmc_element_mpc2(obj, var_names);
+            vmap = table_var_map@dmc_element_mpc2(obj, var_names, mpc);
 
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
@@ -30,10 +30,13 @@ classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
             vmap.status.type        = 5;    %% fcn w/logic for mpc.bus_types
             vmap.source_uid.type    = 2;    %% empty char
 
+            bni_fcn = @(ob, vn, nr, r, mpc)bus_name_import(ob, vn, nr, r, mpc, 1);
+            bsi_fcn = @(ob, vn, nr, r, mpc)bus_status_import(ob, vn, nr, r, mpc, BUS_TYPE);
+
             %% map arguments for each name
             vmap.uid.args           = BUS_I;
-            vmap.name.args          = @(ob, vn, nr, r, mpc)import_bus_name(ob, vn, nr, r, mpc, 1);
-            vmap.status.args        = @(ob, vn, nr, r, mpc)import_bus_status(ob, vn, nr, r, mpc, BUS_TYPE);
+            vmap.name.args          = bni_fcn;
+            vmap.status.args        = bsi_fcn;
            %vmap.source_uid.args    = [];
             vmap.base_kv.args       = BASE_KV;
             vmap.type.args          = BUS_TYPE;
@@ -45,7 +48,7 @@ classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
             vmap.vm.args            = VM;
         end
 
-        function vals = import_bus_name(obj, vn, nr, r, mpc, c)
+        function vals = bus_name_import(obj, vn, nr, r, mpc, c)
             if isfield(mpc, 'bus_name')
                 if nr && isempty(r)
                     vals = mpc.bus_name(:, c);
@@ -58,7 +61,7 @@ classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
             end
         end
 
-        function vals = import_bus_status(obj, vn, nr, r, mpc, c)
+        function vals = bus_status_import(obj, vn, nr, r, mpc, c)
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE] = idx_bus;
 

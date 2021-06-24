@@ -19,7 +19,7 @@ classdef dmce_gizmo_mpc2 < dmc_element_mpc2 % & dmce_gizmo
         end
 
         function vmap = table_var_map(obj, var_names, mpc)
-            vmap = table_var_map@dmc_element_mpc2(obj, var_names);
+            vmap = table_var_map@dmc_element_mpc2(obj, var_names, mpc);
 
             %% map type for each name (default mapping is -1)
             vmap.uid.type           = 3;    %% consecutive IDs, starting at 1
