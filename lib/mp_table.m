@@ -112,6 +112,10 @@ classdef mp_table
             end
         end
 
+        function n = numArgumentsFromSubscript(obj,s,indexingContext)
+            n = 1;
+        end
+
         function b = subsref(obj, s)
             switch s(1).type
                 case '.'
@@ -122,9 +126,27 @@ classdef mp_table
                         b = p.VariableValues{p.Map.(s(1).subs)};
                     end
                 case '()'
-                    b = obj(s(1).subs{:});
+                    r = s(1).subs{1};
+                    if length(s(1).subs) > 1
+                        c = s(1).subs{2};
+                    else
+                        c = ':';
+                    end
+                    var_names = obj.Properties.VariableNames(c);
+                    var_vals = cellfun(@(x)x(r,1), ...
+                        obj.Properties.VariableValues(c), 'UniformOutput', 0);
+                    dim_names = obj.Properties.DimensionNames;
+                    if isempty(obj.Properties.RowNames)
+                        row_names = {};
+                    else
+                        row_names = obj.Properties.RowNames(r);
+                    end
+                    b = mp_table(var_vals{:}, ...
+                        'VariableNames', var_names, 'RowNames', row_names, ...
+                        'DimensionNames', dim_names);
                 case '{}'
-                    b = obj{s(1).subs{:}};
+                    a = horzcat(obj.Properties.VariableValues{s(1).subs{2}});
+                    b = a(s(1).subs{1}, :);
             end
             if length(s) > 1    %% recurse
                 b = subsref(b, s(2:end));
@@ -164,6 +186,137 @@ classdef mp_table
                     else
                         obj{s(1).subs{:}} = b;
                     end
+            end
+        end
+
+        function obj = horzcat(obj, varargin)
+            [nr, nv] = size(obj);
+            nvn = length(obj.Properties.VariableNames); %% num variable names
+            nrn = length(obj.Properties.RowNames);      %% num row names
+
+            %% for each table to append
+            for j = 1:length(varargin)
+                Tj = varargin{j};       %% table being appended
+                [nrj, nvj] = size(Tj);
+                nrnj = length(Tj.Properties.RowNames);      %% num row names Tj
+
+                %% check for consistent number of rows
+                if nrj ~= nr
+                    error('mp_table/horzcat: number of rows in arg %d (%d) does not match that in arg 1 (%d)', ...
+                        j+1, nrj, nr);
+                end
+
+                %% check for row name mismatch
+                if nrn          %% obj has row names
+                    if nrnj && ~isequal(obj.Properties.RowNames, ...
+                                         Tj.Properties.RowNames)
+                        for k = 1:nrn
+                            if ~strcmp(obj.Properties.RowNames{k}, ...
+                                        Tj.Properties.RowNames{k})
+                                error('mp_table/horzcat: name of row %d in arg %d (%s) does not match the one in arg 1 (%s)', ...
+                                    k, j+1, Tj.Properties.RowNames{k}, ...
+                                        obj.Properties.RowNames{k});
+                            end
+                        end
+                    end
+                elseif nrnj     %% Tj has row names, but obj does not (use them)
+                    obj.Properties.RowNames = Tj.Properties.RowNames;
+                    nrn = nrnj;
+                end
+                var_names = Tj.Properties.VariableNames;
+
+                %% stack variable names and check for duplicates
+                obj.Properties.VariableNames = ...
+                    [obj.Properties.VariableNames, var_names];
+                nvn = nvn + nvj;    %% update num variable names
+                if length(unique(obj.Properties.VariableNames)) < nvn
+                    [~, ia, ~] = unique(obj.Properties.VariableNames);
+                    k = find(ismember(1:nvn, ia));
+                    error('mp_table/horzcat: duplicate variable name ''%s''', ...
+                        obj.Properties.VariableNames{k(1)});
+                end
+
+                %% horzcat var values
+                obj.Properties.VariableValues = ...
+                    [ obj.Properties.VariableValues, ...
+                       Tj.Properties.VariableValues ];
+                nv = length(obj.Properties.VariableValues);
+
+                %% update Properties.Map
+                obj.Properties.Map = cell2struct(num2cell(1:nv), ...
+                    obj.Properties.VariableNames, 2);
+            end
+        end
+
+        function obj = vertcat(obj, varargin)
+            [nr, nv] = size(obj);
+            nvn = length(obj.Properties.VariableNames); %% num variable names
+            nrn = length(obj.Properties.RowNames);      %% num row names
+
+            %% for each table to append
+            for j = 1:length(varargin)
+                Tj = varargin{j};       %% table being appended
+                [nrj, nvj] = size(Tj);
+                nvnj = length(Tj.Properties.VariableNames); %% num var names Tj
+
+                %% check for consistent number of variables
+                if nvj ~= nv
+                    error('mp_table/vertcat: number of variables in arg %d (%d) does not match that in arg 1 (%d)', ...
+                        j+1, nvj, nv);
+                end
+
+                %% check for variable name mismatch
+                if ~isequal(obj.Properties.VariableNames, ...
+                             Tj.Properties.VariableNames)
+                    for k = 1:nvn
+                        if ~strcmp(obj.Properties.VariableNames{k}, ...
+                                    Tj.Properties.VariableNames{k})
+                            error('mp_table/vertcat: name of variable %d in arg %d (%s) does not match the one in arg 1 (%s)', ...
+                                k, j+1, Tj.Properties.VariableNames{k}, ...
+                                    obj.Properties.VariableNames{k});
+                        end
+                    end
+                end
+
+                %% create missing row names if any exist
+                row_names = Tj.Properties.RowNames;
+                if nrn                      %% obj has row names, Tj does not
+                    if length(row_names) == 0
+                        %% create names for rows of Tj
+                        row_names = cell(nrj, 1);
+                        for kk = 1:nrj
+                            row_names{kk} = sprintf('Row%d', kk+nrn);
+                        end
+                    end
+                elseif length(row_names)    %% Tj has row names, obj does not
+                    %% create names for rows of obj
+                    obj.Properties.RowNames = cell(nr, 1);
+                    for kk = 1:nr
+                        obj.Properties.RowNames{kk} = sprintf('Row%d', kk);
+                    end
+                end
+                nrn = length(obj.Properties.RowNames);
+
+                %% stack row names and check for duplicates
+                if nrn
+                    obj.Properties.RowNames = ...
+                        [obj.Properties.RowNames; row_names];
+                    nrn = nrn + nrj;    %% update num row names
+                    if length(unique(obj.Properties.RowNames)) < nrn
+                        [~, ia, ~] = unique(obj.Properties.RowNames);
+                        k = find(ismember(1:nrn, ia));
+                        error('mp_table/horzcat: duplicate row name ''%s''', ...
+                            obj.Properties.RowNames{k(1)});
+                    end
+                end
+
+                %% for each variable
+                for k = 1:nv
+                    %% vertcat var values
+                    obj.Properties.VariableValues{k} = ...
+                        [ obj.Properties.VariableValues{k}; ...
+                           Tj.Properties.VariableValues{k} ];
+                end
             end
         end
 
@@ -262,7 +415,9 @@ classdef mp_table
             %% display var values
             for r = 1:length(rr)
                 %% row names
-                if ~isempty(rn)
+                if isempty(rn)
+                    fprintf('  ');
+                else
                     fmt = sprintf('  %%-%ds', cwr);
                     fprintf(fmt, rn{rr(r)});
                 end
