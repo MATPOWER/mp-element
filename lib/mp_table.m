@@ -112,7 +112,17 @@ classdef mp_table
             end
         end
 
-        function n = numArgumentsFromSubscript(obj,s,indexingContext)
+        function N = end(obj, k, n)
+            N = size(obj, k);
+        end
+
+        function n = numArgumentsFromSubscript(obj, s, indexingContext)
+            n = 1;
+        end
+
+        function n = numel(obj, varargin)
+            %% needed to avoid error when doing T{r1:rN, c} = b;
+            %% see https://github.com/apjanke/octave-tablicious/issues/80#issuecomment-855198281
             n = 1;
         end
 
@@ -132,7 +142,7 @@ classdef mp_table
                     else
                         c = ':';
                     end
-                    var_names = obj.Properties.VariableNames(c);
+                    var_names = obj.Properties.VariableNames(1,c);
                     var_vals = cellfun(@(x)x(r,1), ...
                         obj.Properties.VariableValues(c), 'UniformOutput', 0);
                     dim_names = obj.Properties.DimensionNames;
@@ -175,16 +185,39 @@ classdef mp_table
                         end
                     end
                 case '()'
+                    nv = size(b, 2);
+                    idx = s(1).subs{2};
+                    if ischar(idx)
+                        if length(idx) == 1 && idx == ':'
+                            idx = [1:nv];
+                        else
+                            idx = eval(['[' idx ']']);
+                        end
+                    end
+                    ss = struct('type', '{}', 'subs', {{':', 0}});
+                    for k = 1:nv
+                        ss(1).subs{2} = k;
+                        obj.Properties.VariableValues{idx(k)}(s(1).subs{1}, :) = ...
+                            subsref(b, ss);     %% = b{:, k};
+                    end
                     if R
-                        obj(s(1).subs{:}) = subsasgn(obj(s(1).subs{:}), s(2:end), b);
-                    else
-                        obj(s(1).subs{:}) = b;
+                        error('mp_table/subasgn: sub-indexing following {}-indexing not supported');
                     end
                 case '{}'
+                    nv = size(b, 2);
+                    idx = s(1).subs{2};
+                    if ischar(idx)
+                        if length(idx) == 1 && idx == ':'
+                            idx = [1:nv];
+                        else
+                            idx = eval(['[' idx ']']);
+                        end
+                    end
+                    for k = 1:nv
+                        obj.Properties.VariableValues{idx(k)}(s(1).subs{1}, :) = b(:, k);
+                    end
                     if R
-                        obj{s(1).subs{:}} = subsasgn(obj{s(1).subs{:}}, s(2:end), b);
-                    else
-                        obj{s(1).subs{:}} = b;
+                        error('mp_table/subasgn: sub-indexing following ()-indexing not supported');
                     end
             end
         end
