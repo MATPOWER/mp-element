@@ -107,6 +107,13 @@ classdef dm_element < handle
         function obj = build_params(obj, dm)
         end
 
+        function obj = rebuild(obj, dm)
+            obj.count(dm);
+            obj.initialize(dm);
+            obj.get_status(dm);
+            obj.build_params(dm);
+        end
+
         function display(obj)
 %             if have_feature('octave')
 %                 struct(obj)

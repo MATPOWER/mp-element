@@ -14,9 +14,14 @@ classdef dmc_element_mpc2 < dmc_element
     end     %% properties
 
     methods
-        function [nr, nc, r] = get_size(obj, mpc)
+        function [nr, nc, r] = get_import_size(obj, mpc)
             [nr, nc] = size(mpc.(obj.table));   %% use size of default table
             r = [];                             %% all rows
+        end
+
+        function [nr, nc, r] = get_export_size(obj, dme)
+            [nr, nc] = size(dme.tab);   %% use size of default table
+            r = [];                     %% all rows
         end
 
         function vmap = table_var_map(obj, var_names, mpc)
@@ -31,9 +36,9 @@ classdef dmc_element_mpc2 < dmc_element
         end
 
         function vals = table_var_values(obj, var_names, mpc)
-            nv = length(var_names);             %% number of variables
-            [nr, nc, r] = obj.get_size(mpc);    %% rows in data table and
-                                                %% cols in mpc.(obj.table)
+            nv = length(var_names);                 %% number of variables
+            [nr, nc, r] = obj.get_import_size(mpc); %% rows in data table and
+                                                    %% cols in mpc.(obj.table)
             %% get variable map
             vmap = obj.table_var_map(var_names, mpc);
 
@@ -83,11 +88,66 @@ classdef dmc_element_mpc2 < dmc_element
                     case 4      %% r
                         vals{k} = r;
                     case 5      %% general function
-                        %% args = @fcn where
-                        %%  vals = fcn(obj, vn, nr, r, mpc)
-                        vals{k} = args(obj, vn, nr, r, mpc);
+                        %% vm.args = @import_fcn or {@import_fcn, @export_fcn}
+                        %%  where
+                        %%      vals = import_fcn(obj, vn, nr, r, mpc)
+                        %%      mpc = export_fcn(obj, vn, nr, r, mpc, dme)
+                        import_fcn = vm.args;
+                        if iscell(import_fcn)
+                            import_fcn = import_fcn{1};
+                        end
+                        vals{k} = import_fcn(obj, vn, nr, r, mpc);
                     otherwise
                         error('dmc_element_mpc2/table_var_values: %d is an unknown var map type', vm.type);
+                end
+            end
+        end
+
+        function mpc = export(obj, dme, mpc, var_names, idx)
+            if nargin < 4 || isempty(var_names)
+                var_names = dme.table_var_names();
+            elseif ~iscell(var_names)
+                var_names = {var_names};
+            end
+
+            nv = length(var_names);                 %% number of variables
+            [nr, nc, r] = obj.get_export_size(dme); %% rows in data table and
+                                                    %% cols in mpc.(obj.table)
+            %% get variable map
+            vmap = obj.table_var_map(var_names, mpc);
+
+            for k = 1:nv
+                vn = var_names{k};
+                vm = vmap.(vn);
+                switch vm.type
+                    case -1     %% column of default table
+                        %% vm.args: c - column index
+                        %%          {c, sf} - col idx, scale factor
+                        %%              sf = constant or @fcn where
+                        %%                  sf = fcn(obj, vn)
+                        if iscell(vm.args)      %% get column index
+                            c = vm.args{1};
+                            if isa(vm.args{2}, 'function_handle')
+                                sf = vm.args{2}(obj, vn);   %% scalar constant
+                            else
+                                sf = vm.args{2};            %% scalar constant
+                            end
+                        else
+                            c = vm.args;
+                            sf = 1;
+                        end
+                        if sf
+                            if nr && isempty(r)
+                                mpc.(obj.table)(:, c) = dme.tab.(vn) / sf;
+                            else
+                                mpc.(obj.table)(r, c) = dme.tab.(vn) / sf;
+                            end
+                        end
+                    case 5      %% general function
+                        if iscell(vm.args) && length(vm.args) > 1
+                            export_fcn = vm.args{2};
+                            mpc = export_fcn(obj, vn, nr, r, mpc, dme);
+                        end
                 end
             end
         end

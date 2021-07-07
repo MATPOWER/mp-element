@@ -30,9 +30,5 @@ classdef dmc_element < handle
                 dme.tab = mp_table(var_vals{:}, 'VariableNames', var_names);
             end
         end
-
-        function d = export(obj, dme, d)
-            fprintf('''%s'' export\n', obj.name);
-        end
     end     %% methods
 end         %% classdef

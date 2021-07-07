@@ -19,7 +19,7 @@ classdef dmce_load_mpc2 < dmc_element_mpc2 % & dmce_load
             obj.table = 'bus';
         end
 
-        function [nr, nc, r] = get_size(obj, mpc)
+        function [nr, nc, r] = get_import_size(obj, mpc)
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
@@ -29,6 +29,11 @@ classdef dmce_load_mpc2 < dmc_element_mpc2 % & dmce_load
             obj.bus = r;
             nr = size(r, 1);
             nc = size(tab, 2);          %% use nc of default table
+        end
+
+        function [nr, nc, r] = get_export_size(obj, dme)
+            [nr, nc] = size(dme.tab);   %% use size of default table
+            r = dme.tab.source_uid;     %% rows in bus matrix
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

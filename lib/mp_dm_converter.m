@@ -57,10 +57,12 @@ classdef mp_dm_converter < mpe_container
         end
 
         function d = export(obj, dm, d)
-            for k = 1:length(obj.elements)
-                dmce = obj.elements{k};
-                dme = dmce.data_model_element(dm);
-                d = dmce.export(dme, d);
+            for k = 1:length(dm.elements)
+                dme = dm.elements{k};
+                if obj.elements.is_index_name(dme.name)
+                    dmce = obj.elements.(dme.name);
+                    d = dmce.export(dme, d);
+                end
             end
         end
 

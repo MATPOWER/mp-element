@@ -17,7 +17,7 @@ classdef dmce_bus_ld_mpc2_node_test < dmce_bus_nld_mpc2_node_test % & dmce_bus
             obj.name = 'bus_ld';
         end
 
-        function [nr, nc, r] = get_size(obj, mpc)
+        function [nr, nc, r] = get_import_size(obj, mpc)
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
@@ -41,9 +41,6 @@ classdef dmce_bus_ld_mpc2_node_test < dmce_bus_nld_mpc2_node_test % & dmce_bus
             vmap.qd.args = QD;
             vmap.gs.args = GS;
             vmap.bs.args = BS;
-
-            %% map type for each name (default mapping is -1)
-            vmap.source_uid.type = 4;    %% index in mpc.bus
         end
     end     %% methods
 end         %% classdef

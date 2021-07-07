@@ -31,11 +31,12 @@ classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
             vmap.source_uid.type    = 2;    %% empty char
 
             bni_fcn = @(ob, vn, nr, r, mpc)bus_name_import(ob, vn, nr, r, mpc, 1);
+            bne_fcn = @(ob, vn, nr, r, mpc, dme)bus_name_export(ob, vn, nr, r, mpc, dme, 1);
             bsi_fcn = @(ob, vn, nr, r, mpc)bus_status_import(ob, vn, nr, r, mpc, BUS_TYPE);
 
             %% map arguments for each name
             vmap.uid.args           = BUS_I;
-            vmap.name.args          = bni_fcn;
+            vmap.name.args          = {bni_fcn, bne_fcn};
             vmap.status.args        = bsi_fcn;
            %vmap.source_uid.args    = [];
             vmap.base_kv.args       = BASE_KV;
@@ -58,6 +59,17 @@ classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
             else
                 vals = cell(nr, 1);
                 [vals{:}] = deal('');
+            end
+        end
+
+        function mpc = bus_name_export(obj, vn, nr, r, mpc, dme, c)
+            bus_names = dme.tab.name;
+            if ~all(cellfun(@isempty, bus_names))
+                if nr && isempty(r)
+                    mpc.bus_name(:, c) = bus_names;
+                else
+                    mpc.bus_name(r, c) = bus_names;
+                end
             end
         end
 

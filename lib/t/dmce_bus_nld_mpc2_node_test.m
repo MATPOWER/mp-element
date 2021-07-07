@@ -18,7 +18,7 @@ classdef dmce_bus_nld_mpc2_node_test < dmce_bus_mpc2 % & dmce_bus
             obj.name = 'bus_nld';
         end
 
-        function [nr, nc, r] = get_size(obj, mpc)
+        function [nr, nc, r] = get_import_size(obj, mpc)
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
@@ -28,6 +28,18 @@ classdef dmce_bus_nld_mpc2_node_test < dmce_bus_mpc2 % & dmce_bus
             obj.bus = r;
             nr = size(r, 1);
             nc = size(tab, 2);          %% use nc of default table
+        end
+
+        function [nr, nc, r] = get_export_size(obj, dme)
+            [nr, nc] = size(dme.tab);   %% use size of default table
+            r = [];                     %% all rows
+        end
+
+        function vmap = table_var_map(obj, var_names, mpc)
+            vmap = table_var_map@dmce_bus_mpc2(obj, var_names, mpc);
+
+            %% map type for each name (default mapping is -1)
+            vmap.source_uid.type = 4;    %% index in mpc.bus
         end
     end     %% methods
 end         %% classdef
