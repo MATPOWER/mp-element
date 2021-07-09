@@ -1,5 +1,5 @@
-classdef dme_branch_mpc2_node_test < dme_branch_mpc2
-%DME_BRANCH_MPC2_NODE_TEST  MATPOWER data model branch table for MATPOWER case format v2
+classdef dme_branch_node_test < dme_branch
+%DME_BRANCH_NODE_TEST  MATPOWER data model branch table for MATPOWER case format v2
 
 %   MATPOWER
 %   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
@@ -17,16 +17,8 @@ classdef dme_branch_mpc2_node_test < dme_branch_mpc2
     end     %% properties
 
     methods
-%         %% constructor
-%         function obj = dme_branch_mpc2_node_test()
-%             obj@dme_branch();   %% call parent constructor
-%         end
-
         function obj = initialize(obj, dm)
-            initialize@dme_branch(obj, dm);     %% call parent
-
-            %% define named indices into data matrices
-            [F_BUS, T_BUS] = idx_brch;
+            initialize@dm_element(obj, dm);     %% call parent
 
             %% get bus mapping info
             obj.nbet = length(obj.bus_elm_types);
@@ -52,14 +44,13 @@ classdef dme_branch_mpc2_node_test < dme_branch_mpc2
             end
 
             %% set bus index vectors for port connectivity
-            tab = obj.get_table(dm);
-            obj.fbus = b2i(tab(:, F_BUS));
-            obj.tbus = b2i(tab(:, T_BUS));
+            obj.fbus = b2i(obj.tab.bus_fr);
+            obj.tbus = b2i(obj.tab.bus_to);
             obj.fbus_etv = zeros(size(obj.fbus));
             obj.tbus_etv = zeros(size(obj.tbus));
             for k = 1:obj.nbet
-                fk = find(b2i_k{k}(tab(:, F_BUS)));
-                tk = find(b2i_k{k}(tab(:, T_BUS)));
+                fk = find(b2i_k{k}(obj.tab.bus_fr));
+                tk = find(b2i_k{k}(obj.tab.bus_to));
                 if ~isempty(bus_dme{k})
                     obj.fbus_etv(fk) = bus_dme{k}.bus_eti;
                     obj.tbus_etv(tk) = bus_dme{k}.bus_eti;
@@ -83,7 +74,52 @@ classdef dme_branch_mpc2_node_test < dme_branch_mpc2
             end
 
             %% call parent to fill in on/off
-            update_status@dme_branch(obj, dm);
+            update_status@dm_element(obj, dm);
+        end
+
+        %%-----  OPF methods  -----
+        function [A, l, u, i] = opf_branch_ang_diff_params(obj, dm, ignore)
+            %% from makeAang()
+            nb = 0;
+            for k = 1:obj.nbet
+                if dm.elements.is_index_name(obj.bus_elm_types{k})
+                    nb = nb + dm.elements.(obj.bus_elm_types{k}).n;
+                end
+            end
+            branch = obj.tab;
+
+            if ignore
+                A  = sparse(0, nb);
+                l  = [];
+                u  = [];
+                i  = [];
+            else
+                i = find( ...
+                    branch.vad_lb ~= 0 & ...
+                        (branch.vad_lb > -360 | branch.vad_ub == 0) | ...
+                    branch.vad_ub ~= 0 & ...
+                        (branch.vad_ub <  360 | branch.vad_lb == 0) );
+                n = length(i);
+
+                if n > 0
+                    ii = [(1:n)'; (1:n)'];
+                    jj = [obj.fbus(i); obj.tbus(i)];
+                    A = sparse(ii, jj, [ones(n, 1); -ones(n, 1)], n, nb);
+                    l = branch.vad_lb(i);
+                    u = branch.vad_ub(i);
+                    l(l < -360) = -Inf;
+                    u(u >  360) =  Inf;
+                    l = l * pi/180;
+                    u = u * pi/180;
+                else
+                    A = sparse(0, nb);
+                    l =[];
+                    u =[];
+                end
+            end
+            if length(i)
+                warning('OPF branch angle difference limits not implemented for this case.');
+            end
         end
     end     %% methods
 end         %% classdef

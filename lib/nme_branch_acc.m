@@ -64,7 +64,8 @@ classdef nme_branch_acc < nme_branch_ac & mp_form_acc
 
             %% branch angle difference limits
             [Aang, lang, uang, iang] = ...
-                dm.branch_angle_diff_constraint(mpopt.opf.ignore_angle_lim);
+                dm.elements.branch.opf_branch_ang_diff_params(...
+                    dm, mpopt.opf.ignore_angle_lim);
             nang = length(iang);
             if nang
                 fcn_ang = @(xx)ang_diff_fcn(obj, xx, Aang, lang, uang);

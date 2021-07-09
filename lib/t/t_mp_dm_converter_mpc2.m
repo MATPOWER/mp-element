@@ -23,10 +23,13 @@ end
 %% define named indices into data matrices
 [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
     VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+[F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
+    TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
+    ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
 casefile = 't_case_ext';
 mpc0 = loadcase(casefile);
-mpc0.branch(end, 17) = 0;    %% add 4 columns for PF, QF, PT, QT
+mpc0.branch(end, MU_ANGMAX) = 0;    %% add 4 columns for PF, QF, PT, QT
 dmc = mp_dm_converter_mpc2().build();
 
 t_begin(21, quiet);
@@ -98,8 +101,8 @@ t_ok( isequal(mpc, mpc1), [t 'mpc == updated_mpc']);
 % -- -----------   ---------  --------  --------  --------------------
 %  1  bus           bus            10         9    dme_bus_mpc2
 %  2  gen           gen             4         3    dme_gen_mpc2
-%  3  load          bus             3         3    dme_load_mpc2
-%  4  branch        branch         10         9    dme_branch_mpc2
+%  3  load          bus             3         3    dme_load
+%  4  branch        branch         10         9    dme_branch
 %  5  shunt         bus             2         2    dme_shunt
 
 

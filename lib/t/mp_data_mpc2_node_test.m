@@ -19,24 +19,7 @@ classdef mp_data_mpc2_node_test < mp_data_mpc2
             obj@mp_data_mpc2();
             obj.element_classes = ...
                 { @dme_bus_nld_mpc2_node_test, @dme_bus_ld_mpc2_node_test, @dme_gen_mpc2_node_test, ...
-                    @dme_branch_mpc2_node_test };
-        end
-
-        %%-----  OPF methods  -----
-        function [A, l, u, i] = branch_angle_diff_constraint(obj, ignore);
-            branch_dme = obj.elements.branch;
-            branch = branch_dme.get_table(obj);
-            nb = 0;
-            for k = 1:branch_dme.nbet
-                if obj.elements.is_index_name(branch_dme.bus_elm_types{k})
-                    nb = nb + obj.elements.(branch_dme.bus_elm_types{k}).n;
-                end
-            end
-            mpopt = struct('opf', struct('ignore_angle_lim', ignore));
-            [A, l, u, i]  = makeAang(obj.baseMVA, branch, nb, mpopt);
-            if length(i)
-                warning('OPF branch angle difference limits not implemented for this case.');
-            end
+                    @dme_branch_node_test };
         end
     end     %% methods
 end         %% classdef

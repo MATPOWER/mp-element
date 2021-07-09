@@ -41,6 +41,23 @@ classdef mp_task_cpf < mp_task_pf
             end
         end
 
+        function [results, success] = legacy_post_run(obj, mpopt)
+            success = obj.success;
+            results = obj.dm.mpc;
+            if obj.nm.np ~= 0
+                if obj.dm.elements.is_index_name('shunt')
+                    results = obj.dmc.elements.shunt.export( ...
+                        obj.dm.elements.shunt, results);
+                end
+                results = obj.dmc.elements.load.export( ...
+                    obj.dm.elements.load, results);
+                results = obj.dmc.elements.branch.export( ...
+                    obj.dm.elements.branch, results, ...
+                    {'ql_to', 'pl_to', 'ql_fr', 'pl_fr'});
+%                 results = obj.dmc.export(obj.dm, obj.dm.mpc);
+            end
+        end
+
         function [mm, nm, dm] = next_mm(obj, mm, nm, dm, mpopt)
             %% return new math model, or empty matrix if finished
             if isfield(mm.soln.output, 'warmstart')

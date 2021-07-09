@@ -60,6 +60,10 @@ classdef dmce_branch_mpc2 < dmc_element_mpc2 % & dmce_branch
             vmap.ql_fr.args         = QF;
             vmap.pl_to.args         = PT;
             vmap.ql_to.args         = QT;
+            vmap.mu_flow_fr_ub.args = MU_SF;
+            vmap.mu_flow_to_ub.args = MU_ST;
+            vmap.mu_vad_lb.args     = MU_ANGMIN;
+            vmap.mu_vad_ub.args     = MU_ANGMAX;
         end
     end     %% methods
 end         %% classdef

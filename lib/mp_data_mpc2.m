@@ -23,7 +23,7 @@ classdef mp_data_mpc2 < mp_data
             obj@mp_data();
             obj.element_classes = ...
                 { @dme_bus_mpc2, @dme_gen_mpc2, @dme_load, ...
-                    @dme_branch_mpc2, @dme_shunt };
+                    @dme_branch, @dme_shunt };
         end
 
         function obj = build(obj, mpc, dmc)
@@ -322,13 +322,6 @@ classdef mp_data_mpc2 < mp_data
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
             obj.mpc.bus(bus_dme.on(ib), VMAX) = bus_dme.Vmax(ib);
             obj.mpc.bus(bus_dme.on(ib), VMIN) = bus_dme.Vmin(ib);
-        end
-
-        function [A, l, u, i] = branch_angle_diff_constraint(obj, ignore);
-            branch = obj.elements.branch.get_table(obj);
-            nb = obj.elements.bus.n;
-            mpopt = struct('opf', struct('ignore_angle_lim', ignore));
-            [A, l, u, i]  = makeAang(obj.baseMVA, branch, nb, mpopt);
         end
 
         function [Ah, uh, Al, ul, data] = gen_pq_capability_constraint(obj);

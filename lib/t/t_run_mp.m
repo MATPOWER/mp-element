@@ -75,7 +75,7 @@ for k = 1:length(mm_classes)
 % Pf = dm.mpc.branch(:, PF)
     dm = mm.data_model_update(nm, dm, mpopt);
 % Pf = dm.mpc.branch(:, PF)
-    t_ok(all(dm.mpc.branch(:, PF) ~= 0), [t 'data model update']);
+    t_ok(all(dm.elements.branch.tab.pl_fr ~= 0), [t 'data model update']);
 
     tsk = run_mp(tasks{k}, d{k}, mpopt);
     t_is(tsk.success, 1, 12, [t 'run_mp : success']);

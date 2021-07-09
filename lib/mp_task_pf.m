@@ -50,6 +50,17 @@ classdef mp_task_pf < mp_task
             obj.dc = strcmp(upper(mpopt.model), 'DC');
         end
 
+        function [results, success] = legacy_post_run(obj, mpopt)
+            success = obj.success;
+            results = obj.dm.mpc;
+            if obj.nm.np ~= 0
+                results = obj.dmc.elements.branch.export( ...
+                    obj.dm.elements.branch, results, ...
+                    {'ql_to', 'pl_to', 'ql_fr', 'pl_fr'});
+%                 results = obj.dmc.export(obj.dm, obj.dm.mpc);
+            end
+        end
+
         function dm = next_dm(obj, mm, nm, dm, mpopt)
             if ~obj.dc && mpopt.pf.enforce_q_lims
                 %% adjust iteration count for previous runs

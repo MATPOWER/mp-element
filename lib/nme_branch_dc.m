@@ -67,7 +67,8 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
 
             %% branch voltage angle difference limits
             [Aang, lang, uang, iang] = ...
-                dm.branch_angle_diff_constraint(mpopt.opf.ignore_angle_lim);
+                dm.elements.branch.opf_branch_ang_diff_params(...
+                    dm, mpopt.opf.ignore_angle_lim);
             if length(iang)
                 mm.add_lin_constraint('ang', Aang, lang, uang, {'Va'});
             end
