@@ -45,6 +45,10 @@ classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
             vmap.pg.args            = PG;
             vmap.qg.args            = QG;
             vmap.in_service.args    = GEN_STATUS;
+            vmap.mu_pg_lb.args      = MU_PMIN;
+            vmap.mu_pg_ub.args      = MU_PMAX;
+            vmap.mu_qg_lb.args      = MU_QMIN;
+            vmap.mu_qg_ub.args      = MU_QMAX;
         end
     end     %% methods
 end         %% classdef

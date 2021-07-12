@@ -22,10 +22,10 @@ classdef dme_gen_mpc2_node_test < dme_gen_mpc2
 %         end
 
         function obj = initialize(obj, dm)
-            initialize@dme_gen(obj, dm);    %% call parent
+            initialize@dm_element(obj, dm);     %% call parent
 
-            %% define named indices into data matrices
-            [GEN_BUS] = idx_gen;
+%             %% define named indices into data matrices
+%             [GEN_BUS] = idx_gen;
 
             %% get bus mapping info
             obj.nbet = length(obj.bus_elm_types);
@@ -52,10 +52,12 @@ classdef dme_gen_mpc2_node_test < dme_gen_mpc2
 
             %% set bus index vectors for port connectivity
             tab = obj.get_table(dm);
-            obj.bus = b2i(tab(:, GEN_BUS));
+%             obj.bus = b2i(tab(:, GEN_BUS));
+            obj.bus = b2i(obj.tab.bus);
             obj.bus_etv = zeros(size(obj.bus));
             for k = 1:obj.nbet
-                gk = find(b2i_k{k}(tab(:, GEN_BUS)));
+%                 gk = find(b2i_k{k}(tab(:, GEN_BUS)));
+                gk = find(b2i_k{k}(obj.tab.bus));
                 if ~isempty(bus_dme{k})
                     obj.bus_etv(gk) = bus_dme{k}.bus_eti;
                 end
@@ -76,7 +78,7 @@ classdef dme_gen_mpc2_node_test < dme_gen_mpc2
             end
 
             %% call parent to fill in on/off
-            update_status@dme_gen(obj, dm);
+            update_status@dm_element(obj, dm);
         end
     end     %% methods
 end         %% classdef

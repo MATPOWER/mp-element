@@ -14,59 +14,60 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
     end     %% properties
 
     methods
-        %% constructor
-        function obj = dme_gen_mpc2()
-            obj@dme_gen();      %% call parent constructor
-
-            %% define named indices into data matrices
-            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
-            obj.st_col = GEN_STATUS;
-        end
-
-        function obj = initialize(obj, dm)
-            initialize@dme_gen(obj, dm);    %% call parent
-
-            %% define named indices into data matrices
-            [GEN_BUS] = idx_gen;
-
-            %% get bus mapping info
-            b2i = dm.elements.bus.ID2i;     %% bus num to idx mapping
-
-            %% set bus index vectors for port connectivity
-            tab = obj.get_table(dm);
-            obj.bus = b2i(tab(:, GEN_BUS));
-        end
-
-        function obj = update_status(obj, dm)
-            %% get bus status info
-            bs = dm.elements.bus.status;    %% bus status
-
-            %% update status of gens at isolated/offline buses
-            obj.status = obj.status & bs(obj.bus);
-
-            %% call parent to fill in on/off
-            update_status@dme_gen(obj, dm);
-        end
-
-        function obj = build_params(obj, dm)
+%         %% constructor
+%         function obj = dme_gen_mpc2()
+%             obj@dme_gen();      %% call parent constructor
+% 
+%             %% define named indices into data matrices
+%             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS] = idx_gen;
+%             obj.st_col = GEN_STATUS;
+%         end
+% 
+%         function obj = initialize(obj, dm)
+%             initialize@dme_gen(obj, dm);    %% call parent
+% 
+%             %% define named indices into data matrices
+%             [GEN_BUS] = idx_gen;
+% 
+%             %% get bus mapping info
+%             b2i = dm.elements.bus.ID2i;     %% bus num to idx mapping
+% 
+%             %% set bus index vectors for port connectivity
+%             tab = obj.get_table(dm);
+%             obj.bus = b2i(tab(:, GEN_BUS));
+%         end
+% 
+%         function obj = update_status(obj, dm)
+%             %% get bus status info
+%             bs = dm.elements.bus.status;    %% bus status
+% 
+%             %% update status of gens at isolated/offline buses
+%             obj.status = obj.status & bs(obj.bus);
+% 
+%             %% call parent to fill in on/off
+%             update_status@dme_gen(obj, dm);
+%         end
+% 
+%         function obj = build_params(obj, dm)
+        function obj = build_cost_params(obj, dm)
             %% define named indices into data matrices
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
             [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
-            baseMVA = dm.baseMVA;
-
-            gen = obj.get_table(dm);
-
-            %% get generator parameters
-            obj.Pg0  = gen(obj.on, PG) / baseMVA;
-            obj.Pmin = gen(obj.on, PMIN) / baseMVA;
-            obj.Pmax = gen(obj.on, PMAX) / baseMVA;
-            obj.Qg0  = gen(obj.on, QG) / baseMVA;
-            obj.Qmin = gen(obj.on, QMIN) / baseMVA;
-            obj.Qmax = gen(obj.on, QMAX) / baseMVA;
-            obj.Vg   = gen(obj.on, VG);
-
+%             baseMVA = dm.baseMVA;
+% 
+%             gen = obj.get_table(dm);
+% 
+%             %% get generator parameters
+%             obj.Pg0  = gen(obj.on, PG) / baseMVA;
+%             obj.Pmin = gen(obj.on, PMIN) / baseMVA;
+%             obj.Pmax = gen(obj.on, PMAX) / baseMVA;
+%             obj.Qg0  = gen(obj.on, QG) / baseMVA;
+%             obj.Qmin = gen(obj.on, QMIN) / baseMVA;
+%             obj.Qmax = gen(obj.on, QMAX) / baseMVA;
+%             obj.Vg   = gen(obj.on, VG);
+% 
             %% get gen cost parameters
             if isfield(dm.mpc, 'gencost') && ~isempty(dm.mpc.gencost)
                 gencost = dm.mpc.gencost;
@@ -195,95 +196,95 @@ classdef dme_gen_mpc2 < dme_gen & dm_format_mpc2
             [A, l, u] = makeAvl(mpc);
         end
 
-        function obj = update(obj, dm, varargin)
-            %% obj.update(dm, name1, val1, name2, val2, ...)
-            %% obj.update(dm, idx, name1, val1, name2, val2, ...)
-
-            %% define named indices into data matrices
-            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
-                MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
-                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
-            baseMVA = dm.baseMVA;
-
-            n = length(varargin);
-            if rem(n, 2)    %% odd
-                idx = obj.on(varargin{1});
-                s = 2;      %% starting arg index
-            else            %% even
-                idx = obj.on;
-                s = 1;      %% starting arg index
-            end
-            for k = s:2:n-1
-                val = varargin{k+1};
-                switch varargin{k}
-                    case 'Sg'
-                        dm.mpc.gen(idx, PG) = real(val) * baseMVA;
-                        dm.mpc.gen(idx, QG) = imag(val) * baseMVA;
-                    case 'Pg'
-                        dm.mpc.gen(idx, PG) = val * baseMVA;
-                    case 'Qg'
-                        dm.mpc.gen(idx, QG) = val * baseMVA;
-                    case 'Vg'
-                        dm.mpc.gen(idx, VG) = val;
-                    case 'muPmin'
-                        dm.mpc.gen(idx, MU_PMIN) = val / baseMVA;
-                    case 'muPmax'
-                        dm.mpc.gen(idx, MU_PMAX) = val / baseMVA;
-                    case 'muQmin'
-                        dm.mpc.gen(idx, MU_QMIN) = val / baseMVA;
-                    case 'muQmax'
-                        dm.mpc.gen(idx, MU_QMAX) = val / baseMVA;
-                end
-            end
-        end
-
-        function [mn, mx, both] = violated_q_lims(obj, dm, mpopt)
-            %% [mn, mx, both] = obj.violated_q_lims(dm, mpopt)
-            %%  indices of online gens with violated Q lims
-
-            %% define named indices into data matrices
-            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
-                MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
-                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
-
-            gen = obj.get_table(dm);
-            on = obj.on;
-
-            %% find gens with violated Q constraints
-            mx = find( gen(on, QG) > gen(on, QMAX) + mpopt.opf.violation );
-            mn = find( gen(on, QG) < gen(on, QMIN) - mpopt.opf.violation );
-            both = union(mx', mn')';    %% transposes handle fact that
-                                        %% union of scalars is a row vector
-
-            if ~isempty(both)   %% we have some Q limit violations
-                %% first check for INFEASIBILITY
-                %% find available online gens at REF and PV buses
-                bus_dme = dm.elements.bus;
-                gbus = bus_dme.i2on(obj.bus(obj.on));   %% buses of online gens
-                remaining = find( bus_dme.isref(gbus) | bus_dme.ispv( gbus) );
-
-                if length(both) == length(remaining) && ...
-                        all(both == remaining) && (isempty(mx) || isempty(mn))
-                    %% all remaining PV/REF gens are violating AND all are
-                    %% violating same limit (all violating Qmin or all Qmax)
-                    mn = [];
-                    mx = [];
-                else
-                    %% one at a time?
-                    if mpopt.pf.enforce_q_lims == 2
-                        %% fix largest violation, ignore the rest
-                        [junk, k] = max([gen(mx, QG) - gen(mx, QMAX);
-                                         gen(mn, QMIN) - gen(mn, QG)]);
-                        if k > length(mx)
-                            mn = mn(k-length(mx));
-                            mx = [];
-                        else
-                            mx = mx(k);
-                            mn = [];
-                        end
-                    end
-                end
-            end
-        end
+%         function obj = update(obj, dm, varargin)
+%             %% obj.update(dm, name1, val1, name2, val2, ...)
+%             %% obj.update(dm, idx, name1, val1, name2, val2, ...)
+% 
+%             %% define named indices into data matrices
+%             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
+%                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
+%                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
+%             baseMVA = dm.baseMVA;
+% 
+%             n = length(varargin);
+%             if rem(n, 2)    %% odd
+%                 idx = obj.on(varargin{1});
+%                 s = 2;      %% starting arg index
+%             else            %% even
+%                 idx = obj.on;
+%                 s = 1;      %% starting arg index
+%             end
+%             for k = s:2:n-1
+%                 val = varargin{k+1};
+%                 switch varargin{k}
+%                     case 'Sg'
+%                         dm.mpc.gen(idx, PG) = real(val) * baseMVA;
+%                         dm.mpc.gen(idx, QG) = imag(val) * baseMVA;
+%                     case 'Pg'
+%                         dm.mpc.gen(idx, PG) = val * baseMVA;
+%                     case 'Qg'
+%                         dm.mpc.gen(idx, QG) = val * baseMVA;
+%                     case 'Vg'
+%                         dm.mpc.gen(idx, VG) = val;
+%                     case 'muPmin'
+%                         dm.mpc.gen(idx, MU_PMIN) = val / baseMVA;
+%                     case 'muPmax'
+%                         dm.mpc.gen(idx, MU_PMAX) = val / baseMVA;
+%                     case 'muQmin'
+%                         dm.mpc.gen(idx, MU_QMIN) = val / baseMVA;
+%                     case 'muQmax'
+%                         dm.mpc.gen(idx, MU_QMAX) = val / baseMVA;
+%                 end
+%             end
+%         end
+% 
+%         function [mn, mx, both] = violated_q_lims(obj, dm, mpopt)
+%             %% [mn, mx, both] = obj.violated_q_lims(dm, mpopt)
+%             %%  indices of online gens with violated Q lims
+% 
+%             %% define named indices into data matrices
+%             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
+%                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
+%                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
+% 
+%             gen = obj.get_table(dm);
+%             on = obj.on;
+% 
+%             %% find gens with violated Q constraints
+%             mx = find( gen(on, QG) > gen(on, QMAX) + mpopt.opf.violation );
+%             mn = find( gen(on, QG) < gen(on, QMIN) - mpopt.opf.violation );
+%             both = union(mx', mn')';    %% transposes handle fact that
+%                                         %% union of scalars is a row vector
+% 
+%             if ~isempty(both)   %% we have some Q limit violations
+%                 %% first check for INFEASIBILITY
+%                 %% find available online gens at REF and PV buses
+%                 bus_dme = dm.elements.bus;
+%                 gbus = bus_dme.i2on(obj.bus(obj.on));   %% buses of online gens
+%                 remaining = find( bus_dme.isref(gbus) | bus_dme.ispv( gbus) );
+% 
+%                 if length(both) == length(remaining) && ...
+%                         all(both == remaining) && (isempty(mx) || isempty(mn))
+%                     %% all remaining PV/REF gens are violating AND all are
+%                     %% violating same limit (all violating Qmin or all Qmax)
+%                     mn = [];
+%                     mx = [];
+%                 else
+%                     %% one at a time?
+%                     if mpopt.pf.enforce_q_lims == 2
+%                         %% fix largest violation, ignore the rest
+%                         [junk, k] = max([gen(mx, QG) - gen(mx, QMAX);
+%                                          gen(mn, QMIN) - gen(mn, QG)]);
+%                         if k > length(mx)
+%                             mn = mn(k-length(mx));
+%                             mx = [];
+%                         else
+%                             mx = mx(k);
+%                             mn = [];
+%                         end
+%                     end
+%                 end
+%             end
+%         end
     end     %% methods
 end         %% classdef

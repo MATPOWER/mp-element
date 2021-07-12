@@ -9,6 +9,8 @@ results.success = success;
 if obj.nm.np ~= 0
     results = obj.dmc.elements.branch.export( ...
         obj.dm.elements.branch, results);
+    results = obj.dmc.elements.gen.export( ...
+        obj.dm.elements.gen, results);
 %     results = obj.dmc.export(obj.dm, obj.dm.mpc);
 end
 
