@@ -20,7 +20,7 @@ else
     verbose = 1;
 end
 
-nt = 124;
+nt = 127;
 skip_tests_for_tablicious = 1;
 table_classes = {@mp_table};
 class_names = {'mp_table'};
@@ -47,15 +47,18 @@ dim_names = {'records', 'fields'};
 for k = 1:nc
     table_class = table_classes{k};
     cls = upper(class_names{k});
-    t = sprintf('%s : ', cls);
 
+    t = sprintf('%s : constructor - no args : ', cls);
     T = table_class();
     skip = have_feature('octave') && isa(T, 'table') && ...
             skip_tests_for_tablicious;
-    t_ok(isa(T, class_names{k}), [t 'constructor - no args'])
+    t_ok(isa(T, class_names{k}), [t 'class']);
+    t_ok(isempty(T), [t 'isempty']);
 
+    t = sprintf('%s : constructor - ind vars : ', cls);
     T = table_class(var1, var2, var3, var4, var5(:));
-    t_ok(isa(T, class_names{k}), [t 'constructor - ind vars'])
+    t_ok(isa(T, class_names{k}), [t 'class']);
+    t_ok(~isempty(T), [t 'not isempty']);
     t_is(size(T), [6 5], 12, [t 'sz = size(T)']);
     t_is(size(T, 1), 6, 12, [t 'sz = size(T, 1)']);
     t_is(size(T, 2), 5, 12, [t 'sz = size(T, 2)']);
@@ -79,6 +82,7 @@ for k = 1:nc
     t_is(size(T(5,4)), [1 1], 12, [t 'T(i,j) : size']);
 % show_me(T(5,4));
 
+    t = sprintf('%s : constructor - ind vars, w/names : ', cls);
     if skip
         T = table_class(var1, var2, var3, var4, var5, ...
             'VariableNames', var_names, 'RowNames', row_names);
@@ -87,7 +91,8 @@ for k = 1:nc
             'VariableNames', var_names, 'RowNames', row_names, ...
             'DimensionNames', dim_names);
     end
-    t_ok(isa(T, class_names{k}), [t 'constructor - ind vars, w/names'])
+    t_ok(isa(T, class_names{k}), [t 'class'])
+    t_ok(~isempty(T), [t 'not isempty']);
     t_is(size(T), [6 5], 12, [t 'sz = size(T)']);
     t_is(size(T, 1), 6, 12, [t 'sz = size(T, 1)']);
     t_is(size(T, 2), 5, 12, [t 'sz = size(T, 2)']);

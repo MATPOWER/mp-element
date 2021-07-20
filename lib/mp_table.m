@@ -112,6 +112,10 @@ classdef mp_table
             end
         end
 
+        function TorF = isempty(obj)
+            TorF = prod(size(obj)) == 0;
+        end
+
         function N = end(obj, k, n)
             N = size(obj, k);
         end
@@ -402,10 +406,10 @@ classdef mp_table
             for v = nv:-1:1
                 cw(v) = length(vn{v});  %% actual column width
                 cwv(v) = 0;             %% column width for displayed values
-                var = obj.Properties.VariableValues{v};
-                if iscell(var)
+                vv = obj.Properties.VariableValues{v};
+                if iscell(vv)
                     for r = 1:length(rr)
-                        s = sprintf('''%s''', var{rr(r)});
+                        s = sprintf('''%s''', vv{rr(r)});
                         if length(s) > cw(v);
                             cw(v) = length(s);
                         end
@@ -415,7 +419,11 @@ classdef mp_table
                     end
                 else
                     for r = 1:length(rr)
-                        s = sprintf('%g', var(rr(r)));
+                        if isempty(vv)
+                            s = '[]';
+                        else
+                            s = sprintf('%g', vv(rr(r), 1));
+                        end
                         if length(s) > cw(v);
                             cw(v) = length(s);
                         end
@@ -457,12 +465,16 @@ classdef mp_table
 
                 %% variable values
                 for v = 1:nv
-                    var = obj.Properties.VariableValues{v};
-                    if iscell(var)
-                        val = sprintf('%s''%s''', spc{v}, var{rr(r), 1});
+                    vv = obj.Properties.VariableValues{v};
+                    if iscell(vv)
+                        val = sprintf('%s''%s''', spc{v}, vv{rr(r), 1});
                         fmt = sprintf('  %%-%ds', cw(v));
                     else
-                        val = sprintf('%g%s', var(rr(r), 1), spc{v});
+                        if isempty(vv)
+                            val = sprintf('[]%s', spc{v});
+                        else
+                            val = sprintf('%g%s', vv(rr(r), 1), spc{v});
+                        end
                         fmt = sprintf('  %%%ds', cw(v));
                     end
                     fprintf(fmt, val);
@@ -474,7 +486,7 @@ classdef mp_table
                     for k = 1:3
                         for v = 1:nv
                             spcs = repmat(' ', 1, floor(cwv(v)/2));
-                            if iscell(var)
+                            if iscell(vv)
                                 dot = sprintf('%s%s.', spc{v}, spcs);
                                 fmt = sprintf('  %%-%ds', cw(v));
                             else
