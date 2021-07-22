@@ -81,7 +81,7 @@ for k = 1:nt
     t_is(bus.off, 6, 12, [t 'bus.off']);
 
     gen = dm.elements.gen;
-    t_ok(isa(gen, 'dme_gen_mpc2'), [t 'gen class']);
+    t_ok(isa(gen, 'dme_gen'), [t 'gen class']);
     t_ok(isa(gen, 'dm_element'), [t 'gen isa dm_element']);
     t_ok(strcmp(gen.name, 'gen'), [t 'gen.name']);
     t_is(gen.nr, 4, 12, [t 'gen.nr']);
@@ -131,7 +131,7 @@ end
 
 t = 'modify_element_classes : ';
 dm = mp_data_mpc2;
-e = {@dme_bus_mpc2, @dme_gen_mpc2, @dme_load, @dme_branch, @dme_shunt};
+e = {@dme_bus_mpc2, @dme_gen, @dme_load, @dme_branch, @dme_shunt};
 t_ok(isequal(dm.element_classes, e), [t 'before']);
 dm.modify_element_classes({'dme_shunt', @dme_gizmo_mpc2, {@dme_gen, 'dme_gen'}});
 e = {@dme_bus_mpc2, @dme_gen, @dme_load, @dme_branch, @dme_gizmo_mpc2};

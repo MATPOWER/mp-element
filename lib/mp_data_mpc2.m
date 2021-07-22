@@ -22,7 +22,7 @@ classdef mp_data_mpc2 < mp_data
             %% call parent constructor
             obj@mp_data();
             obj.element_classes = ...
-                { @dme_bus_mpc2, @dme_gen_mpc2, @dme_load, ...
+                { @dme_bus_mpc2, @dme_gen, @dme_load, ...
                     @dme_branch, @dme_shunt };
         end
 
@@ -322,12 +322,6 @@ classdef mp_data_mpc2 < mp_data
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
             obj.mpc.bus(bus_dme.on(ib), VMAX) = bus_dme.Vmax(ib);
             obj.mpc.bus(bus_dme.on(ib), VMIN) = bus_dme.Vmin(ib);
-        end
-
-        function [Ah, uh, Al, ul, data] = gen_pq_capability_constraint(obj);
-            gen_dme = obj.elements.gen;
-            gen = gen_dme.get_table(obj);
-            [Ah, uh, Al, ul, data] = makeApq(obj.baseMVA, gen(gen_dme.on, :));
         end
 
         function uc = opf_legacy_user_constraints(obj, uv_names, nx, mpopt)

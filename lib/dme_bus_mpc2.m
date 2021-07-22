@@ -62,25 +62,23 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             ig = [];
         end
 
-        function Vm0 = set_Vm0(obj, bus, gen, gen_dme, gbus, ig)
+        function Vm0 = set_Vm0(obj, bus, gen_dme, gbus, ig)
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                 VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
-               MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
-               QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
+            gen = gen_dme.tab;
             Vm0 = bus(obj.on, VM);
 
-            %% pull PV bus voltage magnitudes from mpc.gen(:, VG)
+            %% pull PV bus voltage magnitudes from gen.vm_setpoint
             vcb = ones(obj.n, 1);   %% create mask of voltage-controlled buses
             vcb(obj.ispq) = 0;      %% exclude PQ buses
             %% find indices of online gens at online v-c buses
             k = find(vcb(gbus));
             if isempty(ig)
-                Vm0(gbus(k)) = gen(gen_dme.on(k), VG);
+                Vm0(gbus(k)) = gen.vm_setpoint(gen_dme.on(k));
             else
-                Vm0(gbus(k)) = gen(gen_dme.on(ig(k)), VG);
+                Vm0(gbus(k)) = gen.vm_setpoint(gen_dme.on(ig(k)));
             end
         end
 
@@ -97,7 +95,6 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
             nb = obj.n;
             ng = length(gbus);
             bus = obj.get_table(dm);
-            gen = gen_dme.get_table(dm);
 
             %% update bus types based on connected generator status
             %% gen connection matrix, element i, j is 1 if gen j @ bus i is ON
@@ -112,7 +109,7 @@ classdef dme_bus_mpc2 < dme_bus & dm_format_mpc2
 
             %% initialize voltage from bus table
             obj.Va0 = bus(obj.on, VA) * pi/180;
-            obj.Vm0 = obj.set_Vm0(bus, gen, gen_dme, gbus, ig);
+            obj.Vm0 = obj.set_Vm0(bus, gen_dme, gbus, ig);
             obj.Vmin = bus(obj.on, VMIN);
             obj.Vmax = bus(obj.on, VMAX);
         end

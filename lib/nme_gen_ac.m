@@ -44,7 +44,8 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
 
         function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% generator PQ capability curve constraints
-            [Apqh, ubpqh, Apql, ubpql, Apqdata] = dm.gen_pq_capability_constraint();
+            [Apqh, ubpqh, Apql, ubpql, Apqdata] = ...
+                dm.elements.gen.pq_capability_constraint(dm.baseMVA);
             mm.add_lin_constraint('PQh', Apqh, [], ubpqh, {'Pg', 'Qg'});      %% npqh
             mm.add_lin_constraint('PQl', Apql, [], ubpql, {'Pg', 'Qg'});      %% npql
             mm.userdata.Apqdata = Apqdata;
@@ -78,7 +79,7 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
                 %% (order 3 and higher) polynomial costs on Qg
                 if ~isempty(obj.cost.poly_q.i3)
                     dme = obj.data_model_element(dm);
-                    cost_Qg = @(xx)opf_gen_cost_fcn(xx, dm.baseMVA, dme.qcost, obj.cost.poly_q.i3);
+                    cost_Qg = @(xx)poly_cost_fcn(obj, xx, dm.baseMVA, dme.cost_qg.poly_coef, obj.cost.poly_q.i3);
                     mm.add_nln_cost('polQg', 1, cost_Qg, {'Qg'});
                 end
             end

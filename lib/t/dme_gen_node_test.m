@@ -1,5 +1,5 @@
-classdef dme_gen_mpc2_node_test < dme_gen_mpc2
-%DME_GEN_MPC2_NODE_TEST  MATPOWER data model gen table for MATPOWER case format v2
+classdef dme_gen_node_test < dme_gen
+%DME_GEN_NODE_TEST  MATPOWER data model gen table for MATPOWER case format v2
 
 %   MATPOWER
 %   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
@@ -17,15 +17,12 @@ classdef dme_gen_mpc2_node_test < dme_gen_mpc2
 
     methods
         %% constructor
-%         function obj = dme_gen_mpc2_node_test()
-%             obj@dme_gen_mpc2();     %% call parent constructor
+%         function obj = dme_gen_node_test()
+%             obj@dme_gen();     %% call parent constructor
 %         end
 
         function obj = initialize(obj, dm)
             initialize@dm_element(obj, dm);     %% call parent
-
-%             %% define named indices into data matrices
-%             [GEN_BUS] = idx_gen;
 
             %% get bus mapping info
             obj.nbet = length(obj.bus_elm_types);
@@ -51,12 +48,9 @@ classdef dme_gen_mpc2_node_test < dme_gen_mpc2
             end
 
             %% set bus index vectors for port connectivity
-            tab = obj.get_table(dm);
-%             obj.bus = b2i(tab(:, GEN_BUS));
             obj.bus = b2i(obj.tab.bus);
             obj.bus_etv = zeros(size(obj.bus));
             for k = 1:obj.nbet
-%                 gk = find(b2i_k{k}(tab(:, GEN_BUS)));
                 gk = find(b2i_k{k}(obj.tab.bus));
                 if ~isempty(bus_dme{k})
                     obj.bus_etv(gk) = bus_dme{k}.bus_eti;

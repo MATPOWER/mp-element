@@ -104,7 +104,7 @@ t_ok( isequal(mpc, mpc1), [t 'mpc == updated_mpc']);
 
 % -- -----------   ---------  --------  --------  --------------------
 %  1  bus           bus            10         9    dme_bus_mpc2
-%  2  gen           gen             4         3    dme_gen_mpc2
+%  2  gen           gen             4         3    dme_gen
 %  3  load          bus             3         3    dme_load
 %  4  branch        branch         10         9    dme_branch
 %  5  shunt         bus             2         2    dme_shunt

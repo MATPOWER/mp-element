@@ -759,9 +759,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             gen_nme = obj.elements.gen;
             if gen_nme.cost.pwl.n > 0
                 vv = mm.get_idx();
-                gen_dme = dm.elements.gen;
-                ipwl = gen_nme.cost.pwl.i;
-                maxgc = gen_dme.max_pwl_gencost(ipwl, dm);
+                maxgc = dm.elements.gen.max_pwl_gencost();
                 x0(vv.i1.y:vv.iN.y) = maxgc + 0.1 * abs(maxgc);
             end
         end
