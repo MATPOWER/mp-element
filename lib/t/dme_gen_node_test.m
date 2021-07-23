@@ -1,5 +1,5 @@
 classdef dme_gen_node_test < dme_gen
-%DME_GEN_NODE_TEST  MATPOWER data model gen table for MATPOWER case format v2
+%DME_GEN_NODE_TEST  MATPOWER data model class for gen data for T_NODE_TEST
 
 %   MATPOWER
 %   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)

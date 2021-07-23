@@ -1,5 +1,5 @@
 classdef dme_shunt < dm_element
-%DME_SHUNT  Abstract base class for MATPOWER data model shunt table
+%DME_SHUNT  MATPOWER data model class for shunt data
 
 %   MATPOWER
 %   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
@@ -22,7 +22,6 @@ classdef dme_shunt < dm_element
         function obj = dme_shunt()
             obj@dm_element();   %% call parent constructor
             obj.name = 'shunt';
-            obj.table = 'bus';
         end
 
         function var_names = table_var_names(obj)

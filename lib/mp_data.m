@@ -97,11 +97,11 @@ classdef mp_data < mpe_container
             %% elements
             fprintf('\nELEMENTS\n')
             fprintf('========\n')
-            fprintf(' i  name          table        nr         n      class\n');
-            fprintf('-- -----------   ---------  --------  --------  --------------------\n');
+            fprintf(' i  name            nr         n      class\n');
+            fprintf('-- -----------   --------  --------  --------------------\n');
             for k = 1:length(obj.elements)
                 dme = obj.elements{k};
-                fprintf('%2d  %-13s %-10s %6d %9d    %s\n', k, dme.name, dme.table, dme.nr, dme.n, class(dme));
+                fprintf('%2d  %-13s %6d %9d    %s\n', k, dme.name, dme.nr, dme.n, class(dme));
 %                 dme
             end
 

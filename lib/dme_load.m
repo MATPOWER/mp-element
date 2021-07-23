@@ -1,5 +1,5 @@
 classdef dme_load < dm_element
-%DME_LOAD  Abstract base class for MATPOWER data model load table
+%DME_LOAD  MATPOWER data model class for load data
 
 %   MATPOWER
 %   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
@@ -24,7 +24,6 @@ classdef dme_load < dm_element
         function obj = dme_load()
             obj@dm_element();   %% call parent constructor
             obj.name = 'load';
-            obj.table = 'bus';
         end
 
         function var_names = table_var_names(obj)

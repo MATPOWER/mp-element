@@ -1,5 +1,5 @@
 classdef dme_branch < dm_element
-%DME_BRANCH  Abstract base class for MATPOWER data model branch table
+%DME_BRANCH  MATPOWER data model class for branch data
 
 %   MATPOWER
 %   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
@@ -25,7 +25,6 @@ classdef dme_branch < dm_element
         function obj = dme_branch()
             obj@dm_element();   %% call parent constructor
             obj.name = 'branch';
-            obj.table = 'branch';
         end
 
         function var_names = table_var_names(obj)

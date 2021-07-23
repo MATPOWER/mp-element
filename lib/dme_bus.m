@@ -1,5 +1,5 @@
 classdef dme_bus < dm_element
-%DME_BUS  Abstract base class for MATPOWER data model bus table
+%DME_BUS  MATPOWER data model class for bus data
 
 %   MATPOWER
 %   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
@@ -24,7 +24,6 @@ classdef dme_bus < dm_element
         function obj = dme_bus()
             obj@dm_element();   %% call parent constructor
             obj.name = 'bus';
-            obj.table = 'bus';
         end
 
         function var_names = table_var_names(obj)

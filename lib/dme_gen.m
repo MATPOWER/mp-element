@@ -1,5 +1,5 @@
 classdef dme_gen < dm_element
-%DME_GEN  Abstract base class for MATPOWER data model gen table
+%DME_GEN  MATPOWER data model class for gen data
 
 %   MATPOWER
 %   Copyright (c) 1996-2021, Power Systems Engineering Research Center (PSERC)
@@ -30,7 +30,6 @@ classdef dme_gen < dm_element
         function obj = dme_gen()
             obj@dm_element();   %% call parent constructor
             obj.name = 'gen';
-            obj.table = 'gen';
         end
 
         function var_names = table_var_names(obj)
@@ -440,12 +439,8 @@ classdef dme_gen < dm_element
 
         %% from makeAvl()
         function [A, l, u] = disp_load_constant_pf_constraint(obj, dm);
-            %% once this is working, let's eliminate this copying of the table
-            baseMVA = dm.baseMVA;
-            gen = obj.tab(obj.on, :);
-
             %% data dimensions
-            ng = size(gen, 1);      %% number of dispatchable injections
+            ng = obj.n;     %% number of dispatchable injections
             Pg = obj.Pg0;
             Qg = obj.Qg0;
             Pmin = obj.Pmin;

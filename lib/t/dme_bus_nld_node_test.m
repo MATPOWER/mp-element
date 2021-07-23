@@ -1,5 +1,5 @@
 classdef dme_bus_nld_node_test < dme_bus
-%DME_BUS_NLD_NODE_TEST  MATPOWER data model bus table for MATPOWER case format v2
+%DME_BUS_NLD_NODE_TEST  MATPOWER data model class for non-load bus data for T_NODE_TEST
 
 %   MATPOWER
 %   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)

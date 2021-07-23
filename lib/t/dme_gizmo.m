@@ -1,5 +1,5 @@
 classdef dme_gizmo < dm_element
-%DME_GIZMO  Abstract base class for MATPOWER data model gizmo table
+%DME_GIZMO  MATPOWER data model class for gizmo data
 
 %   MATPOWER
 %   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
@@ -20,7 +20,6 @@ classdef dme_gizmo < dm_element
         function obj = dme_gizmo()
             obj@dm_element();   %% call parent constructor
             obj.name = 'gizmo';
-            obj.table = 'gizmo';
         end
 
         function var_names = table_var_names(obj)

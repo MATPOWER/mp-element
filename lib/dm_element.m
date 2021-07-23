@@ -14,13 +14,6 @@ classdef dm_element < handle
     properties
         name = 'dm_element';
         tab             %% main data table
-
-        table           %% name of table to be checked for presence of this
-                        %% element type
-        id_col = 0;     %% column containing the unique ID
-                        %%      0 means no explicit ID
-        st_col = 0;     %% column defining element's on/off status
-                        %%      0 means no explicit status (i.e all on)
         nr              %% total number of rows in table
         n               %% number of online elements
         ID              %% nr x 1 vector of unique IDs, maps dmi to ID
@@ -126,9 +119,9 @@ classdef dm_element < handle
 %             end
             fprintf('DATA MODEL ELEMENT NAME  : %s\n', obj.name);
             fprintf('DATA MODEL ELEMENT CLASS : %s\n', class(obj));
-            fprintf('    ELEMENT TABLE        : %s\n', obj.table);
             fprintf('    # OF ROWS            : %d\n', obj.nr);
             fprintf('    # OF ONLINE ELEMENTS : %d\n', obj.n);
+            disp(obj.tab);
         end
     end     %% methods
 end         %% classdef

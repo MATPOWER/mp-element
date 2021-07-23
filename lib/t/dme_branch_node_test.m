@@ -1,5 +1,5 @@
 classdef dme_branch_node_test < dme_branch
-%DME_BRANCH_NODE_TEST  MATPOWER data model branch table for MATPOWER case format v2
+%DME_BRANCH_NODE_TEST  MATPOWER data model class for branch data for T_NODE_TEST
 
 %   MATPOWER
 %   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
