@@ -33,6 +33,19 @@ classdef dme_bus < dm_element
                 'va', 'vm', 'lam_p', 'lam_q', 'mu_vm_lb', 'mu_vm_ub'});
         end
 
+        function vars = export_vars(obj, task)
+            switch task
+                case 'PF'
+                    vars = {'type', 'vm', 'va'};
+                case 'CPF'
+                    vars = {'type', 'vm', 'va'};
+                case 'OPF'
+                    vars = {'vm', 'va', 'lam_p', 'lam_q', 'mu_vm_lb', 'mu_vm_ub'};
+                otherwise
+                    vars = 'all';
+            end
+        end
+
         function status = get_status(obj, dm)
             %% overrides dm_element/get_status()
 

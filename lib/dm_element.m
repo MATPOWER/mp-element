@@ -36,6 +36,10 @@ classdef dm_element < handle
             var_names = {'uid', 'name', 'status', 'source_uid'};
         end
 
+        function vars = export_vars(obj, task)
+            vars = {};
+        end
+
         function new_obj = copy(obj)
             %% make shallow copy of object
             new_obj = eval(class(obj));  %% create new object

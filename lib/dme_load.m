@@ -33,6 +33,19 @@ classdef dme_load < dm_element
                 'p', 'q'});
         end
 
+        function vars = export_vars(obj, task)
+            switch task
+                case 'PF'
+                    vars = {};
+                case 'CPF'
+                    vars = {'pd', 'qd', 'pd_i', 'qd_i', 'pd_z', 'qd_z'};
+                case 'OPF'
+                    vars = {};
+                otherwise
+                    vars = 'all';
+            end
+        end
+
         function nr = count(obj, dm)
             nr = count@dm_element(obj, dm);
             obj.bus = obj.tab.source_uid;

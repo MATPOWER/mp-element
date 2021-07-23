@@ -104,17 +104,25 @@ classdef dmc_element_mpc2 < dmc_element
         end
 
         function mpc = export(obj, dme, mpc, var_names, idx)
-            if nargin < 4 || isempty(var_names)
-                var_names = dme.table_var_names();
-            elseif ~iscell(var_names)
-                var_names = {var_names};
+            if nargin < 4
+                var_names = 'all';
+            end
+            if ischar(var_names)
+                if strcmp(var_names, 'all')
+                    var_names = dme.table_var_names();
+                else
+                    var_names = {var_names};
+                end
             end
 
-            nv = length(var_names);                 %% number of variables
-            [nr, nc, r] = obj.get_export_size(dme); %% rows in data table and
-                                                    %% cols in mpc.(obj.table)
-            %% get variable map
-            vmap = obj.table_var_map(var_names, mpc);
+            nv = length(var_names);     %% number of variables
+            if nv
+                %% rows in data table, cols in mpc.(obj.table)
+                [nr, nc, r] = obj.get_export_size(dme); 
+
+                %% get variable map
+                vmap = obj.table_var_map(var_names, mpc);
+            end
 
             for k = 1:nv
                 vn = var_names{k};

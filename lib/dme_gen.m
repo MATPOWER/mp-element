@@ -42,6 +42,19 @@ classdef dme_gen < dm_element
                 'mu_pg_lb', 'mu_pg_ub', 'mu_qg_lb', 'mu_qg_ub'});
         end
 
+        function vars = export_vars(obj, task)
+            switch task
+                case 'PF'
+                    vars = {'pg', 'qg'};
+                case 'CPF'
+                    vars = {'pg', 'qg'};
+                case 'OPF'
+                    vars = {'vm_setpoint', 'pg', 'qg', 'mu_pg_lb', 'mu_pg_ub', 'mu_qg_lb', 'mu_qg_ub'};
+                otherwise
+                    vars = 'all';
+            end
+        end
+
         function obj = initialize(obj, dm)
             initialize@dm_element(obj, dm);    %% call parent
 

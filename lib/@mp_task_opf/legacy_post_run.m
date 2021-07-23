@@ -3,20 +3,13 @@ function [results, success, raw] = legacy_post_run(obj, mpopt)
 
 %% unpack data
 mm = obj.mm;
-results = obj.dm.mpc;
 success = obj.success;
-results.success = success;
 if obj.nm.np ~= 0
-    results = obj.dmc.elements.bus.export( ...
-        obj.dm.elements.bus, results, ...
-        {'vm', 'va', 'lam_p', 'lam_q', 'mu_vm_lb', 'mu_vm_ub'});
-    results = obj.dmc.elements.gen.export( ...
-        obj.dm.elements.gen, results);
-    results = obj.dmc.elements.branch.export( ...
-        obj.dm.elements.branch, results);
-%     results = obj.dmc.export(obj.dm, obj.dm.mpc);
+    results = obj.dmc.export(obj.dm, obj.dm.mpc, obj.tag);
+else
+    results = obj.dm.mpc;
 end
-
+results.success = success;
 
 if mm.getN('var')
     lambda = mm.soln.lambda;

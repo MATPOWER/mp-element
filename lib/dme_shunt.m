@@ -30,6 +30,19 @@ classdef dme_shunt < dm_element
                 {'bus', 'gs', 'bs', 'p', 'q'});
         end
 
+        function vars = export_vars(obj, task)
+            switch task
+                case 'PF'
+                    vars = {};
+                case 'CPF'
+                    vars = {'gs', 'bs'};
+                case 'OPF'
+                    vars = {};
+                otherwise
+                    vars = 'all';
+            end
+        end
+
         function nr = count(obj, dm)
             nr = count@dm_element(obj, dm);
             obj.bus = obj.tab.source_uid;

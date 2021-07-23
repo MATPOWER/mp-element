@@ -42,6 +42,21 @@ classdef dme_branch < dm_element
 %                 'mu_cm_fr_ub', 'mu_cm_to_ub', ...
         end
 
+        function vars = export_vars(obj, task)
+            switch task
+                case 'PF'
+                    vars = {'ql_to', 'pl_to', 'ql_fr', 'pl_fr'};
+                case 'CPF'
+                    vars = {'ql_to', 'pl_to', 'ql_fr', 'pl_fr'};
+                case 'OPF'
+                    vars = {'ql_to', 'pl_to', 'ql_fr', 'pl_fr', ...
+                        'mu_flow_fr_ub', 'mu_flow_to_ub', ...
+                        'mu_vad_lb', 'mu_vad_ub'};
+                otherwise
+                    vars = 'all';
+            end
+        end
+
         function obj = initialize(obj, dm)
             initialize@dm_element(obj, dm);     %% call parent
 
