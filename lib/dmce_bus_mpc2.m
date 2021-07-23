@@ -47,6 +47,10 @@ classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
             vmap.vm_ub.args         = VMAX;
             vmap.va.args            = VA;
             vmap.vm.args            = VM;
+            vmap.lam_p.args         = LAM_P;
+            vmap.lam_q.args         = LAM_Q;
+            vmap.mu_vm_lb.args      = MU_VMIN;
+            vmap.mu_vm_ub.args      = MU_VMAX;
         end
 
         function vals = bus_name_import(obj, vn, nr, r, mpc, c)

@@ -173,6 +173,8 @@ classdef mp_data < mpe_container
                     pf.fixed_q_idx = [pf.fixed_q_idx; mx];
 
                     %% set d to the updated mpc for next step
+                    obj.mpc = pf.dmc.elements.bus.export( ...
+                        obj.elements.bus, obj.mpc, {'type', 'vm', 'va'});
                     obj.mpc = pf.dmc.elements.gen.export( ...
                         obj.elements.gen, obj.mpc, {'pg', 'qg'});
                     d = obj.mpc;

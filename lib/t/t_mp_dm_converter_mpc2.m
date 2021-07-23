@@ -32,6 +32,7 @@ end
 
 casefile = 't_case_ext';
 mpc0 = loadcase(casefile);
+mpc0.bus(end, MU_VMIN) = 0;         %% add columns
 mpc0.gen(end, MU_QMIN) = 0;         %% add columns
 mpc0.branch(end, MU_ANGMAX) = 0;    %% add 4 columns for PF, QF, PT, QT
 dmc = mp_dm_converter_mpc2().build();
@@ -103,7 +104,7 @@ t_ok( isequal(mpc, mpc1), [t 'mpc == updated_mpc']);
 % keyboard
 
 % -- -----------   ---------  --------  --------  --------------------
-%  1  bus           bus            10         9    dme_bus_mpc2
+%  1  bus           bus            10         9    dme_bus
 %  2  gen           gen             4         3    dme_gen
 %  3  load          bus             3         3    dme_load
 %  4  branch        branch         10         9    dme_branch

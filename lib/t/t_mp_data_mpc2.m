@@ -69,7 +69,7 @@ for k = 1:nt
     t_is(dm.elements.name2idx('shunt'), 5, 12, [t 'dm.elements.name2idx(''shunt'')']);
 
     bus = dm.elements.bus;
-    t_ok(isa(bus, 'dme_bus_mpc2'), [t 'bus class']);
+    t_ok(isa(bus, 'dme_bus'), [t 'bus class']);
     t_ok(isa(bus, 'dm_element'), [t 'bus isa dm_element']);
     t_ok(strcmp(bus.name, 'bus'), [t 'bus.name']);
     t_is(bus.nr, 10, 12, [t 'bus.nr']);
@@ -131,10 +131,10 @@ end
 
 t = 'modify_element_classes : ';
 dm = mp_data_mpc2;
-e = {@dme_bus_mpc2, @dme_gen, @dme_load, @dme_branch, @dme_shunt};
+e = {@dme_bus, @dme_gen, @dme_load, @dme_branch, @dme_shunt};
 t_ok(isequal(dm.element_classes, e), [t 'before']);
 dm.modify_element_classes({'dme_shunt', @dme_gizmo_mpc2, {@dme_gen, 'dme_gen'}});
-e = {@dme_bus_mpc2, @dme_gen, @dme_load, @dme_branch, @dme_gizmo_mpc2};
+e = {@dme_bus, @dme_gen, @dme_load, @dme_branch, @dme_gizmo_mpc2};
 t_ok(isequal(dm.element_classes, e), [t 'after']);
 
 

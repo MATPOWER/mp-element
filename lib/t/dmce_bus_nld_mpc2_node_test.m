@@ -32,7 +32,7 @@ classdef dmce_bus_nld_mpc2_node_test < dmce_bus_mpc2 % & dmce_bus
 
         function [nr, nc, r] = get_export_size(obj, dme)
             [nr, nc] = size(dme.tab);   %% use size of default table
-            r = [];                     %% all rows
+            r = dme.tab.source_uid;     %% rows in bus matrix
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

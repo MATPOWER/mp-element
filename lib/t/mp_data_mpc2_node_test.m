@@ -18,8 +18,8 @@ classdef mp_data_mpc2_node_test < mp_data_mpc2
             %% call parent constructor
             obj@mp_data_mpc2();
             obj.element_classes = ...
-                { @dme_bus_nld_mpc2_node_test, @dme_bus_ld_mpc2_node_test, @dme_gen_node_test, ...
-                    @dme_branch_node_test };
+                { @dme_bus_nld_node_test, @dme_bus_ld_node_test, ...
+                    @dme_gen_node_test, @dme_branch_node_test };
         end
     end     %% methods
 end         %% classdef
