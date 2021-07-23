@@ -553,7 +553,7 @@ mpc.gen(:, QG) = [0.2570733353840 0.0079004398259 -0.1749046999314].' * mpc.base
 % mpopt = mpoption(mpopt, 'verbose', 2);
 pf = mp_task_pf();
 mpopt.exp.dmc_element_classes = @dmce_gizmo_mpc2;
-mpopt.exp.dm_element_classes = @dme_gizmo_mpc2;
+mpopt.exp.dm_element_classes = @dme_gizmo;
 mpopt.exp.network_model_class = @mp_network_acps_test;
 warn_id = 'pf_update_z:multiple_nodes';
 s1 = warning('query', warn_id);
@@ -573,7 +573,7 @@ t = 'ac.build(dm) : ';
 mpc.bus(:, VA) = angle(v_) * 180/pi;
 mpc.bus(:, VM) = abs(v_);
 dmc = mp_dm_converter_mpc2().modify_element_classes(@dmce_gizmo_mpc2).build();
-dm = mp_data_mpc2().modify_element_classes(@dme_gizmo_mpc2).build(mpc, dmc);
+dm = mp_data_mpc2().modify_element_classes(@dme_gizmo).build(mpc, dmc);
 ac = mp_network_acps_test().build(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);

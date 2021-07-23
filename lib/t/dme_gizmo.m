@@ -29,5 +29,30 @@ classdef dme_gizmo < dm_element
                 'Lr', 'Li', 'Ir', 'Ii', 'M1r', 'M1i', 'M2r', 'M2i', ...
                 'Nr', 'Ni', 'Sr', 'Si', 'Zr1', 'Zi1', 'Zr2', 'Zi2'});
         end
+
+        function obj = initialize(obj, dm)
+            initialize@dm_element(obj, dm);     %% call parent
+
+            %% get bus mapping info
+            b2i = dm.elements.bus.ID2i;         %% bus num to idx mapping
+
+            %% set bus index vectors for port connectivity
+            obj.bus1 = b2i(obj.tab.bus_1);
+            obj.bus2 = b2i(obj.tab.bus_2);
+            obj.bus3 = b2i(obj.tab.bus_3);
+        end
+
+        function obj = update_status(obj, dm)
+            %% get bus status info
+            bs = dm.elements.bus.status;        %% bus status
+
+            %% update status of gizmoes connected to isolated/offline buses
+            obj.status = obj.status & bs(obj.bus1) & ...
+                                      bs(obj.bus2) & ...
+                                      bs(obj.bus3);
+
+            %% call parent to fill in on/off
+            update_status@dm_element(obj, dm);
+        end
     end     %% methods
 end         %% classdef
