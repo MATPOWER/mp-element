@@ -1,5 +1,5 @@
 classdef mp_task_opf < mp_task
-%MP_TASK_OPF  MATPOWER task for power flow (OPF).
+%MP_TASK_OPF  MATPOWER task for optimal power flow (OPF).
 %   MP_TASK_OPF provides implementation for optimal power flow problem.
 %
 %   Properties
@@ -63,9 +63,6 @@ classdef mp_task_opf < mp_task
         function dm = data_model_build_post(obj, dm, mpopt)
             dm = data_model_build_post@mp_task(obj, dm, mpopt); %% call parent
 
-            %% pre-process inputs for legacy user vars, constraints, costs
-            dm.legacy_user_mod_inputs(mpopt, obj.dc);
-
             if ~obj.dc
                 %% if requested, adjust bus voltage magnitude
                 %% limits based on generator Vg setpoint
@@ -100,11 +97,7 @@ classdef mp_task_opf < mp_task
 
         %%-----  mathematical model methods  -----
         function mm_class = math_model_class(obj, nm, dm, mpopt)
-            %% Switch back to mp_math_opf (based on opt_model), if possible.
-            %% Currently requires mp_math_opf_legacy (based on opf_model)
-            %% to support legacy cost functions and callback functions that
-            %% expect to find mpc in mm.mpc.
-            mm_class = @mp_math_opf_legacy;
+            mm_class = @mp_math_opf;
         end
     end     %% methods
 end         %% classdef

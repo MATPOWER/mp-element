@@ -4,11 +4,7 @@ function [results, success, raw] = legacy_post_run(obj, mpopt)
 %% unpack data
 mm = obj.mm;
 success = obj.success;
-if obj.nm.np ~= 0
-    results = obj.dmc.export(obj.dm, obj.dm.mpc, obj.tag);
-else
-    results = obj.dm.mpc;
-end
+results = obj.dm.mpc;
 results.success = success;
 
 if mm.getN('var')

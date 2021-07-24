@@ -141,6 +141,7 @@ classdef mp_task < handle
                     obj.i_dm = obj.i_dm + 1;
                 end
             end                 %% end data model loop
+            obj.run_post(mm, nm, obj.dm, mpopt);
         end
 
         function [mm, nm, dm] = next_mm(obj, mm, nm, dm, mpopt)
@@ -174,6 +175,9 @@ classdef mp_task < handle
                     d.sys_wide_zip_loads = mpopt.exp.sys_wide_zip_loads;
                 end
             end
+        end
+
+        function obj = run_post(obj, mm, nm, dm, mpopt);
         end
 
         function print_soln(obj, fname, mpopt)

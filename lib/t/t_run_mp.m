@@ -69,12 +69,7 @@ for k = 1:length(mm_classes)
 % nm.soln
     t_ok(isfield(nm.soln, 'gs_'), [t 'network model port inj soln']);
 % keyboard
-    [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
-        TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
-        ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
-% Pf = dm.mpc.branch(:, PF)
     dm = mm.data_model_update(nm, dm, mpopt);
-% Pf = dm.mpc.branch(:, PF)
     t_ok(all(dm.elements.branch.tab.pl_fr ~= 0), [t 'data model update']);
 
     tsk = run_mp(tasks{k}, d{k}, mpopt);

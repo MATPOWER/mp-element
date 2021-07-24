@@ -57,7 +57,9 @@ for k = 1:length(cases)
     t_ok(r.success, [t 'success 1']);
 
     pf = run_pf(mpc, mpopt);
-    pf.dm.mpc = pf.legacy_post_run(mpopt);
+    if pf.nm.np ~= 0
+        pf.dm.mpc = pf.dmc.export(pf.dm, pf.dm.mpc, pf.tag);
+    end
     Va = pf.dm.mpc.bus(:, VA);
     Vm = pf.dm.mpc.bus(:, VM);
     Pg = pf.dm.mpc.gen(:, PG);
@@ -79,7 +81,9 @@ for k = 1:length(cases)
     eQg = r.gen(:, QG);
 
     opf = run_opf(mpc, mpopt);
-    opf.dm.mpc = opf.legacy_post_run(mpopt);
+    if opf.nm.np ~= 0
+        opf.dm.mpc = opf.dmc.export(opf.dm, opf.dm.mpc, opf.tag);
+    end
     Va = opf.dm.mpc.bus(:, VA);
     Vm = opf.dm.mpc.bus(:, VM);
     Pg = opf.dm.mpc.gen(:, PG);
