@@ -132,15 +132,5 @@ classdef mp_task_pf < mp_task
         function mm_class = math_model_class(obj, nm, dm, mpopt)
             mm_class = @mp_math_pf;
         end
-
-        function opt = math_model_opt(obj, mm, nm, dm, mpopt)
-            opt = math_model_opt@mp_task(obj, mm, nm, dm, mpopt);
-
-            %%-----  HACK ALERT  -----
-            %% only needed for fast-decoupled power flow,
-            %% used by mp_data_mpc2/fdpf_B_matrix_models()
-            dm.userdata.dmc = obj.dmc;
-            %%-----  end of HACK  -----
-        end
     end     %% methods
 end         %% classdef

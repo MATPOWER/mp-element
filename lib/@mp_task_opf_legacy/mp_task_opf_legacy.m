@@ -35,7 +35,7 @@ classdef mp_task_opf_legacy < mp_task_opf
             dm = data_model_build_post@mp_task_opf(obj, dm, dmc, mpopt);
 
             %% pre-process inputs for legacy user vars, constraints, costs
-            dm.legacy_user_mod_inputs(mpopt, obj.dc);
+            dm = dmc.legacy_user_mod_inputs(dm, mpopt, obj.dc);
         end
 
         %%-----  mathematical model methods  -----

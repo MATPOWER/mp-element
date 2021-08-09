@@ -96,7 +96,13 @@ classdef mp_math_opf_legacy < mp_math_opf
                 obj.userdata.Pfinj = pbr;
             end
 
-            obj = dm.run_userfcn(obj, mpopt);
+            %% execute userfcn callbacks for 'formulation' stage
+            if isfield(obj.mpc, 'userfcn')
+                userfcn = obj.mpc.userfcn;
+            else
+                userfcn = [];
+            end
+            obj = run_userfcn(userfcn, 'formulation', obj, mpopt);
         end
     end     %% methods
 end         %% classdef

@@ -15,6 +15,15 @@ classdef mp_data < mpe_container
     end     %% properties
 
     methods
+        %% constructor
+        function obj = mp_data()
+            %% call parent constructor
+            obj@mpe_container();
+            obj.element_classes = ...
+                { @dme_bus, @dme_gen, @dme_load, ...
+                    @dme_branch, @dme_shunt };
+        end
+
         function new_obj = copy(obj)
             %% make shallow copy of object
             new_obj = eval(class(obj));  %% create new object
@@ -121,6 +130,43 @@ classdef mp_data < mpe_container
         end
 
         %%-----  PF methods  -----
+        function [dm1, dm2] = fdpf_B_matrix_models(obj, alg)
+            %% [dmp, dmpp] = obj.fdpf_B_matrix_models(alg)
+            %% dmpp = obj.fdpf_B_matrix_models(alg)
+            %% returns copies of dm used for building B prime, B double prime
+            %% for fast-decoupled power flow
+
+            %% modify data model to form Bp (B prime)
+            if nargout > 1      %% for both Bp and Bpp
+                dm1 = obj.copy();
+                if dm1.elements.is_index_name('shunt')
+                    dm1.elements.shunt.tab.bs(:) = 0;   %% zero out shunts at buses
+                end
+                dm2 = dm1.copy();
+                dm1.elements.branch.tab.b_fr(:) = 0;    %% zero out line charging shunts
+                dm1.elements.branch.tab.b_to(:) = 0;
+                dm1.elements.branch.tab.tm(:) = 1;      %% cancel out taps
+                if strcmp(alg, 'FDXB')                  %% if XB method
+                    dm1.elements.branch.tab.r(:) = 0;   %% zero out line resistance
+                end
+                dm1 = dm1.build_params(dm1);
+            else
+                dm2 = obj.copy();
+            end
+
+            %% modify data model to form Bpp (B double prime)
+            dm2.elements.branch.tab.ta(:) = 0;      %% zero out phase shifters
+            if strcmp(alg, 'FDBX')                  %% if BX method
+                dm2.elements.branch.tab.r(:) = 0;   %% zero out line resistance
+            end
+
+            if nargout > 1      %% for both Bp and Bpp
+                dm2 = dm2.build_params(dm2);
+            else                %% for just Bpp
+                dm1 = dm2.build_params(dm2);
+            end
+        end
+
         function [success, d, pf] = pf_enforce_q_lims(obj, pf, nm, mpopt);
             gen_dme = obj.elements.gen;
             [mn, mx, both] = gen_dme.violated_q_lims(obj, mpopt);
@@ -184,6 +230,39 @@ classdef mp_data < mpe_container
                 d = [];
                 success = 1;
             end
+        end
+
+        %%-----  OPF methods  -----
+        function obj = set_bus_v_lims_via_vg(obj, use_vg)
+            bus_dme = obj.elements.bus;
+            gen_dme = obj.elements.gen;
+            gbus = bus_dme.i2on(gen_dme.bus(gen_dme.on));   %% buses of online gens
+            nb = bus_dme.n;
+            ng = gen_dme.n;
+
+            %% gen connection matrix, element i, j is 1 if, generator j at bus i is ON
+            Cg = sparse(gbus, (1:ng)', 1, nb, ng);
+            Vbg = Cg * sparse(1:ng, 1:ng, gen_dme.Vg, ng, ng);
+            Vmax = max(Vbg, [], 2); %% zero for non-gen buses, else max Vg of gens @ bus
+            ib = find(Vmax);                %% buses with online gens
+            Vmin = max(2*Cg - Vbg, [], 2);  %% same as Vmax, except min Vg of gens @ bus
+            Vmin(ib) = 2 - Vmin(ib);
+
+            if use_vg == 1      %% use Vg setpoint directly
+                bus_dme.Vmax(ib) = Vmax(ib);    %% max set by max Vg @ bus
+                bus_dme.Vmin(ib) = Vmin(ib);    %% min set by min Vg @ bus
+                bus_dme.Vm0(ib) = Vmax(ib);
+            elseif use_vg > 0 && use_vg < 1     %% fractional value
+                %% use weighted avg between original Vmin/Vmax limits and Vg
+                bus_dme.Vmax(ib) = (1-use_vg) * bus_dme.Vmax(ib) + use_vg * Vmax(ib);
+                bus_dme.Vmin(ib) = (1-use_vg) * bus_dme.Vmin(ib) + use_vg * Vmin(ib);
+            else
+                error('mp_data/set_bus_v_lims_via_vg: option ''opf.use_vg'' (= %g) cannot be negative or greater than 1', use_vg);
+            end
+
+            %% update bus table as well (for output)
+            bus_dme.tab.vm_ub(bus_dme.on(ib)) = bus_dme.Vmax(ib);
+            bus_dme.tab.vm_lb(bus_dme.on(ib)) = bus_dme.Vmin(ib);
         end
     end     %% methods
 end         %% classdef

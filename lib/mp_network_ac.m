@@ -1141,9 +1141,11 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% call parent
             opf_add_legacy_user_constraints@mp_network(obj, mm, dm, mpopt);
 
-            uc = dm.opf_legacy_user_constraints();
-            for k = 1:length(uc)
-                mm.add_nln_constraint(uc{k}{:});
+            if ~isempty(dm.user_mods)
+                uc = dm.user_mods.nlc;
+                for k = 1:length(uc)
+                    mm.add_nln_constraint(uc{k}{:});
+                end
             end
         end
 
