@@ -39,7 +39,8 @@ classdef dme_bus < dm_element
                 case 'CPF'
                     vars = {'type', 'vm', 'va'};
                 case 'OPF'
-                    vars = {'vm', 'va', 'lam_p', 'lam_q', 'mu_vm_lb', 'mu_vm_ub'};
+                    vars = {'vm', 'va', 'vm_lb', 'vm_ub', 'lam_p', 'lam_q', ...
+                        'mu_vm_lb', 'mu_vm_ub'};
                 otherwise
                     vars = 'all';
             end
