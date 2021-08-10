@@ -1,5 +1,5 @@
-classdef mp_data_mpc2_node_test < mp_data
-%MP_DATA_MPC2_NODE_TEST  Implementation of MATPOWER data model for MATPOWER case format v2
+classdef mp_data_node_test < mp_data
+%MP_DATA_NODE_TEST  Implementation of MATPOWER data model for MATPOWER case format v2
 
 %   MATPOWER
 %   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef mp_data_mpc2_node_test < mp_data
 
     methods
         %% constructor
-        function obj = mp_data_mpc2_node_test()
+        function obj = mp_data_node_test()
             %% call parent constructor
             obj@mp_data();
             obj.element_classes = ...

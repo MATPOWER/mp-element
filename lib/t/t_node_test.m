@@ -29,7 +29,7 @@ mpopt = mpoption(mpopt, 'opf.ignore_angle_lim', 1);
 mpopt0 = mpopt;
 mpopt0.exp.mpe = 0;
 mpopt.exp.dm_converter_class = @mp_dm_converter_mpc2_node_test;
-mpopt.exp.data_model_class = @mp_data_mpc2_node_test;
+mpopt.exp.data_model_class = @mp_data_node_test;
 mpopt.exp.network_model_class = @mp_network_acps_node_test;
 
 for k = 1:length(cases)

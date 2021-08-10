@@ -45,14 +45,19 @@ of MATLAB or Octave, including setting up your MATLAB/Octave path.
     The result should resemble the following:
 ```
   >> test_mp_element
-  t_mp_data_mpc2............ok
+  t_mp_mapped_array.........ok
+  t_mp_table................ok
+  t_mp_data.................ok
+  t_mp_dm_converter_mpc2....ok
   t_nm_element..............ok
   t_port_inj_current_acc....ok
   t_port_inj_current_acp....ok
   t_port_inj_power_acc......ok
   t_port_inj_power_acp......ok
-  All tests successful (1329 of 1329)
-  Elapsed time 1.41 seconds.
+  t_node_test...............ok
+  t_run_mp..................ok
+  All tests successful (1798 of 1798)
+  Elapsed time 9.73 seconds.
 ```
 
 

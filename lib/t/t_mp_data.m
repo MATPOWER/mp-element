@@ -1,5 +1,5 @@
-function obj = t_mp_data_mpc2(quiet)
-%T_MP_DATA_MPC2  Tests for MP_DATA_MPC2.
+function obj = t_mp_data(quiet)
+%T_MP_DATA  Tests for MP_DATA.
 
 %   MATPOWER
 %   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
@@ -39,7 +39,7 @@ tests = {
 };
 nt = length(tests);
 
-t_begin(66*nt + 2, quiet);
+t_begin(65*nt + 2, quiet);
 
 for k = 1:nt
     if isa(tests{k}{2}, 'mp_data')
@@ -51,7 +51,6 @@ for k = 1:nt
         t = sprintf('mp_data().build(%s, dmc) : ', tests{k}{1});
         dm = mp_data().build(tests{k}{2}, dmc);
     end
-    t_ok(strcmp(dm.userdata.mpc.version, '2'), [t 'mpc version']);
     t_ok(iscell(dm.element_classes), [t 'iscell(dm.element_classes)']);
     t_is(length(dm.element_classes), 5, 12, [t 'length(dm.element_classes)']);
     t_ok(isa(dm.elements, 'mp_mapped_array'), [t 'isa(dm.elements, ''mp_mapped_array'')']);
