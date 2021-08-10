@@ -130,7 +130,6 @@ classdef mp_task < handle
 
                 %% update data model with network model solution
                 dm = mm.data_model_update(nm, dm, mpopt);
-                dm = obj.data_model_update_post(mm, nm, dm, mpopt);
                 if mpopt.verbose
                     fprintf('%s\n', obj.message);
                 end
@@ -260,12 +259,6 @@ classdef mp_task < handle
         end
 
         function dm = data_model_build_post(obj, dm, dmc, mpopt)
-%             dm.ext2int(mpopt);
-        end
-
-        function dm = data_model_update_post(obj, mm, nm, dm, mpopt)
-%             if mpopt.verbose, fprintf('-- %s data_model_update_post()\n', obj.tag); end
-%             dm.int2ext(mpopt);
         end
 
         %%-----  network model methods  -----

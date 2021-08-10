@@ -57,21 +57,16 @@ classdef mp_task_pf < mp_task
                 mm.soln.output.iterations = obj.iterations;
 
                 %% enforce Q limits
-                [success, d] = obj.pf_enforce_q_lims(nm, dm, mpopt);
+                [success, dm] = obj.enforce_q_lims(nm, dm, mpopt);
                 if ~success                 %% entire task fails if Q lim
                     obj.success = success;  %% enforcement indicates failure
-                end
-                if isempty(d)   %% Q limits are satisfied (or failed)
-                    dm = [];
-                else            %% use new data model to satisfy limits
-                    dm = obj.data_model_build(d, obj.dmc, mpopt);
                 end
             else        %% don't enforce generator Q limits, once is enough
                 dm = [];
             end
         end
 
-        function [success, d] = pf_enforce_q_lims(obj, nm, dm, mpopt);
+        function [success, dm] = enforce_q_lims(obj, nm, dm, mpopt);
             gen_dme = dm.elements.gen;
             [mn, mx, both] = gen_dme.violated_q_lims(dm, mpopt);
 
@@ -80,7 +75,7 @@ classdef mp_task_pf < mp_task
                     if mpopt.verbose
                         fprintf('All %d remaining gens exceed their Q limits : INFEASIBLE PROBLEM\n', length(both));
                     end
-                    d = [];
+                    dm = [];
                     success = 0;
                 else
                     if mpopt.verbose && ~isempty(mx)
@@ -103,7 +98,7 @@ classdef mp_task_pf < mp_task
                     ref0 = find(bus_dme.isref);
                     bidx = bus_dme.i2on(gen_dme.bus(gen_dme.on(mx)));   %% bus of mx
                     if length(ref0) > 1 && any(bus_dme.isref(bidx))
-                        error('mp_data/pf_enforce_q_lims: Sorry, MATPOWER cannot enforce Q limits for slack buses in systems with multiple slacks.');
+                        error('mp_data/enforce_q_lims: Sorry, MATPOWER cannot enforce Q limits for slack buses in systems with multiple slacks.');
                     end
                     %% set bus type to PQ
                     bus_dme.set_bus_type_pq(dm, bidx);
@@ -122,16 +117,14 @@ classdef mp_task_pf < mp_task
                     %% save indices to list of Q limited gens
                     obj.fixed_q_idx = [obj.fixed_q_idx; mx];
 
-                    %% set d to the updated mpc for next step
-                    dm.userdata.mpc = obj.dmc.elements.bus.export( ...
-                        dm.elements.bus, dm.userdata.mpc, {'type', 'vm', 'va'});
-                    dm.userdata.mpc = obj.dmc.elements.gen.export( ...
-                        dm.elements.gen, dm.userdata.mpc, {'pg', 'qg'});
-                    d = dm.userdata.mpc;
+                    %% update dm for next step
+                    dm.initialize();
+                    dm.update_status();
+                    dm.build_params();
                     success = 1;
                 end
             else                %% no more Q violations
-                d = [];
+                dm = [];
                 success = 1;
             end
         end
