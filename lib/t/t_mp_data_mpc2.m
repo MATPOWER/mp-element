@@ -27,7 +27,7 @@ end
 casefile = 't_case_ext';
 mpc = loadcase(casefile);
 dmc = mp_dm_converter_mpc2().build();
-dm0 = mp_data_mpc2().build(mpc, dmc);
+dm0 = mp_data().build(mpc, dmc);
 nb = size(mpc.bus, 1);
 ID2i = zeros(2, 1);     %% initialize as col vector
 ID2i(mpc.bus(:, BUS_I)) = (1:nb);
@@ -45,13 +45,13 @@ for k = 1:nt
     if isa(tests{k}{2}, 'mp_data')
         t = sprintf('%s.copy() : ', tests{k}{1});
         dm = tests{k}{2}.copy();
-        tests{k}{2}.mpc = [];
+        tests{k}{2}.userdata.mpc = [];
         tests{k}{2}.elements{1}.ID = [];
     else
-        t = sprintf('mp_data_mpc2().build(%s, dmc) : ', tests{k}{1});
-        dm = mp_data_mpc2().build(tests{k}{2}, dmc);
+        t = sprintf('mp_data().build(%s, dmc) : ', tests{k}{1});
+        dm = mp_data().build(tests{k}{2}, dmc);
     end
-    t_ok(strcmp(dm.mpc.version, '2'), [t 'mpc version']);
+    t_ok(strcmp(dm.userdata.mpc.version, '2'), [t 'mpc version']);
     t_ok(iscell(dm.element_classes), [t 'iscell(dm.element_classes)']);
     t_is(length(dm.element_classes), 5, 12, [t 'length(dm.element_classes)']);
     t_ok(isa(dm.elements, 'mp_mapped_array'), [t 'isa(dm.elements, ''mp_mapped_array'')']);
@@ -130,7 +130,7 @@ for k = 1:nt
 end
 
 t = 'modify_element_classes : ';
-dm = mp_data_mpc2;
+dm = mp_data;
 e = {@dme_bus, @dme_gen, @dme_load, @dme_branch, @dme_shunt};
 t_ok(isequal(dm.element_classes, e), [t 'before']);
 dm.modify_element_classes({'dme_shunt', @dme_gizmo, {@dme_gen, 'dme_gen'}});

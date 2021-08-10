@@ -21,12 +21,5 @@ classdef mp_dm_converter_mpc2_node_test < mp_dm_converter_mpc2
                 { @dmce_bus_nld_mpc2_node_test, dmce_bus_ld_mpc2_node_test, ...
                   @dmce_gen_mpc2, @dmce_branch_mpc2 };
         end
-
-        function dm = import(obj, dm, d)
-            if ~isstruct(d)
-                d = loadcase(d);
-            end
-            dm = import@mp_dm_converter(obj, dm, d);
-        end
     end     %% methods
 end         %% classdef

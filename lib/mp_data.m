@@ -95,6 +95,14 @@ classdef mp_data < mpe_container
             end
         end
 
+        function ntv = node_type_vector(obj, isref, ispv, ispq)
+            %% define node types
+            nt = NODE_TYPE;
+
+            %% package up bus type vector
+            ntv = isref * nt.REF + ispv * nt.PV + ispq * nt.PQ;
+        end
+
         function display(obj)
 %             if have_feature('octave')
 %                 struct(obj)
@@ -102,6 +110,7 @@ classdef mp_data < mpe_container
 %                 display@handle(obj)
 %             end
             fprintf('DATA MODEL CLASS : %s\n', class(obj));
+            fprintf('         baseMVA : %g\n', obj.baseMVA);
 
             %% elements
             fprintf('\nELEMENTS\n')
@@ -209,7 +218,7 @@ classdef mp_data < mpe_container
                     btv = ntv(i1:iN);                   %% bus type vector
 
                     %% indicate if there's been a change in slack bus
-                    ref = obj.node_type_ref(btv);       %% new ref bus indices
+                    ref = find(btv == NODE_TYPE.REF);   %% new ref bus indices
                     if mpopt.verbose && ref ~= ref0
                         fprintf('Bus %d is new slack bus\n', ...
                             bus_dme.ID(bus_dme.on(ref)));
@@ -219,11 +228,11 @@ classdef mp_data < mpe_container
                     pf.fixed_q_idx = [pf.fixed_q_idx; mx];
 
                     %% set d to the updated mpc for next step
-                    obj.mpc = pf.dmc.elements.bus.export( ...
-                        obj.elements.bus, obj.mpc, {'type', 'vm', 'va'});
-                    obj.mpc = pf.dmc.elements.gen.export( ...
-                        obj.elements.gen, obj.mpc, {'pg', 'qg'});
-                    d = obj.mpc;
+                    obj.userdata.mpc = pf.dmc.elements.bus.export( ...
+                        obj.elements.bus, obj.userdata.mpc, {'type', 'vm', 'va'});
+                    obj.userdata.mpc = pf.dmc.elements.gen.export( ...
+                        obj.elements.gen, obj.userdata.mpc, {'pg', 'qg'});
+                    d = obj.userdata.mpc;
                     success = 1;
                 end
             else                %% no more Q violations

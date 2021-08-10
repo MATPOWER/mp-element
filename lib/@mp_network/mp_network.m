@@ -524,9 +524,9 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                 end
             else                %% ntv
                 ntv = ref;
-                ref = dm.node_type_ref(ntv);    %% reference node indices
+                ref = find(ntv == NODE_TYPE.REF);   %% reference node indices
                 if isempty(ref)
-                    pv = dm.node_type_pv(ntv);  %% PV node indices
+                    pv = find(ntv == NODE_TYPE.PV); %% PV node indices
                     if isempty(pv)
                         error('mp_network/ensure_ref_node: must have at least one REF or PV node');
                     end
@@ -622,7 +622,9 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
             
             %% legacy user-defined variables
-            obj.opf_add_legacy_user_vars(mm, dm, mpopt);
+            if isfield(dm.userdata, 'legacy_opf_user_mods')
+                obj.opf_add_legacy_user_vars(mm, dm, mpopt);
+            end
         end
 
         function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
@@ -652,7 +654,9 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             obj.opf_add_node_balance_constraints(mm);
 
             %% legacy user-defined constraints
-            obj.opf_add_legacy_user_constraints(mm, dm, mpopt);
+            if isfield(dm.userdata, 'legacy_opf_user_mods')
+                obj.opf_add_legacy_user_constraints(mm, dm, mpopt);
+            end
         end
 
         function opf_add_system_costs(obj, mm, dm, mpopt)
@@ -663,8 +667,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             mm.userdata.user_vars = obj.opf_legacy_user_var_names();
 
             %% add any user-defined vars
-            if isfield(dm.user_mods, 'z')
-                z = dm.user_mods.z;
+            if isfield(dm.userdata.legacy_opf_user_mods, 'z')
+                z = dm.userdata.legacy_opf_user_mods.z;
                 if z.nz > 0
                     mm.add_var('z', z.nz, z.z0, z.zl, z.zu);
                     mm.userdata.user_vars{end+1} = 'z';
@@ -674,8 +678,8 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
         function opf_add_legacy_user_constraints(obj, mm, dm, mpopt)
             %% user-defined linear constraints
-            if isfield(dm.user_mods, 'lin')
-                lin = dm.user_mods.lin;
+            if isfield(dm.userdata.legacy_opf_user_mods, 'lin')
+                lin = dm.userdata.legacy_opf_user_mods.lin;
                 if lin.nlin
                     uv = mm.get_userdata('user_vars');
                     mm.add_lin_constraint('usr', lin.A, lin.l, lin.u, uv);
@@ -684,8 +688,9 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         function opf_add_legacy_user_costs(obj, mm, dm, dc)
-            if isfield(dm.user_mods, 'cost') && dm.user_mods.cost.nw
-                user_cost = dm.user_mods.cost;
+            if isfield(dm.userdata.legacy_opf_user_mods, 'cost') && ...
+                    dm.userdata.legacy_opf_user_mods.cost.nw
+                user_cost = dm.userdata.legacy_opf_user_mods.cost;
                 uv = mm.get_userdata('user_vars');
                 mm.add_legacy_cost('usr', user_cost, uv);
 

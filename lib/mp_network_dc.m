@@ -209,7 +209,9 @@ classdef mp_network_dc < mp_network & mp_form_dc
             %% can be overridden to add additional system costs
 
             %% legacy user-defined costs
-            obj.opf_add_legacy_user_costs(mm, dm, 1);
+            if isfield(dm.userdata, 'legacy_opf_user_mods')
+                obj.opf_add_legacy_user_costs(mm, dm, 1);
+            end
         end
 
         function names = opf_legacy_user_var_names(obj)

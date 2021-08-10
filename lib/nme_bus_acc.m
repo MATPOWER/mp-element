@@ -149,7 +149,7 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
         function opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% voltage angle reference constraint
             dme = obj.data_model_element(dm);
-            ref = dm.node_type_ref(obj.node_types(nm, dm));
+            ref = find(obj.node_types(nm, dm) == NODE_TYPE.REF);
             varef = dme.Va0(ref);
             fcn_vref = @(xx)va_fcn(obj, xx, ref, varef);
             hess_vref = @(xx, lam)va_hess(obj, xx, lam, ref);

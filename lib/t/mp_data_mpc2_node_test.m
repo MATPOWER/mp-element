@@ -1,4 +1,4 @@
-classdef mp_data_mpc2_node_test < mp_data_mpc2
+classdef mp_data_mpc2_node_test < mp_data
 %MP_DATA_MPC2_NODE_TEST  Implementation of MATPOWER data model for MATPOWER case format v2
 
 %   MATPOWER
@@ -16,7 +16,7 @@ classdef mp_data_mpc2_node_test < mp_data_mpc2
         %% constructor
         function obj = mp_data_mpc2_node_test()
             %% call parent constructor
-            obj@mp_data_mpc2();
+            obj@mp_data();
             obj.element_classes = ...
                 { @dme_bus_nld_node_test, @dme_bus_ld_node_test, ...
                     @dme_gen_node_test, @dme_branch_node_test };

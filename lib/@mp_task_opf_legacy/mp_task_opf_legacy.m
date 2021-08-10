@@ -25,7 +25,8 @@ classdef mp_task_opf_legacy < mp_task_opf
         %%-----  task methods  -----
         function obj = run_post(obj, mm, nm, dm, mpopt);
             if obj.nm.np ~= 0
-                obj.dm.mpc = obj.dmc.export(obj.dm, obj.dm.mpc, obj.tag);
+                obj.dm.userdata.mpc = ...
+                    obj.dmc.export(obj.dm, obj.dm.userdata.mpc, obj.tag);
             end
         end
 

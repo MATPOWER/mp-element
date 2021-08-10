@@ -231,7 +231,7 @@ classdef mp_task < handle
                     ~isempty(mpopt.exp.data_model_class)
                 dm_class = mpopt.exp.data_model_class;
             else
-                dm_class = @mp_data_mpc2;
+                dm_class = @mp_data;
             end
         end
 

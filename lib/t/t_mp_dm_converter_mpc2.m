@@ -55,7 +55,7 @@ t_ok(strcmp(dmc.elements{4}.name, 'branch'), [t 'element{4} is branch']);
 t_ok(strcmp(dmc.elements{5}.name, 'shunt'), [t 'element{5} is shunt']);
 
 t = 'dm constructor : ';
-dm = mp_data_mpc2();
+dm = mp_data();
 t_ok(isa(dm, 'mp_data'), [t 'class']);
 t_is(length(dm.element_classes), 5, 12, [t '# of element_classes']);
 t_ok(isempty(dm.elements), [t 'elements empty']);

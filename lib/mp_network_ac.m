@@ -1134,15 +1134,17 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% can be overridden to add additional system costs
 
             %% legacy user-defined costs
-            obj.opf_add_legacy_user_costs(mm, dm, 0);
+            if isfield(dm.userdata, 'legacy_opf_user_mods')
+                obj.opf_add_legacy_user_costs(mm, dm, 0);
+            end
         end
 
         function opf_add_legacy_user_constraints(obj, mm, dm, mpopt)
             %% call parent
             opf_add_legacy_user_constraints@mp_network(obj, mm, dm, mpopt);
 
-            if ~isempty(dm.user_mods)
-                uc = dm.user_mods.nlc;
+            if ~isempty(dm.userdata.legacy_opf_user_mods)
+                uc = dm.userdata.legacy_opf_user_mods.nlc;
                 for k = 1:length(uc)
                     mm.add_nln_constraint(uc{k}{:});
                 end

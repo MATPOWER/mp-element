@@ -14,7 +14,7 @@ classdef nme_gizmo_ac < nme_gizmo% & mp_form_ac
     
     methods
         function obj = add_zvars(obj, nm, dm, idx)
-            mpc = dm.mpc;
+            mpc = dm.userdata.mpc;
             nk = obj.nk;
             switch idx{:}
                 case 1
@@ -35,7 +35,7 @@ classdef nme_gizmo_ac < nme_gizmo% & mp_form_ac
         function obj = build_params(obj, nm, dm)
             build_params@nme_gizmo(obj, nm, dm);   %% call parent
             nk = obj.nk;
-            mpc = dm.mpc;
+            mpc = dm.userdata.mpc;
 
             %% collect parameters from mpc
             y1 = mpc.gizmo(:,  4) + 1j * mpc.gizmo(:,  5);
