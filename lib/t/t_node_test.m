@@ -57,13 +57,11 @@ for k = 1:length(cases)
     t_ok(r.success, [t 'success 1']);
 
     pf = run_pf(mpc, mpopt);
-    if pf.nm.np ~= 0
-        pf.dm.userdata.mpc = pf.dmc.export(pf.dm, pf.dm.userdata.mpc, pf.tag);
-    end
-    Va = pf.dm.userdata.mpc.bus(:, VA);
-    Vm = pf.dm.userdata.mpc.bus(:, VM);
-    Pg = pf.dm.userdata.mpc.gen(:, PG);
-    Qg = pf.dm.userdata.mpc.gen(:, QG);
+    r2 = pf.dmc.export(pf.dm, pf.dm.userdata.mpc, pf.tag);
+    Va = r2.bus(:, VA);
+    Vm = r2.bus(:, VM);
+    Pg = r2.gen(:, PG);
+    Qg = r2.gen(:, QG);
     t_ok(pf.success, [t 'success 2']);
     t_is(Va, eVa, 9, [t 'Va']);
     t_is(Vm, eVm, 9, [t 'Vm']);
@@ -81,13 +79,11 @@ for k = 1:length(cases)
     eQg = r.gen(:, QG);
 
     opf = run_opf(mpc, mpopt);
-    if opf.nm.np ~= 0
-        opf.dm.userdata.mpc = opf.dmc.export(opf.dm, opf.dm.userdata.mpc, opf.tag);
-    end
-    Va = opf.dm.userdata.mpc.bus(:, VA);
-    Vm = opf.dm.userdata.mpc.bus(:, VM);
-    Pg = opf.dm.userdata.mpc.gen(:, PG);
-    Qg = opf.dm.userdata.mpc.gen(:, QG);
+    r2 = opf.dmc.export(opf.dm, opf.dm.userdata.mpc, opf.tag);
+    Va = r2.bus(:, VA);
+    Vm = r2.bus(:, VM);
+    Pg = r2.gen(:, PG);
+    Qg = r2.gen(:, QG);
     t_ok(opf.success, [t 'success 2']);
     t_is(Va, eVa, 9, [t 'Va']);
     t_is(Vm, eVm, 9, [t 'Vm']);

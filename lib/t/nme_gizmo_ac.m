@@ -14,17 +14,17 @@ classdef nme_gizmo_ac < nme_gizmo% & mp_form_ac
     
     methods
         function obj = add_zvars(obj, nm, dm, idx)
-            mpc = dm.userdata.mpc;
+            tab = obj.data_model_element(dm).tab;
             nk = obj.nk;
             switch idx{:}
                 case 1
                     Zmax = ones(nk, 1);
-                    Zr   = mpc.gizmo(:, 20);
-                    Zi   = mpc.gizmo(:, 21);
+                    Zr   = tab.Zr1;
+                    Zi   = tab.Zi1;
                 case 2
                     Zmax = 2 * ones(nk, 1);
-                    Zr   = mpc.gizmo(:, 22);
-                    Zi   = mpc.gizmo(:, 23);
+                    Zr   = tab.Zr2;
+                    Zi   = tab.Zi2;
             end
             vname_r = sprintf('Zr%d_gizmo', idx{:});
             vname_i = sprintf('Zi%d_gizmo', idx{:});
@@ -34,18 +34,18 @@ classdef nme_gizmo_ac < nme_gizmo% & mp_form_ac
 
         function obj = build_params(obj, nm, dm)
             build_params@nme_gizmo(obj, nm, dm);   %% call parent
+            tab = obj.data_model_element(dm).tab;
             nk = obj.nk;
-            mpc = dm.userdata.mpc;
 
-            %% collect parameters from mpc
-            y1 = mpc.gizmo(:,  4) + 1j * mpc.gizmo(:,  5);
-            y2 = mpc.gizmo(:,  6) + 1j * mpc.gizmo(:,  7);
-            ll = mpc.gizmo(:,  8) + 1j * mpc.gizmo(:,  9);
-            ii = mpc.gizmo(:, 10) + 1j * mpc.gizmo(:, 11);
-            m1 = mpc.gizmo(:, 12) + 1j * mpc.gizmo(:, 13);
-            m2 = mpc.gizmo(:, 14) + 1j * mpc.gizmo(:, 15);
-            nn = mpc.gizmo(:, 16) + 1j * mpc.gizmo(:, 17);
-            ss = mpc.gizmo(:, 18) + 1j * mpc.gizmo(:, 19);
+            %% collect parameters from data table
+            y1 = tab.Y1r + 1j * tab.Y1i;
+            y2 = tab.Y2r + 1j * tab.Y2i;
+            ll = tab.Lr + 1j * tab.Li;
+            ii = tab.Ir + 1j * tab.Ii;
+            m1 = tab.M1r + 1j * tab.M1i;
+            m2 = tab.M2r + 1j * tab.M2i;
+            nn = tab.Nr + 1j * tab.Ni;
+            ss = tab.Sr + 1j * tab.Si;
             zz = zeros(nk, 1);
 
             %% construct model parameters
