@@ -231,7 +231,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
                         %% Va equal to angle of 1st ref bus
                         vv = mm.get_idx();
                         bus_dme = dm.elements.bus;
-                        Varefs = bus_dme.Va0(find(bus_dme.isref));
+                        Varefs = bus_dme.Va0(find(bus_dme.type == NODE_TYPE.REF));
                         x0(vv.i1.Va:vv.iN.Va) = Varefs(1);  %% angles set to first reference angle
 
                         opt.x0 = x0;

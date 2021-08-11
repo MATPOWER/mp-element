@@ -1163,7 +1163,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 %% Vm equal to avg of clipped limits
                 vv = mm.get_idx();
                 bus_dme = dm.elements.bus;
-                Varefs = bus_dme.Va0(find(bus_dme.isref));
+                Varefs = bus_dme.Va0(find(bus_dme.type == NODE_TYPE.REF));
                 Vmax = min(bus_dme.Vmax, 1.5);
                 Vmin = max(bus_dme.Vmin, 0.5);
                 Vm = (Vmax + Vmin) / 2;

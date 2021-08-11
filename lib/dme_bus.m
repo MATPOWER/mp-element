@@ -10,9 +10,7 @@ classdef dme_bus < dm_element
 %   See https://matpower.org for more info.
 
     properties
-        isref   %% ref bus indicator vector for buses that are on
-        ispv    %% PV bus indicator vector for buses that are on
-        ispq    %% PQ bus indicator vector for buses that are on
+        type    %% node type vector for buses that are on
         Vm0     %% initial voltage magnitudes (p.u.) for buses that are on
         Va0     %% initial voltage angles (radians) for buses that are on
         Vmin    %% voltage magnitude lower bounds for buses that are on
@@ -51,19 +49,15 @@ classdef dme_bus < dm_element
 
             %% check that all buses have a valid type
             bt = obj.tab.type;
-            nt = NODE_TYPE;     %% node type enum
-            err = find(~nt.is_valid(bt));
+            err = find(~NODE_TYPE.is_valid(bt));
             if ~isempty(err)
                 error('dme_bus/get_status: bus %d has an invalid type', err);
             end
 
-            %% temporarily set bus type properties with dimensions for all buses
+            %% temporarily set bus type property with dimensions for all buses
             %% (reduced for online buses only in update_status())
-            obj.isref = (bt == nt.REF);     %% bus is ref?
-            obj.ispv  = (bt == nt.PV);      %% bus is PV?
-            obj.ispq  = (bt == nt.PQ);      %% bus is PQ?
-
-            status = (bt ~= nt.NONE);       %% bus status
+            obj.type = bt;
+            status = (bt ~= NODE_TYPE.NONE);       %% bus status
             obj.status = status;
         end
 
@@ -71,11 +65,8 @@ classdef dme_bus < dm_element
             %% call parent to fill in on/off
             update_status@dm_element(obj, dm);
 
-            %% update bus type properties so they correspond
-            %% to online buses only
-            obj.isref = obj.isref(obj.on);
-            obj.ispv  = obj.ispv(obj.on);
-            obj.ispq  = obj.ispq(obj.on);
+            %% update bus type property to correspond to online buses only
+            obj.type = obj.type(obj.on);
         end
 
         function [gbus, ig] = gbus_vector(obj, gen_dme)
@@ -90,7 +81,7 @@ classdef dme_bus < dm_element
 
             %% pull PV bus voltage magnitudes from gen.vm_setpoint
             vcb = ones(obj.n, 1);   %% create mask of voltage-controlled buses
-            vcb(obj.ispq) = 0;      %% exclude PQ buses
+            vcb(obj.type == NODE_TYPE.PQ) = 0;  %% exclude PQ buses
             %% find indices of online gens at online v-c buses
             k = find(vcb(gbus));
             if isempty(ig)
@@ -118,11 +109,10 @@ classdef dme_bus < dm_element
             %% gen connection matrix, element i, j is 1 if gen j @ bus i is ON
             Cg = sparse(gbus, (1:ng)', 1, nb, ng);
             bus_gen_status = Cg * ones(ng, 1);  %% num of gens ON at each bus
-%             obj.isref = obj.isref & bus_gen_status;
+%             obj.type(obj.type == NODE_TYPE.REF & ~bus_gen_status) = NODE_TYPE.PQ;
               % above line would affect OPF (not just PF, CPF) where REF is
               % used only as angle reference and does not require an online gen
-            obj.ispv = obj.ispv &  bus_gen_status;
-            obj.ispq = obj.ispq | ~bus_gen_status;
+            obj.type(obj.type == NODE_TYPE.PV & ~bus_gen_status) = NODE_TYPE.PQ;
 %             obj.ensure_ref_bus();   %% pick a new ref bus if one does not exist
 
             %% initialize voltage from bus table
@@ -132,33 +122,19 @@ classdef dme_bus < dm_element
             obj.Vmax = bus.vm_ub(obj.on);
         end
 
-        function bt = bus_type(obj, dm, idx)
-            if nargin > 2
-                bt = dm.node_type_vector(obj.isref(idx), obj.ispv(idx), obj.ispq(idx));
-            else
-                bt = dm.node_type_vector(obj.isref, obj.ispv, obj.ispq);
-            end
-        end
-
         function obj = set_bus_type_ref(obj, dm, idx)
-            obj.tab.type(idx) = NODE_TYPE.REF;
-            obj.isref(idx) = 1;
-            obj.ispv( idx) = 0;
-            obj.ispq( idx) = 0;
+            obj.tab.type(obj.on(idx)) = NODE_TYPE.REF;
+            obj.type(idx) = NODE_TYPE.REF;
         end
 
         function obj = set_bus_type_pv(obj, dm, idx)
-            obj.tab.type(idx) = NODE_TYPE.PV;
-            obj.isref(idx) = 0;
-            obj.ispv( idx) = 1;
-            obj.ispq( idx) = 0;
+            obj.tab.type(obj.on(idx)) = NODE_TYPE.PV;
+            obj.type(idx) = NODE_TYPE.PV;
         end
 
         function obj = set_bus_type_pq(obj, dm, idx)
-            obj.tab.type(idx) = NODE_TYPE.PQ;
-            obj.isref(idx) = 0;
-            obj.ispv( idx) = 0;
-            obj.ispq( idx) = 1;
+            obj.tab.type(obj.on(idx)) = NODE_TYPE.PQ;
+            obj.type(idx) = NODE_TYPE.PQ;
         end
 
         function obj = update(obj, dm, varargin)
@@ -181,11 +157,8 @@ classdef dme_bus < dm_element
                     case 'Vm'
                         obj.tab.vm(idx) = val;
                     case 'bus_type'
-                        nt = NODE_TYPE;
-                        obj.isref = (val == nt.REF);    %% bus is ref?
-                        obj.ispv  = (val == nt.PV);     %% bus is PV?
-                        obj.ispq  = (val == nt.PQ);     %% bus is PQ?
                         obj.tab.type(idx) = val;
+                        obj.type = obj.tab.type(obj.on);
                     case 'lamP'
                         obj.tab.lam_p(idx) = val / dm.baseMVA;
                     case 'lamQ'

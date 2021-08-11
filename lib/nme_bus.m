@@ -30,11 +30,11 @@ classdef nme_bus < nm_element
             %% [ref, pv, pq] = obj.node_types(nm, dm)
             dme = obj.data_model_element(dm);
             if nargout > 1
-                ref = find(dme.isref);      %% reference node indices
-                pv  = find(dme.ispv);       %% PV node indices
-                pq  = find(dme.ispq);       %% PQ node indices
-            else    %% ntv
-                ref = dm.node_type_vector(dme.isref, dme.ispv, dme.ispq);
+                ref = find(dme.type == NODE_TYPE.REF);  %% ref node indices
+                pv  = find(dme.type == NODE_TYPE.PV);   %% PV node indices
+                pq  = find(dme.type == NODE_TYPE.PQ);   %% PQ node indices
+            else    %% ntv - node type vector
+                ref = dme.type;
             end
         end
 

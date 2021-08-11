@@ -149,8 +149,9 @@ classdef dme_gen < dm_element
                 %% first check for INFEASIBILITY
                 %% find available online gens at REF and PV buses
                 bus_dme = dm.elements.bus;
-                gbus = bus_dme.i2on(obj.bus(obj.on));   %% buses of online gens
-                remaining = find( bus_dme.isref(gbus) | bus_dme.ispv( gbus) );
+                %% bus types for buses with online gens
+                bt = bus_dme.type(bus_dme.i2on(obj.bus(obj.on)));
+                remaining = find( bt == NODE_TYPE.REF | bt == NODE_TYPE.PV );
 
                 if length(both) == length(remaining) && ...
                         all(both == remaining) && (isempty(mx) || isempty(mn))

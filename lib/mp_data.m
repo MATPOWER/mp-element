@@ -96,14 +96,6 @@ classdef mp_data < mpe_container
             end
         end
 
-        function ntv = node_type_vector(obj, isref, ispv, ispq)
-            %% define node types
-            nt = NODE_TYPE;
-
-            %% package up bus type vector
-            ntv = isref * nt.REF + ispv * nt.PV + ispq * nt.PQ;
-        end
-
         function display(obj)
 %             if have_feature('octave')
 %                 struct(obj)

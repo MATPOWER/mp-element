@@ -22,11 +22,23 @@ classdef (Sealed) NODE_TYPE
     end
 
 %     methods (Access = private)      %% to prevent instantiation
-%         function obj = NODE_TYPES
+%         function obj = NODE_TYPE
 %         end
 %     end
 
     methods (Static)
+%         function TorF = is_pq(val)
+%             TorF = val == NODE_TYPE.PQ;
+%         end
+% 
+%         function TorF = is_pv(val)
+%             TorF = val == NODE_TYPE.PV;
+%         end
+% 
+%         function TorF = is_ref(val)
+%             TorF = val == NODE_TYPE.REF;
+%         end
+
         function TorF = is_valid(val)
             TorF = val == NODE_TYPE.PQ  | val == NODE_TYPE.PV | ...
                    val == NODE_TYPE.REF | val == NODE_TYPE.NONE;

@@ -43,7 +43,7 @@ classdef mp_network_acps_node_test < mp_network_acps
                 for k = gen_dme.nbet:-1:1
                     if dm.elements.is_index_name(gen_dme.bus_elm_types{k})
                         bus_dme{k} = dm.elements.(gen_dme.bus_elm_types{k});
-                        Varefs_k = bus_dme{k}.Va0(find(bus_dme{k}.isref));
+                        Varefs_k = bus_dme{k}.Va0(find(bus_dme{k}.type == NODE_TYPE.REF));
                         Varefs = [Varefs_k; Varefs];
                     else
                         bus_dme{k} = [];

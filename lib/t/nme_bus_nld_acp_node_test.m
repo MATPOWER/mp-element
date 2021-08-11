@@ -26,7 +26,7 @@ classdef nme_bus_nld_acp_node_test < nme_bus_acp
             %% prepare angle bounds for ref buses
             Vamin = -Inf(nb, 1);
             Vamax =  Inf(nb, 1);
-            k = find(dme.isref);
+            k = find(dme.type == NODE_TYPE.REF);
             Vamin(k) = dme.Va0(k);
             Vamax(k) = dme.Va0(k);
 
