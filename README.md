@@ -13,8 +13,8 @@ System Requirements
 *   [GNU Octave][3] version 5.x or later
 *   A development version of [MATPOWER][1] that explicitly includes support
     for MP-Element  
-    _See the [`mp-element`][8] branch of the MATPOWER GitHub repository,
-    including the corresponding [CHANGES][9] file._
+    _The `master` branch of the [MATPOWER GitHub repository][1] now includes
+    the required support. See the [CHANGES][8] file._
 
 
 Installation
@@ -30,7 +30,7 @@ of MATLAB or Octave, including setting up your MATLAB/Octave path.
 2.  Either ...
   - Move the resulting `mp-element` directory to the directory
     containing MATPOWER (must be a version that supports MP-Element),
-    and re-run `install_matpower` (the directory name must be named
+    and re-run `install_matpower` (the directory must be named
     `mp-element` for the installer to recognize its presence),  
   ... _or_ ...
   - Add the following directories to your MATLAB/Octave path:
@@ -56,9 +56,43 @@ of MATLAB or Octave, including setting up your MATLAB/Octave path.
   t_port_inj_power_acp......ok
   t_node_test...............ok
   t_run_mp..................ok
-  All tests successful (1798 of 1798)
-  Elapsed time 9.73 seconds.
+  All tests successful (1795 of 1795)
+  Elapsed time 7.30 seconds.
 ```
+
+
+Getting Started
+---------------
+
+#### Default Behavior
+
+With MP-Element installed, its modeling is used by default by MATPOWER's
+`runpf`, `runcpf` and `runopf` for the following:
+  - DC power flow
+  - DC optimal power flow
+  - AC power flow for all except radial and hybrid Newton-Raphson
+    formulations/solvers
+    - a new `'FSOLVE'` option based on `fsolve()` function is available for
+      AC power flow
+  - AC continuation power flow
+  - AC OPF for solvers MIPS, `fmincon`, IPOPT, and Artelys Knitro, for
+    all formulations
+
+MP-Element modeling can be turned off in favor of the legacy MATPOWER modeling
+with `have_feature('mp_element', 0)`.
+
+Note: The MP-Opt-Model object is used for power flow and continuation power
+flow as well as OPF and is added as `om` field to power flow and CPF `results`
+struct.
+
+#### New Functions
+
+In addition to the old `runpf`, `runcpf` and `runopf` functions which are
+backward compatible when using the MP-Element modeling, there are 3 new
+corresponding functions, namely `run_pf`, `run_cpf` and `run_opf`. They are
+simple wrappers around a new _(unfinished)_ function, `run_mp`, which does
+not convert the MATPOWER case struct to internal numbering before use, and
+will eventually provide a much more flexible environment for customization.
 
 
 Documentation
@@ -102,5 +136,4 @@ author(s) and do not necessarily reflect the views of the funding agencies.
 [5]: https://matpower.org/docs/TN5-MP-Element.pdf
 [6]: https://doi.org/10.5281/zenodo.4110676
 [7]: LICENSE
-[8]: https://github.com/MATPOWER/matpower/tree/mp-element
-[9]: https://github.com/MATPOWER/matpower/blob/mp-element/CHANGES.md
+[8]: https://github.com/MATPOWER/matpower/blob/master/CHANGES.md
