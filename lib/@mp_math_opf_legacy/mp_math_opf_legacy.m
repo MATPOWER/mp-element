@@ -85,7 +85,7 @@ classdef mp_math_opf_legacy < mp_math_opf
         end
 
         function obj = build(obj, nm, dm, mpopt)
-            obj.mpc = dm.userdata.mpc;
+            obj.mpc = dm.source;
             build@mp_math_opf(obj, nm, dm, mpopt);
 
             if strcmp(nm.form_tag, 'dc') && toggle_softlims(obj.mpc, 'status')

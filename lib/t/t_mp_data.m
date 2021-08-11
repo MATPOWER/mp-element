@@ -45,7 +45,7 @@ for k = 1:nt
     if isa(tests{k}{2}, 'mp_data')
         t = sprintf('%s.copy() : ', tests{k}{1});
         dm = tests{k}{2}.copy();
-        tests{k}{2}.userdata.mpc = [];
+        tests{k}{2}.source = [];
         tests{k}{2}.elements{1}.ID = [];
     else
         t = sprintf('mp_data().build(%s, dmc) : ', tests{k}{1});

@@ -11,6 +11,7 @@ classdef mp_data < mpe_container
 
     properties
         baseMVA
+        source
         userdata = struct();
     end     %% properties
 

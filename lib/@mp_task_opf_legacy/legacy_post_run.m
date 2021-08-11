@@ -4,7 +4,7 @@ function [results, success, raw] = legacy_post_run(obj, mpopt)
 %% unpack data
 mm = obj.mm;
 success = obj.success;
-results = obj.dm.userdata.mpc;
+results = obj.dm.source;
 results.success = success;
 
 if mm.getN('var')

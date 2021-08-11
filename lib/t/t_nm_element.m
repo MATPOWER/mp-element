@@ -52,7 +52,7 @@ t_is(length(dc.elements), 0, 12, [t '# of element types']);
 
 t = 'dc.build(dm, dmc) : ';
 dm = mp_data().build(rundcpf(loadcase(casefile), mpopt), dmc);
-mpc = dm.userdata.mpc;
+mpc = dm.source;
 t_ok(mpc.success, [t 'solved power flow']);
 dc.build(dm);
 t_is(dc.nk, 1, 12, [t 'nk']);
@@ -228,7 +228,7 @@ t_is(length(ac.elements), 0, 12, [t '# of element types']);
 
 t = 'ac.build(dm) : ';
 dm = mp_data().build(runpf(loadcase(casefile), mpopt), dmc);
-mpc = dm.userdata.mpc;
+mpc = dm.source;
 t_ok(mpc.success, [t 'solved power flow']);
 ac.build(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);

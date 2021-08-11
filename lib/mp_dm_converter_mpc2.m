@@ -27,7 +27,7 @@ classdef mp_dm_converter_mpc2 < mp_dm_converter
                 d = loadcase(d);
             end
             dm.baseMVA = d.baseMVA;
-            dm.userdata.mpc = d;
+            dm.source = d;
             dm = import@mp_dm_converter(obj, dm, d);
         end
 
@@ -35,7 +35,7 @@ classdef mp_dm_converter_mpc2 < mp_dm_converter
             %% pre-process input related to user vars, constraints, costs
 
             %% create (read-only) copies of individual fields for convenience
-            mpc = dm.userdata.mpc;
+            mpc = dm.source;
             [baseMVA, bus, gen, branch, gencost, A, l, u, mpopt, ...
                 N, fparm, H, Cw, z0, zl, zu, userfcn] = opf_args(mpc, mpopt);
 
@@ -121,7 +121,7 @@ classdef mp_dm_converter_mpc2 < mp_dm_converter
         end
 
         function uc = legacy_user_nln_constraints(obj, dm, mpopt)
-            mpc = dm.userdata.mpc;
+            mpc = dm.source;
 
             %% check for user-defined nonlinear constraints
             nnle = 0;   %% number of nonlinear user-defined equality cons
