@@ -136,39 +136,5 @@ classdef dme_bus < dm_element
             obj.tab.type(obj.on(idx)) = NODE_TYPE.PQ;
             obj.type(idx) = NODE_TYPE.PQ;
         end
-
-        function obj = update(obj, dm, varargin)
-            %% obj.update(dm, name1, val1, name2, val2, ...)
-            %% obj.update(dm, idx, name1, val1, name2, val2, ...)
-
-            n = length(varargin);
-            if rem(n, 2)    %% odd
-                idx = obj.on(varargin{1});
-                s = 2;      %% starting arg index
-            else            %% even
-                idx = obj.on;
-                s = 1;      %% starting arg index
-            end
-            for k = s:2:n-1
-                val = varargin{k+1};
-                switch varargin{k}
-                    case 'Va'
-                        obj.tab.va(idx) = val * 180/pi;
-                    case 'Vm'
-                        obj.tab.vm(idx) = val;
-                    case 'bus_type'
-                        obj.tab.type(idx) = val;
-                        obj.type = obj.tab.type(obj.on);
-                    case 'lamP'
-                        obj.tab.lam_p(idx) = val / dm.baseMVA;
-                    case 'lamQ'
-                        obj.tab.lam_q(idx) = val / dm.baseMVA;
-                    case 'muVmin'
-                        obj.tab.mu_vm_lb(idx) = val;
-                    case 'muVmax'
-                        obj.tab.mu_vm_ub(idx) = val;
-                end
-            end
-        end
     end     %% methods
 end         %% classdef

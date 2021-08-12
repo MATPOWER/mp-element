@@ -29,11 +29,11 @@ classdef nme_gen_dc < nme_gen & mp_form_dc
         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
             %% generator active power
             ss = nm.get_idx('state');
-            Pg = nm.soln.z(ss.i1.gen:ss.iN.gen);
+            Pg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.baseMVA;
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, 'Pg', Pg);
+            dme.tab.pg(dme.on) = Pg;
         end
 
         %%-----  OPF methods  -----
@@ -55,7 +55,7 @@ classdef nme_gen_dc < nme_gen & mp_form_dc
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% generator active power
             ss = nm.get_idx('state');
-            Pg = nm.soln.z(ss.i1.gen:ss.iN.gen);
+            Pg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.baseMVA;
 
             %% shadow prices on generator limits
             vv = mm.get_idx();
@@ -65,7 +65,9 @@ classdef nme_gen_dc < nme_gen & mp_form_dc
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, 'Pg', Pg, 'muPmin', muPmin, 'muPmax', muPmax);
+            dme.tab.pg(dme.on) = Pg;
+            dme.tab.mu_pg_lb(dme.on) = muPmin / dm.baseMVA;
+            dme.tab.mu_pg_ub(dme.on) = muPmax / dm.baseMVA;
         end
     end     %% methods
 end         %% classdef

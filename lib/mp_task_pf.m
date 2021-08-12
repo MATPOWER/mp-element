@@ -91,7 +91,8 @@ classdef mp_task_pf < mp_task
                     mx = [mx;mn];
 
                     %% set Qg to binding limit
-                    gen_dme.update(dm, mx, 'Qg', obj.fixed_q_qty(mx));
+                    gen_dme.tab.qg(gen_dme.on(mx)) = ...
+                        obj.fixed_q_qty(mx) * dm.baseMVA;
 
                     %% convert to PQ bus
                     bus_dme = dm.elements.bus;

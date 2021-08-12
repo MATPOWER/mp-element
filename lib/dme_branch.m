@@ -91,53 +91,6 @@ classdef dme_branch < dm_element
             obj.rate_a = obj.tab.sm_ub_a(obj.on) / dm.baseMVA;
         end
 
-        function obj = update(obj, dm, varargin)
-            %% obj.update(dm, name1, val1, name2, val2, ...)
-            %% obj.update(dm, idx, name1, val1, name2, val2, ...)
-
-            %% define named indices into data matrices
-            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
-                TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
-                ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
-            baseMVA = dm.baseMVA;
-
-            n = length(varargin);
-            if rem(n, 2)    %% odd
-                idx = obj.on(varargin{1});
-                s = 2;      %% starting arg index
-            else            %% even
-                idx = obj.on;
-                s = 1;      %% starting arg index
-            end
-            for k = s:2:n-1
-                val = varargin{k+1};
-                switch varargin{k}
-                    case 'Sf'
-                        obj.tab.pl_fr(idx) = real(val) * baseMVA;
-                        obj.tab.ql_fr(idx) = imag(val) * baseMVA;
-                    case 'St'
-                        obj.tab.pl_to(idx) = real(val) * baseMVA;
-                        obj.tab.ql_to(idx) = imag(val) * baseMVA;
-                    case 'Pf'
-                        obj.tab.pl_fr(idx) = val * baseMVA;
-                    case 'Pt'
-                        obj.tab.pl_to(idx) = val * baseMVA;
-                    case 'Qf'
-                        obj.tab.ql_fr(idx) = val * baseMVA;
-                    case 'Qt'
-                        obj.tab.ql_to(idx) = val * baseMVA;
-                    case {'muSf', 'muPf'}
-                        obj.tab.mu_flow_fr_ub(idx) = val / baseMVA;
-                    case {'muSt', 'muPt'}
-                        obj.tab.mu_flow_to_ub(idx) = val / baseMVA;
-                    case 'muAngmin'
-                        obj.tab.mu_vad_lb(idx) = val * pi/180;
-                    case 'muAngmax'
-                        obj.tab.mu_vad_ub(idx) = val * pi/180;
-                end
-            end
-        end
-
         %%-----  OPF methods  -----
         function [A, l, u, i] = opf_branch_ang_diff_params(obj, dm, ignore)
             %% from makeAang()

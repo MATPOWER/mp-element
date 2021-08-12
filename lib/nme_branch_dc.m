@@ -38,12 +38,13 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
             %% branch active power flow
             pp = nm.get_idx('port');
-            Pf = nm.soln.gp(pp.i1.branch(1):pp.iN.branch(1));
-            Pt = nm.soln.gp(pp.i1.branch(2):pp.iN.branch(2));
+            Pf = nm.soln.gp(pp.i1.branch(1):pp.iN.branch(1)) * dm.baseMVA;
+            Pt = nm.soln.gp(pp.i1.branch(2):pp.iN.branch(2)) * dm.baseMVA;
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, 'Pf', Pf, 'Pt', Pt);
+            dme.tab.pl_fr(dme.on) = Pf;
+            dme.tab.pl_to(dme.on) = Pt;
         end
 
         %%-----  OPF methods  -----
@@ -78,8 +79,8 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% branch active power flow
             pp = nm.get_idx('port');
-            Pf = nm.soln.gp(pp.i1.branch(1):pp.iN.branch(1));
-            Pt = nm.soln.gp(pp.i1.branch(2):pp.iN.branch(2));
+            Pf = nm.soln.gp(pp.i1.branch(1):pp.iN.branch(1)) * dm.baseMVA;
+            Pt = nm.soln.gp(pp.i1.branch(2):pp.iN.branch(2)) * dm.baseMVA;
 
             %% shadow prices on branch flow constraints
             ibr = mm.userdata.flow_constrained_branch_idx;
@@ -97,8 +98,12 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, 'Pf', Pf, 'Pt', Pt, 'muPf', muPf, 'muPt', muPt, ...
-                'muAngmin', muAngmin, 'muAngmax', muAngmax);
+            dme.tab.pl_fr(dme.on) = Pf;
+            dme.tab.pl_to(dme.on) = Pt;
+            dme.tab.mu_flow_fr_ub(dme.on) = muPf / dm.baseMVA;
+            dme.tab.mu_flow_to_ub(dme.on) = muPt / dm.baseMVA;
+            dme.tab.mu_vad_lb(dme.on) = muAngmin * pi/180;
+            dme.tab.mu_vad_ub(dme.on) = muAngmax * pi/180;
         end
     end     %% methods
 end         %% classdef

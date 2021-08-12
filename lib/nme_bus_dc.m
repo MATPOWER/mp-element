@@ -35,7 +35,8 @@ classdef nme_bus_dc < nme_bus & mp_form_dc
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, 'Va', Va, 'Vm', 1);
+            dme.tab.va(dme.on) = Va * 180/pi;
+            dme.tab.vm(dme.on) = 1;
         end
 
         %%-----  OPF methods  -----
@@ -53,7 +54,9 @@ classdef nme_bus_dc < nme_bus & mp_form_dc
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, 'Va', Va, 'Vm', 1, 'lamP', lamP);
+            dme.tab.va(dme.on) = Va * 180/pi;
+            dme.tab.vm(dme.on) = 1;
+            dme.tab.lam_p(dme.on) = lamP / dm.baseMVA;
         end
     end     %% methods
 end         %% classdef

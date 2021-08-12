@@ -29,11 +29,12 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
             %% generator active power
             ss = nm.get_idx('state');
-            Sg = nm.soln.z(ss.i1.gen:ss.iN.gen);
+            Sg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.baseMVA;
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, 'Sg', Sg);
+            dme.tab.pg(dme.on) = real(Sg);
+            dme.tab.qg(dme.on) = imag(Sg);
         end
 
         %%-----  OPF methods  -----
@@ -88,7 +89,7 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% generator active power
             ss = nm.get_idx('state');
-            Sg = nm.soln.z(ss.i1.gen:ss.iN.gen);
+            Sg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.baseMVA;
             Vg = abs(obj.C' * nm.soln.v);
 
             %% shadow prices on generator limits
@@ -130,9 +131,13 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, 'Sg', Sg, 'Vg', Vg, ...
-                'muPmin', muPmin, 'muPmax', muPmax, ...
-                'muQmin', muQmin, 'muQmax', muQmax);
+            dme.tab.pg(dme.on) = real(Sg);
+            dme.tab.qg(dme.on) = imag(Sg);
+            dme.tab.vm_setpoint(dme.on) = Vg;
+            dme.tab.mu_pg_lb(dme.on) = muPmin / dm.baseMVA;
+            dme.tab.mu_pg_ub(dme.on) = muPmax / dm.baseMVA;
+            dme.tab.mu_qg_lb(dme.on) = muQmin / dm.baseMVA;
+            dme.tab.mu_qg_ub(dme.on) = muQmax / dm.baseMVA;
         end
     end     %% methods
 end         %% classdef

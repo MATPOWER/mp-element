@@ -90,48 +90,6 @@ classdef dme_gen < dm_element
             obj.Vg   = gen.vm_setpoint(obj.on);
         end
 
-        function obj = update(obj, dm, varargin)
-            %% obj.update(dm, name1, val1, name2, val2, ...)
-            %% obj.update(dm, idx, name1, val1, name2, val2, ...)
-
-            %% define named indices into data matrices
-            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
-                MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
-                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
-            baseMVA = dm.baseMVA;
-
-            n = length(varargin);
-            if rem(n, 2)    %% odd
-                idx = obj.on(varargin{1});
-                s = 2;      %% starting arg index
-            else            %% even
-                idx = obj.on;
-                s = 1;      %% starting arg index
-            end
-            for k = s:2:n-1
-                val = varargin{k+1};
-                switch varargin{k}
-                    case 'Sg'
-                        obj.tab.pg(idx) = real(val) * baseMVA;
-                        obj.tab.qg(idx) = imag(val) * baseMVA;
-                    case 'Pg'
-                        obj.tab.pg(idx) = val * baseMVA;
-                    case 'Qg'
-                        obj.tab.qg(idx) = val * baseMVA;
-                    case 'Vg'
-                        obj.tab.vm_setpoint(idx) = val;
-                    case 'muPmin'
-                        obj.tab.mu_pg_lb(idx) = val / baseMVA;
-                    case 'muPmax'
-                        obj.tab.mu_pg_ub(idx) = val / baseMVA;
-                    case 'muQmin'
-                        obj.tab.mu_qg_lb(idx) = val / baseMVA;
-                    case 'muQmax'
-                        obj.tab.mu_qg_ub(idx) = val / baseMVA;
-                end
-            end
-        end
-
         function [mn, mx, both] = violated_q_lims(obj, dm, mpopt)
             %% [mn, mx, both] = obj.violated_q_lims(dm, mpopt)
             %%  indices of online gens with violated Q lims

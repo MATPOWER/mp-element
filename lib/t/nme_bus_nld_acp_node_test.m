@@ -42,7 +42,8 @@ classdef nme_bus_nld_acp_node_test < nme_bus_acp
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, 'Va', angle(V), 'Vm', abs(V));
+            dme.tab.va(dme.on) = angle(V) * 180/pi;
+            dme.tab.vm(dme.on) = abs(V);
         end
 
         %%-----  OPF methods  -----
@@ -65,8 +66,12 @@ classdef nme_bus_nld_acp_node_test < nme_bus_acp
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.update(dm, 'Va', angle(V), 'Vm', abs(V), ...
-                'lamP', lamP, 'lamQ', lamQ, 'muVmin', muVmin, 'muVmax', muVmax);
+            dme.tab.va(dme.on) = angle(V) * 180/pi;
+            dme.tab.vm(dme.on) = abs(V);
+            dme.tab.lam_p(dme.on) = lamP / dm.baseMVA;
+            dme.tab.lam_q(dme.on) = lamQ / dm.baseMVA;
+            dme.tab.mu_vm_lb(dme.on) = muVmin;
+            dme.tab.mu_vm_ub(dme.on) = muVmax;
         end
     end     %% methods
 end         %% classdef
