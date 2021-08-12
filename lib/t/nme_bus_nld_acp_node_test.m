@@ -24,14 +24,14 @@ classdef nme_bus_nld_acp_node_test < nme_bus_acp
             nb = obj.nk;
 
             %% prepare angle bounds for ref buses
-            Vamin = -Inf(nb, 1);
-            Vamax =  Inf(nb, 1);
+            va_lb = -Inf(nb, 1);
+            va_ub =  Inf(nb, 1);
             k = find(dme.type == NODE_TYPE.REF);
-            Vamin(k) = dme.Va0(k);
-            Vamax(k) = dme.Va0(k);
+            va_lb(k) = dme.va_start(k);
+            va_ub(k) = dme.va_start(k);
 
-            nm.add_var('va', ['va_' obj.name], nb, dme.Va0, Vamin, Vamax);
-            nm.add_var('vm', ['vm_' obj.name], nb, dme.Vm0, dme.Vmin, dme.Vmax);
+            nm.add_var('va', ['va_' obj.name], nb, dme.va_start, va_lb, va_ub);
+            nm.add_var('vm', ['vm_' obj.name], nb, dme.vm_start, dme.vm_lb, dme.vm_ub);
         end
 
         %%-----  PF methods  -----
@@ -56,22 +56,22 @@ classdef nme_bus_nld_acp_node_test < nme_bus_acp
             vv = mm.get_idx('var');
             lambda = mm.soln.lambda;
             vVm = ['vm_' obj.name];
-            muVmin = lambda.lower(vv.i1.(vVm):vv.iN.(vVm));
-            muVmax = lambda.upper(vv.i1.(vVm):vv.iN.(vVm));
+            mu_vm_lb = lambda.lower(vv.i1.(vVm):vv.iN.(vVm));
+            mu_vm_ub = lambda.upper(vv.i1.(vVm):vv.iN.(vVm));
 
             %% shadow prices on node power balance
-            [lamP, lamQ] = nm.opf_node_power_balance_prices(mm);
-            lamP = lamP(nn.i1.(obj.name):nn.iN.(obj.name)); %% for (obj.name) nodes only
-            lamQ = lamQ(nn.i1.(obj.name):nn.iN.(obj.name)); %% for (obj.name) nodes only
+            [lam_p, lam_q] = nm.opf_node_power_balance_prices(mm);
+            lam_p = lam_p(nn.i1.(obj.name):nn.iN.(obj.name));   %% for (obj.name) nodes only
+            lam_q = lam_q(nn.i1.(obj.name):nn.iN.(obj.name));   %% for (obj.name) nodes only
 
             %% update in the data model
             dme = obj.data_model_element(dm);
             dme.tab.va(dme.on) = angle(V) * 180/pi;
             dme.tab.vm(dme.on) = abs(V);
-            dme.tab.lam_p(dme.on) = lamP / dm.base_mva;
-            dme.tab.lam_q(dme.on) = lamQ / dm.base_mva;
-            dme.tab.mu_vm_lb(dme.on) = muVmin;
-            dme.tab.mu_vm_ub(dme.on) = muVmax;
+            dme.tab.lam_p(dme.on) = lam_p / dm.base_mva;
+            dme.tab.lam_q(dme.on) = lam_q / dm.base_mva;
+            dme.tab.mu_vm_lb(dme.on) = mu_vm_lb;
+            dme.tab.mu_vm_ub(dme.on) = mu_vm_ub;
         end
     end     %% methods
 end         %% classdef

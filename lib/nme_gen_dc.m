@@ -16,7 +16,7 @@ classdef nme_gen_dc < nme_gen & mp_form_dc
         function obj = add_zvars(obj, nm, dm, idx)
             ng = obj.nk;
             dme = obj.data_model_element(dm);
-            nm.add_var('z', 'Pg', ng, dme.Pg0, dme.Pmin, dme.Pmax);
+            nm.add_var('z', 'Pg', ng, dme.pg_start, dme.pg_lb, dme.pg_ub);
         end
 
         function obj = build_params(obj, nm, dm)
@@ -29,11 +29,11 @@ classdef nme_gen_dc < nme_gen & mp_form_dc
         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
             %% generator active power
             ss = nm.get_idx('state');
-            Pg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.base_mva;
+            pg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.base_mva;
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.tab.pg(dme.on) = Pg;
+            dme.tab.pg(dme.on) = pg;
         end
 
         %%-----  OPF methods  -----
@@ -55,19 +55,19 @@ classdef nme_gen_dc < nme_gen & mp_form_dc
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% generator active power
             ss = nm.get_idx('state');
-            Pg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.base_mva;
+            pg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.base_mva;
 
             %% shadow prices on generator limits
             vv = mm.get_idx();
             lambda = mm.soln.lambda;
-            muPmax = lambda.upper(vv.i1.Pg:vv.iN.Pg);
-            muPmin = lambda.lower(vv.i1.Pg:vv.iN.Pg);
+            mu_pg_ub = lambda.upper(vv.i1.Pg:vv.iN.Pg);
+            mu_pg_lb = lambda.lower(vv.i1.Pg:vv.iN.Pg);
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.tab.pg(dme.on) = Pg;
-            dme.tab.mu_pg_lb(dme.on) = muPmin / dm.base_mva;
-            dme.tab.mu_pg_ub(dme.on) = muPmax / dm.base_mva;
+            dme.tab.pg(dme.on) = pg;
+            dme.tab.mu_pg_lb(dme.on) = mu_pg_lb / dm.base_mva;
+            dme.tab.mu_pg_ub(dme.on) = mu_pg_ub / dm.base_mva;
         end
     end     %% methods
 end         %% classdef

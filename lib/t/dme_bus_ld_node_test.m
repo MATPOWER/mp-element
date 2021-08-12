@@ -10,11 +10,11 @@ classdef dme_bus_ld_node_test < dme_bus_nld_node_test
 %   See https://matpower.org for more info.
 
     properties
-        Pd      %% active power demand (p.u.) for loads at buses that are on
-        Qd      %% reactive power demand (p.u.) for loads at buses that are on
-        Gs      %% shunt conductance (p.u. active power demanded at
+        pd      %% active power demand (p.u.) for loads at buses that are on
+        qd      %% reactive power demand (p.u.) for loads at buses that are on
+        gs      %% shunt conductance (p.u. active power demanded at
                 %% V = 1.0 p.u.) for shunts at buses that are on
-        Bs      %% shunt susceptance (p.u. reactive power injected at
+        bs      %% shunt susceptance (p.u. reactive power injected at
                 %% V = 1.0 p.u.) for shunts at buses that are on
     end     %% properties
 
@@ -35,10 +35,10 @@ classdef dme_bus_ld_node_test < dme_bus_nld_node_test
         function obj = build_params(obj, dm)
             obj = build_params@dme_bus(obj, dm);   %% call parent
 
-            obj.Pd = obj.tab.pd(obj.on) / dm.base_mva;
-            obj.Qd = obj.tab.qd(obj.on) / dm.base_mva;
-            obj.Gs = obj.tab.gs(obj.on) / dm.base_mva;
-            obj.Bs = obj.tab.bs(obj.on) / dm.base_mva;
+            obj.pd = obj.tab.pd(obj.on) / dm.base_mva;
+            obj.qd = obj.tab.qd(obj.on) / dm.base_mva;
+            obj.gs = obj.tab.gs(obj.on) / dm.base_mva;
+            obj.bs = obj.tab.bs(obj.on) / dm.base_mva;
         end
     end     %% methods
 end         %% classdef

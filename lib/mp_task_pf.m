@@ -86,11 +86,11 @@ classdef mp_task_pf < mp_task
                     end
 
                     %% save corresponding limit values
-                    obj.fixed_q_qty(mx) = gen_dme.Qmax(mx);
-                    obj.fixed_q_qty(mn) = gen_dme.Qmin(mn);
+                    obj.fixed_q_qty(mx) = gen_dme.qg_ub(mx);
+                    obj.fixed_q_qty(mn) = gen_dme.qg_lb(mn);
                     mx = [mx;mn];
 
-                    %% set Qg to binding limit
+                    %% set qg to binding limit
                     gen_dme.tab.qg(gen_dme.on(mx)) = ...
                         obj.fixed_q_qty(mx) * dm.base_mva;
 

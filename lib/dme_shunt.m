@@ -11,9 +11,9 @@ classdef dme_shunt < dm_element
 
     properties
         bus     %% bus index vector (all shunts)
-        Gs      %% shunt conductance (p.u. active power demanded at
+        gs      %% shunt conductance (p.u. active power demanded at
                 %% V = 1.0 p.u.) for shunts that are on
-        Bs      %% shunt susceptance (p.u. reactive power injected at
+        bs      %% shunt susceptance (p.u. reactive power injected at
                 %% V = 1.0 p.u.) for shunts that are on
     end     %% properties
 
@@ -59,8 +59,8 @@ classdef dme_shunt < dm_element
         end
 
         function obj = build_params(obj, dm)
-            obj.Gs = obj.tab.gs(obj.on) / dm.base_mva;
-            obj.Bs = obj.tab.bs(obj.on) / dm.base_mva;
+            obj.gs = obj.tab.gs(obj.on) / dm.base_mva;
+            obj.bs = obj.tab.bs(obj.on) / dm.base_mva;
         end
 
         function dm = parameterized(obj, dm, dmb, dmt, lam)

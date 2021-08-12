@@ -15,8 +15,8 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
         function obj = add_zvars(obj, nm, dm, idx)
             ng = obj.nk;
             dme = obj.data_model_element(dm);
-            nm.add_var('zr', 'Pg', ng, dme.Pg0, dme.Pmin, dme.Pmax);
-            nm.add_var('zi', 'Qg', ng, dme.Qg0, dme.Qmin, dme.Qmax);
+            nm.add_var('zr', 'Pg', ng, dme.pg_start, dme.pg_lb, dme.pg_ub);
+            nm.add_var('zi', 'Qg', ng, dme.qg_start, dme.qg_lb, dme.qg_ub);
         end
 
         function obj = build_params(obj, nm, dm)
@@ -90,23 +90,23 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
             %% generator active power
             ss = nm.get_idx('state');
             Sg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.base_mva;
-            Vg = abs(obj.C' * nm.soln.v);
+            vm_setpoint = abs(obj.C' * nm.soln.v);
 
             %% shadow prices on generator limits
             [vv, ll] = mm.get_idx();
             lambda = mm.soln.lambda;
-            muPmax = lambda.upper(vv.i1.Pg:vv.iN.Pg);
-            muPmin = lambda.lower(vv.i1.Pg:vv.iN.Pg);
-            muQmax = lambda.upper(vv.i1.Qg:vv.iN.Qg);
-            muQmin = lambda.lower(vv.i1.Qg:vv.iN.Qg);
+            mu_pg_ub = lambda.upper(vv.i1.Pg:vv.iN.Pg);
+            mu_pg_lb = lambda.lower(vv.i1.Pg:vv.iN.Pg);
+            mu_qg_ub = lambda.upper(vv.i1.Qg:vv.iN.Qg);
+            mu_qg_lb = lambda.lower(vv.i1.Qg:vv.iN.Qg);
 
             %% gen PQ capability curve multipliers - based on update_mupq()
             if ll.N.PQh > 0 || ll.N.PQl > 0
                 d = mm.get_userdata('Apqdata');
 
                 %% combine original limit multipliers into single value
-                muP = muPmax - muPmin;
-                muQ = muQmax - muQmin;
+                muP = mu_pg_ub - mu_pg_lb;
+                muQ = mu_qg_ub - mu_qg_lb;
 
                 %% add P and Q components of multipliers on upper sloped constraint
                 if ~isempty(d.ipqh)
@@ -123,21 +123,21 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
                 end
 
                 %% split back into upper and lower multipliers based on sign
-                muPmax = (muP > 0) .*  muP;
-                muPmin = (muP < 0) .* -muP;
-                muQmax = (muQ > 0) .*  muQ;
-                muQmin = (muQ < 0) .* -muQ;
+                mu_pg_ub = (muP > 0) .*  muP;
+                mu_pg_lb = (muP < 0) .* -muP;
+                mu_qg_ub = (muQ > 0) .*  muQ;
+                mu_qg_lb = (muQ < 0) .* -muQ;
             end
 
             %% update in the data model
             dme = obj.data_model_element(dm);
             dme.tab.pg(dme.on) = real(Sg);
             dme.tab.qg(dme.on) = imag(Sg);
-            dme.tab.vm_setpoint(dme.on) = Vg;
-            dme.tab.mu_pg_lb(dme.on) = muPmin / dm.base_mva;
-            dme.tab.mu_pg_ub(dme.on) = muPmax / dm.base_mva;
-            dme.tab.mu_qg_lb(dme.on) = muQmin / dm.base_mva;
-            dme.tab.mu_qg_ub(dme.on) = muQmax / dm.base_mva;
+            dme.tab.vm_setpoint(dme.on) = vm_setpoint;
+            dme.tab.mu_pg_lb(dme.on) = mu_pg_lb / dm.base_mva;
+            dme.tab.mu_pg_ub(dme.on) = mu_pg_ub / dm.base_mva;
+            dme.tab.mu_qg_lb(dme.on) = mu_qg_lb / dm.base_mva;
+            dme.tab.mu_qg_ub(dme.on) = mu_qg_ub / dm.base_mva;
         end
     end     %% methods
 end         %% classdef

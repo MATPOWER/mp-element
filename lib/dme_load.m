@@ -11,12 +11,12 @@ classdef dme_load < dm_element
 
     properties
         bus     %% bus index vector (all loads)
-        Pd      %% active power demand (p.u.) for constant power loads that are on
-        Qd      %% reactive power demand (p.u.) for constant power loads that are on
-        Pd_i    %% active power demand (p.u.) for constant current loads that are on
-        Qd_i    %% reactive power demand (p.u.) for constant current loads that are on
-        Pd_z    %% active power demand (p.u.) for constant impedance loads that are on
-        Qd_z    %% reactive power demand (p.u.) for constant impedance loads that are on
+        pd      %% active power demand (p.u.) for constant power loads that are on
+        qd      %% reactive power demand (p.u.) for constant power loads that are on
+        pd_i    %% active power demand (p.u.) for constant current loads that are on
+        qd_i    %% reactive power demand (p.u.) for constant current loads that are on
+        pd_z    %% active power demand (p.u.) for constant impedance loads that are on
+        qd_z    %% reactive power demand (p.u.) for constant impedance loads that are on
     end     %% properties
 
     methods
@@ -62,12 +62,12 @@ classdef dme_load < dm_element
         end
 
         function obj = build_params(obj, dm)
-            obj.Pd   = obj.tab.pd(obj.on) / dm.base_mva;
-            obj.Qd   = obj.tab.qd(obj.on) / dm.base_mva;
-            obj.Pd_i = obj.tab.pd_i(obj.on) / dm.base_mva;
-            obj.Qd_i = obj.tab.qd_i(obj.on) / dm.base_mva;
-            obj.Pd_z = obj.tab.pd_z(obj.on) / dm.base_mva;
-            obj.Qd_z = obj.tab.qd_z(obj.on) / dm.base_mva;
+            obj.pd   = obj.tab.pd(obj.on) / dm.base_mva;
+            obj.qd   = obj.tab.qd(obj.on) / dm.base_mva;
+            obj.pd_i = obj.tab.pd_i(obj.on) / dm.base_mva;
+            obj.qd_i = obj.tab.qd_i(obj.on) / dm.base_mva;
+            obj.pd_z = obj.tab.pd_z(obj.on) / dm.base_mva;
+            obj.qd_z = obj.tab.qd_z(obj.on) / dm.base_mva;
         end
 
         function dm = parameterized(obj, dm, dmb, dmt, lam)

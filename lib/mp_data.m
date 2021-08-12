@@ -179,27 +179,27 @@ classdef mp_data < mpe_container
 
             %% gen connection matrix, element i, j is 1 if, generator j at bus i is ON
             Cg = sparse(gbus, (1:ng)', 1, nb, ng);
-            Vbg = Cg * sparse(1:ng, 1:ng, gen_dme.Vg, ng, ng);
-            Vmax = max(Vbg, [], 2); %% zero for non-gen buses, else max Vg of gens @ bus
-            ib = find(Vmax);                %% buses with online gens
-            Vmin = max(2*Cg - Vbg, [], 2);  %% same as Vmax, except min Vg of gens @ bus
-            Vmin(ib) = 2 - Vmin(ib);
+            Vbg = Cg * sparse(1:ng, 1:ng, gen_dme.vm_setpoint, ng, ng);
+            vm_ub = max(Vbg, [], 2);    %% zero for non-gen buses, else max vm_setpoint of gens @ bus
+            ib = find(vm_ub);               %% buses with online gens
+            vm_lb = max(2*Cg - Vbg, [], 2); %% same as vm_ub, except min vm_setpoint of gens @ bus
+            vm_lb(ib) = 2 - vm_lb(ib);
 
-            if use_vg == 1      %% use Vg setpoint directly
-                bus_dme.Vmax(ib) = Vmax(ib);    %% max set by max Vg @ bus
-                bus_dme.Vmin(ib) = Vmin(ib);    %% min set by min Vg @ bus
-                bus_dme.Vm0(ib) = Vmax(ib);
+            if use_vg == 1      %% use vm_setpoint setpoint directly
+                bus_dme.vm_ub(ib) = vm_ub(ib);  %% ub set by max vm_setpoint @ bus
+                bus_dme.vm_lb(ib) = vm_lb(ib);  %% lb set by min vm_setpoint @ bus
+                bus_dme.vm_start(ib) = vm_ub(ib);
             elseif use_vg > 0 && use_vg < 1     %% fractional value
-                %% use weighted avg between original Vmin/Vmax limits and Vg
-                bus_dme.Vmax(ib) = (1-use_vg) * bus_dme.Vmax(ib) + use_vg * Vmax(ib);
-                bus_dme.Vmin(ib) = (1-use_vg) * bus_dme.Vmin(ib) + use_vg * Vmin(ib);
+                %% use weighted avg between original vm_lb/vm_ub limits and vm_setpoint
+                bus_dme.vm_ub(ib) = (1-use_vg) * bus_dme.vm_ub(ib) + use_vg * vm_ub(ib);
+                bus_dme.vm_lb(ib) = (1-use_vg) * bus_dme.vm_lb(ib) + use_vg * vm_lb(ib);
             else
                 error('mp_data/set_bus_v_lims_via_vg: option ''opf.use_vg'' (= %g) cannot be negative or greater than 1', use_vg);
             end
 
             %% update bus table as well (for output)
-            bus_dme.tab.vm_ub(bus_dme.on(ib)) = bus_dme.Vmax(ib);
-            bus_dme.tab.vm_lb(bus_dme.on(ib)) = bus_dme.Vmin(ib);
+            bus_dme.tab.vm_ub(bus_dme.on(ib)) = bus_dme.vm_ub(ib);
+            bus_dme.tab.vm_lb(bus_dme.on(ib)) = bus_dme.vm_lb(ib);
         end
     end     %% methods
 end         %% classdef

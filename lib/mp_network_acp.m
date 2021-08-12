@@ -86,11 +86,11 @@ classdef mp_network_acp < mp_network_ac% & mp_form_acp
                         if b > nb
                             b = b - nb;
                             nlabel = obj.set_type_label('node', b, dm);
-                            msg = sprintf('%snode voltage magnitude limit violated in base case: %s exceeds Vmax limit %g p.u.',...
+                            msg = sprintf('%snode voltage magnitude limit violated in base case: %s exceeds vm upper bound %g p.u.',...
                                msg, nlabel, vm_max(b));
                         else
                             nlabel = obj.set_type_label('node', b, dm);
-                            msg = sprintf('%snode voltage magnitude limit violated in base case: %s exceeds Vmin limit %g p.u.',...
+                            msg = sprintf('%snode voltage magnitude limit violated in base case: %s exceeds vm lower bound %g p.u.',...
                                msg, nlabel, vm_min(b));
                         end
                     end
@@ -124,11 +124,11 @@ classdef mp_network_acp < mp_network_ac% & mp_form_acp
                     if b > nb
                         b = b - nb;
                         nlabel = obj.set_type_label('node', b, dm);
-                        msg = sprintf('%snode voltage magnitude limit reached\n%s at Vmax limit %g p.u. @ lambda = %.4g, in %d continuation steps',...
+                        msg = sprintf('%snode voltage magnitude limit reached\n%s at vm upper bound %g p.u. @ lambda = %.4g, in %d continuation steps',...
                             msg, nlabel, vm_max(b), nx.x(end), k);
                     else
                         nlabel = obj.set_type_label('node', b, dm);
-                        msg = sprintf('%snode voltage magnitude limit reached\n%s at Vmin limit %g p.u. @ lambda = %.4g, in %d continuation steps',...
+                        msg = sprintf('%snode voltage magnitude limit reached\n%s at vm lower bound %g p.u. @ lambda = %.4g, in %d continuation steps',...
                             msg, nlabel, vm_min(b), nx.x(end), k);
                     end
                 end

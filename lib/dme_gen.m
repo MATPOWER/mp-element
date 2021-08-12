@@ -11,18 +11,18 @@ classdef dme_gen < dm_element
 %   See https://matpower.org for more info.
 
     properties
-        bus     %% bus index vector (all gens)
-        Pg0     %% initial active power (p.u.) for gens that are on
-        Qg0     %% initial reactive power (p.u.) for gens that are on
-        Vg      %% generator voltage setpoint
-        Pmin    %% active power lower bound (p.u.) for gens that are on
-        Pmax    %% active power upper bound (p.u.) for gens that are on
-        Qmin    %% reactive power lower bound (p.u.) for gens that are on
-        Qmax    %% reactive power upper bound (p.u.) for gens that are on
-        cost_pg %% table for cost parameters for active power generation
-        cost_qg %% table for cost parameters for reactive power generation
-        pwl1    %% indices of single-block piecewise linear costs
-                %% (automatically converted to linear cost)
+        bus         %% bus index vector (all gens)
+        pg_start    %% initial active power (p.u.) for gens that are on
+        qg_start    %% initial reactive power (p.u.) for gens that are on
+        vm_setpoint %% generator voltage setpoint for gens that are on
+        pg_lb       %% active power lower bound (p.u.) for gens that are on
+        pg_ub       %% active power upper bound (p.u.) for gens that are on
+        qg_lb       %% reactive power lower bound (p.u.) for gens that are on
+        qg_ub       %% reactive power upper bound (p.u.) for gens that are on
+        cost_pg     %% table for cost parameters for active power generation
+        cost_qg     %% table for cost parameters for reactive power generation
+        pwl1        %% indices of single-block piecewise linear costs
+                    %% (automatically converted to linear cost)
     end     %% properties
 
     methods
@@ -81,13 +81,13 @@ classdef dme_gen < dm_element
             gen = obj.tab;
 
             %% get generator parameters
-            obj.Pg0  = gen.pg(obj.on) / base_mva;
-            obj.Pmin = gen.pg_lb(obj.on) / base_mva;
-            obj.Pmax = gen.pg_ub(obj.on) / base_mva;
-            obj.Qg0  = gen.qg(obj.on) / base_mva;
-            obj.Qmin = gen.qg_lb(obj.on) / base_mva;
-            obj.Qmax = gen.qg_ub(obj.on) / base_mva;
-            obj.Vg   = gen.vm_setpoint(obj.on);
+            obj.pg_start = gen.pg(obj.on) / base_mva;
+            obj.pg_lb = gen.pg_lb(obj.on) / base_mva;
+            obj.pg_ub = gen.pg_ub(obj.on) / base_mva;
+            obj.qg_start  = gen.qg(obj.on) / base_mva;
+            obj.qg_lb = gen.qg_lb(obj.on) / base_mva;
+            obj.qg_ub = gen.qg_ub(obj.on) / base_mva;
+            obj.vm_setpoint = gen.vm_setpoint(obj.on);
         end
 
         function [mn, mx, both] = violated_q_lims(obj, dm, mpopt)
@@ -114,7 +114,7 @@ classdef dme_gen < dm_element
                 if length(both) == length(remaining) && ...
                         all(both == remaining) && (isempty(mx) || isempty(mn))
                     %% all remaining PV/REF gens are violating AND all are
-                    %% violating same limit (all violating Qmin or all Qmax)
+                    %% violating same limit (all violating qg_lb or all qg_ub)
                     mn = [];
                     mx = [];
                 else
@@ -184,10 +184,10 @@ classdef dme_gen < dm_element
             ipwl = find(cost.pwl_n);    %% piece-wise linear costs
             ny = size(ipwl, 1);     %% number of piece-wise linear cost vars
             if dc
-                nq = 0;     %% number of Qg variables
+                nq = 0;     %% number of qg variables
                 q1 = [];
             else
-                nq = ng;    %% number of Qg variables
+                nq = ng;    %% number of qg variables
                 q1 = 1+ng;
             end
 
@@ -198,12 +198,12 @@ classdef dme_gen < dm_element
                 by = [];
             else
                 %% if p(i),p(i+1),c(i),c(i+1) define one of the cost segments,
-                %% then the corresponding constraint on Pg (or Qg) and Y is
+                %% then the corresponding constraint on pg (or qg) and Y is
                 %%                                             c(i+1) - c(i)
-                %%  Y   >=   c(i) + m * (Pg - p(i)),      m = ---------------
+                %%  Y   >=   c(i) + m * (pg - p(i)),      m = ---------------
                 %%                                             p(i+1) - p(i)
                 %%
-                %% this becomes   m * Pg - Y   <=   m*p(i) - c(i)
+                %% this becomes   m * pg - Y   <=   m*p(i) - c(i)
 
                 %% form constraint matrix
                 m = sum(cost.pwl_n(ipwl));  %% total number of cost points
@@ -215,7 +215,7 @@ classdef dme_gen < dm_element
                     ns = cost.pwl_n(i); %% # of cost points; segments = ns-1
                     p = cost.pwl_qty(i, 1:ns) / base_mva;
                     c = cost.pwl_cost(i, 1:ns);
-                    m = diff(c) ./ diff(p);         %% slopes for Pg (or Qg)
+                    m = diff(c) ./ diff(p);         %% slopes for pg (or qg)
                     if any(diff(p) == 0)
                         fprintf('dme_gen/gen_cost_pwl_params: bad qty data in row %i of cost matrix\n', i);
                     end
@@ -289,7 +289,7 @@ classdef dme_gen < dm_element
             ng = size(gen, 1);      %% number of dispatchable injections
 
             %% which generators require additional linear constraints
-            %% (in addition to simple box constraints) on (Pg,Qg) to correctly
+            %% (in addition to simple box constraints) on (pg,qg) to correctly
             %% model their PQ capability curves
             ipqh = find( obj.has_pq_cap(gen, 'U') );
             ipql = find( obj.has_pq_cap(gen, 'L') );
@@ -400,18 +400,18 @@ classdef dme_gen < dm_element
         function [A, l, u] = disp_load_constant_pf_constraint(obj, dm);
             %% data dimensions
             ng = obj.n;     %% number of dispatchable injections
-            Pg = obj.Pg0;
-            Qg = obj.Qg0;
-            Pmin = obj.Pmin;
-            Qmin = obj.Qmin;
-            Qmax = obj.Qmax;
+            pg = obj.pg_start;
+            qg = obj.qg_start;
+            pg_lb = obj.pg_lb;
+            qg_lb = obj.qg_lb;
+            qg_ub = obj.qg_ub;
 
-            ivl = find( obj.isload(obj.on) & (Qmin ~= 0 | Qmax ~= 0) );
+            ivl = find( obj.isload(obj.on) & (qg_lb ~= 0 | qg_ub ~= 0) );
             nvl  = size(ivl, 1);  %% number of dispatchable loads
 
-            %% at least one of the Q limits must be zero (corresponding to Pmax == 0)
-            if any( Qmin(ivl) ~= 0 & Qmax(ivl) ~= 0 )
-                k = find(Qmin(ivl) ~= 0 & Qmax(ivl) ~= 0);
+            %% at least one of the Q limits must be zero (corresponding to pg_ub == 0)
+            if any( qg_lb(ivl) ~= 0 & qg_ub(ivl) ~= 0 )
+                k = find(qg_lb(ivl) ~= 0 & qg_ub(ivl) ~= 0);
                 gidx = obj.tab.uid(obj.on(ivl(k)));
                 s = sprintf('Invalid qg limits for dispatchable load in row %d of gen table\n', gidx);
                 error('dme_gen/disp_load_constant_pf_constraint: Either qg_lb or qg_ub must be equal to zero for each dispatchable load.\n%s', s);
@@ -419,12 +419,12 @@ classdef dme_gen < dm_element
 
             %% Initial values of PG and QG must be consistent with specified
             %% power factor
-            Qlim = (Qmin(ivl) == 0) .* Qmax(ivl) + ...
-                (Qmax(ivl) == 0) .* Qmin(ivl);
-            if any( abs( Qg(ivl) - Pg(ivl) .* Qlim ./ Pmin(ivl) ) > 1e-6 )
-                k = find(abs( Qg(ivl) - Pg(ivl) .* Qlim ./ Pmin(ivl) ) > 1e-6);
+            Qlim = (qg_lb(ivl) == 0) .* qg_ub(ivl) + ...
+                (qg_ub(ivl) == 0) .* qg_lb(ivl);
+            if any( abs( qg(ivl) - pg(ivl) .* Qlim ./ pg_lb(ivl) ) > 1e-6 )
+                k = find(abs( qg(ivl) - pg(ivl) .* Qlim ./ pg_lb(ivl) ) > 1e-6);
                 gidx = obj.tab.uid(obj.on(ivl(k)));
-                s = sprintf('qg for dispatchable load in row %d of gen table must be pg * %g\n', [gidx Qlim ./ Pmin(ivl)]');
+                s = sprintf('qg for dispatchable load in row %d of gen table must be pg * %g\n', [gidx Qlim ./ pg_lb(ivl)]');
                 error('dme_gen/disp_load_constant_pf_constraint: %s\n         %s\n         %s\n         %s\n%s', ...
                     'For a dispatchable load, pg and qg must be consistent', ...
                     'with the power factor defined by pg_lb and the relevant', ...
@@ -432,9 +432,9 @@ classdef dme_gen < dm_element
                     'Note: Setting pg = qg = 0 satisfies this condition.', s);
             end
 
-            %% make A, l, u, for l <= A * [Pg; Qg] <= u
+            %% make A, l, u, for l <= A * [pg; qg] <= u
             if nvl > 0
-                xx = Pmin(ivl);
+                xx = pg_lb(ivl);
                 yy = Qlim;
                 pftheta = atan2(yy, xx);
                 pc = sin(pftheta);

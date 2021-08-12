@@ -30,11 +30,11 @@ classdef nme_bus_ld_acp_node_test < nme_bus_nld_acp_node_test
             dme = obj.data_model_element(dm);
 
             %% bus shunts
-            Ysh = dme.Gs + 1j * dme.Bs;             %% shunt admittances
+            Ysh = dme.gs + 1j * dme.bs;             %% shunt admittances
             obj.Y = sparse(1:obj.nk, 1:obj.nk, Ysh, obj.nk, obj.nk);
 
             %% constant power loads
-            obj.s = dme.Pd + 1j * dme.Qd;           %% complex power demand
+            obj.s = dme.pd + 1j * dme.qd;           %% complex power demand
         end
     end     %% methods
 end         %% classdef

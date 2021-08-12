@@ -75,16 +75,16 @@ classdef nme_branch_acc < nme_branch_ac & mp_form_acc
             mm.userdata.ang_diff_constrained_branch_idx = iang;
         end
 
-        function [muAngmin, muAngmax] = opf_branch_ang_diff_prices(obj, mm)
+        function [mu_vad_lb, mu_vad_ub] = opf_branch_ang_diff_prices(obj, mm)
             %% shadow prices on angle difference limits
             iang = mm.userdata.ang_diff_constrained_branch_idx;
-            muAngmin = zeros(obj.nk, 1);
-            muAngmax = muAngmin;
+            mu_vad_lb = zeros(obj.nk, 1);
+            mu_vad_ub = mu_vad_lb;
             if length(iang)
                 nni = mm.get_idx('nli');
                 lambda = mm.soln.lambda;
-                muAngmax(iang) = lambda.ineqnonlin(nni.i1.angU:nni.iN.angU);
-                muAngmin(iang) = lambda.ineqnonlin(nni.i1.angL:nni.iN.angL);
+                mu_vad_ub(iang) = lambda.ineqnonlin(nni.i1.angU:nni.iN.angU);
+                mu_vad_lb(iang) = lambda.ineqnonlin(nni.i1.angL:nni.iN.angL);
             end
         end
     end     %% methods

@@ -16,7 +16,7 @@ classdef nme_load_dc < nme_load & mp_form_dc
             build_params@nme_load(obj, nm, dm);     %% call parent
 
             dme = obj.data_model_element(dm);
-            obj.p = dme.Pd;                         %% active power demand
+            obj.p = dme.pd;                         %% active power demand
         end
     end     %% methods
 end         %% classdef

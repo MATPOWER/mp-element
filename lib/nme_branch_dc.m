@@ -19,13 +19,13 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
             dme = obj.data_model_element(dm);
             nl = obj.nk;
 
-            tap = ones(nl, 1);          %% default tap ratio = 1
-            i = find(dme.tap);          %% indices of non-zero tap ratios
-            tap(i) = dme.tap(i);        %% assign non-zero tap ratios
+            tm = ones(nl, 1);           %% default tap ratio = 1
+            i = find(dme.tm);           %% indices of non-zero tap ratios
+            tm(i) = dme.tm(i);          %% assign non-zero tap ratios
 
-            b = 1 ./ dme.X;             %% series susceptance
-            b = b ./ tap;
-            Pfinj = b .* (-dme.shift);
+            b = 1 ./ dme.x;             %% series susceptance
+            b = b ./ tm;
+            Pfinj = b .* (-dme.ta);
             obj.B = sparse( ...
                 [1:nl 1:nl nl+1:2*nl nl+1:2*nl]', ...
                 [1:nl nl+1:2*nl 1:nl nl+1:2*nl]', ...
@@ -38,13 +38,13 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
             %% branch active power flow
             pp = nm.get_idx('port');
-            Pf = nm.soln.gp(pp.i1.branch(1):pp.iN.branch(1)) * dm.base_mva;
-            Pt = nm.soln.gp(pp.i1.branch(2):pp.iN.branch(2)) * dm.base_mva;
+            pl_fr = nm.soln.gp(pp.i1.branch(1):pp.iN.branch(1)) * dm.base_mva;
+            pl_to = nm.soln.gp(pp.i1.branch(2):pp.iN.branch(2)) * dm.base_mva;
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.tab.pl_fr(dme.on) = Pf;
-            dme.tab.pl_to(dme.on) = Pt;
+            dme.tab.pl_fr(dme.on) = pl_fr;
+            dme.tab.pl_to(dme.on) = pl_to;
         end
 
         %%-----  OPF methods  -----
@@ -79,31 +79,31 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% branch active power flow
             pp = nm.get_idx('port');
-            Pf = nm.soln.gp(pp.i1.branch(1):pp.iN.branch(1)) * dm.base_mva;
-            Pt = nm.soln.gp(pp.i1.branch(2):pp.iN.branch(2)) * dm.base_mva;
+            pl_fr = nm.soln.gp(pp.i1.branch(1):pp.iN.branch(1)) * dm.base_mva;
+            pl_to = nm.soln.gp(pp.i1.branch(2):pp.iN.branch(2)) * dm.base_mva;
 
             %% shadow prices on branch flow constraints
             ibr = mm.userdata.flow_constrained_branch_idx;
-            muPf = zeros(obj.nk, 1);
-            muPt = muPf;
+            mu_flow_fr_ub = zeros(obj.nk, 1);
+            mu_flow_to_ub = mu_flow_fr_ub;
             if length(ibr)
                 ll = mm.get_idx('lin');
                 lambda = mm.soln.lambda;
-                muPf(ibr) = lambda.mu_u(ll.i1.Pf:ll.iN.Pf);
-                muPt(ibr) = lambda.mu_l(ll.i1.Pf:ll.iN.Pf);
+                mu_flow_fr_ub(ibr) = lambda.mu_u(ll.i1.Pf:ll.iN.Pf);
+                mu_flow_to_ub(ibr) = lambda.mu_l(ll.i1.Pf:ll.iN.Pf);
             end
 
             %% shadow prices on angle difference limits
-            [muAngmin, muAngmax] = obj.opf_branch_ang_diff_prices(mm);
+            [mu_vad_lb, mu_vad_ub] = obj.opf_branch_ang_diff_prices(mm);
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.tab.pl_fr(dme.on) = Pf;
-            dme.tab.pl_to(dme.on) = Pt;
-            dme.tab.mu_flow_fr_ub(dme.on) = muPf / dm.base_mva;
-            dme.tab.mu_flow_to_ub(dme.on) = muPt / dm.base_mva;
-            dme.tab.mu_vad_lb(dme.on) = muAngmin * pi/180;
-            dme.tab.mu_vad_ub(dme.on) = muAngmax * pi/180;
+            dme.tab.pl_fr(dme.on) = pl_fr;
+            dme.tab.pl_to(dme.on) = pl_to;
+            dme.tab.mu_flow_fr_ub(dme.on) = mu_flow_fr_ub / dm.base_mva;
+            dme.tab.mu_flow_to_ub(dme.on) = mu_flow_to_ub / dm.base_mva;
+            dme.tab.mu_vad_lb(dme.on) = mu_vad_lb * pi/180;
+            dme.tab.mu_vad_ub(dme.on) = mu_vad_ub * pi/180;
         end
     end     %% methods
 end         %% classdef

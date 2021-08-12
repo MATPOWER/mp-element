@@ -94,7 +94,7 @@ t_ok(~isequal(mpc, mpc0), [t 'mpc ~= mpc0']);
 t_ok( isequal(mpc, mpc1), [t 'mpc == updated_mpc']);
 
 
-% Vm = [mpc0.bus(:, 8) mpc1.bus(:, 8) mpc.bus(:, 8) dm.elements.bus.tab.vm]
+% vm = [mpc0.bus(:, 8) mpc1.bus(:, 8) mpc.bus(:, 8) dm.elements.bus.tab.vm]
 % Pd = [mpc0.bus(:, 3) mpc1.bus(:, 3) mpc.bus(:, 3)]
 % Pdm = dm.elements.load.tab.pd
 

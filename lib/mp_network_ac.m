@@ -734,13 +734,13 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 x_ = obj.cpf_convert_x(cx.x, ad);
 
                 %% branch flows
-                Sf = branch_nme.port_inj_power(x_, 1, ibr)    * dm.base_mva;
-                St = branch_nme.port_inj_power(x_, 1, nl+ibr) * dm.base_mva;
-                Sf = sqrt(Sf .* conj(Sf));
-                St = sqrt(St .* conj(St));
+                S_fr = branch_nme.port_inj_power(x_, 1, ibr)    * dm.base_mva;
+                S_to = branch_nme.port_inj_power(x_, 1, nl+ibr) * dm.base_mva;
+                S_fr = sqrt(S_fr .* conj(S_fr));
+                S_to = sqrt(S_to .* conj(S_to));
 
                 %% branch flow lim event function
-                efv = max(Sf, St) - rate_a(ibr);
+                efv = max(S_fr, S_to) - rate_a(ibr);
             else
                 efv = NaN;
             end
@@ -805,15 +805,15 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                     x_ = obj.cpf_convert_x(cx.x, ad);
 
                     %% branch flows
-                    Sf = branch_nme.port_inj_power(x_, 1, ibr)    * dm.base_mva;
-                    St = branch_nme.port_inj_power(x_, 1, nl+ibr) * dm.base_mva;
-                    Sf = sqrt(Sf .* conj(Sf));
-                    St = sqrt(St .* conj(St));
+                    S_fr = branch_nme.port_inj_power(x_, 1, ibr)    * dm.base_mva;
+                    S_to = branch_nme.port_inj_power(x_, 1, nl+ibr) * dm.base_mva;
+                    S_fr = sqrt(S_fr .* conj(S_fr));
+                    S_to = sqrt(S_to .* conj(S_to));
 
                     %% violated branch flows
-                    if any(max(Sf, St) > rate_a(ibr))
+                    if any(max(S_fr, S_to) > rate_a(ibr))
                         %% find the lines and which lim(s)
-                        iL = find(max(Sf, St) > rate_a(ibr));
+                        iL = find(max(S_fr, S_to) > rate_a(ibr));
                         msg = '';
                         for j = 1:length(iL)
                             L = ibr(iL(j));
@@ -1020,7 +1020,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                     nidx = find(CC(:, idx));
                     nlabel = obj.set_type_label('node', nidx, dm);
 
-                    msg = sprintf('%s%s @ %s reached %g MW Pmax lim @ lambda = %.4g', ...
+                    msg = sprintf('%s%s @ %s reached %g MW pg upper bound @ lambda = %.4g', ...
                             msg, zlabel, nlabel, lim, nx.x(end));
 
                     %% set P to exact limit
@@ -1121,11 +1121,11 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
         function d2G = opf_power_balance_hess(obj, x_, lam)
             nlam = length(lam) / 2;
-            lamP = lam(1:nlam);
-            lamQ = lam((1:nlam)+nlam);
+            lam_p = lam(1:nlam);
+            lam_q = lam((1:nlam)+nlam);
 
-            d2Gr = obj.nodal_complex_power_balance_hess(x_, lamP);
-            d2Gi = obj.nodal_complex_power_balance_hess(x_, lamQ);
+            d2Gr = obj.nodal_complex_power_balance_hess(x_, lam_p);
+            d2Gi = obj.nodal_complex_power_balance_hess(x_, lam_q);
 
             d2G = real(d2Gr) + imag(d2Gi);
         end
@@ -1159,21 +1159,21 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 x0 = obj.opf_interior_x0(mm, dm);
 
                 %% set voltages
-                %% Va equal to angle of 1st ref bus
-                %% Vm equal to avg of clipped limits
+                %% va equal to angle of 1st ref bus
+                %% vm equal to avg of clipped limits
                 vv = mm.get_idx();
                 bus_dme = dm.elements.bus;
-                Varefs = bus_dme.Va0(find(bus_dme.type == NODE_TYPE.REF));
-                Vmax = min(bus_dme.Vmax, 1.5);
-                Vmin = max(bus_dme.Vmin, 0.5);
-                Vm = (Vmax + Vmin) / 2;
+                varefs = bus_dme.va_start(find(bus_dme.type == NODE_TYPE.REF));
+                vm_ub = min(bus_dme.vm_ub, 1.5);
+                vm_lb = max(bus_dme.vm_lb, 0.5);
+                vm = (vm_ub + vm_lb) / 2;
                 if mpopt.opf.v_cartesian
-                    V = Vm * exp(1j*Varefs(1));
+                    V = vm * exp(1j*varefs(1));
                     x0(vv.i1.Vr:vv.iN.Vr) = real(V);
                     x0(vv.i1.Vi:vv.iN.Vi) = imag(V);
                 else
-                    x0(vv.i1.Va:vv.iN.Va) = Varefs(1);  %% angles set to first reference angle
-                    x0(vv.i1.Vm:vv.iN.Vm) = Vm;         %% voltage magnitudes
+                    x0(vv.i1.Va:vv.iN.Va) = varefs(1);  %% angles set to first reference angle
+                    x0(vv.i1.Vm:vv.iN.Vm) = vm;         %% voltage magnitudes
                 end
 
                 opt.x0 = x0;

@@ -19,11 +19,11 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
             nb = obj.nk;
 
             %% prepare box bounds for voltage coordinates
-            v0 = dme.Vm0 .* exp(1j * dme.Va0);
-            vclim = 1.1 * dme.Vmax;
+            V0 = dme.vm_start .* exp(1j * dme.va_start);
+            vclim = 1.1 * dme.vm_ub;
 
-            nm.add_var('vr', 'Vr', nb, real(v0), -vclim, vclim);
-            nm.add_var('vi', 'Vi', nb, imag(v0), -vclim, vclim);
+            nm.add_var('vr', 'Vr', nb, real(V0), -vclim, vclim);
+            nm.add_var('vi', 'Vi', nb, imag(V0), -vclim, vclim);
         end
 
         %%-----  PF methods  -----
@@ -151,27 +151,27 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
             %% voltage angle reference constraint
             dme = obj.data_model_element(dm);
             ref = find(obj.node_types(nm, dm) == NODE_TYPE.REF);
-            varef = dme.Va0(ref);
+            varef = dme.va_start(ref);
             fcn_vref = @(xx)va_fcn(obj, xx, ref, varef);
             hess_vref = @(xx, lam)va_hess(obj, xx, lam, ref);
             mm.add_nln_constraint('Vref', length(ref), 1, fcn_vref, hess_vref, {'Vr', 'Vi'});
 
             %% fixed voltage magnitudes
-            veq = find(dme.Vmin == dme.Vmax);
+            veq = find(dme.vm_lb == dme.vm_ub);
             nveq = length(veq);
             if nveq
-                fcn_vm2eq = @(xx)vm2_fcn(obj, xx, veq, dme.Vmax(veq).^2);
+                fcn_vm2eq = @(xx)vm2_fcn(obj, xx, veq, dme.vm_ub(veq).^2);
                 hess_vm2eq = @(xx, lam)vm2_hess(obj, xx, lam, veq);
                 mm.add_nln_constraint('Veq', nveq, 1, fcn_vm2eq, hess_vm2eq, {'Vr', 'Vi'});
             end
             mm.userdata.veq = veq;
 
             %% voltage magnitude limits
-            viq = find(dme.Vmin ~= dme.Vmax);
+            viq = find(dme.vm_lb ~= dme.vm_ub);
             nviq = length(viq);
             if nviq
                 fcn_vlim = @(xx)vm2_fcn(obj, xx, viq, ...
-                        {dme.Vmin(viq).^2, dme.Vmax(viq).^2} );
+                        {dme.vm_lb(viq).^2, dme.vm_ub(viq).^2} );
                 hess_vlim = @(xx, lam)vm2_hess(obj, xx, lam, viq);
                 mm.add_nln_constraint({'Vmin', 'Vmax'}, [nviq;nviq], 0, fcn_vlim, hess_vlim, {'Vr', 'Vi'});
             end
@@ -186,37 +186,37 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
             %% shadow prices on voltage magnitudes
             [nne, nni] = mm.get_idx('nle', 'nli');
             lambda = mm.soln.lambda;
-            muVmin = zeros(nn.N.bus, 1);    %% init to all 0
-            muVmax = muVmin;                %% init to all 0
+            mu_vm_lb = zeros(nn.N.bus, 1);  %% init to all 0
+            mu_vm_ub = mu_vm_lb;            %% init to all 0
             if mm.userdata.veq
                 lam = lambda.eqnonlin(nne.i1.Veq:nne.iN.Veq);
                 lam_p = zeros(size(lam));
                 lam_n = zeros(size(lam));
                 lam_p(lam > 0) =  lam(lam > 0);
                 lam_n(lam < 0) = -lam(lam < 0);
-                muVmin(mm.userdata.veq) = lam_n;
-                muVmax(mm.userdata.veq) = lam_p;
+                mu_vm_lb(mm.userdata.veq) = lam_n;
+                mu_vm_ub(mm.userdata.veq) = lam_p;
             end
-            muVmin(mm.userdata.viq) = lambda.ineqnonlin(nni.i1.Vmin:nni.iN.Vmin);
-            muVmax(mm.userdata.viq) = lambda.ineqnonlin(nni.i1.Vmax:nni.iN.Vmax);
+            mu_vm_lb(mm.userdata.viq) = lambda.ineqnonlin(nni.i1.Vmin:nni.iN.Vmin);
+            mu_vm_ub(mm.userdata.viq) = lambda.ineqnonlin(nni.i1.Vmax:nni.iN.Vmax);
 
-            Vm = abs(V);
-            muVmin = muVmin .* Vm * 2;
-            muVmax = muVmax .* Vm * 2;
+            vm = abs(V);
+            mu_vm_lb = mu_vm_lb .* vm * 2;
+            mu_vm_ub = mu_vm_ub .* vm * 2;
 
             %% shadow prices on node power balance
-            [lamP, lamQ] = nm.opf_node_power_balance_prices(mm);
-            lamP = lamP(nn.i1.bus:nn.iN.bus);   %% for bus nodes only
-            lamQ = lamQ(nn.i1.bus:nn.iN.bus);   %% for bus nodes only
+            [lam_p, lam_q] = nm.opf_node_power_balance_prices(mm);
+            lam_p = lam_p(nn.i1.bus:nn.iN.bus);     %% for bus nodes only
+            lam_q = lam_q(nn.i1.bus:nn.iN.bus);     %% for bus nodes only
 
             %% update in the data model
             dme = obj.data_model_element(dm);
             dme.tab.va(dme.on) = angle(V) * 180/pi;
             dme.tab.vm(dme.on) = abs(V);
-            dme.tab.lam_p(dme.on) = lamP / dm.base_mva;
-            dme.tab.lam_q(dme.on) = lamQ / dm.base_mva;
-            dme.tab.mu_vm_lb(dme.on) = muVmin;
-            dme.tab.mu_vm_ub(dme.on) = muVmax;
+            dme.tab.lam_p(dme.on) = lam_p / dm.base_mva;
+            dme.tab.lam_q(dme.on) = lam_q / dm.base_mva;
+            dme.tab.mu_vm_lb(dme.on) = mu_vm_lb;
+            dme.tab.mu_vm_ub(dme.on) = mu_vm_ub;
         end
     end     %% methods
 end         %% classdef

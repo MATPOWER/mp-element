@@ -10,11 +10,11 @@ classdef dme_bus < dm_element
 %   See https://matpower.org for more info.
 
     properties
-        type    %% node type vector for buses that are on
-        Vm0     %% initial voltage magnitudes (p.u.) for buses that are on
-        Va0     %% initial voltage angles (radians) for buses that are on
-        Vmin    %% voltage magnitude lower bounds for buses that are on
-        Vmax    %% voltage magnitude upper bounds for buses that are on
+        type        %% node type vector for buses that are on
+        vm_start    %% initial voltage magnitudes (p.u.) for buses that are on
+        va_start    %% initial voltage angles (radians) for buses that are on
+        vm_lb       %% voltage magnitude lower bounds for buses that are on
+        vm_ub       %% voltage magnitude upper bounds for buses that are on
     end     %% properties
 
     methods
@@ -75,9 +75,9 @@ classdef dme_bus < dm_element
             ig = [];
         end
 
-        function Vm0 = set_Vm0(obj, gen_dme, gbus, ig)
+        function vm_start = set_vm_start(obj, gen_dme, gbus, ig)
             gen = gen_dme.tab;
-            Vm0 = obj.tab.vm(obj.on);
+            vm_start = obj.tab.vm(obj.on);
 
             %% pull PV bus voltage magnitudes from gen.vm_setpoint
             vcb = ones(obj.n, 1);   %% create mask of voltage-controlled buses
@@ -85,20 +85,13 @@ classdef dme_bus < dm_element
             %% find indices of online gens at online v-c buses
             k = find(vcb(gbus));
             if isempty(ig)
-                Vm0(gbus(k)) = gen.vm_setpoint(gen_dme.on(k));
+                vm_start(gbus(k)) = gen.vm_setpoint(gen_dme.on(k));
             else
-                Vm0(gbus(k)) = gen.vm_setpoint(gen_dme.on(ig(k)));
+                vm_start(gbus(k)) = gen.vm_setpoint(gen_dme.on(ig(k)));
             end
         end
 
         function obj = build_params(obj, dm)
-            %% define named indices into data matrices
-            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
-               MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
-               QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
-
             gen_dme = dm.elements.gen;
             [gbus, ig] = obj.gbus_vector(gen_dme);
             nb = obj.n;
@@ -116,10 +109,10 @@ classdef dme_bus < dm_element
 %             obj.ensure_ref_bus();   %% pick a new ref bus if one does not exist
 
             %% initialize voltage from bus table
-            obj.Va0 = bus.va(obj.on) * pi/180;
-            obj.Vm0 = obj.set_Vm0(gen_dme, gbus, ig);
-            obj.Vmin = bus.vm_lb(obj.on);
-            obj.Vmax = bus.vm_ub(obj.on);
+            obj.va_start = bus.va(obj.on) * pi/180;
+            obj.vm_start = obj.set_vm_start(gen_dme, gbus, ig);
+            obj.vm_lb = bus.vm_lb(obj.on);
+            obj.vm_ub = bus.vm_ub(obj.on);
         end
 
         function obj = set_bus_type_ref(obj, dm, idx)

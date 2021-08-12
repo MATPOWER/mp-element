@@ -12,11 +12,11 @@ classdef dme_branch < dm_element
     properties
         fbus    %% bus index vector for "from" port (port 1) (all branches)
         tbus    %% bus index vector for "to" port (port 2) (all branches)
-        R       %% series resistance (p.u.) for branches that are on
-        X       %% series reactance (p.u.) for branches that are on
-        B       %% series reactance (p.u.) for branches that are on
-        tap     %% transformer off-nominal turns ratio for branches that are on
-        shift   %% xformer phase-shift angle (radians) for branches that are on
+        r       %% series resistance (p.u.) for branches that are on
+        x       %% series reactance (p.u.) for branches that are on
+        b       %% series reactance (p.u.) for branches that are on
+        tm      %% transformer off-nominal turns ratio for branches that are on
+        ta      %% xformer phase-shift angle (radians) for branches that are on
         rate_a  %% long term flow limit (p.u.) for branches that are on
     end     %% properties
 
@@ -80,14 +80,14 @@ classdef dme_branch < dm_element
         end
 
         function obj = build_params(obj, dm)
-            obj.R  = obj.tab.r(obj.on);
-            obj.X  = obj.tab.x(obj.on);
+            obj.r  = obj.tab.r(obj.on);
+            obj.x  = obj.tab.x(obj.on);
             %%-----  HACK ALERT  -----
             %% use the from and to properties properly in 
-            obj.B  = obj.tab.b_fr(obj.on) + obj.tab.b_to(obj.on);
+            obj.b  = obj.tab.b_fr(obj.on) + obj.tab.b_to(obj.on);
             %%-----  end of HACK  -----
-            obj.tap    = obj.tab.tm(obj.on);
-            obj.shift  = obj.tab.ta(obj.on) * pi/180;
+            obj.tm = obj.tab.tm(obj.on);
+            obj.ta = obj.tab.ta(obj.on) * pi/180;
             obj.rate_a = obj.tab.sm_ub_a(obj.on) / dm.base_mva;
         end
 

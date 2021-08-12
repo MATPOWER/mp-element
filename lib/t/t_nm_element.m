@@ -128,11 +128,11 @@ t_is(nme{k}.np, 2, 12, [t 'np']);
 t_is(nme{k}.nz, 0, 12, [t 'nz']);
 nl = size(mpc.branch, 1);
 stat = mpc.branch(:, BR_STATUS);    %% ones at in-service branches
-tap = ones(nl, 1);                  %% default tap ratio = 1
+tm = ones(nl, 1);                   %% default tap ratio = 1
 i = find(mpc.branch(:, TAP));       %% indices of non-zero tap ratios
-tap(i) = mpc.branch(i, TAP);        %% assign non-zero tap ratios
+tm(i) = mpc.branch(i, TAP);         %% assign non-zero tap ratios
 b = stat ./ mpc.branch(:, BR_X);    %% series susceptance
-b = b ./ tap;
+b = b ./ tm;
 Pfinj = b .* (-mpc.branch(:, SHIFT) * pi/180);
 Bdc = sparse( ...
     [1:nl 1:nl nl+1:2*nl nl+1:2*nl]', ...
@@ -185,17 +185,17 @@ t_ok(strcmp(gen.name, 'gen'), [t 'name']);
 t_ok(strcmp(class(gen), 'nme_gen_dc'), [t 'class']);
 
 t = 'gen.port_inj_power(x, 1)';
-Pg = gen.port_inj_power(x, 1);
-ePg = -[0.67; 0.85; 1.63];
-t_is(Pg, ePg, 12, t);
+pg = gen.port_inj_power(x, 1);
+epg = -[0.67; 0.85; 1.63];
+t_is(pg, epg, 12, t);
  
 t = 'gen.port_inj_power(x, 1, [3;1])';
-Pg31 = gen.port_inj_power(x, 1, [3;1]);
-t_is(Pg31, ePg([3;1]), 12, t);
+pg31 = gen.port_inj_power(x, 1, [3;1]);
+t_is(pg31, epg([3;1]), 12, t);
 
 t = 'gen.port_inj_power(x, 1, 2)';
-Pg2 = gen.port_inj_power(x, 1, 2);
-t_is(Pg2, ePg(2), 12, t);
+pg2 = gen.port_inj_power(x, 1, 2);
+t_is(pg2, epg(2), 12, t);
 
 %%-----  AC formulation  -----
 t = 'mp_network_acps() : ';
@@ -313,16 +313,16 @@ t_is(nme{k}.np, 2, 12, [t 'np']);
 t_is(nme{k}.nz, 0, 12, [t 'nz']);
 nl = size(mpc.branch, 1);
 stat = mpc.branch(:, BR_STATUS);    %% ones at in-service branches
-tap = ones(nl, 1);                  %% default tap ratio = 1
+tm = ones(nl, 1);                   %% default tap ratio = 1
 i = find(mpc.branch(:, TAP));       %% indices of non-zero tap ratios
-tap(i) = mpc.branch(i, TAP);        %% assign non-zero tap ratios
-tap = tap .* exp(1j*pi/180 * mpc.branch(:, SHIFT)); %% add phase shifters
+tm(i) = mpc.branch(i, TAP);         %% assign non-zero tap ratios
+T = tm .* exp(1j*pi/180 * mpc.branch(:, SHIFT)); %% add phase shifters
 Ys = stat ./ (mpc.branch(:, BR_R) + 1j * mpc.branch(:, BR_X));  %% series admittance
 Bc = stat .* mpc.branch(:, BR_B);   %% line charging susceptance
 Ytt = Ys + 1j*Bc/2;
-Yff = Ytt ./ (tap .* conj(tap));
-Yft = - Ys ./ conj(tap);
-Ytf = - Ys ./ tap;
+Yff = Ytt ./ (T .* conj(T));
+Yft = - Ys ./ conj(T);
+Ytf = - Ys ./ T;
 eY = sparse( ...
     [1:nl 1:nl nl+1:2*nl nl+1:2*nl]', ...
     [1:nl nl+1:2*nl 1:nl nl+1:2*nl]', ...
@@ -657,16 +657,16 @@ t_is(nme{k}.np, 2, 12, [t 'np']);
 t_is(nme{k}.nz, 0, 12, [t 'nz']);
 nl = size(mpc.branch, 1);
 stat = mpc.branch(:, BR_STATUS);    %% ones at in-service branches
-tap = ones(nl, 1);                  %% default tap ratio = 1
+tm = ones(nl, 1);                   %% default tap ratio = 1
 i = find(mpc.branch(:, TAP));       %% indices of non-zero tap ratios
-tap(i) = mpc.branch(i, TAP);        %% assign non-zero tap ratios
-tap = tap .* exp(1j*pi/180 * mpc.branch(:, SHIFT)); %% add phase shifters
+tm(i) = mpc.branch(i, TAP);         %% assign non-zero tap ratios
+T = tm .* exp(1j*pi/180 * mpc.branch(:, SHIFT));    %% add phase shifters
 Ys = stat ./ (mpc.branch(:, BR_R) + 1j * mpc.branch(:, BR_X));  %% series admittance
 Bc = stat .* mpc.branch(:, BR_B);   %% line charging susceptance
 Ytt = Ys + 1j*Bc/2;
-Yff = Ytt ./ (tap .* conj(tap));
-Yft = - Ys ./ conj(tap);
-Ytf = - Ys ./ tap;
+Yff = Ytt ./ (T .* conj(T));
+Yft = - Ys ./ conj(T);
+Ytf = - Ys ./ T;
 eY = sparse( ...
     [1:nl 1:nl nl+1:2*nl nl+1:2*nl]', ...
     [1:nl nl+1:2*nl 1:nl nl+1:2*nl]', ...

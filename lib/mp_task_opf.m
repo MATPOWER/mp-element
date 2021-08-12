@@ -66,7 +66,7 @@ classdef mp_task_opf < mp_task
 
             if ~obj.dc
                 %% if requested, adjust bus voltage magnitude
-                %% limits based on generator Vg setpoint
+                %% limits based on generator vm_setpoint
                 use_vg = mpopt.opf.use_vg;
                 if use_vg
                     dm.set_bus_v_lims_via_vg(use_vg);

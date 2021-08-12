@@ -35,29 +35,29 @@ classdef mp_network_acps_node_test < mp_network_acps
                 x0 = obj.opf_interior_x0(mm, dm);
 
                 %% set voltages
-                %% Va equal to angle of 1st ref bus
-                %% Vm equal to avg of clipped limits
+                %% va equal to angle of 1st ref bus
+                %% vm equal to avg of clipped limits
                 vv = mm.get_idx();
                 gen_dme = dm.elements.gen;
-                Varefs = [];
+                varefs = [];
                 for k = gen_dme.nbet:-1:1
                     if dm.elements.is_index_name(gen_dme.bus_elm_types{k})
                         bus_dme{k} = dm.elements.(gen_dme.bus_elm_types{k});
-                        Varefs_k = bus_dme{k}.Va0(find(bus_dme{k}.type == NODE_TYPE.REF));
-                        Varefs = [Varefs_k; Varefs];
+                        varefs_k = bus_dme{k}.va_start(find(bus_dme{k}.type == NODE_TYPE.REF));
+                        varefs = [varefs_k; varefs];
                     else
                         bus_dme{k} = [];
                     end
                 end
                 for k = 1:gen_dme.nbet
                     if ~isempty(bus_dme{k})
-                        Vmax = min(bus_dme{k}.Vmax, 1.5);
-                        Vmin = max(bus_dme{k}.Vmin, 0.5);
-                        Vm = (Vmax + Vmin) / 2;
+                        vm_ub = min(bus_dme{k}.vm_ub, 1.5);
+                        vm_lb = max(bus_dme{k}.vm_lb, 0.5);
+                        vm = (vm_ub + vm_lb) / 2;
                         vVa = ['va_' gen_dme.bus_elm_types{k}];
                         vVm = ['vm_' gen_dme.bus_elm_types{k}];
-                        x0(vv.i1.(vVa):vv.iN.(vVa)) = Varefs(1);%% angles set to first reference angle
-                        x0(vv.i1.(vVm):vv.iN.(vVm)) = Vm;       %% voltage magnitudes
+                        x0(vv.i1.(vVa):vv.iN.(vVa)) = varefs(1);%% angles set to first reference angle
+                        x0(vv.i1.(vVm):vv.iN.(vVm)) = vm;       %% voltage magnitudes
                     end
                 end
 

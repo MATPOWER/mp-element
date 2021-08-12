@@ -18,24 +18,24 @@ classdef nme_bus_dc < nme_bus & mp_form_dc
             nb = obj.nk;
 
             %% prepare angle bounds for ref buses
-            Vamin = -Inf(nb, 1);
-            Vamax =  Inf(nb, 1);
+            va_lb = -Inf(nb, 1);
+            va_ub =  Inf(nb, 1);
             k = find(dme.type == NODE_TYPE.REF);
-            Vamin(k) = dme.Va0(k);
-            Vamax(k) = dme.Va0(k);
+            va_lb(k) = dme.va_start(k);
+            va_ub(k) = dme.va_start(k);
 
-            nm.add_var('va', 'Va', nb, dme.Va0, Vamin, Vamax);
+            nm.add_var('va', 'Va', nb, dme.va_start, va_lb, va_ub);
         end
 
         %%-----  PF methods  -----
         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
             %% bus voltage angles
             nn = nm.get_idx('node');
-            Va = nm.soln.v(nn.i1.bus:nn.iN.bus);
+            va = nm.soln.v(nn.i1.bus:nn.iN.bus);
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.tab.va(dme.on) = Va * 180/pi;
+            dme.tab.va(dme.on) = va * 180/pi;
             dme.tab.vm(dme.on) = 1;
         end
 
@@ -43,20 +43,20 @@ classdef nme_bus_dc < nme_bus & mp_form_dc
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% bus voltage angles
             nn = nm.get_idx('node');
-            Va = nm.soln.v(nn.i1.bus:nn.iN.bus);
+            va = nm.soln.v(nn.i1.bus:nn.iN.bus);
 
             %% shadow prices on node power balance
             ll = mm.get_idx('lin');
             lambda = mm.soln.lambda;
-            lamP =  lambda.mu_u(ll.i1.Pmis:ll.iN.Pmis) - ...
+            lam_p = lambda.mu_u(ll.i1.Pmis:ll.iN.Pmis) - ...
                     lambda.mu_l(ll.i1.Pmis:ll.iN.Pmis);
-            lamP = lamP(nn.i1.bus:nn.iN.bus);   %% for bus nodes only
+            lam_p = lam_p(nn.i1.bus:nn.iN.bus);     %% for bus nodes only
 
             %% update in the data model
             dme = obj.data_model_element(dm);
-            dme.tab.va(dme.on) = Va * 180/pi;
+            dme.tab.va(dme.on) = va * 180/pi;
             dme.tab.vm(dme.on) = 1;
-            dme.tab.lam_p(dme.on) = lamP / dm.base_mva;
+            dme.tab.lam_p(dme.on) = lam_p / dm.base_mva;
         end
     end     %% methods
 end         %% classdef

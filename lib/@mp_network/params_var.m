@@ -12,8 +12,8 @@ function [v0, vl, vu, vt] = params_var(obj, vtype, name, idx)
 %
 %   Examples:
 %       [x0, xmin, xmax] = obj.params_var();
-%       [Pg, Pmin, Pmax] = obj.params_var('Pg');
-%       [zij0, zijmin, zijmax, ztype] = obj.params_var('z', {i, j});
+%       [pg0, pg_lb, pg_ub] = obj.params_var('pg');
+%       [zij0, zij_lb, zij_ub, ztype] = obj.params_var('z', {i, j});
 %   
 %   See also OPT_MODEL/PARAMS_VAR.
 

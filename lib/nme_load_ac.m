@@ -18,21 +18,21 @@ classdef nme_load_ac < nme_load% & mp_form_ac
             dme = obj.data_model_element(dm);
 
             %% constant complex power demand
-            obj.s = dme.Pd + 1j * dme.Qd;
+            obj.s = dme.pd + 1j * dme.qd;
 
             %% nominal complex power from constant current demand
             %% (scaled by voltage magnitude)
-            if any(dme.Pd_i) || any(dme.Qd_i)
-%                 obj.i = Pd_i - 1j Qd_i;   %% power as function of complex voltage, not voltage magnitude (as desired)
-                Sd = dme.Pd_i + 1j * dme.Qd_i;
+            if any(dme.pd_i) || any(dme.qd_i)
+%                 obj.i = pd_i - 1j qd_i;   %% power as function of complex voltage, not voltage magnitude (as desired)
+                Sd = dme.pd_i + 1j * dme.qd_i;
                 obj.snln = @(x_, sysx, idx)port_inj_power_nln(obj, Sd, x_, sysx, idx);
                 obj.inln = @(x_, sysx, idx)port_inj_current_nln(obj, Sd, x_, sysx, idx);
             end
 
             %% nominal complex power from constant impedance demand
             %% (scaled by voltage magnitude squared)
-            if any(dme.Pd_z) || any(dme.Qd_z)
-                Y = dme.Pd_z - 1j * dme.Qd_z;
+            if any(dme.pd_z) || any(dme.qd_z)
+                Y = dme.pd_z - 1j * dme.qd_z;
                 nd = length(Y);
                 obj.Y = sparse(1:nd, 1:nd, Y, nd, nd);
             end
