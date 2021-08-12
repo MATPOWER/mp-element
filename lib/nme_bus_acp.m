@@ -61,8 +61,8 @@ classdef nme_bus_acp < nme_bus & mp_form_acp
             dme = obj.data_model_element(dm);
             dme.tab.va(dme.on) = angle(V) * 180/pi;
             dme.tab.vm(dme.on) = abs(V);
-            dme.tab.lam_p(dme.on) = lamP / dm.baseMVA;
-            dme.tab.lam_q(dme.on) = lamQ / dm.baseMVA;
+            dme.tab.lam_p(dme.on) = lamP / dm.base_mva;
+            dme.tab.lam_q(dme.on) = lamQ / dm.base_mva;
             dme.tab.mu_vm_lb(dme.on) = muVmin;
             dme.tab.mu_vm_ub(dme.on) = muVmax;
         end

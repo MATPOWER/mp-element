@@ -26,7 +26,7 @@ classdef mp_dm_converter_mpc2 < mp_dm_converter
             if ~isstruct(d)
                 d = loadcase(d);
             end
-            dm.baseMVA = d.baseMVA;
+            dm.base_mva = d.baseMVA;
             dm.source = d;
             dm = import@mp_dm_converter(obj, dm, d);
         end
@@ -36,8 +36,8 @@ classdef mp_dm_converter_mpc2 < mp_dm_converter
 
             %% create (read-only) copies of individual fields for convenience
             mpc = dm.source;
-            [baseMVA, bus, gen, branch, gencost, A, l, u, mpopt, ...
-                N, fparm, H, Cw, z0, zl, zu, userfcn] = opf_args(mpc, mpopt);
+            [~, bus, gen, ~, ~, A, l, u, mpopt, ...
+                N, fparm, H, Cw, z0, zl, zu, ~] = opf_args(mpc, mpopt);
 
             %% data dimensions
             nb   = size(bus, 1);    %% number of buses

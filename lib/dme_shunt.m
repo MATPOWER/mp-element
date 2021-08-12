@@ -59,8 +59,8 @@ classdef dme_shunt < dm_element
         end
 
         function obj = build_params(obj, dm)
-            obj.Gs = obj.tab.gs(obj.on) / dm.baseMVA;
-            obj.Bs = obj.tab.bs(obj.on) / dm.baseMVA;
+            obj.Gs = obj.tab.gs(obj.on) / dm.base_mva;
+            obj.Bs = obj.tab.bs(obj.on) / dm.base_mva;
         end
 
         function dm = parameterized(obj, dm, dmb, dmt, lam)

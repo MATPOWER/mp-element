@@ -41,8 +41,8 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
             %% branch active power flow
             pp = nm.get_idx('port');
-            Sf = nm.soln.gs_(pp.i1.branch(1):pp.iN.branch(1)) * dm.baseMVA;
-            St = nm.soln.gs_(pp.i1.branch(2):pp.iN.branch(2)) * dm.baseMVA;
+            Sf = nm.soln.gs_(pp.i1.branch(1):pp.iN.branch(1)) * dm.base_mva;
+            St = nm.soln.gs_(pp.i1.branch(2):pp.iN.branch(2)) * dm.base_mva;
 
             %% update in the data model
             dme = obj.data_model_element(dm);
@@ -104,8 +104,8 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% branch active power flow
             pp = nm.get_idx('port');
-            Sf = nm.soln.gs_(pp.i1.branch(1):pp.iN.branch(1)) * dm.baseMVA;
-            St = nm.soln.gs_(pp.i1.branch(2):pp.iN.branch(2)) * dm.baseMVA;
+            Sf = nm.soln.gs_(pp.i1.branch(1):pp.iN.branch(1)) * dm.base_mva;
+            St = nm.soln.gs_(pp.i1.branch(2):pp.iN.branch(2)) * dm.base_mva;
 
             %% shadow prices on branch flow constraints
             ibr = mm.userdata.flow_constrained_branch_idx;
@@ -134,8 +134,8 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
             dme.tab.ql_fr(dme.on) = imag(Sf);
             dme.tab.pl_to(dme.on) = real(St);
             dme.tab.ql_to(dme.on) = imag(St);
-            dme.tab.mu_flow_fr_ub(dme.on) = muSf / dm.baseMVA;
-            dme.tab.mu_flow_to_ub(dme.on) = muSt / dm.baseMVA;
+            dme.tab.mu_flow_fr_ub(dme.on) = muSf / dm.base_mva;
+            dme.tab.mu_flow_to_ub(dme.on) = muSt / dm.base_mva;
             dme.tab.mu_vad_lb(dme.on) = muAngmin * pi/180;
             dme.tab.mu_vad_ub(dme.on) = muAngmax * pi/180;
         end

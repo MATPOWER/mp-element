@@ -76,17 +76,17 @@ classdef dme_gen < dm_element
         end
 
         function obj = build_params(obj, dm)
-            baseMVA = dm.baseMVA;
+            base_mva = dm.base_mva;
 
             gen = obj.tab;
 
             %% get generator parameters
-            obj.Pg0  = gen.pg(obj.on) / baseMVA;
-            obj.Pmin = gen.pg_lb(obj.on) / baseMVA;
-            obj.Pmax = gen.pg_ub(obj.on) / baseMVA;
-            obj.Qg0  = gen.qg(obj.on) / baseMVA;
-            obj.Qmin = gen.qg_lb(obj.on) / baseMVA;
-            obj.Qmax = gen.qg_ub(obj.on) / baseMVA;
+            obj.Pg0  = gen.pg(obj.on) / base_mva;
+            obj.Pmin = gen.pg_lb(obj.on) / base_mva;
+            obj.Pmax = gen.pg_ub(obj.on) / base_mva;
+            obj.Qg0  = gen.qg(obj.on) / base_mva;
+            obj.Qmin = gen.qg_lb(obj.on) / base_mva;
+            obj.Qmax = gen.qg_ub(obj.on) / base_mva;
             obj.Vg   = gen.vm_setpoint(obj.on);
         end
 
@@ -137,14 +137,14 @@ classdef dme_gen < dm_element
 
         %%-----  OPF methods  -----
         function cost = opf_build_gen_cost_params(obj, dm, dc)
-            baseMVA = dm.baseMVA;
+            base_mva = dm.base_mva;
 
-            poly_p = obj.gen_cost_poly_params(baseMVA, obj.cost_pg);
+            poly_p = obj.gen_cost_poly_params(base_mva, obj.cost_pg);
             if dc || isempty(obj.cost_qg)
-                pwl = obj.gen_cost_pwl_params(baseMVA, obj.cost_pg, obj.n, dc);
+                pwl = obj.gen_cost_pwl_params(base_mva, obj.cost_pg, obj.n, dc);
                 poly_q = [];
             else
-                poly_q = obj.gen_cost_poly_params(baseMVA, obj.cost_qg);
+                poly_q = obj.gen_cost_poly_params(base_mva, obj.cost_qg);
 
                 %% expand cost params as needed
                 polyNp = max(obj.cost_pg.poly_n);
@@ -170,7 +170,7 @@ classdef dme_gen < dm_element
 
                 %% stack pg & qg cost params first
                 cost = [obj.cost_pg; obj.cost_qg];
-                pwl = obj.gen_cost_pwl_params(baseMVA, cost, obj.n, dc);
+                pwl = obj.gen_cost_pwl_params(base_mva, cost, obj.n, dc);
             end
 
             cost = struct( ...
@@ -180,7 +180,7 @@ classdef dme_gen < dm_element
                 );
         end
 
-        function p = gen_cost_pwl_params(obj, baseMVA, cost, ng, dc)
+        function p = gen_cost_pwl_params(obj, base_mva, cost, ng, dc)
             ipwl = find(cost.pwl_n);    %% piece-wise linear costs
             ny = size(ipwl, 1);     %% number of piece-wise linear cost vars
             if dc
@@ -213,7 +213,7 @@ classdef dme_gen < dm_element
                 j = 1;
                 for i=ipwl'
                     ns = cost.pwl_n(i); %% # of cost points; segments = ns-1
-                    p = cost.pwl_qty(i, 1:ns) / baseMVA;
+                    p = cost.pwl_qty(i, 1:ns) / base_mva;
                     c = cost.pwl_cost(i, 1:ns);
                     m = diff(c) ./ diff(p);         %% slopes for Pg (or Qg)
                     if any(diff(p) == 0)
@@ -236,7 +236,7 @@ classdef dme_gen < dm_element
             p = struct('n', ny, 'i', ipwl, 'A', Ay, 'b', by);
         end
 
-        function p = gen_cost_poly_params(obj, baseMVA, cost)
+        function p = gen_cost_poly_params(obj, base_mva, cost)
             ng = size(cost, 1);
             have_quad_cost = 0;
             kg = []; cg = []; Qg = [];
@@ -250,12 +250,12 @@ classdef dme_gen < dm_element
                 cg = zeros(ng, 1);
                 if ~isempty(i2)
                     Qg = zeros(ng, 1);
-                    Qg(i2) = 2 * cost.poly_coef(i2, 3) * baseMVA^2;
-                    cg(i2) = cg(i2) + cost.poly_coef(i2, 2) * baseMVA;
+                    Qg(i2) = 2 * cost.poly_coef(i2, 3) * base_mva^2;
+                    cg(i2) = cg(i2) + cost.poly_coef(i2, 2) * base_mva;
                     kg(i2) = kg(i2) + cost.poly_coef(i2, 1);
                 end
                 if ~isempty(i1)
-                    cg(i1) = cg(i1) + cost.poly_coef(i1, 2) * baseMVA;
+                    cg(i1) = cg(i1) + cost.poly_coef(i1, 2) * base_mva;
                     kg(i1) = kg(i1) + cost.poly_coef(i1, 1);
                 end
                 if ~isempty(i0)
@@ -282,7 +282,7 @@ classdef dme_gen < dm_element
         end
 
         %% from makeApq()
-        function [Ah, uh, Al, ul, data] = pq_capability_constraint(obj, baseMVA);
+        function [Ah, uh, Al, ul, data] = pq_capability_constraint(obj, base_mva);
             gen = obj.tab(obj.on, :);
 
             %% data dimensions
@@ -309,7 +309,7 @@ classdef dme_gen < dm_element
                 end
                 Ah = sparse([1:npqh, 1:npqh]', [ipqh; ipqh+ng], ...
                             data.h(:), npqh, 2*ng);
-                uh = uh / baseMVA;
+                uh = uh / base_mva;
             else
                 data.h = [];
                 Ah  = sparse(0, 2*ng);
@@ -327,7 +327,7 @@ classdef dme_gen < dm_element
                 end
                 Al = sparse([1:npql, 1:npql]', [ipql; ipql+ng], ...
                             data.l(:), npql, 2*ng);
-                ul = ul / baseMVA;
+                ul = ul / base_mva;
             else
                 data.l = [];
                 Al  = sparse(0, 2*ng);

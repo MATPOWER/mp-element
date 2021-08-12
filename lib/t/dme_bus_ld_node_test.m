@@ -35,10 +35,10 @@ classdef dme_bus_ld_node_test < dme_bus_nld_node_test
         function obj = build_params(obj, dm)
             obj = build_params@dme_bus(obj, dm);   %% call parent
 
-            obj.Pd = obj.tab.pd(obj.on) / dm.baseMVA;
-            obj.Qd = obj.tab.qd(obj.on) / dm.baseMVA;
-            obj.Gs = obj.tab.gs(obj.on) / dm.baseMVA;
-            obj.Bs = obj.tab.bs(obj.on) / dm.baseMVA;
+            obj.Pd = obj.tab.pd(obj.on) / dm.base_mva;
+            obj.Qd = obj.tab.qd(obj.on) / dm.base_mva;
+            obj.Gs = obj.tab.gs(obj.on) / dm.base_mva;
+            obj.Bs = obj.tab.bs(obj.on) / dm.base_mva;
         end
     end     %% methods
 end         %% classdef

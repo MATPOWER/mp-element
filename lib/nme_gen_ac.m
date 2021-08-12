@@ -29,7 +29,7 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
             %% generator active power
             ss = nm.get_idx('state');
-            Sg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.baseMVA;
+            Sg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.base_mva;
 
             %% update in the data model
             dme = obj.data_model_element(dm);
@@ -46,7 +46,7 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
         function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
             %% generator PQ capability curve constraints
             [Apqh, ubpqh, Apql, ubpql, Apqdata] = ...
-                dm.elements.gen.pq_capability_constraint(dm.baseMVA);
+                dm.elements.gen.pq_capability_constraint(dm.base_mva);
             mm.add_lin_constraint('PQh', Apqh, [], ubpqh, {'Pg', 'Qg'});      %% npqh
             mm.add_lin_constraint('PQl', Apql, [], ubpql, {'Pg', 'Qg'});      %% npql
             mm.userdata.Apqdata = Apqdata;
@@ -80,7 +80,7 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
                 %% (order 3 and higher) polynomial costs on Qg
                 if ~isempty(obj.cost.poly_q.i3)
                     dme = obj.data_model_element(dm);
-                    cost_Qg = @(xx)poly_cost_fcn(obj, xx, dm.baseMVA, dme.cost_qg.poly_coef, obj.cost.poly_q.i3);
+                    cost_Qg = @(xx)poly_cost_fcn(obj, xx, dm.base_mva, dme.cost_qg.poly_coef, obj.cost.poly_q.i3);
                     mm.add_nln_cost('polQg', 1, cost_Qg, {'Qg'});
                 end
             end
@@ -89,7 +89,7 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% generator active power
             ss = nm.get_idx('state');
-            Sg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.baseMVA;
+            Sg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.base_mva;
             Vg = abs(obj.C' * nm.soln.v);
 
             %% shadow prices on generator limits
@@ -134,10 +134,10 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
             dme.tab.pg(dme.on) = real(Sg);
             dme.tab.qg(dme.on) = imag(Sg);
             dme.tab.vm_setpoint(dme.on) = Vg;
-            dme.tab.mu_pg_lb(dme.on) = muPmin / dm.baseMVA;
-            dme.tab.mu_pg_ub(dme.on) = muPmax / dm.baseMVA;
-            dme.tab.mu_qg_lb(dme.on) = muQmin / dm.baseMVA;
-            dme.tab.mu_qg_ub(dme.on) = muQmax / dm.baseMVA;
+            dme.tab.mu_pg_lb(dme.on) = muPmin / dm.base_mva;
+            dme.tab.mu_pg_ub(dme.on) = muPmax / dm.base_mva;
+            dme.tab.mu_qg_lb(dme.on) = muQmin / dm.base_mva;
+            dme.tab.mu_qg_ub(dme.on) = muQmax / dm.base_mva;
         end
     end     %% methods
 end         %% classdef

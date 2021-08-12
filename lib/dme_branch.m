@@ -88,7 +88,7 @@ classdef dme_branch < dm_element
             %%-----  end of HACK  -----
             obj.tap    = obj.tab.tm(obj.on);
             obj.shift  = obj.tab.ta(obj.on) * pi/180;
-            obj.rate_a = obj.tab.sm_ub_a(obj.on) / dm.baseMVA;
+            obj.rate_a = obj.tab.sm_ub_a(obj.on) / dm.base_mva;
         end
 
         %%-----  OPF methods  -----

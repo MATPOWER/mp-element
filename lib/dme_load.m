@@ -62,12 +62,12 @@ classdef dme_load < dm_element
         end
 
         function obj = build_params(obj, dm)
-            obj.Pd   = obj.tab.pd(obj.on) / dm.baseMVA;
-            obj.Qd   = obj.tab.qd(obj.on) / dm.baseMVA;
-            obj.Pd_i = obj.tab.pd_i(obj.on) / dm.baseMVA;
-            obj.Qd_i = obj.tab.qd_i(obj.on) / dm.baseMVA;
-            obj.Pd_z = obj.tab.pd_z(obj.on) / dm.baseMVA;
-            obj.Qd_z = obj.tab.qd_z(obj.on) / dm.baseMVA;
+            obj.Pd   = obj.tab.pd(obj.on) / dm.base_mva;
+            obj.Qd   = obj.tab.qd(obj.on) / dm.base_mva;
+            obj.Pd_i = obj.tab.pd_i(obj.on) / dm.base_mva;
+            obj.Qd_i = obj.tab.qd_i(obj.on) / dm.base_mva;
+            obj.Pd_z = obj.tab.pd_z(obj.on) / dm.base_mva;
+            obj.Qd_z = obj.tab.qd_z(obj.on) / dm.base_mva;
         end
 
         function dm = parameterized(obj, dm, dmb, dmt, lam)

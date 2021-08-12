@@ -722,7 +722,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% get branch flow constraints
             branch_nme = obj.elements.branch;
             branch_dme = branch_nme.data_model_element(dm);
-            rate_a = branch_dme.rate_a * dm.baseMVA;
+            rate_a = branch_dme.rate_a * dm.base_mva;
             ibr = find(rate_a ~= 0 & rate_a < 1e10);
             nl2 = length(ibr);          %% number of constrained branches
 
@@ -734,8 +734,8 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 x_ = obj.cpf_convert_x(cx.x, ad);
 
                 %% branch flows
-                Sf = branch_nme.port_inj_power(x_, 1, ibr)    * dm.baseMVA;
-                St = branch_nme.port_inj_power(x_, 1, nl+ibr) * dm.baseMVA;
+                Sf = branch_nme.port_inj_power(x_, 1, ibr)    * dm.base_mva;
+                St = branch_nme.port_inj_power(x_, 1, nl+ibr) * dm.base_mva;
                 Sf = sqrt(Sf .* conj(Sf));
                 St = sqrt(St .* conj(St));
 
@@ -765,7 +765,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             v_Qmin(jrpv) = zi_min(jrpv) - imag(z_(jrpv));
 
             %% assemble event function value
-            efv = [v_Qmax; v_Qmin] * dm.baseMVA;
+            efv = [v_Qmax; v_Qmin] * dm.base_mva;
         end
 
         function efv = cpf_event_plim(obj, cx, opt, mm, dm, mpopt)
@@ -784,7 +784,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             end
 
             %% assemble event function value
-            efv = v_Pmax * dm.baseMVA;
+            efv = v_Pmax * dm.base_mva;
         end
 
         function [nx, cx, s] = cpf_callback_flim(obj, k, nx, cx, px, s, opt, mm, dm, mpopt)
@@ -793,7 +793,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 %% get branch flow constraints
                 branch_nme = obj.elements.branch;
                 branch_dme = branch_nme.data_model_element(dm);
-                rate_a = branch_dme.rate_a * dm.baseMVA;
+                rate_a = branch_dme.rate_a * dm.base_mva;
                 ibr = find(rate_a ~= 0 & rate_a < 1e10);
                 nl2 = length(ibr);          %% number of constrained branches
 
@@ -805,8 +805,8 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                     x_ = obj.cpf_convert_x(cx.x, ad);
 
                     %% branch flows
-                    Sf = branch_nme.port_inj_power(x_, 1, ibr)    * dm.baseMVA;
-                    St = branch_nme.port_inj_power(x_, 1, nl+ibr) * dm.baseMVA;
+                    Sf = branch_nme.port_inj_power(x_, 1, ibr)    * dm.base_mva;
+                    St = branch_nme.port_inj_power(x_, 1, nl+ibr) * dm.base_mva;
                     Sf = sqrt(Sf .* conj(Sf));
                     St = sqrt(St .* conj(St));
 
@@ -850,7 +850,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 %% get branch flow constraints
                 branch_nme = obj.elements.branch;
                 branch_dme = branch_nme.data_model_element(dm);
-                rate_a = branch_dme.rate_a * dm.baseMVA;
+                rate_a = branch_dme.rate_a * dm.base_mva;
                 ibr = find(rate_a ~= 0 & rate_a < 1e10);
                 nl2 = length(ibr);      %% number of constrained branches
                 nl = branch_nme.nk;     %% port indexes
@@ -900,12 +900,12 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                     idx = efidx(j);         %% index of z var
                     if idx <= obj.nz
                         maxlim = 1;         %% Qmax violation
-                        lim = zi_max(idx) * dm.baseMVA;
+                        lim = zi_max(idx) * dm.base_mva;
                         lim_type = 'Qmax';
                     else
                         idx = idx - obj.nz; %% correct index of z var
                         maxlim = 0;         %% Qmin violation
-                        lim = zi_min(idx) * dm.baseMVA;
+                        lim = zi_min(idx) * dm.base_mva;
                         lim_type = 'Qmin';
                     end
 
@@ -923,7 +923,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
                     %% set Q to exact limit
                     [v_, z_] = obj.cpf_convert_x(nx.x, ad);
-                    z_(idx) = real(z_(idx)) + 1j * lim / dm.baseMVA;
+                    z_(idx) = real(z_(idx)) + 1j * lim / dm.base_mva;
 
                     %% change node type to PQ
                     obj.set_node_type_pq(dm, nidx);
@@ -1010,7 +1010,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 for j = 1:length(efidx)
                     %% find index of z var
                     idx = efidx(j);         %% index of z var
-                    lim = zr_max(idx) * dm.baseMVA;
+                    lim = zr_max(idx) * dm.base_mva;
 
                     %% get label for z var
                     zlabel = obj.set_type_label('state', idx, dm);
@@ -1025,7 +1025,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
                     %% set P to exact limit
                     [v_, z_] = obj.cpf_convert_x(nx.x, ad);
-                    z_(idx) = lim / dm.baseMVA + 1j * imag(z_(idx));
+                    z_(idx) = lim / dm.base_mva + 1j * imag(z_(idx));
 
                     dmt = ad.dmt;
                     nmt = ad.nmt;

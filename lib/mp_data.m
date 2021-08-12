@@ -10,7 +10,7 @@ classdef mp_data < mpe_container
 %   See https://matpower.org for more info.
 
     properties
-        baseMVA
+        base_mva
         source
         userdata = struct();
     end     %% properties
@@ -103,7 +103,7 @@ classdef mp_data < mpe_container
 %                 display@handle(obj)
 %             end
             fprintf('DATA MODEL CLASS : %s\n', class(obj));
-            fprintf('         baseMVA : %g\n', obj.baseMVA);
+            fprintf('        base_mva : %g\n', obj.base_mva);
 
             %% elements
             fprintf('\nELEMENTS\n')
