@@ -31,7 +31,7 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
                 [1:nl nl+1:2*nl 1:nl nl+1:2*nl]', ...
                 [b; -b; -b; b], ...
                 2*nl, 2*nl );
-            obj.p = [Pfinj; -Pfinj];
+            obj.p = [Pfinj + dme.g_fr; -Pfinj + dme.g_to];
         end
 
         %%-----  PF methods  -----

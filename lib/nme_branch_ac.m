@@ -25,9 +25,8 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
             T = tm .* exp(1j * dme.ta);     %% add phase shifters
 
             Ys = 1 ./ (dme.r + 1j * dme.x);     %% series admittance
-            Bc = dme.b;                         %% line charging susceptance
-            Ytt = Ys + 1j*Bc/2;
-            Yff = Ytt ./ (T .* conj(T));
+            Yff = (Ys + dme.g_fr + 1j * dme.b_fr) ./ (T .* conj(T));
+            Ytt = Ys + dme.g_to + 1j * dme.b_to;
             Yft = - Ys ./ conj(T);
             Ytf = - Ys ./ T;
 
