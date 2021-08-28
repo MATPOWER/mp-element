@@ -21,7 +21,6 @@ classdef nme_bus < nm_element
         end
 
         function obj = add_nodes(obj, nm, dm)
-            dme = obj.data_model_element(dm);
             nm.add_node(obj.name, obj.nk);
         end
 

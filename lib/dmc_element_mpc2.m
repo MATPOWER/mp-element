@@ -15,7 +15,11 @@ classdef dmc_element_mpc2 < dmc_element
 
     methods
         function [nr, nc, r] = get_import_size(obj, mpc)
-            [nr, nc] = size(mpc.(obj.table));   %% use size of default table
+            if isfield(mpc, obj.table)
+                [nr, nc] = size(mpc.(obj.table));   %% use size of default table
+            else
+                nr = 0; nc = 0;
+            end
             r = [];                             %% all rows
         end
 
