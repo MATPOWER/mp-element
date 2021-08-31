@@ -1,8 +1,8 @@
 classdef mp_data < mpe_container
-%MP_DATA  Abstract base class for MATPOWER data model
+%MP_DATA  Base class for MATPOWER data model
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.

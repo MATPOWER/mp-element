@@ -31,11 +31,6 @@ classdef nme_gen < nm_element
             obj.nz = 1;
         end
 
-        function obj = add_states(obj, nm, dm)
-            ng = obj.nk;            %% number of gens
-            nm.add_state(obj.name, ng);
-        end
-
         function idx = node_indices(obj, nm, dm, dme)
             bus_dme = dm.elements.bus;
             nidx = nm.get_node_idx('bus');  %% node indices for 'bus'

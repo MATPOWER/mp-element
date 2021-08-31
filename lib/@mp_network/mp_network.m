@@ -92,9 +92,17 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         function obj = add_states(obj, nm, dm)
             %% each element adds its states
             for k = 1:length(obj.elements)
-                obj.elements{k}.add_states(obj, dm);
+                if obj.elements{k}.nz   %% element has states to create
+                    obj.elements{k}.add_states(obj, dm);
+                end
             end
-            
+
+%             %% if network has its own states to add, do that now
+%             %% (this doesn't work because nz includes states from all elements)
+%             if obj.nz
+%                 add_states@nm_element(obj, nm, dm);
+%             end
+
             %% add state variables for each node
             obj.add_zvars(obj, dm);
         end

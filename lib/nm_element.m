@@ -83,6 +83,15 @@ classdef nm_element < handle
         end
 
         function obj = add_states(obj, nm, dm)
+            if obj.nz == 1
+                nm.add_state(obj.name, obj.nk);
+            elseif obj.nz > 1
+                nm.init_indexed_name('state', obj.name, {obj.nz});
+                for k = 1:obj.nz
+                    nm.add_state(obj.name, {k}, obj.nk);
+                end
+            end
+%             nm.add_state(obj.name, obj.nz * obj.nk);
         end
 
         function obj = add_vvars(obj, nm, dm, idx)
