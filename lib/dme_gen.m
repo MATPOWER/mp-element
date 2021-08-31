@@ -30,6 +30,8 @@ classdef dme_gen < dm_element
         function obj = dme_gen()
             obj@dm_element();   %% call parent constructor
             obj.name = 'gen';
+            obj.cxn_type = 'bus';
+            obj.cxn_idx_prop = 'bus';
         end
 
         function var_names = table_var_names(obj)

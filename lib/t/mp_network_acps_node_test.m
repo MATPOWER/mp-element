@@ -41,8 +41,8 @@ classdef mp_network_acps_node_test < mp_network_acps
                 gen_dme = dm.elements.gen;
                 varefs = [];
                 for k = gen_dme.nbet:-1:1
-                    if dm.elements.is_index_name(gen_dme.bus_elm_types{k})
-                        bus_dme{k} = dm.elements.(gen_dme.bus_elm_types{k});
+                    if dm.elements.is_index_name(gen_dme.cxn_type{k})
+                        bus_dme{k} = dm.elements.(gen_dme.cxn_type{k});
                         varefs_k = bus_dme{k}.va_start(find(bus_dme{k}.type == NODE_TYPE.REF));
                         varefs = [varefs_k; varefs];
                     else
@@ -54,8 +54,8 @@ classdef mp_network_acps_node_test < mp_network_acps
                         vm_ub = min(bus_dme{k}.vm_ub, 1.5);
                         vm_lb = max(bus_dme{k}.vm_lb, 0.5);
                         vm = (vm_ub + vm_lb) / 2;
-                        vVa = ['va_' gen_dme.bus_elm_types{k}];
-                        vVm = ['vm_' gen_dme.bus_elm_types{k}];
+                        vVa = ['va_' gen_dme.cxn_type{k}];
+                        vVm = ['vm_' gen_dme.cxn_type{k}];
                         x0(vv.i1.(vVa):vv.iN.(vVa)) = varefs(1);%% angles set to first reference angle
                         x0(vv.i1.(vVm):vv.iN.(vVm)) = vm;       %% voltage magnitudes
                     end

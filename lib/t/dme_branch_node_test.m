@@ -10,7 +10,6 @@ classdef dme_branch_node_test < dme_branch
 %   See https://matpower.org for more info.
 
     properties
-        bus_elm_types = {'bus_nld', 'bus_ld'};
         nbet        %% number of bus element types
         fbus_etv    %% from bus element type vector (all gens), 1 = nld, 2 = ld
         tbus_etv    %%  to  bus element type vector (all gens), 1 = nld, 2 = ld
@@ -20,11 +19,15 @@ classdef dme_branch_node_test < dme_branch
         function obj = initialize(obj, dm)
             initialize@dm_element(obj, dm);     %% call parent
 
+            obj.cxn_type = {'bus_nld', 'bus_ld'};
+            obj.cxn_idx_prop = {'fbus', 'tbus'};
+            obj.cxn_type_prop = {'fbus_etv', 'tbus_etv'};
+
             %% get bus mapping info
-            obj.nbet = length(obj.bus_elm_types);
+            obj.nbet = length(obj.cxn_type);
             for k = obj.nbet:-1:1
-                if dm.elements.is_index_name(obj.bus_elm_types{k})
-                    bus_dme{k} = dm.elements.(obj.bus_elm_types{k});
+                if dm.elements.is_index_name(obj.cxn_type{k})
+                    bus_dme{k} = dm.elements.(obj.cxn_type{k});
                     b2i_k{k} = bus_dme{k}.ID2i; %% bus element num to idx mapping
                 else
                     bus_dme{k} = [];
@@ -61,8 +64,8 @@ classdef dme_branch_node_test < dme_branch
         function obj = update_status(obj, dm)
             %% get bus status info
             for k = 1:obj.nbet
-                if dm.elements.is_index_name(obj.bus_elm_types{k})
-                    bus_dme = dm.elements.(obj.bus_elm_types{k});
+                if dm.elements.is_index_name(obj.cxn_type{k})
+                    bus_dme = dm.elements.(obj.cxn_type{k});
                     bs = bus_dme.status;    %% bus element status
 
                     %% update status of branches connected to isolated/offline buses
@@ -82,8 +85,8 @@ classdef dme_branch_node_test < dme_branch
             %% from makeAang()
             nb = 0;
             for k = 1:obj.nbet
-                if dm.elements.is_index_name(obj.bus_elm_types{k})
-                    nb = nb + dm.elements.(obj.bus_elm_types{k}).n;
+                if dm.elements.is_index_name(obj.cxn_type{k})
+                    nb = nb + dm.elements.(obj.cxn_type{k}).n;
                 end
             end
             branch = obj.tab;

@@ -20,6 +20,8 @@ classdef dme_gizmo < dm_element
         function obj = dme_gizmo()
             obj@dm_element();   %% call parent constructor
             obj.name = 'gizmo';
+            obj.cxn_type = 'bus';
+            obj.cxn_idx_prop = {'bus1', 'bus2', 'bus3'};
         end
 
         function var_names = table_var_names(obj)

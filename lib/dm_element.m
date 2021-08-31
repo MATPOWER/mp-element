@@ -14,6 +14,18 @@ classdef dm_element < handle
     properties
         name = 'dm_element';
         tab             %% main data table
+        cxn_type        %% char array or cell of char arrays with names
+                        %% of types of junction elements, i.e. node-creating
+                        %% elements (e.g. 'bus'), this element can connect to
+        cxn_idx_prop    %% char array or cell of char arrays with names of
+                        %% properties containing indices of junction elements
+                        %% that define connections (e.g. {'bus_fr', 'bus_to'})
+        cxn_type_prop   %% char array or cell of char arrays (dim must match
+                        %% cxn_idx_prop) with names of properties containing
+                        %% type of junction elements for each connection, only
+                        %% used if the junction element type can vary by
+                        %% element (e.g. some lines connect to one kind of bus,
+                        %% some to another kind)
         nr              %% total number of rows in table
         n               %% number of online elements
         ID              %% nr x 1 vector of unique IDs, maps dmi to ID

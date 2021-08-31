@@ -24,6 +24,8 @@ classdef dme_load < dm_element
         function obj = dme_load()
             obj@dm_element();   %% call parent constructor
             obj.name = 'load';
+            obj.cxn_type = 'bus';
+            obj.cxn_idx_prop = 'bus';
         end
 
         function var_names = table_var_names(obj)

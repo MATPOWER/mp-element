@@ -10,7 +10,6 @@ classdef dme_gen_node_test < dme_gen
 %   See https://matpower.org for more info.
 
     properties
-        bus_elm_types = {'bus_nld', 'bus_ld'};
         nbet        %% number of bus element types
         bus_etv    %% bus element type vector (all gens), 1 = nld, 2 = ld
     end     %% properties
@@ -24,11 +23,15 @@ classdef dme_gen_node_test < dme_gen
         function obj = initialize(obj, dm)
             initialize@dm_element(obj, dm);     %% call parent
 
+            obj.cxn_type = {'bus_nld', 'bus_ld'};
+            obj.cxn_idx_prop = 'bus';
+            obj.cxn_type_prop = 'bus_etv';
+
             %% get bus mapping info
-            obj.nbet = length(obj.bus_elm_types);
+            obj.nbet = length(obj.cxn_type);
             for k = obj.nbet:-1:1
-                if dm.elements.is_index_name(obj.bus_elm_types{k})
-                    bus_dme{k} = dm.elements.(obj.bus_elm_types{k});
+                if dm.elements.is_index_name(obj.cxn_type{k})
+                    bus_dme{k} = dm.elements.(obj.cxn_type{k});
                     b2i_k{k} = bus_dme{k}.ID2i;
                 else
                     bus_dme{k} = [];
@@ -61,8 +64,8 @@ classdef dme_gen_node_test < dme_gen
         function obj = update_status(obj, dm)
             %% get bus status info
             for k = 1:obj.nbet
-                if dm.elements.is_index_name(obj.bus_elm_types{k})
-                    bus_dme = dm.elements.(obj.bus_elm_types{k});
+                if dm.elements.is_index_name(obj.cxn_type{k})
+                    bus_dme = dm.elements.(obj.cxn_type{k});
                     bs = bus_dme.status;    %% bus element status
 
                     %% update status of gens at isolated/offline buses
