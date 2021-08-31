@@ -18,14 +18,5 @@ classdef nme_load < nm_element
             obj.name = 'load';
             obj.np = 1;             %% this is a 1 port element
         end
-
-        function obj = build_params(obj, nm, dm)
-            dme = obj.data_model_element(dm);
-
-            %% incidence matrices
-            nidxs = obj.node_indices(nm, dm, 'bus', 'bus');
-            obj.C = obj.incidence_matrix(nm.getN('node'), nidxs{:});
-            obj.D = obj.incidence_matrix(nm.getN('state'));
-        end
     end     %% methods
 end         %% classdef

@@ -31,16 +31,6 @@ classdef nme_gen < nm_element
             obj.nz = 1;
         end
 
-        function obj = build_params(obj, nm, dm)
-            dme = obj.data_model_element(dm);
-
-            %% incidence matrices
-            nidxs = obj.node_indices(nm, dm, 'bus', 'bus');
-            sidx = nm.get_state_idx(obj.name);  %% state indices for 'gen'
-            obj.C = obj.incidence_matrix(nm.getN('node'), nidxs{:});
-            obj.D = obj.incidence_matrix(nm.getN('state'), sidx);
-        end
-
         %%-----  OPF methods  -----
         function obj = opf_add_vars(obj, mm, nm, dm, mpopt)
             %% collect/construct all generator cost parameters

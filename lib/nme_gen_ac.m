@@ -21,8 +21,7 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
 
         function obj = build_params(obj, nm, dm)
             build_params@nme_gen(obj, nm, dm);      %% call parent
-            ng = obj.nk;
-            obj.N = -speye(ng);
+            obj.N = -speye(obj.nk);
         end
 
         %%-----  PF methods  -----

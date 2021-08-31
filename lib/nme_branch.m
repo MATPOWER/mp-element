@@ -20,15 +20,6 @@ classdef nme_branch < nm_element
             obj.np = 2;             %% this is a 2 port element
         end
 
-        function obj = build_params(obj, nm, dm)
-            dme = obj.data_model_element(dm);
-
-            %% incidence matrices
-            nidxs = obj.node_indices(nm, dm, 'bus', {'fbus', 'tbus'});
-            obj.C = obj.incidence_matrix(nm.getN('node'), nidxs{:});
-            obj.D = obj.incidence_matrix(nm.getN('state'));
-        end
-
         function [mu_vad_lb, mu_vad_ub] = opf_branch_ang_diff_prices(obj, mm)
             %% shadow prices on angle difference limits
             iang = mm.userdata.ang_diff_constrained_branch_idx;

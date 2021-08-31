@@ -101,6 +101,21 @@ classdef nm_element < handle
         end
 
         function obj = build_params(obj, nm, dm)
+            %% construct incidence matrices
+            if obj.np
+                nidx = obj.node_indices(nm, dm);
+                obj.C = obj.incidence_matrix(nm.getN('node'), nidx{:});
+            end
+            if obj.nz
+                sidx = nm.get_state_idx(obj.name);
+                if iscell(sidx)
+                    obj.D = obj.incidence_matrix(nm.getN('state'), sidx{:});
+                else
+                    obj.D = obj.incidence_matrix(nm.getN('state'), sidx);
+                end
+            else
+                obj.D = obj.incidence_matrix(nm.getN('state'));
+            end
         end
 
         function nv_ = get_nv_(obj, sysx);
