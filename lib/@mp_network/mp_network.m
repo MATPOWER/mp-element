@@ -75,9 +75,16 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         function obj = add_nodes(obj, nm, dm)
             %% each element adds its nodes
             for k = 1:length(obj.elements)
-                obj.elements{k}.add_nodes(obj, dm);
+                if obj.elements{k}.nn   %% element has nodes to create
+                    obj.elements{k}.add_nodes(obj, dm);
+                end
             end
-            
+
+            %% if network has its own nodes to add, do that now
+            if obj.nn
+                add_nodes@nm_element(obj, nm, dm);
+            end
+
             %% add voltage variables for each node
             obj.add_vvars(obj, dm);
         end

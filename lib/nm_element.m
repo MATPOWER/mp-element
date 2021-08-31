@@ -7,6 +7,7 @@ classdef nm_element < handle
 %   Properties
 %       name : name of element type (constant across forumations)
 %       np : number of ports per element
+%       nn : number of nodes per element (created by this element type)
 %       nz : number of non-voltage state variables per element
 %       nk : number of elements
 %       C : cell array of sparse element-node incidence matrices,
@@ -42,17 +43,18 @@ classdef nm_element < handle
 
     properties
         name = 'nm_element';
-        np = 0;             %% number of ports per element
-        nz = 0;             %% number of non-voltage states per element (possibly complex)
-        nk = 0;             %% number of elements of this type loaded
-        C = [];             %% stacked element-node incidence matrices,
-                            %% where C(i,kk) is 1 if port j of element k is
-                            %% connected to node i, and kk = k + (j-1)*np
-        D = [];             %% stacked sparse incidence matrices for
-                            %% Z variables, where D(i,kk) is 1 if z-variable j
-                            %% of element k is the i-th system z-variable
-                            %% and kk = k + (j-1)*nz
-        soln                %% struct for storing solved states, quantities
+        np = 0;     %% number of ports per element
+        nn = 0;     %% number of nodes per element (created by element)
+        nz = 0;     %% number of non-voltage states per element (possibly complex)
+        nk = 0;     %% number of elements of this type loaded
+        C = [];     %% stacked element-node incidence matrices,
+                    %% where C(i,kk) is 1 if port j of element k is
+                    %% connected to node i, and kk = k + (j-1)*np
+        D = [];     %% stacked sparse incidence matrices for
+                    %% Z variables, where D(i,kk) is 1 if z-variable j
+                    %% of element k is the i-th system z-variable
+                    %% and kk = k + (j-1)*nz
+        soln        %% struct for storing solved states, quantities
     end
     
     methods
@@ -69,6 +71,15 @@ classdef nm_element < handle
         end
 
         function obj = add_nodes(obj, nm, dm)
+            if obj.nn == 1
+                nm.add_node(obj.name, obj.nk);
+            elseif obj.nn > 1
+                nm.init_indexed_name('node', obj.name, {obj.nn});
+                for k = 1:obj.nn
+                    nm.add_node(obj.name, {k}, obj.nk);
+                end
+            end
+%             nm.add_node(obj.name, obj.nn * obj.nk);
         end
 
         function obj = add_states(obj, nm, dm)
@@ -124,6 +135,7 @@ classdef nm_element < handle
 
         function CD = incidence_matrix(obj, m, varargin)
             %% obj.incidence_matrix(m, idx1, idx2, ...)
+            %% m = total number of nodes / states
             n = length(varargin);   %% number of ports/z-vars
             if n == 1
                 CD = sparse(varargin{1}, 1:obj.nk, 1, m, obj.nk);

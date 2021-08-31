@@ -17,11 +17,7 @@ classdef nme_bus < nm_element
         function obj = nme_bus()
             obj@nm_element();
             obj.name = 'bus';
-            obj.np = 0;             %% this is a 0 port element
-        end
-
-        function obj = add_nodes(obj, nm, dm)
-            nm.add_node(obj.name, obj.nk);
+            obj.nn = 1;         %% creates 1 node per element
         end
 
         function [ref, pv, pq] = node_types(obj, nm, dm)
