@@ -20,23 +20,12 @@ classdef nme_branch < nm_element
             obj.np = 2;             %% this is a 2 port element
         end
 
-        function [fidx, tidx] = node_indices(obj, nm, dm, dme)
-            bus_dme = dm.elements.bus;
-            nidx = nm.get_node_idx('bus');  %% node indices for 'bus'
-            f = dme.fbus(dme.on);
-            t = dme.tbus(dme.on);
-            fbidx = bus_dme.i2on(f);        %% online bus indices branch "from"
-            tbidx = bus_dme.i2on(t);        %% online bus indices branch "to"
-            fidx = nidx(fbidx);             %% branch "from" port node indices
-            tidx = nidx(tbidx);             %% branch "to" port node indices
-        end
-
         function obj = build_params(obj, nm, dm)
             dme = obj.data_model_element(dm);
 
             %% incidence matrices
-            [fidx, tidx] = obj.node_indices(nm, dm, dme);
-            obj.C = obj.incidence_matrix(nm.getN('node'), fidx, tidx);
+            nidxs = obj.node_indices(nm, dm, 'bus', {'fbus', 'tbus'});
+            obj.C = obj.incidence_matrix(nm.getN('node'), nidxs{:});
             obj.D = obj.incidence_matrix(nm.getN('state'));
         end
 

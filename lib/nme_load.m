@@ -21,13 +21,10 @@ classdef nme_load < nm_element
 
         function obj = build_params(obj, nm, dm)
             dme = obj.data_model_element(dm);
-            bus_dme = dm.elements.bus;
 
             %% incidence matrices
-            nidx = nm.get_node_idx('bus');      %% node indices for 'bus'
-            bidx = bus_dme.i2on(dme.bus(dme.on));%% online bus indices for loads
-            idx = nidx(bidx);                   %% node indices for loads
-            obj.C = obj.incidence_matrix(nm.getN('node'), idx);
+            nidxs = obj.node_indices(nm, dm, 'bus', 'bus');
+            obj.C = obj.incidence_matrix(nm.getN('node'), nidxs{:});
             obj.D = obj.incidence_matrix(nm.getN('state'));
         end
     end     %% methods

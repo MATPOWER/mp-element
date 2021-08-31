@@ -142,6 +142,50 @@ classdef nm_element < handle
             end
         end
 
+        function nidxs = node_indices(obj, nm, dm, jxn_type, cxn_name)
+            %% nidxs = obj.node_indices(nm, dm, dme, jxn_type, cxn_name)
+            %% nidxs = obj.node_indices(nm, dm, dme, jxn_types, cxn_names, cxn_types)
+            %% a connection (cxn) is a set of ports
+            %% a junction (jxn) is a set of nodes
+            %% cxn_name is the name of the properties(s) in this object
+            %%      containing the IDs of the junction elements defining
+            %%      the connections (ports to nodes), (e.g. 'bus_fr', 'bus_to')
+            %% jxn_type is the name of the node-creating element that defines
+            %%      the junctions to which this element connects (e.g. 'bus')
+
+            if iscell(jxn_type)
+                error('nm_element/node_indices: not yet implemented for multiple junction types (i.e. jxn_type as cell array)');
+            end
+            if ischar(cxn_name)
+                cxn_name = { cxn_name };
+            end
+
+            dme = obj.data_model_element(dm);   %% data model element for obj
+            jxn_dme = dm.elements.(jxn_type);   %% data model element for jxn_type
+            jxn_nme = nm.elements.(jxn_type);   %% corresp. net model element
+            nidx = nm.get_node_idx(jxn_type);   %% corresponding node indices
+
+            %% number of connections
+            nc = length(cxn_name);      %% number of connections per element
+%             assert(obj.np + 1 == nc * jxn_nme.nn, ...   % just for now to trip the error
+            assert(obj.np == nc * jxn_nme.nn, ...
+                'nm_element/node_indices: number of %s connections per %s (%d) x number of nodes per %s (%d) should equal the number of ports per %s (%d)', ...
+                jxn_type, obj.name, nc, jxn_type, jxn_nme.nn, obj.name, obj.np);
+
+            p = 1;                      %% initialize port index
+            nidxs = cell(1, obj.np);    %% init node indices for each port
+            for k = 1:nc                %% for connection k
+                name = cxn_name{k};     %% field name of jxn indices for cxn k
+                j = dme.(name)(dme.on); %% jxn indices for cxn k of online elms
+                jon = jxn_dme.i2on(j);  %% indices into online jxn element
+                nidx_k = nidx(jon);     %% node indices for 1st port of cxn k
+                for n = 0:jxn_nme.nn-1
+                    nidxs{p} = nidx_k + n * dme.n;  %% node indices for port p
+                    p = p + 1;          %% increment port index
+                end
+            end
+        end
+
         function CD = incidence_matrix(obj, m, varargin)
             %% obj.incidence_matrix(m, idx1, idx2, ...)
             %% m = total number of nodes / states

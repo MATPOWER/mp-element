@@ -23,18 +23,11 @@ classdef nme_gizmo < nm_element
 
         function obj = build_params(obj, nm, dm)
             dme = obj.data_model_element(dm);
-            bus_dme = dm.elements.bus;
 
             %% incidence matrices
-            nidx = nm.get_node_idx('bus');      %% node indices for 'bus'
+            nidxs = obj.node_indices(nm, dm, 'bus', {'bus1', 'bus2', 'bus3'});
             sidx = nm.get_state_idx(obj.name);  %% state indices for 'gizmo'
-            bidx1 = bus_dme.i2on(dme.bus1(dme.on));%% online bus indices gizmo port 1
-            bidx2 = bus_dme.i2on(dme.bus2(dme.on));%% online bus indices gizmo port 2
-            bidx3 = bus_dme.i2on(dme.bus3(dme.on));%% online bus indices gizmo port 3
-            idx1 = nidx(bidx1);             %% gizmo port 1 node indices
-            idx2 = nidx(bidx2);             %% gizmo port 2 node indices
-            idx3 = nidx(bidx3);             %% gizmo port 3 node indices
-            obj.C = obj.incidence_matrix(nm.getN('node'), idx1, idx2, idx3);
+            obj.C = obj.incidence_matrix(nm.getN('node'), nidxs{:});
             obj.D = obj.incidence_matrix(nm.getN('state'), sidx{1}, sidx{2});
         end
     end     %% methods

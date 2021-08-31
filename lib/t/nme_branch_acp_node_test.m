@@ -9,7 +9,8 @@ classdef nme_branch_acp_node_test < nme_branch_acp
 %   See https://matpower.org for more info.
 
     methods
-        function [fidx, tidx] = node_indices(obj, nm, dm, dme)
+        function nidxs = node_indices(obj, nm, dm, varargin)
+            dme = obj.data_model_element(dm);
             f = dme.fbus(dme.on);
             t = dme.tbus(dme.on);
             bf = dme.fbus_etv(dme.on);
@@ -30,6 +31,7 @@ classdef nme_branch_acp_node_test < nme_branch_acp
                     tidx(bt == beti) = nidx(tbidx(bt == beti)); %% branch "to" port node indices
                 end
             end
+            nidxs = {fidx, tidx};
         end
     end     %% methods
 end         %% classdef

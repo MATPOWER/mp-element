@@ -12,7 +12,8 @@ classdef nme_gen_acp_node_test < nme_gen_acp
 %     end
 %     
     methods
-        function idx = node_indices(obj, nm, dm, dme)
+        function nidxs = node_indices(obj, nm, dm, varargin)
+            dme = obj.data_model_element(dm);
             b = dme.bus(dme.on);        %% gen bus index vector
             bt = dme.bus_etv(dme.on);   %% gen bus element type vector
             bidx = zeros(size(b));
@@ -26,6 +27,7 @@ classdef nme_gen_acp_node_test < nme_gen_acp
                     idx(bt == beti) = nidx(bidx(bt == beti));   %% node indices for gens
                 end
             end
+            nidxs = {idx};
         end
     end     %% methods
 end         %% classdef
