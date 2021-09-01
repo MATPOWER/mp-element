@@ -21,11 +21,7 @@ classdef nme_bus_ld_acp_node_test < nme_bus_nld_acp_node_test
         end
 
         function obj = build_params(obj, nm, dm)
-            %% incidence matrices
-            nidx = nm.get_node_idx('bus_ld');   %% node indices for 'bus_ld'
-            idx = nidx([1:obj.nk]');            %% node indices for loads
-            obj.C = obj.incidence_matrix(nm.getN('node'), idx);
-            obj.D = obj.incidence_matrix(nm.getN('state'));
+            build_params@nme_bus_nld_acp_node_test(obj, nm, dm);    %% call parent
 
             dme = obj.data_model_element(dm);
 

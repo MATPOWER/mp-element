@@ -182,7 +182,9 @@ classdef nm_element < handle
             %%              provides the index into cxn_type for each element
             %%  cxn_idx_prop - name(s) of DME property(ies) containing
             %%      indices of the junction elements defining the connections,
-            %%      e.g. {'bus_fr', 'bus_to'}
+            %%      e.g. {'bus_fr', 'bus_to'}; an empty char array signifies
+            %%      a connection from the element to itself, i.e its ports
+            %%      are connected to the nodes it created
             %%  cxn_type_prop - name(s) of DME property(ies) containing
             %%      type indices of the junction elements defining the
             %%      connections, where the type indices are indices into the
@@ -206,13 +208,16 @@ classdef nm_element < handle
             end
             nc = length(cxn_idx_prop);  %% number of connections per element
             if iscell(cxn_type)
-                assert(nargin >= 6 || length(cxn_type) == nc, 'nm_element/node_indices: requires CXN_TYPE_PROP arg if specifying more than one CXN_TYPE and CXN_TYPE length does not match CXN_IDX_PROP');
-                assert(length(cxn_type_prop) == nc, 'nm_element/node_indices: requires a CXN_TYPE_PROP for each CXN_IDX_PROP when specifying more than one CXN_TYPE');
+                if isempty(cxn_type_prop)
+                    assert(length(cxn_type) == nc, 'nm_element/node_indices: requires CXN_TYPE_PROP if specifying more than one CXN_TYPE and CXN_TYPE length does not match that of CXN_IDX_PROP');
+                else
+                    assert(length(cxn_type_prop) == nc, 'nm_element/node_indices: CXN_TYPE_PROP length must match that of CXN_IDX_PROP');
+                end
             end
 
             nidxs = cell(1, obj.np);    %% init node indices for each port
 
-            if nargin < 6 || isempty(cxn_type_prop)
+            if isempty(cxn_type_prop)
                 if ischar(cxn_type)     %%-----  one type for all connections
                     jxn_dme = dm.elements.(cxn_type);   %% data model element for cxn_type
                     jxn_nme = nm.elements.(cxn_type);   %% corresp. net model element
@@ -226,7 +231,11 @@ classdef nm_element < handle
                     p = 1;                      %% initialize port index
                     for k = 1:nc                %% for connection k
                         %% jxn indices for cxn k of online elements
-                        j = dme.(cxn_idx_prop{k})(dme.on);
+                        if isempty(cxn_idx_prop{k})
+                            j = dme.on;
+                        else
+                            j = dme.(cxn_idx_prop{k})(dme.on);
+                        end
                         jon = jxn_dme.i2on(j);  %% indices into online jxn element
                         nidx = jni(jon);        %% node indices for 1st port of cxn k
                         for n = 0:jxn_nme.nn-1

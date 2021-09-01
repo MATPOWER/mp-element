@@ -13,8 +13,8 @@ classdef mp_network_acps_node_test < mp_network_acps
         function obj = mp_network_acps_node_test()
             obj@mp_network_acps();
             obj.element_classes = ...
-                { @nme_bus_nld_acp_node_test, @nme_bus_ld_acp_node_test, @nme_gen_acp_node_test, ...
-                    @nme_branch_acp_node_test };
+                { @nme_bus_nld_acp_node_test, @nme_bus_ld_acp_node_test, ...
+                    @nme_gen_acp, @nme_branch_acp };
 
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),

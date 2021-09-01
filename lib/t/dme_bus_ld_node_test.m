@@ -24,6 +24,8 @@ classdef dme_bus_ld_node_test < dme_bus_nld_node_test
             obj@dme_bus_nld_node_test();   %% call parent constructor
             obj.bus_eti = 2;        %% bus element type index, 2 => bus_ld
             obj.name = 'bus_ld';
+            obj.cxn_type = 'bus_ld';
+            obj.cxn_idx_prop = '';
         end
 
         function var_names = table_var_names(obj)
