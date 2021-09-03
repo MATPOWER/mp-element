@@ -30,16 +30,15 @@ classdef mpe_container < handle
                 class_list = {class_list};
             end
             ec = obj.element_classes;   %% list to be updated
-            ec0 = {ec{:}};              %% unmodified copy of original list
             for k = 1:length(class_list)
                 c = class_list{k};
                 if iscell(c)        %% it's a 2-d cell array
-                    i = find(cellfun(@(e)isa(e(), c{2}), ec0)); %% find c{2}
+                    i = find(cellfun(@(e)isa(e(), c{2}), ec));  %% find c{2}
                     if ~isempty(i)
                         ec{i} = c{1};                   %% replace with c{1}
                     end
                 elseif ischar(c)
-                    i = find(cellfun(@(e)isa(e(), c), ec0));    %% find c
+                    i = find(cellfun(@(e)isa(e(), c), ec));     %% find c
                     if ~isempty(i)
                         ec(i) = [];                     %% delete
                     end
