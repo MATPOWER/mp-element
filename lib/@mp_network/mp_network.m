@@ -455,7 +455,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
-        function [ref, pv, pq, by_elm] = node_types(obj, nm, dm, skip_ensure_ref)
+        function [ref, pv, pq, by_elm] = node_types(obj, nm, dm, idx, skip_ensure_ref)
             %%          ntv          = obj.node_types(nm, dm)
             %%         [ntv, by_elm] = obj.node_types(nm, dm)
             %% [ref, pv, pq]         = obj.node_types(nm, dm)
@@ -467,7 +467,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             %%      'ref'/'pv'/'pq' - index vectors into elements of
             %%          corresponding node-creating element type  (if by_elm
             %%          is 4th output arg)
-            if nargin < 4
+            if nargin < 5
                 skip_ensure_ref = 0;
             end
 
@@ -485,9 +485,15 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                 %% get node types for each node-creating element type
                 for k = 1:obj.node.NS
                     name = obj.node.order(k).name;
-                    i0 = obj.node.idx.i1.(name) - 1;
+                    idx = obj.node.order(k).idx;
+                    if isempty(idx)
+                        i0 = obj.node.idx.i1.(name) - 1;
+                    else
+                        sn = struct('type', {'.', '()'}, 'subs', {name, idx});
+                        i0 = subsref(obj.node.idx.i1, sn) - 1;
+                    end
                     nme = obj.elements.(name);
-                    [rr{k}, vv{k}, qq{k}] = nme.node_types(obj, dm);
+                    [rr{k}, vv{k}, qq{k}] = nme.node_types(obj, dm, idx);
                     if nargout > 3
                         by_elm(k).name = name;
                         by_elm(k).ref = rr{k};
@@ -511,8 +517,9 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                 %% get node types for each node-creating element type
                 for k = 1:length(obj.node.order)
                     name = obj.node.order(k).name;
+                    idx = obj.node.order(k).idx;
                     nme = obj.elements.(name);
-                    tt{k} = nme.node_types(obj, dm);
+                    tt{k} = nme.node_types(obj, dm, idx);
                     if nargout > 1
                         by_elm(k).name = name;
                         by_elm(k).ntv = tt{k};
@@ -548,7 +555,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                     obj.set_node_type_ref(dm, pv(1));
 
                     %% update node type vector, skipping ensure ref node step
-                    ntv = obj.node_types(obj, dm, 1);
+                    ntv = obj.node_types(obj, dm, {}, 1);
                 end
                 ref = ntv;
             end

@@ -24,16 +24,24 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
             tm(i) = dme.tm(i);              %% assign non-zero tap ratios
             T = tm .* exp(1j * dme.ta);     %% add phase shifters
 
-            Ys = 1 ./ (dme.r + 1j * dme.x);     %% series admittance
-            Yff = (Ys + dme.g_fr + 1j * dme.b_fr) ./ (T .* conj(T));
-            Ytt = Ys + dme.g_to + 1j * dme.b_to;
-            Yft = - Ys ./ conj(T);
-            Ytf = - Ys ./ T;
+            ys = 1 ./ (dme.r + 1j * dme.x);     %% series admittance
+            yff = (ys + dme.g_fr + 1j * dme.b_fr) ./ (T .* conj(T));
+            ytt = ys + dme.g_to + 1j * dme.b_to;
+            yft = - ys ./ conj(T);
+            ytf = - ys ./ T;
 
             obj.Y = sparse( ...
                 [1:nl 1:nl nl+1:2*nl nl+1:2*nl]', ...
                 [1:nl nl+1:2*nl 1:nl nl+1:2*nl]', ...
-                [Yff; Yft; Ytf; Ytt], 2*nl, 2*nl );
+                [yff; yft; ytf; ytt], 2*nl, 2*nl );
+
+% same as:
+%             Yff = spdiags(yff, 0, nl, nl);
+%             Yft = spdiags(yft, 0, nl, nl);
+%             Ytf = spdiags(ytf, 0, nl, nl);
+%             Ytt = spdiags(ytt, 0, nl, nl);
+%             obj.Y = [ Yff Yft;
+%                       Ytf Ytt  ];
         end
 
         %%-----  PF methods  -----

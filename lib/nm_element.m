@@ -221,7 +221,7 @@ classdef nm_element < handle
                 if ischar(cxn_type)     %%-----  one type for all connections
                     jxn_dme = dm.elements.(cxn_type);   %% data model element for cxn_type
                     jxn_nme = nm.elements.(cxn_type);   %% corresp. net model element
-                    jni = nm.get_node_idx(cxn_type);    %% corresponding node indices
+                    ni = nm.get_node_idx(cxn_type);     %% corresponding node indices
 
                     %% number of connections
                     assert(obj.np == nc * jxn_nme.nn, ...
@@ -237,9 +237,13 @@ classdef nm_element < handle
                             j = dme.(cxn_idx_prop{k})(dme.on);
                         end
                         jon = jxn_dme.i2on(j);  %% indices into online jxn element
-                        nidx = jni(jon);        %% node indices for 1st port of cxn k
-                        for n = 0:jxn_nme.nn-1
-                            nidxs{p} = nidx + n * dme.n;    %% node indices for port p
+                        if iscell(ni)
+                            for n = 1:jxn_nme.nn
+                                nidxs{p} = ni{n}(jon);
+                                p = p + 1;          %% increment port index
+                            end
+                        else
+                            nidxs{p} = ni(jon); %% node indices for single port of cxn k
                             p = p + 1;          %% increment port index
                         end
                     end
@@ -248,24 +252,28 @@ classdef nm_element < handle
                     for k = 1:nc                %% for connection k
                         jxn_dme = dm.elements.(cxn_type{k});%% data model element for cxn_type{k}
                         jxn_nme = nm.elements.(cxn_type{k});%% corresp. net model element
-                        jni = nm.get_node_idx(cxn_type{k}); %% corresponding node indices
+                        ni = nm.get_node_idx(cxn_type{k});  %% corresponding node indices
 
                         %% number of connections
-                        assert(obj.np == nc * jxn_nme.nn, ...
-                            'nm_element/node_indices: number of %s connections per %s (%d) x number of nodes per %s (%d) should equal the number of ports per %s (%d)', ...
-                            cxn_type{k}, obj.name, nc, cxn_type{k}, jxn_nme.nn, obj.name, obj.np);
+                        assert(p <= obj.np, ...
+                            'nm_element/node_indices: port index for %s connections for %s (%d) exceeds the available number of ports per %s (%d)', ...
+                            cxn_type{k}, obj.name, p, obj.name, obj.np);
 
                         %% jxn indices for cxn k of online elements
                         j = dme.(cxn_idx_prop{k})(dme.on);
                         jon = jxn_dme.i2on(j);  %% indices into online jxn element
-                        nidx = jni(jon);        %% node indices for 1st port of cxn k
-                        for n = 0:jxn_nme.nn-1
-                            nidxs{p} = nidx + n * dme.n;    %% node indices for port p
+                        if iscell(ni)
+                            for n = 1:jxn_nme.nn
+                                nidxs{p} = ni{n}(jon);
+                                p = p + 1;          %% increment port index
+                            end
+                        else
+                            nidxs{p} = ni(jon); %% node indices for single port of cxn k
                             p = p + 1;          %% increment port index
                         end
                     end
                 end
-            else                        %%-----  one type for each connection
+            else                        %%-----  individual types per element/connection
                 nidx = cell(1, nc);         %% init node indices for each cxn
                 [nidx{:}] = deal(zeros(dme.n, 1));
 
@@ -273,7 +281,7 @@ classdef nm_element < handle
                     if dm.elements.is_index_name(cxn_type{i})
                         jxn_dme = dm.elements.(cxn_type{i});    %% data model element for cxn_type{i}
                         jxn_nme = nm.elements.(cxn_type{i});    %% corresp. net model element
-                        jni = nm.get_node_idx(cxn_type{i});     %% corresponding node indices
+                        ni = nm.get_node_idx(cxn_type{i});      %% corresponding node indices
 
                         %% number of connections
                         assert(obj.np == nc * jxn_nme.nn, ...
@@ -285,7 +293,7 @@ classdef nm_element < handle
                             j  = dme.(cxn_idx_prop{k})(dme.on); %% jxn indices
                             jt = dme.(cxn_type_prop{k})(dme.on);%% jxn types
                             %% assign node indices for 1st port of cxn k, jxn type i
-                            nidx{k}(jt == i) = jni(jxn_dme.i2on(j(jt == i)));
+                            nidx{k}(jt == i) = ni(jxn_dme.i2on(j(jt == i)));
                         end
                     end
                 end
@@ -354,6 +362,7 @@ classdef nm_element < handle
             fprintf('NETWORK MODEL ELEMENT NAME  : %s\n', obj.name);
             fprintf('NETWORK MODEL ELEMENT CLASS : %s\n', class(obj));
             fprintf('    # OF ELEMENTS           : %d\n', obj.nk);
+            fprintf('    # OF NODES/ELEM         : %d\n', obj.nn);
             fprintf('    # OF PORTS/ELEM         : %d\n', obj.np);
             fprintf('    # OF NON-V STATES/ELEM  : %d\n', obj.nz);
             if isa(obj, 'mp_form')

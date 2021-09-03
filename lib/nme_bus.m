@@ -20,9 +20,9 @@ classdef nme_bus < nm_element
             obj.nn = 1;         %% creates 1 node per element
         end
 
-        function [ref, pv, pq] = node_types(obj, nm, dm)
-            %% ntv = obj.node_types(nm, dm)
-            %% [ref, pv, pq] = obj.node_types(nm, dm)
+        function [ref, pv, pq] = node_types(obj, nm, dm, idx)
+            %% ntv = obj.node_types(nm, dm, idx)
+            %% [ref, pv, pq] = obj.node_types(nm, dm, idx)
             dme = obj.data_model_element(dm);
             if nargout > 1
                 ref = find(dme.type == NODE_TYPE.REF);  %% ref node indices
