@@ -20,7 +20,7 @@ else
     verbose = 1;
 end
 
-nt = 127;
+nt = 129;
 skip_tests_for_tablicious = 1;
 table_classes = {@mp_table};
 class_names = {'mp_table'};
@@ -388,6 +388,23 @@ for k = 1:nc
     T5 = table_class(var3, var2);
     T6 = [T2 T1 T5];
     t_ok(isequal(T6, [T4 T5]), [t '[T1 T2 T3]']);
+
+    %% deleting variables
+    t = sprintf('%s : delete variables : ', cls);
+    if skip
+        t_skip(1, [t 'not yet supported']);
+    else
+        T7 = T;
+        T7(:, [5 4]) = [];
+        t_ok(isequal(T7, T1), [t 'T(:, j) = []']);
+    end
+
+    %% adding variables
+    t = sprintf('%s : add variables : ', cls);
+    T7 = T1;
+    T7.dbl = T2.dbl;
+    T7.boo = T2.boo;
+    t_ok(isequal(T7, T), [t 'T.new_var = val']);
 
     %% more {} indexing
     t = sprintf('%s : more subsref {} : ', cls);

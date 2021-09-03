@@ -179,12 +179,27 @@ classdef mp_table
                             obj.Properties = b;
                         end
                     else
-                        idx = obj.Properties.Map.(s(1).subs);
-                        if R
-                            obj.Properties.VariableValues{idx} = ...
-                                subsasgn(obj.Properties.VariableValues{idx}, ...
-                                    s(2:end), b);
-                        else
+                        if isfield(obj.Properties.Map, s(1).subs)
+                            idx = obj.Properties.Map.(s(1).subs);
+                            if R
+                                obj.Properties.VariableValues{idx} = ...
+                                    subsasgn(obj.Properties.VariableValues{idx}, ...
+                                        s(2:end), b);
+                            else
+                                obj.Properties.VariableValues{idx} = b;
+                            end
+                        else    %% new variable
+                            if R
+                                error('mp_table/subsagn: cannot index new variable ''%s''', s(1).subs);
+                            end
+                            %% check size compatibility
+                            if size(b, 1) ~= size(obj, 1)
+                                error('mp_table/subsagn: number of rows (%d) in new variable ''%s'' does not match height of table (%d)', size(b, 1), s(1).subs, size(obj, 1));
+                            end
+                            %% add variable
+                            idx = size(obj, 2) + 1;
+                            obj.Properties.VariableNames{idx} = s(1).subs;
+                            obj.Properties.Map.(s(1).subs) = idx;
                             obj.Properties.VariableValues{idx} = b;
                         end
                     end
@@ -194,15 +209,23 @@ classdef mp_table
                     if ischar(idx)
                         if length(idx) == 1 && idx == ':'
                             idx = [1:nv];
-                        else
-                            idx = eval(['[' idx ']']);
+                        else        %% for 'a:b' syntax as a char array
+                            idx = eval(['[' idx ']'])
                         end
                     end
-                    ss = struct('type', '{}', 'subs', {{':', 0}});
-                    for k = 1:nv
-                        ss(1).subs{2} = k;
-                        obj.Properties.VariableValues{idx(k)}(s(1).subs{1}, :) = ...
-                            subsref(b, ss);     %% = b{:, k};
+                    if nv
+                        ss = struct('type', '{}', 'subs', {{':', 0}});
+                        for k = 1:nv
+                            ss(1).subs{2} = k;
+                            obj.Properties.VariableValues{idx(k)}(s(1).subs{1}, :) = ...
+                                subsref(b, ss);     %% = b{:, k};
+                        end
+                    else    %% delete variable
+                        obj.Properties.VariableNames(idx) = [];
+                        obj.Properties.VariableValues(idx) = [];
+                        %% rebuild map
+                        nv = size(obj, 2);
+                        obj.Properties.Map = cell2struct(num2cell(1:nv), obj.Properties.VariableNames, 2);
                     end
                     if R
                         error('mp_table/subasgn: sub-indexing following {}-indexing not supported');
@@ -213,8 +236,8 @@ classdef mp_table
                     if ischar(idx)
                         if length(idx) == 1 && idx == ':'
                             idx = [1:nv];
-                        else
-                            idx = eval(['[' idx ']']);
+                        else        %% for 'a:b' syntax as a char array
+                            idx = eval(['[' idx ']'])
                         end
                     end
                     for k = 1:nv
