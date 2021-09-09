@@ -24,7 +24,9 @@ classdef dme_bus_nld_node_test < dme_bus
 
         function nr = count(obj, dm)
             nr = count@dme_bus(obj, dm);
-            obj.bus = obj.tab.source_uid;
+            if nr
+                obj.bus = obj.tab.source_uid;
+            end
         end
 
         function [gbus, ig] = gbus_vector(obj, gen_dme)

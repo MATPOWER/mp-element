@@ -24,10 +24,12 @@ classdef dmc_element < handle
         function dme = import(obj, dme, d)
             var_names = dme.table_var_names();
             var_vals  = obj.table_var_values(var_names, d);
-            if have_feature('table')
-                dme.tab = table(var_vals{:}, 'VariableNames', var_names);
-            else
-                dme.tab = mp_table(var_vals{:}, 'VariableNames', var_names);
+            if ~isempty(var_vals)
+                if have_feature('table')
+                    dme.tab = table(var_vals{:}, 'VariableNames', var_names);
+                else
+                    dme.tab = mp_table(var_vals{:}, 'VariableNames', var_names);
+                end
             end
         end
     end     %% methods

@@ -46,7 +46,9 @@ classdef dme_shunt < dm_element
 
         function nr = count(obj, dm)
             nr = count@dm_element(obj, dm);
-            obj.bus = obj.tab.source_uid;
+            if nr
+                obj.bus = obj.tab.source_uid;
+            end
         end
 
         function obj = update_status(obj, dm)

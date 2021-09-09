@@ -43,67 +43,72 @@ classdef dmc_element_mpc2 < dmc_element
             nv = length(var_names);                 %% number of variables
             [nr, nc, r] = obj.get_import_size(mpc); %% rows in data table and
                                                     %% cols in mpc.(obj.table)
-            %% get variable map
-            vmap = obj.table_var_map(var_names, mpc);
 
-            %% initialize variable values
-            vals = cell(size(var_names));
+            if nr
+                %% get variable map
+                vmap = obj.table_var_map(var_names, mpc);
 
-            %% assign variable values
-            for k = 1:nv
-                vn = var_names{k};
-                vm = vmap.(vn);
-                switch vm.type      %% switch on type of mapping
-                    case -1     %% column of default table
-                        %% vm.args: c - column index
-                        %%          {c, sf} - col idx, scale factor
-                        %%              sf = constant or @fcn where
-                        %%                  sf = fcn(obj, vn)
-                        if iscell(vm.args)      %% get column index
-                            c = vm.args{1};
-                            if isa(vm.args{2}, 'function_handle')
-                                sf = vm.args{2}(obj, vn);   %% scalar constant
+                %% initialize variable values
+                vals = cell(size(var_names));
+
+                %% assign variable values
+                for k = 1:nv
+                    vn = var_names{k};
+                    vm = vmap.(vn);
+                    switch vm.type      %% switch on type of mapping
+                        case -1     %% column of default table
+                            %% vm.args: c - column index
+                            %%          {c, sf} - col idx, scale factor
+                            %%              sf = constant or @fcn where
+                            %%                  sf = fcn(obj, vn)
+                            if iscell(vm.args)      %% get column index
+                                c = vm.args{1};
+                                if isa(vm.args{2}, 'function_handle')
+                                    sf = vm.args{2}(obj, vn);   %% scalar constant
+                                else
+                                    sf = vm.args{2};            %% scalar constant
+                                end
                             else
-                                sf = vm.args{2};            %% scalar constant
+                                c = vm.args;
+                                sf = 1;
                             end
-                        else
-                            c = vm.args;
-                            sf = 1;
-                        end
-                        if c > nc   %% default to zeros if mpc table does not
-                                    %% have this many columns
+                            if c > nc   %% default to zeros if mpc table does not
+                                        %% have this many columns
+                                vals{k} = zeros(nr, 1);
+                            else
+                                if nr && isempty(r)
+                                    vals{k} = sf * mpc.(obj.table)(:, c);
+                                else
+                                    vals{k} = sf * mpc.(obj.table)(r, c);
+                                end
+                            end
+                        case 0      %% zeros
                             vals{k} = zeros(nr, 1);
-                        else
-                            if nr && isempty(r)
-                                vals{k} = sf * mpc.(obj.table)(:, c);
-                            else
-                                vals{k} = sf * mpc.(obj.table)(r, c);
+                        case 1      %% ones
+                            vals{k} = ones(nr, 1);
+                        case 2      %% empty char
+                            vals{k} = cell(nr, 1);
+                            [vals{k}{:}] = deal('');
+                        case 3      %% [1:nr]', consecutive IDs
+                            vals{k} = [1:nr]';
+                        case 4      %% r
+                            vals{k} = r;
+                        case 5      %% general function
+                            %% vm.args = @import_fcn or {@import_fcn, @export_fcn}
+                            %%  where
+                            %%      vals = import_fcn(obj, vn, nr, r, mpc)
+                            %%      mpc = export_fcn(obj, vn, nr, r, mpc, dme)
+                            import_fcn = vm.args;
+                            if iscell(import_fcn)
+                                import_fcn = import_fcn{1};
                             end
-                        end
-                    case 0      %% zeros
-                        vals{k} = zeros(nr, 1);
-                    case 1      %% ones
-                        vals{k} = ones(nr, 1);
-                    case 2      %% empty char
-                        vals{k} = cell(nr, 1);
-                        [vals{k}{:}] = deal('');
-                    case 3      %% [1:nr]', consecutive IDs
-                        vals{k} = [1:nr]';
-                    case 4      %% r
-                        vals{k} = r;
-                    case 5      %% general function
-                        %% vm.args = @import_fcn or {@import_fcn, @export_fcn}
-                        %%  where
-                        %%      vals = import_fcn(obj, vn, nr, r, mpc)
-                        %%      mpc = export_fcn(obj, vn, nr, r, mpc, dme)
-                        import_fcn = vm.args;
-                        if iscell(import_fcn)
-                            import_fcn = import_fcn{1};
-                        end
-                        vals{k} = import_fcn(obj, vn, nr, r, mpc);
-                    otherwise
-                        error('dmc_element_mpc2/table_var_values: %d is an unknown var map type', vm.type);
+                            vals{k} = import_fcn(obj, vn, nr, r, mpc);
+                        otherwise
+                            error('dmc_element_mpc2/table_var_values: %d is an unknown var map type', vm.type);
+                    end
                 end
+            else            %% table does not exist or is empty
+                vals = [];
             end
         end
 

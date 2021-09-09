@@ -75,9 +75,8 @@ classdef dme_bus < dm_element
             ig = [];
         end
 
-        function vm_start = set_vm_start(obj, gen_dme, gbus, ig)
+        function obj = set_vm_start(obj, gen_dme, gbus, ig)
             gen = gen_dme.tab;
-            vm_start = obj.tab.vm(obj.on);
 
             %% pull PV bus voltage magnitudes from gen.vm_setpoint
             vcb = ones(obj.n, 1);   %% create mask of voltage-controlled buses
@@ -85,34 +84,39 @@ classdef dme_bus < dm_element
             %% find indices of online gens at online v-c buses
             k = find(vcb(gbus));
             if isempty(ig)
-                vm_start(gbus(k)) = gen.vm_setpoint(gen_dme.on(k));
+                obj.vm_start(gbus(k)) = gen.vm_setpoint(gen_dme.on(k));
             else
-                vm_start(gbus(k)) = gen.vm_setpoint(gen_dme.on(ig(k)));
+                obj.vm_start(gbus(k)) = gen.vm_setpoint(gen_dme.on(ig(k)));
             end
         end
 
         function obj = build_params(obj, dm)
-            gen_dme = dm.elements.gen;
-            [gbus, ig] = obj.gbus_vector(gen_dme);
-            nb = obj.n;
-            ng = length(gbus);
-            bus = obj.tab;
-
-            %% update bus types based on connected generator status
-            %% gen connection matrix, element i, j is 1 if gen j @ bus i is ON
-            Cg = sparse(gbus, (1:ng)', 1, nb, ng);
-            bus_gen_status = Cg * ones(ng, 1);  %% num of gens ON at each bus
-%             obj.type(obj.type == NODE_TYPE.REF & ~bus_gen_status) = NODE_TYPE.PQ;
-              % above line would affect OPF (not just PF, CPF) where REF is
-              % used only as angle reference and does not require an online gen
-            obj.type(obj.type == NODE_TYPE.PV & ~bus_gen_status) = NODE_TYPE.PQ;
-%             obj.ensure_ref_bus();   %% pick a new ref bus if one does not exist
-
             %% initialize voltage from bus table
+            bus = obj.tab;
             obj.va_start = bus.va(obj.on) * pi/180;
-            obj.vm_start = obj.set_vm_start(gen_dme, gbus, ig);
+            obj.vm_start = obj.tab.vm(obj.on);
             obj.vm_lb = bus.vm_lb(obj.on);
             obj.vm_ub = bus.vm_ub(obj.on);
+
+            %% update bus type and starting vm based on connected gen status
+            if dm.elements.is_index_name('gen')
+                gen_dme = dm.elements.gen;
+                [gbus, ig] = obj.gbus_vector(gen_dme);
+                nb = obj.n;
+                ng = length(gbus);
+
+                %% update bus types based on connected generator status
+                %% gen connection matrix, element i, j is 1 if gen j @ bus i is ON
+                Cg = sparse(gbus, (1:ng)', 1, nb, ng);
+                bus_gen_status = Cg * ones(ng, 1);  %% num of gens ON at each bus
+    %             obj.type(obj.type == NODE_TYPE.REF & ~bus_gen_status) = NODE_TYPE.PQ;
+                  % above line would affect OPF (not just PF, CPF) where REF is
+                  % used only as angle reference and does not require an online gen
+                obj.type(obj.type == NODE_TYPE.PV & ~bus_gen_status) = NODE_TYPE.PQ;
+    %             obj.ensure_ref_bus();   %% pick a new ref bus if one does not exist
+
+                obj.set_vm_start(gen_dme, gbus, ig);
+            end
         end
 
         function obj = set_bus_type_ref(obj, dm, idx)

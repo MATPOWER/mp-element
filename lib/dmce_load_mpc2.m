@@ -24,11 +24,21 @@ classdef dmce_load_mpc2 < dmc_element_mpc2 % & dmce_load
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-            tab = mpc.(obj.table);
-            r = find(tab(:, PD) | tab(:, QD));
-            obj.bus = r;
-            nr = size(r, 1);
-            nc = size(tab, 2);          %% use nc of default table
+            if isfield(mpc, obj.table)
+                tab = mpc.(obj.table);
+            else
+                tab = [];
+            end
+            if isempty(tab)
+                nr = 0;
+                nc = 0;
+                r = [];
+            else
+                r = find(tab(:, PD) | tab(:, QD));
+                obj.bus = r;
+                nr = size(r, 1);
+                nc = size(tab, 2);          %% use nc of default table
+            end
         end
 
         function [nr, nc, r] = get_export_size(obj, dme)
