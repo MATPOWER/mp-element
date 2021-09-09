@@ -10,10 +10,15 @@ classdef mp_data < mp_element_container
 %   See https://matpower.org for more info.
 
     properties
-        base_mva
-        source
+        base_mva        %% system per unit MVA base [1]
+        base_kva        %% system per unit kVA base [2]
+        source          %% source of data (e.g. mpc, MATPOWER case struct)
         userdata = struct();
     end     %% properties
+    %% [1]  for balanced single-phase systems/sections, must be provided if
+    %%      system includes any 'bus' elements
+    %% [2]  for unbalanced 3-phase systems/sections, must be provided if
+    %%      system includes any 'bus3p' elements
 
     methods
         %% constructor
@@ -22,7 +27,9 @@ classdef mp_data < mp_element_container
             obj@mp_element_container();
             obj.element_classes = ...
                 { @dme_bus, @dme_gen, @dme_load, ...
-                    @dme_branch, @dme_shunt };
+                    @dme_branch, @dme_shunt, ...
+                    @dme_bus3p, @dme_gen3p, @dme_load3p, ...
+                    @dme_line3p, @dme_xfmr3p };
         end
 
         function new_obj = copy(obj)

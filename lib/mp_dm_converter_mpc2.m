@@ -19,14 +19,25 @@ classdef mp_dm_converter_mpc2 < mp_dm_converter
             obj@mp_dm_converter();
             obj.element_classes = ...
                 { @dmce_bus_mpc2, @dmce_gen_mpc2, @dmce_load_mpc2, ...
-                    @dmce_branch_mpc2, @dmce_shunt_mpc2 };
+                    @dmce_branch_mpc2, @dmce_shunt_mpc2, ...
+                    dmce_bus3p_mpc2, @dmce_gen3p_mpc2, @dmce_load3p_mpc2, ...
+                    @dmce_line3p_mpc2, @dmce_xfmr3p_mpc2 };
         end
 
         function dm = import(obj, dm, d)
             if ~isstruct(d)
                 d = loadcase(d);
             end
-            dm.base_mva = d.baseMVA;
+            if isfield(d, 'baseMVA');
+                dm.base_mva = d.baseMVA;
+            elseif isfield(d, 'bus') && ~isempty(d.bus)
+                error('mp_dm_converter_mpc2/import: ''baseMVA'' must be defined for a case with a ''bus'' field.');
+            end
+            if isfield(d, 'basekVA');
+                dm.base_kva = d.basekVA;
+            elseif isfield(d, 'bus3p') && ~isempty(d.bus3p)
+                error('mp_dm_converter_mpc2/import: ''basekVA'' must be defined for a case with a ''bus3p'' field.');
+            end
             dm.source = d;
             dm = import@mp_dm_converter(obj, dm, d);
         end
