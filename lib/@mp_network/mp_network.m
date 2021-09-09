@@ -592,14 +592,27 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         end
 
         %%-----  PF methods  -----
+        function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
+            %% system constraints
+            obj.pf_add_system_vars(mm, dm, mpopt);
+
+            %% each element adds its PF vars
+            for k = 1:length(obj.elements)
+                obj.elements{k}.pf_add_vars(mm, nm, dm, mpopt);
+            end
+        end
+
+        function obj = pf_add_system_vars(obj, mm, nm, dm, mpopt)
+        end
+
         function obj = pf_add_constraints(obj, mm, nm, dm, mpopt)
             %% system constraints
             obj.pf_add_system_constraints(mm, dm, mpopt);
-            
-%             %% each element adds its PF constraints
-%             for k = 1:length(obj.elements)
-%                 obj.elements{k}.pf_add_constraints(mm, nm, dm, mpopt);
-%             end
+
+            %% each element adds its PF constraints
+            for k = 1:length(obj.elements)
+                obj.elements{k}.pf_add_constraints(mm, nm, dm, mpopt);
+            end
         end
 
         function obj = pf_add_system_constraints(obj, mm, dm, mpopt)

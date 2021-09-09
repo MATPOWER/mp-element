@@ -32,7 +32,7 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
             ad.k = k;               %% indices of PV node z-vars
         end
 
-        function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
+        function obj = pf_add_system_vars(obj, mm, nm, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
 
