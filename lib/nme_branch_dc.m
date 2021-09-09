@@ -63,7 +63,7 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
                 [B, K, p] = obj.get_params(ibr);
                 Af = B * obj.C';
                 mm.add_lin_constraint('Pf', Af, -p-flow_max, -p+flow_max, ...
-                    {nm.va.order(:).name});
+                    nm.va.order);
             end
 
             %% branch voltage angle difference limits

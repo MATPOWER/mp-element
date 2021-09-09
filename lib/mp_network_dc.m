@@ -202,7 +202,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
             Amis = C * [B*C' K*obj.D'];
             bmis = -C * p;
             mm.add_lin_constraint('Pmis', Amis, bmis, bmis, ...
-                                {obj.va.order(:).name obj.z.order(:).name});
+                                [obj.va.order; obj.z.order]);
         end
 
         function opf_add_system_costs(obj, mm, dm, mpopt)
