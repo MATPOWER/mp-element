@@ -42,12 +42,20 @@ classdef nme_buslink < nm_element & mp_form_acp
         function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
             mm.init_indexed_name('var', 'Plink', {3});
             mm.init_indexed_name('var', 'Qlink', {3});
+            mmx_i1 = mm.var.N + 1;
             for p = 1:3
                 mm.add_var('Plink', {p}, obj.nk, 0, -Inf, Inf);
             end
+            mmx_iN = mm.var.N;
+            mm.aux_data.var_map{end+1} = ...
+                {'zr', nm.zr.idx.i1.Plink(1), nm.zr.idx.iN.Plink(end), [], mmx_i1, mmx_iN, []};
+            mmx_i1 = mm.var.N + 1;
             for p = 1:3
                 mm.add_var('Qlink', {p}, obj.nk, 0, -Inf, Inf);
             end
+            mmx_iN = mm.var.N;
+            mm.aux_data.var_map{end+1} = ...
+                {'zi', nm.zi.idx.i1.Qlink(1), nm.zi.idx.iN.Qlink(end), [], mmx_i1, mmx_iN, []};
         end
 
         function obj = pf_add_constraints(obj, mm, nm, dm, mpopt)
@@ -61,7 +69,9 @@ classdef nme_buslink < nm_element & mp_form_acp
             A1 = ( obj.C([ad.pv; ad.pq], :) * obj.N )';
             k1 = find(any(A1, 2));
             n1 = length(k1);
-            b1 = zeros(n1, 1);
+            ang120 = 2*pi/3*ones(obj.nk, 1);
+            b1 = [zeros(obj.nk, 1); ang120; -ang120];
+            b1 = b1(k1);
             vs1 = struct('name', {'Va_pv', 'Va3_pv', 'Va3_pv', 'Va3_pv', ...
                                     'Va_pq', 'Va3_pq', 'Va3_pq', 'Va3_pq'}, ...
                             'idx', {{}, {1}, {2}, {3}, {}, {1}, {2}, {3}} );
