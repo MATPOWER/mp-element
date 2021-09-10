@@ -20,16 +20,13 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
             ad = pf_aux_data@mp_network_ac(obj, dm, mpopt);
 
             %% build additional aux data
-            N = obj.C(ad.pv, :) * obj.N;%% z coefficients for z @ PV nodes
-            [ii, jj, ss] = find(N);     %% deconstruct and recreate with
-            [~, ia] = unique(ii, 'first');  %% only 1st non-zero in each row
-            N = sparse(ii(ia), jj(ia), ss(ia), ad.npv, size(N, 2)) * obj.D';
-            k = find(any(N, 1));        %% indices of PV node z-vars
+            N = obj.C(ad.pv, :) * obj.N;    %% z coefficients for z @ PV nodes
+            [ii, jj, ~] = find(N == -1);    %% find element representing 1st
+            [~, ia] = unique(ii, 'first');  %% direct injection at each PV node
+            [~, ib] = sort(ii(ia));         %% sort by PV node
 
             %% save additional aux data
-            ad.N = N(:,k);          %% coefficients for zi(k) corrsp to PV nodes
-            ad.invN = inv(ad.N);    %% inverse of N, typically equal to N = -eye()
-            ad.k = k;               %% indices of PV node z-vars
+            ad.zi_idx = jj(ia(ib));         %% z-var index corresp to PV nodes
         end
 
         function obj = pf_add_system_vars(obj, mm, nm, dm, mpopt)
@@ -44,7 +41,7 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
             v_ = ad.v1 + 1j * ad.v2;
             z_ = ad.zr + 1j * ad.zi;
             Qpv = obj.C(ad.pv, :) * imag( obj.port_inj_power([v_; z_], 1) );
-            Qg_pv = Qpv - ad.N * ad.zi(ad.k);
+            Qg_pv = Qpv + ad.zi(ad.zi_idx);
             mm.add_var('Qg_pv', ad.npv, Qg_pv);
 
             %% voltage real part
@@ -148,7 +145,7 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
             i1 = iN+1;  iN = iN + ad.npv + ad.npq;  ad.v1(pqv) = mmx(i1:iN);%% vr
             i1 = iN+1;  iN = iN + ad.npv + ad.npq;  ad.v2(pqv) = mmx(i1:iN);%% vi
             vx_ = ad.v1 + 1j * ad.v2;
-            ad.zi(ad.k) = -ad.N \ Qg_pv;
+            ad.zi(ad.zi_idx) = Qg_pv;
             z_ = ad.zr + 1j * ad.zi;
 
             %% update z, if requested
@@ -184,7 +181,7 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
                 IIva = C * Iva;
                 IIvm = C * Ivm;
                 IIzi = C * Izi;
-                dImis_dQg = -IIzi(:, ad.k) * ad.invN;
+                dImis_dQg = IIzi(:, ad.zi_idx);
 
                 J = [   real(dImis_dQg(pvq, :)) real(IIva(pvq, pqv)) real(IIvm(pvq, pqv));
                         imag(dImis_dQg(pvq, :)) imag(IIva(pvq, pqv)) imag(IIvm(pvq, pqv));
