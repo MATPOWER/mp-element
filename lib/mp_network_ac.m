@@ -622,7 +622,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         end
 
         function opt = cpf_solve_opts(obj, mm, dm, mpopt)
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
             opt = mpopt2pneopt(mpopt);
             opt.output_fcn = @(varargin)cpf_pne_output_fcn(obj, ad, varargin{:});
             opt.plot.idx_default = @()cpf_plot_idx_default(obj, dm, ad);
@@ -730,7 +730,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 nl = branch_nme.nk;     %% port indexes
 
                 %% convert cx.x back to x_
-                ad = mm.get_userdata('aux_data');
+                ad = mm.aux_data;
                 x_ = obj.cpf_convert_x(cx.x, ad);
 
                 %% branch flows
@@ -747,7 +747,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         end
 
         function efv = cpf_event_qlim(obj, cx, opt, mm, dm, mpopt)
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
 
             %% convert cx.x back to v_, z_
             [v_, z_] = obj.cpf_convert_x(cx.x, ad);
@@ -769,7 +769,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         end
 
         function efv = cpf_event_plim(obj, cx, opt, mm, dm, mpopt)
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
 
             %% convert cx.x back to v_, z_
             [v_, z_] = obj.cpf_convert_x(cx.x, ad);
@@ -801,7 +801,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                     nl = branch_nme.nk;     %% port indexes
 
                     %% convert cx.x back to x_
-                    ad = mm.get_userdata('aux_data');
+                    ad = mm.aux_data;
                     x_ = obj.cpf_convert_x(cx.x, ad);
 
                     %% branch flows
@@ -883,7 +883,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% handle event
             [ev, i] = pne_detected_event(s.events, 'QLIM', 1);  %% zero only
             if ~isempty(ev)
-                ad = mm.get_userdata('aux_data');
+                ad = mm.aux_data;
                 if ad.nref ~= 1
                     error('mp_network_acps/cpf_callback_qlim: ''cpf.enforce_qlims'' option only valid for systems with exactly one REF bus');
                 end
@@ -995,7 +995,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% handle event
             [ev, i] = pne_detected_event(s.events, 'PLIM', 1);  %% zero only
             if ~isempty(ev)
-                ad = mm.get_userdata('aux_data');
+                ad = mm.aux_data;
                 if ad.nref ~= 1
                     error('mp_network_acps/cpf_callback_plim: ''cpf.enforce_plims'' option only valid for systems with exactly one REF bus');
                 end

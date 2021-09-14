@@ -20,8 +20,7 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
             vvars = obj.model_vvars();
 
             %% index vectors
-            ad = mm.get_userdata('aux_data');
-            pqv = [ad.pq; ad.pv];
+            ad = mm.aux_data;
 
             %% voltage real part
             st = obj.(vvars{1});
@@ -172,7 +171,7 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
 
         function obj = pf_add_node_balance_constraints(obj, mm, dm, mpopt)
             %% power balance constraints
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
             fcn = @(x)pf_node_balance_equations(obj, x, ad);
             mm.add_nln_constraint({'Pmis', 'Qmis', 'Vmis'}, [ad.npv+ad.npq;ad.npq;ad.npv], 1, fcn, []);
         end

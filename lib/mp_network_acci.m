@@ -34,8 +34,7 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
             vvars = obj.model_vvars();
 
             %% index vectors
-            ad = mm.get_userdata('aux_data');
-            pqv = [ad.pq; ad.pv];
+            ad = mm.aux_data;
 
             %% reactive injections
             v_ = ad.v1 + 1j * ad.v2;
@@ -199,7 +198,7 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
 
         function obj = pf_add_node_balance_constraints(obj, mm, dm, mpopt)
             %% power balance constraints
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
             npvq = ad.npv+ad.npq;
             fcn = @(x)pf_node_balance_equations(obj, x, ad);
             mm.add_nln_constraint({'Irmis', 'Iimis', 'Vmis'}, [npvq;npvq;ad.npv], 1, fcn, []);

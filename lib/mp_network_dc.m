@@ -95,7 +95,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
             vvars = obj.model_vvars();
 
             %% index vectors
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
             pvq = [ad.pv; ad.pq];
 
             %% voltage angles
@@ -170,7 +170,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
         end
 
         function obj = pf_add_node_balance_constraints(obj, mm, dm, mpopt)
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
             pvq = [ad.pv; ad.pq];
 
             %% power balance constraints

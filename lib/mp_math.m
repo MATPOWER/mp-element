@@ -20,8 +20,10 @@ classdef mp_math < opt_model
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%     properties
-%     end
+    properties
+        aux_data    %% struct of auxiliary data relevant to the model,
+                    %% e.g. can be passed to model constraint functions
+    end
 
     methods
         function display(obj)

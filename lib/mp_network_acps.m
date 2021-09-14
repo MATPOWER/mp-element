@@ -39,7 +39,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             vvars = obj.model_vvars();
 
             %% index vectors
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
 
             %% voltage angles
             st = obj.(vvars{1});
@@ -171,7 +171,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
         function obj = pf_add_node_balance_constraints(obj, mm, dm, mpopt)
             alg = mpopt.pf.alg;
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
             
             %% power balance constraints
             switch alg
@@ -199,7 +199,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             end
 
             %% form reduced Bp and Bpp matrices
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
             Cp  = nm1.C([ad.pv; ad.pq], :);
             Cpp = nm2.C(ad.pq, :);
             Bp  = -imag( Cp  * Y1 * Cp' );
@@ -209,7 +209,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
         function x = pf_gs_x_update(obj, x, f, mm, dm, mpopt);
             alg = mpopt.pf.alg;
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
 
             %% update network model state ([v_; z_]) from math model state (x)
             [v_, z_] = obj.pf_convert_x(x, ad, 1);
@@ -244,7 +244,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
         function x = pf_zg_x_update(obj, x, f, mm, dm, mpopt);
             alg = mpopt.pf.alg;
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
 
             %% update network model state ([v_; z_]) from math model state (x)
             [v_, z_] = obj.pf_convert_x(x, ad, 1);
@@ -268,7 +268,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
                 %% cache 'em
                 [ad.Y21_v1, ad.S0] = deal(Y21_v1, S0);
-                mm.userdata.aux_data = ad;
+                mm.aux_data = ad;
             end
 
             if npv  %% update Q injections at PV buses based on vm mismatch
@@ -298,7 +298,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                     %% cache 'em
                     [ad.vmpv, ad.vmpv0, ad.Bpp, ad.LBpp, ad.UBpp, ad.pBpp, ad.iqBpp] = ...
                         deal(vmpv, vmpv0, Bpp, LBpp, UBpp, pBpp, iqBpp);
-                    mm.userdata.aux_data = ad;
+                    mm.aux_data = ad;
                 end
 
                 %% compute voltage mismatches at PV buses
@@ -329,7 +329,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 
             v_(pv) = V2(1:npv);
             v_(pq) = V2(npv+1:npv+npq);
-            mm.userdata.aux_data.vmpv = abs(v_(pv));
+            mm.aux_data.vmpv = abs(v_(pv));
 
             x = [angle(v_(pvq)); abs(v_(pq))];
         end
@@ -380,7 +380,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
         end
 
         function cpf_add_node_balance_constraints(obj, mm, dm, mpopt)
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
             
             %% continuation power balance constraints
             fcn = @(x)cpf_equations(obj, x, ad);
@@ -399,7 +399,7 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
         end
 
         function opt = cpf_solve_opts_warmstart(obj, opt, ws, mm)
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
 
             %% update warm start states and tangent vectors
             ws.x  = [angle(ws.cV([ad.pv; ad.pq])); abs(ws.cV(ad.pq)); ws.clam];

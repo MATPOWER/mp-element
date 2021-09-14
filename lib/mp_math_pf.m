@@ -23,7 +23,7 @@ classdef mp_math_pf < mp_math
 
     methods
         function obj = build(obj, nm, dm, mpopt)
-            obj.userdata.aux_data = nm.pf_aux_data(dm, mpopt);
+            obj.aux_data = nm.pf_aux_data(dm, mpopt);
             nm.pf_add_vars(obj, nm, dm, mpopt);
             nm.pf_add_constraints(obj, nm, dm, mpopt);
         end
@@ -34,7 +34,7 @@ classdef mp_math_pf < mp_math
 
         function nm = network_model_x_soln(obj, nm)
             [nm.soln.v, nm.soln.z, nm.soln.x] = ...
-                nm.pf_convert_x(obj.soln.x, obj.get_userdata('aux_data'));
+                nm.pf_convert_x(obj.soln.x, obj.aux_data);
         end
 
         function opt = solve_opts(obj, nm, dm, mpopt)

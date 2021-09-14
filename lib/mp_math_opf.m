@@ -35,7 +35,7 @@ classdef mp_math_opf < mp_math
         function nm = network_model_x_soln(obj, nm)
             %% convert solved state from math model to network model soln
             [nm.soln.v, nm.soln.z, nm.soln.x] = ...
-                nm.opf_convert_x(obj.soln.x, obj.get_userdata('aux_data'));
+                nm.opf_convert_x(obj.soln.x, obj.aux_data);
         end
 
         function opt = solve_opts(obj, nm, dm, mpopt)

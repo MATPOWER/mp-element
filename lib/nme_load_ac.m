@@ -126,7 +126,7 @@ classdef nme_load_ac < nme_load% & mp_form_ac
 
         %%-----  CPF methods  -----
         function obj = cpf_data_model_update(obj, mm, nm, dm, mpopt)
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
             dme = obj.data_model_element(dm);
             dm = dme.parameterized(dm, ad.dmb, ad.dmt, mm.soln.x(end));
         end

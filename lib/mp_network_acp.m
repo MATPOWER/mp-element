@@ -51,7 +51,7 @@ classdef mp_network_acp < mp_network_ac% & mp_form_acp
         %%-----  CPF methods  -----
         function efv = cpf_event_vlim(obj, cx, opt, mm, dm, mpopt)
             %% convert cx.x back to v_
-            ad = mm.get_userdata('aux_data');
+            ad = mm.aux_data;
 
             %% get current node voltage magnitudes and bounds
             [v_, ~] = obj.cpf_convert_x(cx.x, ad, 1);
@@ -69,7 +69,7 @@ classdef mp_network_acp < mp_network_ac% & mp_form_acp
             %% initialize
             if k == 0   %% check for base case voltage violations
                 %% convert cx.x back to v_
-                ad = mm.get_userdata('aux_data');
+                ad = mm.aux_data;
 
                 %% get current node voltage magnitudes and bounds
                 [v_, ~] = obj.cpf_convert_x(cx.x, ad, 1);

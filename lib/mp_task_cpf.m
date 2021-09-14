@@ -45,7 +45,7 @@ classdef mp_task_cpf < mp_task_pf
             %% return new math model, or empty matrix if finished
             if isfield(mm.soln.output, 'warmstart')
                 %% get warmstart info
-                ad = mm.get_userdata('aux_data');
+                ad = mm.aux_data;
                 ws = mm.soln.output.warmstart;
 
                 %% save parameter lambda and solved voltages
