@@ -75,6 +75,9 @@ classdef mp_task_cpf < mp_task_pf
                     nme.pf_data_model_update(mm, obj.nm, obj.dm, mpopt);
                 end
 
+                %% reset var_map
+                obj.nm.userdata.var_map = {};
+
                 %% create new math model
                 mm = obj.math_model_build(nm, dm, mpopt);
             else

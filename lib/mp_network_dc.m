@@ -55,31 +55,14 @@ classdef mp_network_dc < mp_network & mp_form_dc
 
         %%-----  PF methods  -----
         function ad = pf_aux_data(obj, dm, mpopt)
-            %% get model variables
-            vvars = obj.model_vvars();
-            zvars = obj.model_zvars();
-            va = obj.params_var(vvars{1});
-            z = obj.params_var(zvars{1});
-
-            %% get node types
-            [ref, pv, pq] = obj.node_types(obj, dm);
+            ad = pf_aux_data@mp_network(obj, dm, mpopt);
 
             %% get parameters
             [B, K, p] = obj.get_params();
 
-            %% create aux_data struct
-            ad = struct( ...
-                'va', va, ...               %% initial value of va
-                'z', z, ...                 %% initial value of z
-                'ref',  ref, ...            %% REF node indices
-                'nref', length(ref), ...    %% number of REF nodes
-                'pv',   pv, ...             %% PV node indices
-                'npv',  length(pv), ...     %% number of PV nodes
-                'pq',   pq, ...             %% PQ node indices
-                'npq',  length(pq), ...     %% number of PQ nodes
-                'B',    obj.C * B * obj.C', ...
-                'Pbus', -(obj.C * K * obj.D' * z + obj.C * p) ...
-            );
+            %% add DC model parameters
+            ad.B = obj.C * B * obj.C';
+            ad.Pbus = -(obj.C * K * obj.D' * ad.z + obj.C * p);
         end
 
         function opt = pf_solve_opts(obj, mm, dm, mpopt)
@@ -182,15 +165,15 @@ classdef mp_network_dc < mp_network & mp_form_dc
 
         %%-----  OPF methods  -----
         function [vx, z, x] = opf_convert_x(obj, mmx, ad)
+            nm_vars = obj.update_vars(mmx, ad);
+
             %% convert (real) math model x to network model x
+            vx = nm_vars.va;
+            z  = nm_vars.z;
             if nargout < 2
-                vx = mmx(1:obj.nv+obj.nz);
-            else
-                vx = mmx(1:obj.nv);
-                z  = mmx(obj.nv+1:obj.nv+obj.nz);
-                if nargout > 2
-                    x = [vx; z];
-                end
+                vx = [vx; z];
+            elseif nargout > 2
+                x = [vx; z];
             end
         end
 

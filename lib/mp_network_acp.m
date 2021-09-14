@@ -43,10 +43,35 @@ classdef mp_network_acp < mp_network_ac% & mp_form_acp
             end
         end
 
-        function [va, vm] = va_vm(obj, v1, v2)
-            va = v1;
-            vm = v2;
+        function [va, vm] = aux_data_va_vm(obj, ad)
+            va = ad.va;
+            vm = ad.vm;
         end
+
+        %%-----  PF methods  -----
+        function [vx_, z_, x_] = pf_convert_x(obj, mmx, ad, only_v)
+            %% x = obj.pf_convert(mmx, ad)
+            %% [v, z] = obj.pf_convert(mmx, ad)
+            %% [v, z, x] = obj.pf_convert(mmx, ad)
+            %% ... = obj.pf_convert(mmx, ad, only_v)
+
+            %% update v_, z_ from mmx
+            nm_vars = obj.update_vars(mmx, ad);
+            vx_ = nm_vars.vm .* exp(1j * nm_vars.va);
+            z_ = nm_vars.zr + 1j * nm_vars.zi;
+
+            %% update z, if requested
+            if nargin < 4 || ~only_v
+                z_ = obj.pf_update_z(vx_, z_, ad);
+            end
+
+            if nargout < 2
+                vx_ = [vx_; z_];
+            elseif nargout > 2
+                x_ = [vx_; z_];
+            end
+        end
+
 
         %%-----  CPF methods  -----
         function efv = cpf_event_vlim(obj, cx, opt, mm, dm, mpopt)
@@ -141,15 +166,11 @@ classdef mp_network_acp < mp_network_ac% & mp_form_acp
 
         %%-----  OPF methods  -----
         function [vx_, z_, x_] = opf_convert_x(obj, mmx, ad)
+            nm_vars = obj.update_vars(mmx, ad);
+
             %% convert (real) math model x to (complex) network model x_
-            nv_ = obj.nv / 2;       %% number of voltage vars (sysx=1)
-            nz_ = obj.nz;           %% number of state vars
-            va = mmx(1:nv_, :);     b = nv_;
-            vm = mmx(b+1:b+nv_, :); b = b + nv_;
-            zr = mmx(b+1:b+nz_, :); b = b + nz_;
-            zi = mmx(b+1:b+nz_, :);
-            vx_ = vm .* exp(1j*va);
-            z_  = zr+1j*zi;
+            vx_ = nm_vars.vm .* exp(1j * nm_vars.va);
+            z_  = nm_vars.zr + 1j * nm_vars.zi;
             if nargout < 2
                 vx_ = [vx_; z_];
             elseif nargout > 2

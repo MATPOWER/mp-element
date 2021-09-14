@@ -326,34 +326,6 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         end
 
         %%-----  PF methods  -----
-        function ad = pf_aux_data(obj, dm, mpopt)
-            %% get model variables
-            vvars = obj.model_vvars();
-            zvars = obj.model_zvars();
-            v1 = obj.params_var(vvars{1});
-            v2 = obj.params_var(vvars{2});
-            zr = obj.params_var(zvars{1});
-            zi = obj.params_var(zvars{2});
-
-            %% get node types
-            [ref, pv, pq, by_elm] = obj.node_types(obj, dm);
-
-            %% create aux_data struct
-            ad = struct( ...
-                'v1', v1, ...               %% initial value of v1 (va or vr)
-                'v2', v2, ...               %% initial value of v2 (vm or vi)
-                'zr', zr, ...               %% initial value of zr
-                'zi', zi, ...               %% initial value of zi
-                'ref',  ref, ...            %% REF node indices
-                'nref', length(ref), ...    %% number of REF nodes
-                'pv',  pv, ...              %% PV node indices
-                'npv', length(pv), ...      %% number of PV nodes
-                'pq',  pq, ...              %% PQ node indices
-                'npq', length(pq), ...      %% number of PQ nodes
-                'node_type_by_elm', by_elm ...  %% node type by element type
-            );
-        end
-
         function opt = pf_solve_opts(obj, mm, dm, mpopt)
             switch mpopt.pf.alg
                 case 'DEFAULT'
@@ -571,8 +543,8 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             %% Power flow equations must be linear in continuation parameter
             %% lambda. To do that we must ensure that ...
             %% 1. Specified voltages do not vary with lambda.
-            [va,  vm ] = obj.va_vm( ad.v1,  ad.v2);
-            [vat, vmt] = obj.va_vm(adt.v1, adt.v2);
+            [va,  vm ] = obj.aux_data_va_vm(ad);
+            [vat, vmt] = obj.aux_data_va_vm(adt);
             rpv = [ad.ref; ad.pv];
             if norm(va(ad.ref)-vat(ad.ref), Inf) > tol
                 error('mpe_network_ac/cpf_check_xfer: base and target cases must have identical voltages angles at reference nodes.')
@@ -594,6 +566,8 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
         function cpf_add_vars(obj, mm, nm, dm, mpopt)
             obj.pf_add_vars(mm, nm, dm, mpopt);
+            %% required for using nmt to compute nm state from mm state
+            mm.aux_data.adt.var_map = mm.aux_data.var_map;
             mm.add_var('lambda', 1, 0);
         end
 

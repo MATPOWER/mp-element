@@ -25,6 +25,7 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
             %% voltage real part
             st = obj.(vvars{1});
             d = st.data;
+            mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 idx = st.order(k).idx;
@@ -45,6 +46,11 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
                     mm.add_var([name '_pq'], idx, npq, v0, vl, vu);
                 end
             end
+            mmx_iN = mm.var.N;
+            mm.aux_data.var_map{end+1} = ...
+                {vvars{1}, [], [], ad.pq, mmx_i1, mmx_iN, []};
+
+            mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 idx = st.order(k).idx;
@@ -65,10 +71,14 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
                     mm.add_var([name '_pv'], idx, npv, v0, vl, vu);
                 end
             end
+            mmx_iN = mm.var.N;
+            mm.aux_data.var_map{end+1} = ...
+                {vvars{1}, [], [], ad.pv, mmx_i1, mmx_iN, []};
 
             %% voltage imaginary part
             st = obj.(vvars{2});
             d = st.data;
+            mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 idx = st.order(k).idx;
@@ -89,6 +99,11 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
                     mm.add_var([name '_pq'], idx, npq, v0, vl, vu);
                 end
             end
+            mmx_iN = mm.var.N;
+            mm.aux_data.var_map{end+1} = ...
+                {vvars{2}, [], [], ad.pq, mmx_i1, mmx_iN, []};
+
+            mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 idx = st.order(k).idx;
@@ -109,31 +124,9 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
                     mm.add_var([name '_pv'], idx, npv, v0, vl, vu);
                 end
             end
-        end
-
-        function [vx_, z_, x_] = pf_convert_x(obj, mmx, ad, only_v)
-            %% x = obj.pf_convert(mmx, ad)
-            %% [v, z] = obj.pf_convert(mmx, ad)
-            %% [v, z, x] = obj.pf_convert(mmx, ad)
-            %% ... = obj.pf_convert(mmx, ad, only_v)
-
-            %% update v_, z_ from mmx
-            pqv = [ad.pq; ad.pv];
-            ad.v1(pqv) = mmx(1:ad.npv+ad.npq);                      %% vr
-            ad.v2(pqv) = mmx(ad.npv+ad.npq+1:2*ad.npv+2*ad.npq);    %% vi
-            vx_ = ad.v1 + 1j * ad.v2;
-            z_ = ad.zr + 1j * ad.zi;
-
-            %% update z, if requested
-            if nargin < 4 || ~only_v
-                z_ = obj.pf_update_z(vx_, z_, ad);
-            end
-
-            if nargout < 2
-                vx_ = [vx_; z_];
-            elseif nargout > 2
-                x_ = [vx_; z_];
-            end
+            mmx_iN = mm.var.N;
+            mm.aux_data.var_map{end+1} = ...
+                {vvars{2}, [], [], ad.pv, mmx_i1, mmx_iN, []};
         end
 
         function [f, J] = pf_node_balance_equations(obj, x, ad)
@@ -165,7 +158,7 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
 
             %% nodal power balance + voltage magnitude mismatch
             SS = C * S;
-            vmm = v_(ad.pv) .* conj(v_(ad.pv)) - ad.v1(ad.pv).^2 - ad.v2(ad.pv).^2;
+            vmm = v_(ad.pv) .* conj(v_(ad.pv)) - ad.vr(ad.pv).^2 - ad.vi(ad.pv).^2;
             f = [real(SS(pqv)); imag(SS(ad.pq)); vmm];
         end
 
@@ -181,9 +174,9 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
         function opf_add_node_balance_constraints(obj, mm)
             %% power balance constraints
             nn = obj.node.N;            %% number of nodes
-            fcn_mis = @(x)opf_power_balance_fcn(obj, obj.opf_convert_x(x));
+            fcn_mis = @(x)opf_power_balance_fcn(obj, obj.opf_convert_x(x, mm.aux_data));
             hess_mis = @(x, lam)opf_power_balance_hess(obj, ...
-                obj.opf_convert_x(x), lam);
+                obj.opf_convert_x(x, mm.aux_data), lam);
             mm.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
 

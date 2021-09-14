@@ -37,15 +37,20 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
             ad = mm.aux_data;
 
             %% reactive injections
-            v_ = ad.v1 + 1j * ad.v2;
+            v_ = ad.vr + 1j * ad.vi;
             z_ = ad.zr + 1j * ad.zi;
             Qpv = obj.C(ad.pv, :) * imag( obj.port_inj_power([v_; z_], 1) );
             Qg_pv = Qpv + ad.zi(ad.zi_idx);
+            mmx_i1 = mm.var.N + 1;
             mm.add_var('Qg_pv', ad.npv, Qg_pv);
+            mmx_iN = mm.var.N;
+            mm.aux_data.var_map{end+1} = ...
+                {'zi', [], [], ad.zi_idx, mmx_i1, mmx_iN, []};
 
             %% voltage real part
             st = obj.(vvars{1});
             d = st.data;
+            mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 idx = st.order(k).idx;
@@ -66,6 +71,11 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
                     mm.add_var([name '_pq'], idx, npq, v0, vl, vu);
                 end
             end
+            mmx_iN = mm.var.N;
+            mm.aux_data.var_map{end+1} = ...
+                {vvars{1}, [], [], ad.pq, mmx_i1, mmx_iN, []};
+
+            mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 idx = st.order(k).idx;
@@ -86,10 +96,14 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
                     mm.add_var([name '_pv'], idx, npv, v0, vl, vu);
                 end
             end
+            mmx_iN = mm.var.N;
+            mm.aux_data.var_map{end+1} = ...
+                {vvars{1}, [], [], ad.pv, mmx_i1, mmx_iN, []};
 
             %% voltage imaginary part
             st = obj.(vvars{2});
             d = st.data;
+            mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 idx = st.order(k).idx;
@@ -110,6 +124,11 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
                     mm.add_var([name '_pq'], idx, npq, v0, vl, vu);
                 end
             end
+            mmx_iN = mm.var.N;
+            mm.aux_data.var_map{end+1} = ...
+                {vvars{2}, [], [], ad.pq, mmx_i1, mmx_iN, []};
+
+            mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 idx = st.order(k).idx;
@@ -130,33 +149,9 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
                     mm.add_var([name '_pv'], idx, npv, v0, vl, vu);
                 end
             end
-        end
-
-        function [vx_, z_, x_] = pf_convert_x(obj, mmx, ad, only_v)
-            %% x = obj.pf_convert(mmx, ad)
-            %% [v, z] = obj.pf_convert(mmx, ad)
-            %% [v, z, x] = obj.pf_convert(mmx, ad)
-            %% ... = obj.pf_convert(mmx, ad, only_v)
-
-            %% update v_, z_ from mmx
-            pqv = [ad.pq; ad.pv];
-            iN = ad.npv;                            Qg_pv   = mmx(1:iN);    %% Qg_pv
-            i1 = iN+1;  iN = iN + ad.npv + ad.npq;  ad.v1(pqv) = mmx(i1:iN);%% vr
-            i1 = iN+1;  iN = iN + ad.npv + ad.npq;  ad.v2(pqv) = mmx(i1:iN);%% vi
-            vx_ = ad.v1 + 1j * ad.v2;
-            ad.zi(ad.zi_idx) = Qg_pv;
-            z_ = ad.zr + 1j * ad.zi;
-
-            %% update z, if requested
-            if nargin < 4 || ~only_v
-                z_ = obj.pf_update_z(vx_, z_, ad);
-            end
-
-            if nargout < 2
-                vx_ = [vx_; z_];
-            elseif nargout > 2
-                x_ = [vx_; z_];
-            end
+            mmx_iN = mm.var.N;
+            mm.aux_data.var_map{end+1} = ...
+                {vvars{2}, [], [], ad.pv, mmx_i1, mmx_iN, []};
         end
 
         function [f, J] = pf_node_balance_equations(obj, x, ad)
@@ -192,7 +187,7 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
 
             %% nodal power balance
             II = C * I;
-            vmm = v_(ad.pv) .* conj(v_(ad.pv)) - ad.v1(ad.pv).^2 - ad.v2(ad.pv).^2;
+            vmm = v_(ad.pv) .* conj(v_(ad.pv)) - ad.vr(ad.pv).^2 - ad.vi(ad.pv).^2;
             f = [real(II(pvq)); imag(II(pvq)); vmm];
         end
 
@@ -209,9 +204,9 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
         function opf_add_node_balance_constraints(obj, mm)
             %% power balance constraints
             nn = obj.node.N;            %% number of nodes
-            fcn_mis = @(x)opf_current_balance_fcn(obj, obj.opf_convert_x(x));
+            fcn_mis = @(x)opf_current_balance_fcn(obj, obj.opf_convert_x(x, mm.aux_data));
             hess_mis = @(x, lam)opf_current_balance_hess(obj, ...
-                obj.opf_convert_x(x), lam);
+                obj.opf_convert_x(x, mm.aux_data), lam);
             mm.add_nln_constraint({'rImis', 'iImis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
 

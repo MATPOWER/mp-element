@@ -23,6 +23,7 @@ classdef mp_math_opf < mp_math
 
     methods
         function obj = build(obj, nm, dm, mpopt)
+            obj.aux_data = nm.opf_aux_data(dm, mpopt);
             nm.opf_add_vars(obj, nm, dm, mpopt);
             nm.opf_add_constraints(obj, nm, dm, mpopt);
             nm.opf_add_costs(obj, nm, dm, mpopt);

@@ -46,24 +46,45 @@ classdef mp_network_acc < mp_network_ac% & mp_form_acc
             end
         end
 
-        function [va, vm] = va_vm(obj, v1, v2)
-            v_ = v1 + 1j * v2;
+        function [va, vm] = aux_data_va_vm(obj, ad)
+            v_ = ad.vr + 1j * ad.vi;
             va = angle(v_);
             vm = abs(v_);
         end
 
 
+        %%-----  PF methods  -----
+        function [vx_, z_, x_] = pf_convert_x(obj, mmx, ad, only_v)
+            %% x = obj.pf_convert(mmx, ad)
+            %% [v, z] = obj.pf_convert(mmx, ad)
+            %% [v, z, x] = obj.pf_convert(mmx, ad)
+            %% ... = obj.pf_convert(mmx, ad, only_v)
+
+            %% update v_, z_ from mmx
+            nm_vars = obj.update_vars(mmx, ad);
+            vx_ = nm_vars.vr + 1j * nm_vars.vi;
+            z_ = nm_vars.zr + 1j * nm_vars.zi;
+
+            %% update z, if requested
+            if nargin < 4 || ~only_v
+                z_ = obj.pf_update_z(vx_, z_, ad);
+            end
+
+            if nargout < 2
+                vx_ = [vx_; z_];
+            elseif nargout > 2
+                x_ = [vx_; z_];
+            end
+        end
+
+
         %%-----  OPF methods  -----
         function [vx_, z_, x_] = opf_convert_x(obj, mmx, ad)
+            nm_vars = obj.update_vars(mmx, ad);
+
             %% convert (real) math model x to (complex) network model x_
-            nv_ = obj.nv / 2;       %% number of voltage vars (sysx=1)
-            nz_ = obj.nz;           %% number of state vars
-            vr = mmx(1:nv_, :);     b = nv_;
-            vi = mmx(b+1:b+nv_, :); b = b + nv_;
-            zr = mmx(b+1:b+nz_, :); b = b + nz_;
-            zi = mmx(b+1:b+nz_, :);
-            vx_ = vr+1j*vi;
-            z_  = zr+1j*zi;
+            vx_ = nm_vars.vr + 1j * nm_vars.vi;
+            z_  = nm_vars.zr + 1j * nm_vars.zi;
             if nargout < 2
                 vx_ = [vx_; z_];
             elseif nargout > 2

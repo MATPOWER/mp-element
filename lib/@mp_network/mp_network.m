@@ -591,7 +591,76 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
+        function nm_vars = update_vars(obj, mmx, ad)
+            %% Returns a struct with the network model variables as fields.
+            %% The ad.var_map cell array is used to track mappings
+            %% of math model variables back to network model variables.
+            %% Each entry is a cell array:
+            %%  {nm_var_type, nm_i1, nm_iN, nm_idx, mm_i1, mm_iN, mm_idx}
+            %% where
+            %%  nm_var_type - network model variable type (e.g. va, vm, zr, zi)
+            %%  nm_i1 - starting index for network model variable type
+            %%  nm_iN - ending index for network model variable type
+            %%  nm_idx - vector of indices for network model variable type
+            %%  mm_i1 - starting index for math model variable
+            %%  mm_iN - ending index for math model variable
+            %%  mm_idx - vector of indices for math model variable
+            %% Uses either i1:iN (if i1 is not empty) or idx as the indices,
+            %% unless both are empty, in which case it uses ':'
+
+            vvars = obj.model_vvars();
+            zvars = obj.model_zvars();
+            vars = {vvars{:} zvars{:}};
+            nm_vars = cell2struct( ...
+                cellfun(@(x)ad.(x), vars, 'UniformOutput', false), ...
+                vars, 2);
+
+            %% copy mm state values to nm state based on ad.var_map
+            for k = 1:length(ad.var_map)
+                d = ad.var_map{k};
+
+                %% right hand side from mmx
+                if ~isempty(d{5})       %% use i1:iN
+                    rhs = mmx(d{5}:d{6});
+                elseif isempty(d{7})    %% use :
+                    rhs = mmx;
+                else                    %% use idx
+                    rhs = mmx(d{7});
+                end
+
+                %% left hand side to nm_vars
+                name = d{1};
+                if ~isempty(rhs)
+                    if ~isempty(d{2})       %% use i1:iN
+                        nm_vars.(name)(d{2}:d{3}) = rhs;
+                    elseif isempty(d{4})    %% use :
+                        nm_vars.(name) = rhs;
+                    else                    %% use idx
+                        nm_vars.(name)(d{4}) = rhs;
+                    end
+                end
+            end
+        end
+
         %%-----  PF methods  -----
+        function ad = pf_aux_data(obj, dm, mpopt)
+            %% get model variables
+            vvars = obj.model_vvars();
+            zvars = obj.model_zvars();
+            vars = {vvars{:} zvars{:}};
+            vals = cellfun(@(x)obj.params_var(x), vars, 'UniformOutput', false);
+
+            %% get node types
+            [ref, pv, pq, by_elm] = obj.node_types(obj, dm);
+
+            %% create aux_data struct
+            ad = cell2struct(...
+                {vals{:}, {}, ref, pv, pq, ...
+                    length(ref), length(pv), length(pq), by_elm}, ...
+                {vars{:}, 'var_map', 'ref', 'pv', 'pq', ...
+                    'nref', 'npv', 'npq', 'node_type_by_elm'}, 2);
+        end
+
         function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
             %% system constraints
             obj.pf_add_system_vars(mm, dm, mpopt);
@@ -635,11 +704,23 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
         %% See mp_network_ac.
 
         %%-----  OPF methods  -----
+        function ad = opf_aux_data(obj, dm, mpopt)
+            %% get model variables
+            vvars = obj.model_vvars();
+            zvars = obj.model_zvars();
+            vars = {vvars{:} zvars{:}};
+            vals = cellfun(@(x)obj.params_var(x), vars, 'UniformOutput', false);
+
+            %% create aux_data struct
+            ad = cell2struct({vals{:}, {}}, {vars{:}, 'var_map'}, 2);
+        end
+
         function obj = opf_add_vars(obj, mm, nm, dm, mpopt)
             %% add network voltage and non-voltage state variables
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars
                 st = obj.(vtype{1});    %% set type
+                mmx_i1 = mm.var.N + 1;
                 for k = 1:st.NS
                     name = st.order(k).name;
                     if isempty(st.order(k).idx)
@@ -649,6 +730,9 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                         error('mp_network/opf_add_vars: handling of indexed sets not implmented here (yet)');
                     end
                 end
+                mmx_iN = mm.var.N;
+                mm.aux_data.var_map{end+1} = ...
+                    {vtype{1}, [], [], [], mmx_i1, mmx_iN, []};
             end
             
             %% each element adds its OPF variables
