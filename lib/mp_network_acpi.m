@@ -61,8 +61,10 @@ classdef mp_network_acpi < mp_network_acp & mp_form_acpi
                 end
             end
             mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{1}, [], [], ad.pv, mmx_i1, mmx_iN, []};
+            if ad.npv
+                mm.aux_data.var_map{end+1} = ...
+                    {vvars{1}, [], [], ad.pv, mmx_i1, mmx_iN, []};
+            end
 
             mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
@@ -86,8 +88,10 @@ classdef mp_network_acpi < mp_network_acp & mp_form_acpi
                 end
             end
             mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{1}, [], [], ad.pq, mmx_i1, mmx_iN, []};
+            if ad.npq
+                mm.aux_data.var_map{end+1} = ...
+                    {vvars{1}, [], [], ad.pq, mmx_i1, mmx_iN, []};
+            end
 
             %% reactive injections
             v_ = ad.vm .* exp(1j * ad.va);
@@ -97,8 +101,10 @@ classdef mp_network_acpi < mp_network_acp & mp_form_acpi
             mmx_i1 = mm.var.N + 1;
             mm.add_var('Qg_pv', ad.npv, Qg_pv);
             mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {'zi', [], [], ad.zi_idx, mmx_i1, mmx_iN, []};
+            if ad.npv
+                mm.aux_data.var_map{end+1} = ...
+                    {'zi', [], [], ad.zi_idx, mmx_i1, mmx_iN, []};
+            end
 
             %% voltage magnitudes
             st = obj.(vvars{2});
@@ -125,8 +131,10 @@ classdef mp_network_acpi < mp_network_acp & mp_form_acpi
                 end
             end
             mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{2}, [], [], ad.pq, mmx_i1, mmx_iN, []};
+            if ad.npq
+                mm.aux_data.var_map{end+1} = ...
+                    {vvars{2}, [], [], ad.pq, mmx_i1, mmx_iN, []};
+            end
         end
 
         function [f, J] = pf_node_balance_equations(obj, x, ad)
@@ -141,18 +149,35 @@ classdef mp_network_acpi < mp_network_acp & mp_form_acpi
 
             %% Jacobian
             if nargout > 1
-                %% get port power injections with derivatives
-                [I, Iva, Ivm, Izr, Izi] = obj.port_inj_current([v_; z_], 1);
+                %% get port current injections with derivatives
+                [I, dI.va, dI.vm, dI.zr, dI.zi] = obj.port_inj_current([v_; z_], 1);
+                dI.va = C * dI.va;
+                dI.vm = C * dI.vm;
+                dI.zr = C * dI.zr;
+                dI.zi = C * dI.zi;
+                JJ = cell(2, length(ad.var_map));
 
-                IIva = C * Iva;
-                IIvm = C * Ivm;
-                IIzi = C * Izi;
-                IIvm(:, ad.pv) = IIzi(:, ad.zi_idx);    %% dImis_dQg
-
-                J = [   real(IIva(pvq, pvq))    real(IIvm(pvq, pvq));
-                        imag(IIva(pvq, pvq))    imag(IIvm(pvq, pvq))    ];
+                for k = 1:length(ad.var_map)
+                    m = ad.var_map{k};
+                    name = m{1};
+                    if ~isempty(m{2})       %% i1:iN
+                        i1 = m{2};
+                        iN = m{3};
+                        JJ{1, k} = real(dI.(name)(pvq, i1:iN));
+                        JJ{2, k} = imag(dI.(name)(pvq, i1:iN));
+                    elseif isempty(m{4})    %% :
+                        JJ{1, k} = real(dI.(name)(pvq, :));
+                        JJ{2, k} = imag(dI.(name)(pvq, :));
+                    else                    %% idx
+                        idx = m{4};
+                        JJ{1, k} = real(dI.(name)(pvq, idx));
+                        JJ{2, k} = imag(dI.(name)(pvq, idx));
+                    end
+                end
+                J = vertcat( horzcat(JJ{1, :}), ...
+                             horzcat(JJ{2, :})  );
             else
-                %% get port power injections (w/o derivatives)
+                %% get port current injections (w/o derivatives)
                 I = obj.port_inj_current([v_; z_], 1);
             end
 

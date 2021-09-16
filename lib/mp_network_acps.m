@@ -66,8 +66,10 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                 end
             end
             mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{1}, [], [], ad.pv, mmx_i1, mmx_iN, []};
+            if ad.npv
+                mm.aux_data.var_map{end+1} = ...
+                    {vvars{1}, [], [], ad.pv, mmx_i1, mmx_iN, []};
+            end
 
             mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
@@ -91,8 +93,10 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                 end
             end
             mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{1}, [], [], ad.pq, mmx_i1, mmx_iN, []};
+            if ad.npq
+                mm.aux_data.var_map{end+1} = ...
+                    {vvars{1}, [], [], ad.pq, mmx_i1, mmx_iN, []};
+            end
 
             %% voltage magnitudes
             st = obj.(vvars{2});
@@ -119,8 +123,10 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                 end
             end
             mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{2}, [], [], ad.pq, mmx_i1, mmx_iN, []};
+            if ad.npq
+                mm.aux_data.var_map{end+1} = ...
+                    {vvars{2}, [], [], ad.pq, mmx_i1, mmx_iN, []};
+            end
         end
 
         function [f, J] = pf_node_balance_equations(obj, x, ad, fdpf)
@@ -136,12 +142,41 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             %% Jacobian
             if nargout > 1
                 %% get port power injections with derivatives
-                [S, Sva, Svm] = obj.port_inj_power([v_; z_], 1);
+                var_names = cellfun(@(x)x{1}, ad.var_map, 'UniformOutput', false);
+                dz = any(strcmp(var_names, 'zr')) || ...
+                     any(strcmp(var_names, 'zi'));
+                if dz
+                    [S, dS.va, dS.vm, dS.zr, dS.zi] = obj.port_inj_power([v_; z_], 1);
+                else
+                    [S, dS.va, dS.vm] = obj.port_inj_power([v_; z_], 1);
+                end
+                dS.va = C * dS.va;
+                dS.vm = C * dS.vm;
+                if dz
+                    dS.zr = C * dS.zr;
+                    dS.zi = C * dS.zi;
+                end
+                JJ = cell(2, length(ad.var_map));
 
-                SSva = C * Sva;
-                SSvm = C * Svm;
-                J = [   real(SSva(pvq,   pvq))  real(SSvm(pvq,   ad.pq));
-                        imag(SSva(ad.pq, pvq))  imag(SSvm(ad.pq, ad.pq))    ];
+                for k = 1:length(ad.var_map)
+                    m = ad.var_map{k};
+                    name = m{1};
+                    if ~isempty(m{2})       %% i1:iN
+                        i1 = m{2};
+                        iN = m{3};
+                        JJ{1, k} = real(dS.(name)(pvq,   i1:iN));
+                        JJ{2, k} = imag(dS.(name)(ad.pq, i1:iN));
+                    elseif isempty(m{4})    %% :
+                        JJ{1, k} = real(dS.(name)(pvq,   :));
+                        JJ{2, k} = imag(dS.(name)(ad.pq, :));
+                    else                    %% idx
+                        idx = m{4};
+                        JJ{1, k} = real(dS.(name)(pvq,   idx));
+                        JJ{2, k} = imag(dS.(name)(ad.pq, idx));
+                    end
+                end
+                J = vertcat( horzcat(JJ{1, :}), ...
+                             horzcat(JJ{2, :})  );
             else
                 %% get port power injections (w/o derivatives)
                 S = obj.port_inj_power([v_; z_], 1);

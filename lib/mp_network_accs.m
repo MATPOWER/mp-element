@@ -46,11 +46,7 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
                     mm.add_var([name '_pq'], idx, npq, v0, vl, vu);
                 end
             end
-            mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{1}, [], [], ad.pq, mmx_i1, mmx_iN, []};
 
-            mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 idx = st.order(k).idx;
@@ -72,8 +68,10 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
                 end
             end
             mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{1}, [], [], ad.pv, mmx_i1, mmx_iN, []};
+            if ad.npv || ad.npq
+                mm.aux_data.var_map{end+1} = ...
+                    {vvars{1}, [], [], [ad.pq; ad.pv], mmx_i1, mmx_iN, []};
+            end
 
             %% voltage imaginary part
             st = obj.(vvars{2});
@@ -99,11 +97,7 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
                     mm.add_var([name '_pq'], idx, npq, v0, vl, vu);
                 end
             end
-            mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{2}, [], [], ad.pq, mmx_i1, mmx_iN, []};
 
-            mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 idx = st.order(k).idx;
@@ -125,8 +119,10 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
                 end
             end
             mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{2}, [], [], ad.pv, mmx_i1, mmx_iN, []};
+            if ad.npv || ad.npq
+                mm.aux_data.var_map{end+1} = ...
+                    {vvars{2}, [], [], [ad.pq; ad.pv], mmx_i1, mmx_iN, []};
+            end
         end
 
         function [f, J] = pf_node_balance_equations(obj, x, ad)
@@ -142,15 +138,52 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
             %% Jacobian
             if nargout > 1
                 %% get port power injections with derivatives
-                [S, Svr, Svi] = obj.port_inj_power([v_; z_], 1);
-                dV2_dVr = sparse(1:ad.npv, ad.npq+(1:ad.npv), 2*real(v_(ad.pv)), ad.npv, ad.npv+ad.npq);
-                dV2_dVi = sparse(1:ad.npv, ad.npq+(1:ad.npv), 2*imag(v_(ad.pv)), ad.npv, ad.npv+ad.npq);
+                var_names = cellfun(@(x)x{1}, ad.var_map, 'UniformOutput', false);
+                dz = any(strcmp(var_names, 'zr')) || ...
+                     any(strcmp(var_names, 'zi'));
+                if dz
+                    [S, dS.vr, dS.vi, dS.zr, dS.zi] = obj.port_inj_power([v_; z_], 1);
+                else
+                    [S, dS.vr, dS.vi] = obj.port_inj_power([v_; z_], 1);
+                end
+                dS.vr = C * dS.vr;
+                dS.vi = C * dS.vi;
+                if dz
+                    dS.zr = C * dS.zr;
+                    dS.zi = C * dS.zi;
+                end
 
-                SSvr = C * Svr;
-                SSvi = C * Svi;
-                J = [   real(SSvr(pqv,  pqv))   real(SSvi(pqv,  pqv));
-                        imag(SSvr(ad.pq, pqv))  imag(SSvi(ad.pq, pqv));
-                        dV2_dVr dV2_dVi ];
+                %% derivatives of voltage magnitudes (for PV buses)
+                nn = obj.node.N;
+                dV2.vr = sparse(ad.pv, ad.pv, 2*real(v_(ad.pv)), nn, nn);
+                dV2.vi = sparse(ad.pv, ad.pv, 2*imag(v_(ad.pv)), nn, nn);
+                dV2.zr = sparse(nn, nn);
+                dV2.zi = dV2.zr;
+                JJ = cell(3, length(ad.var_map));
+
+                for k = 1:length(ad.var_map)
+                    m = ad.var_map{k};
+                    name = m{1};
+                    if ~isempty(m{2})       %% i1:iN
+                        i1 = m{2};
+                        iN = m{3};
+                        JJ{1, k} = real(dS.(name)(pqv,   i1:iN));
+                        JJ{2, k} = imag(dS.(name)(ad.pq, i1:iN));
+                        JJ{3, k} = dV2.(name)(ad.pv, i1:iN);
+                    elseif isempty(m{4})    %% :
+                        JJ{1, k} = real(dS.(name)(pqv,   :));
+                        JJ{2, k} = imag(dS.(name)(ad.pq, :));
+                        JJ{3, k} = dV2.(name)(ad.pv, :);
+                    else                    %% idx
+                        idx = m{4};
+                        JJ{1, k} = real(dS.(name)(pqv,   idx));
+                        JJ{2, k} = imag(dS.(name)(ad.pq, idx));
+                        JJ{3, k} = dV2.(name)(ad.pv, idx);
+                    end
+                end
+                J = vertcat( horzcat(JJ{1, :}), ...
+                             horzcat(JJ{2, :}), ...
+                             horzcat(JJ{3, :})  );
             else
                 %% get port power injections (w/o derivatives)
                 S = obj.port_inj_power([v_; z_], 1);

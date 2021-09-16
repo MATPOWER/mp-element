@@ -44,8 +44,10 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
             mmx_i1 = mm.var.N + 1;
             mm.add_var('Qg_pv', ad.npv, Qg_pv);
             mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {'zi', [], [], ad.zi_idx, mmx_i1, mmx_iN, []};
+            if ad.npv
+                mm.aux_data.var_map{end+1} = ...
+                    {'zi', [], [], ad.zi_idx, mmx_i1, mmx_iN, []};
+            end
 
             %% voltage real part
             st = obj.(vvars{1});
@@ -71,11 +73,7 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
                     mm.add_var([name '_pq'], idx, npq, v0, vl, vu);
                 end
             end
-            mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{1}, [], [], ad.pq, mmx_i1, mmx_iN, []};
 
-            mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 idx = st.order(k).idx;
@@ -97,8 +95,10 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
                 end
             end
             mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{1}, [], [], ad.pv, mmx_i1, mmx_iN, []};
+            if ad.npv || ad.npq
+                mm.aux_data.var_map{end+1} = ...
+                    {vvars{1}, [], [], [ad.pq; ad.pv], mmx_i1, mmx_iN, []};
+            end
 
             %% voltage imaginary part
             st = obj.(vvars{2});
@@ -124,11 +124,7 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
                     mm.add_var([name '_pq'], idx, npq, v0, vl, vu);
                 end
             end
-            mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{2}, [], [], ad.pq, mmx_i1, mmx_iN, []};
 
-            mmx_i1 = mm.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 idx = st.order(k).idx;
@@ -150,8 +146,10 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
                 end
             end
             mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {vvars{2}, [], [], ad.pv, mmx_i1, mmx_iN, []};
+            if ad.npv || ad.npq
+                mm.aux_data.var_map{end+1} = ...
+                    {vvars{2}, [], [], [ad.pq; ad.pv], mmx_i1, mmx_iN, []};
+            end
         end
 
         function [f, J] = pf_node_balance_equations(obj, x, ad)
@@ -167,21 +165,45 @@ classdef mp_network_acci < mp_network_acc & mp_form_acci
 
             %% Jacobian
             if nargout > 1
-                %% get port power injections with derivatives
-                [I, Iva, Ivm, Izr, Izi] = obj.port_inj_current([v_; z_], 1);
-                dV2_dVr = sparse(1:ad.npv, ad.npq+(1:ad.npv), 2*real(v_(ad.pv)), ad.npv, ad.npv+ad.npq);
-                dV2_dVi = sparse(1:ad.npv, ad.npq+(1:ad.npv), 2*imag(v_(ad.pv)), ad.npv, ad.npv+ad.npq);
+                %% get port current injections with derivatives
+                [I, dI.vr, dI.vi, dI.zr, dI.zi] = obj.port_inj_current([v_; z_], 1);
+                dI.vr = C * dI.vr;
+                dI.vi = C * dI.vi;
+                dI.zr = C * dI.zr;
+                dI.zi = C * dI.zi;
+                %% derivatives of voltage magnitudes (for PV buses)
+                nn = obj.node.N;
+                dV2.vr = sparse(ad.pv, ad.pv, 2*real(v_(ad.pv)), nn, nn);
+                dV2.vi = sparse(ad.pv, ad.pv, 2*imag(v_(ad.pv)), nn, nn);
+                dV2.zr = sparse(nn, nn);
+                dV2.zi = dV2.zr;
+                JJ = cell(3, length(ad.var_map));
 
-                IIva = C * Iva;
-                IIvm = C * Ivm;
-                IIzi = C * Izi;
-                dImis_dQg = IIzi(:, ad.zi_idx);
-
-                J = [   real(dImis_dQg(pvq, :)) real(IIva(pvq, pqv)) real(IIvm(pvq, pqv));
-                        imag(dImis_dQg(pvq, :)) imag(IIva(pvq, pqv)) imag(IIvm(pvq, pqv));
-                        sparse(ad.npv, ad.npv) dV2_dVr dV2_dVi ];
+                for k = 1:length(ad.var_map)
+                    m = ad.var_map{k};
+                    name = m{1};
+                    if ~isempty(m{2})       %% i1:iN
+                        i1 = m{2};
+                        iN = m{3};
+                        JJ{1, k} = real(dI.(name)(pvq, i1:iN));
+                        JJ{2, k} = imag(dI.(name)(pvq, i1:iN));
+                        JJ{3, k} = dV2.(name)(ad.pv, i1:iN);
+                    elseif isempty(m{4})    %% :
+                        JJ{1, k} = real(dI.(name)(pvq, :));
+                        JJ{2, k} = imag(dI.(name)(pvq, :));
+                        JJ{3, k} = dV2.(name)(ad.pv, :);
+                    else                    %% idx
+                        idx = m{4};
+                        JJ{1, k} = real(dI.(name)(pvq, idx));
+                        JJ{2, k} = imag(dI.(name)(pvq, idx));
+                        JJ{3, k} = dV2.(name)(ad.pv, idx);
+                    end
+                end
+                J = vertcat( horzcat(JJ{1, :}), ...
+                             horzcat(JJ{2, :}), ...
+                             horzcat(JJ{3, :})  );
             else
-                %% get port power injections (w/o derivatives)
+                %% get port current injections (w/o derivatives)
                 I = obj.port_inj_current([v_; z_], 1);
             end
 
