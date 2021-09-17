@@ -1,4 +1,4 @@
-classdef nme_buslink < nm_element & mp_form_acp
+classdef nme_buslink < nm_element %& mp_form_ac
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -34,7 +34,8 @@ classdef nme_buslink < nm_element & mp_form_acp
 
         function obj = build_params(obj, nm, dm)
             build_params@nm_element(obj, nm, dm);   %% call parent
-            obj.N = [ repmat(speye(obj.nk), 1, obj.nz);
+            I = (dm.base_kva / dm.base_mva / 1000) * speye(obj.nk);
+            obj.N = [ repmat(I, 1, obj.nz);
                      -speye(obj.nk * obj.nz) ];
         end
 
@@ -49,6 +50,7 @@ classdef nme_buslink < nm_element & mp_form_acp
             mmx_iN = mm.var.N;
             mm.aux_data.var_map{end+1} = ...
                 {'zr', nm.zr.idx.i1.Plink(1), nm.zr.idx.iN.Plink(end), [], mmx_i1, mmx_iN, []};
+
             mmx_i1 = mm.var.N + 1;
             for p = 1:3
                 mm.add_var('Qlink', {p}, obj.nk, 0, -Inf, Inf);
@@ -58,33 +60,32 @@ classdef nme_buslink < nm_element & mp_form_acp
                 {'zi', nm.zi.idx.i1.Qlink(1), nm.zi.idx.iN.Qlink(end), [], mmx_i1, mmx_iN, []};
         end
 
-        function obj = pf_add_constraints(obj, mm, nm, dm, mpopt)
+        function [A_va, b_va, A_vm, b_vm] = pf_voltage_constraints(obj, ad)
             %% form constraint matrices for matching
-            %%  voltage angles for pv and pq buses
-            %%  voltage magnitudes for pq buses
-            
-            ad = mm.aux_data;
+            %%  voltage angles for pv and pq nodes
+            %%  voltage magnitudes for pq nodes
+            %% columns of A_va correspond to ...
+            %%  'Va_pv', 'Va3_pv', 'Va3_pv', 'Va3_pv',
+            %%  'Va_pq', 'Va3_pq', 'Va3_pq', 'Va3_pq'
+            %% columns of A_vm correspond to ...
+            %%  'Vm_pq', 'Vm3_pq', 'Vm3_pq', 'Vm3_pq'
+
+            A = [ repmat(speye(obj.nk), obj.nz, 1) ...
+                    -speye(obj.nk * obj.nz) ] * obj.C';
+            ang120 = 2*pi/3*ones(obj.nk, 1);
 
             %% voltage angle constraints
-            A1 = ( obj.C([ad.pv; ad.pq], :) * obj.N )';
-            k1 = find(any(A1, 2));
-            n1 = length(k1);
-            ang120 = 2*pi/3*ones(obj.nk, 1);
-            b1 = [zeros(obj.nk, 1); ang120; -ang120];
-            b1 = b1(k1);
-            vs1 = struct('name', {'Va_pv', 'Va3_pv', 'Va3_pv', 'Va3_pv', ...
-                                    'Va_pq', 'Va3_pq', 'Va3_pq', 'Va3_pq'}, ...
-                            'idx', {{}, {1}, {2}, {3}, {}, {1}, {2}, {3}} );
-            mm.add_lin_constraint('buslink_va', A1(k1, :), b1, b1, vs1);
+            A_va = A(:, [ad.pv; ad.pq]);
+            k_va = find(any(A_va, 2));
+            b_va = [zeros(obj.nk, 1); ang120; -ang120];
+            A_va = A_va(k_va, :);
+            b_va = b_va(k_va);
 
             %% voltage magnitude constraints
-            A2 = ( obj.C(ad.pq, :) * obj.N )';
-            k2 = find(any(A2, 2));
-            n2 = length(k2);
-            b2 = zeros(n2, 1);
-            vs2 = struct('name', {'Vm_pq', 'Vm3_pq', 'Vm3_pq', 'Vm3_pq'}, ...
-                            'idx', {{}, {1}, {2}, {3}} );
-            mm.add_lin_constraint('buslink_vm', A2(k2, :), b2, b2, vs2);
+            A_vm = A(:, ad.pq);
+            k_vm = find(any(A_vm, 2));
+            b_vm = zeros(length(k_vm), 1);
+            A_vm = A_vm(k_vm, :);
         end
 
 %         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
