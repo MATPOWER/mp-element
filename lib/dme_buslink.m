@@ -80,35 +80,22 @@ classdef dme_buslink < dm_element
                 error('dme_buslink/build_params: buslink objects can only link buses with identical base_kv');
             end
 
-            %% check for matching bus types
+            %% check for at least one PQ bus per buslink
             type1 = dm.elements.bus.tab.type(obj.bus);
             type3 = dm.elements.bus3p.tab.type(obj.bus3p);
-            if any(type1 ~= type3)
-                error('dme_buslink/build_params: buslink objects can only link buses with identical type');
+            if any(type1 ~= NODE_TYPE.PQ & type3 ~= NODE_TYPE.PQ)
+                error('dme_buslink/build_params: at lease one of the buses linked by a buslink must be of type PQ');
             end
 
-            %% check for matching voltage angles for REF buses
-            ref = type1 == NODE_TYPE.REF;
-            va_ref = dm.elements.bus.tab.va(obj.bus(ref));
-            va1_ref = dm.elements.bus3p.tab.va1(obj.bus3p(ref));
-            va2_ref = dm.elements.bus3p.tab.va2(obj.bus3p(ref));
-            va3_ref = dm.elements.bus3p.tab.va3(obj.bus3p(ref));
-            if any(va1_ref ~= va_ref | va2_ref ~= va_ref - 120 | va3_ref ~= va_ref + 120)
-                error('dme_buslink/build_params: buslink objects can only link REF buses with identical voltage angles');
-            end
-
-            %% check for matching voltage maginitudes for REF and PV buses
-            refpv = (ref | type1 == NODE_TYPE.PV);
-            vm_ref_pv = dm.elements.bus.tab.vm(obj.bus(refpv));
+            %% check for balanced voltage magnitudes for REF and PV buses
+            %% on 3-phase side
+            refpv = (type3 == NODE_TYPE.REF | type3 == NODE_TYPE.PV);
             vm1_ref_pv = dm.elements.bus3p.tab.vm1(obj.bus3p(refpv));
             vm2_ref_pv = dm.elements.bus3p.tab.vm2(obj.bus3p(refpv));
             vm3_ref_pv = dm.elements.bus3p.tab.vm3(obj.bus3p(refpv));
-            if any(vm1_ref_pv ~= vm_ref_pv | vm2_ref_pv ~= vm_ref_pv | vm3_ref_pv ~= vm_ref_pv)
-                error('dme_buslink/build_params: buslink objects can only link REF or PV buses with identical voltage magnitudes');
+            if any(vm1_ref_pv ~= vm2_ref_pv | vm2_ref_pv ~= vm3_ref_pv)
+                error('dme_buslink/build_params: buslink objects can only link to REF or PV buses with balanced voltage magnitudes');
             end
-
-            %% for REF and PV buses, need to check that vm_start setpoints match
-            %% for REF, need to check that va_start matches
         end
     end     %% methods
 end         %% classdef

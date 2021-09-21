@@ -17,7 +17,7 @@ classdef nme_buslink_acc < nme_buslink & mp_form_acc
             %% add constraints for matching
             %%  voltage angles at pv and pq nodes
             %%  voltage magnitudes at pq nodes
-            [A_va, b_va, A_vm, b_vm] = pf_voltage_constraints(obj, mm.aux_data);
+            [A_va_pq, A_va_pv, b_va, A_vm, b_vm] = pf_voltage_constraints(obj, mm.aux_data);
 
             %% prep variable set structs
             vs_va = struct('name', {'Vr_pq', 'Vr3_pq', 'Vr3_pq', 'Vr3_pq', ...
@@ -30,11 +30,14 @@ classdef nme_buslink_acc < nme_buslink & mp_form_acc
                                     'Vi_pq', 'Vi3_pq', 'Vi3_pq', 'Vi3_pq'}, ...
                             'idx', {{}, {1}, {2}, {3}, {}, {1}, {2}, {3}} );
 
-            fcn_va = @(xx)pf_va_fcn(obj, xx, A_va, b_va);
+            fcn_va = @(xx)pf_va_fcn(obj, xx, [A_va_pq A_va_pv], b_va);
             mm.add_nln_constraint('buslink_va', length(b_va), 1, fcn_va, [], vs_va);
 
             fcn_vm2 = @(xx)pf_vm_fcn(obj, xx, A_vm, b_vm);
             mm.add_nln_constraint('buslink_vm', length(b_vm), 1, fcn_vm2, [], vs_vm);
+
+            %% call parent
+            pf_add_constraints@nme_buslink(obj, mm, nm, dm, mpopt);
         end
 
         function [g, dg] = pf_va_fcn(obj, xx, A, b)

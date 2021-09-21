@@ -60,32 +60,102 @@ classdef nme_buslink < nm_element %& mp_form_ac
                 {'zi', nm.zi.idx.i1.Qlink(1), nm.zi.idx.iN.Qlink(end), [], mmx_i1, mmx_iN, []};
         end
 
-        function [A_va, b_va, A_vm, b_vm] = pf_voltage_constraints(obj, ad)
+        function obj = pf_add_constraints(obj, mm, nm, dm, mpopt)
+            %% add Qlink constraints for PV node on 3-phase side
+
+            %% indices of buslinks connected to PV nodes via port 2 (3&4)
+            ad = mm.aux_data;
+            [~, k, ~] = find(obj.C(ad.pv, obj.nk+1:2*obj.nk));
+            n = length(k);
+            if n
+                I = sparse(1:n, k, 1, n, obj.nk);
+                zz = sparse(n, obj.nk);
+                A = [I -I zz; I zz -I];
+                b = zeros(2*n, 1);
+                vs = struct('name', {'Qlink', 'Qlink', 'Qlink'}, ...
+                            'idx', {{1}, {2}, {3}} );
+                mm.add_lin_constraint('buslink_qlink', A, b, b, vs);
+            end
+        end
+
+        function [A_va_pq, A_va_pv, b_va, A_vm, b_vm] = pf_voltage_constraints(obj, ad)
             %% form constraint matrices for matching
             %%  voltage angles for pv and pq nodes
             %%  voltage magnitudes for pq nodes
-            %% columns of A_va correspond to ...
+            %% columns of A_va_pv correspond to ...
             %%  'Va_pv', 'Va3_pv', 'Va3_pv', 'Va3_pv',
+            %% columns of A_va_pq correspond to ...
             %%  'Va_pq', 'Va3_pq', 'Va3_pq', 'Va3_pq'
             %% columns of A_vm correspond to ...
             %%  'Vm_pq', 'Vm3_pq', 'Vm3_pq', 'Vm3_pq'
+            nk = obj.nk;
 
-            A = [ repmat(speye(obj.nk), obj.nz, 1) ...
-                    -speye(obj.nk * obj.nz) ] * obj.C';
-            ang120 = 2*pi/3*ones(obj.nk, 1);
+            %% basic constraint matrix for voltage equality (all nodes)
+            Istack = repmat(speye(nk), obj.nz, 1);  %% stacked identities
+            A = [ Istack -speye(nk * obj.nz) ] * obj.C';
+            ang120 = 2*pi/3*ones(nk, 1);
 
-            %% voltage angle constraints
-            A_va = A(:, [ad.pv; ad.pq]);
-            k_va = find(any(A_va, 2));
-            b_va = [zeros(obj.nk, 1); ang120; -ang120];
-            A_va = A_va(k_va, :);
-            b_va = b_va(k_va);
+            %% sub-matrices by node type
+            A_ref = A(:, ad.ref);
+            A_pv = A(:, ad.pv);
+            A_pq = A(:, ad.pq);
 
-            %% voltage magnitude constraints
-            A_vm = A(:, ad.pq);
-            k_vm = find(any(A_vm, 2));
-            b_vm = zeros(length(k_vm), 1);
-            A_vm = A_vm(k_vm, :);
+            %% voltage angle constraints (all buslinks)
+            A_va_pq = A_pq;
+            A_va_pv = A_pv;
+            b_va = [zeros(nk, 1); ang120; -ang120];
+
+            %% voltage magnitude constraints (all buslinks)
+            A_vm = A_pq;
+            b_vm = zeros(nk*obj.nz, 1);
+
+            %% indices of buslinks connected to REF nodes (fixed va)
+            [~, k_va1, ~] = find(obj.C(ad.ref, 1:nk));      %% via port 1
+            [~, k_va2, ~] = find(obj.C(ad.ref, nk+1:2*nk)); %% via port 2 (3&4)
+
+            %% adjust RHS of va constraints involving fixed voltage angles
+            if ~isempty(k_va1) || ~isempty(k_va2)
+                [va, vm] = obj.aux_data_va_vm(ad);
+                va1 = obj.C(:, 1:nk)' * va;         %% port 1 voltage angles
+                va2 = obj.C(:, nk+1:2*nk)' * va;    %% port 2 voltage angles
+                va_adj = zeros(nk, 1);
+                va_adj(k_va1) = -va1(k_va1);
+                va_adj(k_va2) =  va2(k_va2);
+                b_va = b_va + Istack * va_adj;
+
+                %% delete redundate (and currently incorrect) constraints
+                %% corresponding to k_va2 and ports 3 and 4
+                if ~isempty(k_va2)
+                    d_va = [nk+k_va2; 2*nk+k_va2];
+                    A_va_pq(d_va, :) = [];
+                    A_va_pv(d_va, :) = [];
+                    b_va(d_va) = [];
+                end
+            end
+
+            %% indices of buslinks connected to REF/PV nodes (fixed vm)
+            rpv = [ad.ref;ad.pv];   %% indices of REF/PV nodes
+            [~, k_vm1, ~] = find(obj.C(rpv, 1:nk));         %% via port 1
+            [~, k_vm2, ~] = find(obj.C(rpv, nk+1:2*nk));    %% via port 2 (3&4)
+
+            %% adjust RHS of vm constraints involving fixed voltage magnitudes
+            if ~isempty(k_vm1) || ~isempty(k_vm2)
+                [va, vm] = obj.aux_data_va_vm(ad);
+                vm1 = obj.C(:, 1:nk)' * vm;         %% port 1 voltage magnitudes
+                vm2 = obj.C(:, nk+1:2*nk)' * vm;    %% port 2 voltage magnitudes
+                vm_adj = zeros(nk, 1);
+                vm_adj(k_vm1) = -vm1(k_vm1);
+                vm_adj(k_vm2) =  vm2(k_vm2);
+                b_vm = b_vm + Istack * vm_adj;
+
+                %% delete redundate (and currently incorrect) constraints
+                %% corresponding to k_vm2 and ports 3 and 4
+                if ~isempty(k_vm2)
+                    d_vm = [nk+k_vm2; 2*nk+k_vm2];
+                    A_vm(d_vm, :) = [];
+                    b_vm(d_vm) = [];
+                end
+            end
         end
 
 %         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
