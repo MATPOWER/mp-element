@@ -43,11 +43,6 @@ classdef mp_network_acp < mp_network_ac% & mp_form_acp
             end
         end
 
-        function [va, vm] = aux_data_va_vm(obj, ad)
-            va = ad.va;
-            vm = ad.vm;
-        end
-
         %%-----  PF methods  -----
         function [vx_, z_, x_] = pf_convert_x(obj, mmx, ad, only_v)
             %% x = obj.pf_convert(mmx, ad)

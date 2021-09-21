@@ -46,12 +46,6 @@ classdef mp_network_acc < mp_network_ac% & mp_form_acc
             end
         end
 
-        function [va, vm] = aux_data_va_vm(obj, ad)
-            v_ = ad.vr + 1j * ad.vi;
-            va = angle(v_);
-            vm = abs(v_);
-        end
-
 
         %%-----  PF methods  -----
         function [vx_, z_, x_] = pf_convert_x(obj, mmx, ad, only_v)

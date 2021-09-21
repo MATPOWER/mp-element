@@ -274,6 +274,12 @@ classdef mp_form_acc < mp_form_ac
             Swzi = H;
         end
 
+        function [va, vm] = aux_data_va_vm(obj, ad)
+            v_ = ad.vr + 1j * ad.vi;
+            va = angle(v_);
+            vm = abs(v_);
+        end
+
         function [g, dg] = va_fcn(obj, xx, idx, lim)
             %% lim can be a vector value for equality constraint or
             %% upper bound on va, or a cell array with {vamin, vamax}

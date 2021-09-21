@@ -295,5 +295,10 @@ classdef mp_form_acp < mp_form_ac
             Svmzr = M;
             Svmzi = -1j * M;
         end
+
+        function [va, vm] = aux_data_va_vm(obj, ad)
+            va = ad.va;
+            vm = ad.vm;
+        end
     end     %% methods
 end         %% classdef
