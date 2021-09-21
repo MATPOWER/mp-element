@@ -29,7 +29,7 @@ classdef nme_xfmr3p < nm_element & mp_form_acp
 
             base_kv = bus_dme.tab.base_kv(bus_dme.on(dme.fbus(dme.on)));
             z = dm.base_kva * (dme.r + 1j * dme.x) ./ dme.base_kva .* ...
-                (dme.base_kv / ( base_kv / sqrt(3))) .^ 2;
+                (dme.base_kv ./ ( base_kv / sqrt(3))) .^ 2;
             y = 1 ./ z;
             Y = [y;y;y];
 

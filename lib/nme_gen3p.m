@@ -28,11 +28,11 @@ classdef nme_gen3p < nm_element % & mp_form_ac
             qg_start = dme.(sprintf('qg%d_start', p));
 
             if p == 1
-                nm.init_indexed_name('zr', 'Pg', {obj.nz});
-                nm.init_indexed_name('zi', 'Qg', {obj.nz});
+                nm.init_indexed_name('zr', 'Pg3', {obj.nz});
+                nm.init_indexed_name('zi', 'Qg3', {obj.nz});
             end
-            nm.add_var('zr', 'Pg', {p}, ng, pg_start, 0, Inf);
-            nm.add_var('zi', 'Qg', {p}, ng, qg_start, -Inf, Inf);
+            nm.add_var('zr', 'Pg3', {p}, ng, pg_start, 0, Inf);
+            nm.add_var('zi', 'Qg3', {p}, ng, qg_start, -Inf, Inf);
         end
 
         function obj = build_params(obj, nm, dm)
