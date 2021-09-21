@@ -353,7 +353,8 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
             v_(pq) = V2(npv+1:npv+npq);
             mm.aux_data.vmpv = abs(v_(pv));
 
-            x = [angle(v_(pvq)); abs(v_(pq))];
+            x(1:ad.npv+ad.npq) = angle(v_(pvq));
+            x(ad.npv+ad.npq+1:ad.npv+2*ad.npq) = abs(v_(pq));
         end
 
         %%-----  CPF methods  -----
