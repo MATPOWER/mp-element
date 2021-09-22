@@ -289,7 +289,11 @@ classdef mp_form_acc < mp_form_ac
             [vr, vi] = deal(xx{:});
 
             %% compute voltage angle mismatch
-            va = angle(vr(idx) + 1j * vi(idx));
+            if isempty(idx)
+                va = angle(vr + 1j * vi);
+            else
+                va = angle(vr(idx) + 1j * vi(idx));
+            end
             if iscell(lim)
                 g = [ lim{1} - va;
                       va - lim{2}   ];
@@ -299,8 +303,11 @@ classdef mp_form_acc < mp_form_ac
 
             if nargout > 1
                 %% compute partials of voltage angle w.r.t vr and vi
-                n = length(idx);
                 nn = length(vr);
+                if isempty(idx)
+                    idx = 1:nn;
+                end
+                n = length(idx);
                 vm2 = vr(idx).^2 + vi(idx).^2;
                 dva_dvr = sparse(1:n, idx, -vi(idx) ./ vm2, n, nn);
                 dva_dvi = sparse(1:n, idx,  vr(idx) ./ vm2, n, nn);
@@ -316,15 +323,21 @@ classdef mp_form_acc < mp_form_ac
         function d2G = va_hess(obj, xx, lam, idx)
             %% unpack data
             [vr, vi] = deal(xx{:});
-            n = length(idx);
             nn = length(vr);
 
             %% evaluate Hessian of voltage angle function
-            vvr = vr(idx);
-            vvi = vi(idx);
+            if isempty(idx)
+                vvr = vr;
+                vvi = vi;
+                idx = 1:nn;
+            else
+                vvr = vr(idx);
+                vvi = vi(idx);
+            end
             vvr2 = vvr.^2;
             vvi2 = vvi.^2;
             vvm4 = (vvr2 + vvi2).^2;
+            n = length(idx);
             if length(lam) == n     %% upper bound or equality
                 lamvm4 = lam ./ vvm4;
             else                    %% doubly bounded (use lam_ub-lam_lb)
@@ -347,7 +360,11 @@ classdef mp_form_acc < mp_form_ac
             [vr, vi] = deal(xx{:});
 
             %% compute voltage magnitude^2 mismatch
-            vm2 = vr(idx).^2 + vi(idx).^2;
+            if isempty(idx)
+                vm2 = vr.^2 + vi.^2;
+            else
+                vm2 = vr(idx).^2 + vi(idx).^2;
+            end
             if iscell(lim)
                 g = [ lim{1} - vm2;
                       vm2 - lim{2}   ];
@@ -357,8 +374,11 @@ classdef mp_form_acc < mp_form_ac
 
             if nargout > 1
                 %% compute partials of voltage magnitude^2 w.r.t vr and vi
-                n = length(idx);
                 nn = length(vr);
+                if isempty(idx)
+                    idx = 1:nn;
+                end
+                n = length(idx);
                 dvm_dvr = sparse(1:n, idx, 2 * vr(idx), n, nn);
                 dvm_dvi = sparse(1:n, idx, 2 * vi(idx), n, nn);
                 if iscell(lim)
@@ -373,10 +393,13 @@ classdef mp_form_acc < mp_form_ac
         function d2G = vm2_hess(obj, xx, lam, idx)
             %% unpack data
             [vr, vi] = deal(xx{:});
-            n = length(idx);
             nn = length(vr);
             
             %% evaluate Hessian of voltage magnitude^2 function
+            if isempty(idx)
+                idx = 1:nn;
+            end
+            n = length(idx);
             if length(lam) == n     %% upper bound or equality
                 dlam = sparse(idx, idx, 2*lam, nn, nn);
             else                    %% doubly bounded (use lam_ub-lam_lb)
