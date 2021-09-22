@@ -720,14 +720,28 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             vars = horzcat(obj.model_vvars(), obj.model_zvars());
             for vtype = vars
                 st = obj.(vtype{1});    %% set type
+                d = st.data;
                 mmx_i1 = mm.var.N + 1;
                 for k = 1:st.NS
                     name = st.order(k).name;
-                    if isempty(st.order(k).idx)
-                        d = st.data;
+                    idx = st.order(k).idx;
+                    if isempty(idx)
                         mm.add_var(name, st.idx.N.(name), d.v0.(name), d.vl.(name), d.vu.(name), d.vt.(name));
                     else
-                        error('mp_network/opf_add_vars: handling of indexed sets not implmented here (yet)');
+                        if all(cell2mat(idx) == 1)
+                            dim = size(st.idx.N.(name));
+                            if dim(end) == 1, dim(end) = []; end   %% delete trailing 1
+                            mm.init_indexed_name('var', name, num2cell(dim));
+                        end
+                        sn = struct('type', {'()'}, 'subs', {idx});
+                        sc = sn;
+                        sc.type = '{}';
+                        N = subsref(st.idx.N.(name), sn);
+                        v0 = subsref(d.v0.(name), sc);
+                        vl = subsref(d.vl.(name), sc);
+                        vu = subsref(d.vu.(name), sc);
+                        vt = subsref(d.vt.(name), sc);
+                        mm.add_var(name, idx, N, v0, vl, vu, vt);
                     end
                 end
                 mmx_iN = mm.var.N;
