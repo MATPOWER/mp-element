@@ -73,5 +73,13 @@ classdef nme_bus_nld_acp_node_test < nme_bus_acp
             dme.tab.mu_vm_lb(dme.on) = mu_vm_lb;
             dme.tab.mu_vm_ub(dme.on) = mu_vm_ub;
         end
+
+        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+            varef1 = nm.opf_interior_va(mm, dm);
+            vm = obj.opf_interior_vm(mm, nm, dm);
+            vv = mm.get_idx();
+            x0(vv.i1.(['va_' obj.name]):vv.iN.(['va_' obj.name])) = varef1; %% angles set to 1st ref angle
+            x0(vv.i1.(['vm_' obj.name]):vv.iN.(['vm_' obj.name])) = vm;     %% voltage magnitudes
+        end
     end     %% methods
 end         %% classdef

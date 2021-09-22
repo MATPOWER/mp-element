@@ -110,5 +110,14 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
             dme.tab.mu_vm_lb(dme.on) = mu_vm_lb;
             dme.tab.mu_vm_ub(dme.on) = mu_vm_ub;
         end
+
+        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+            vv = mm.get_idx();
+            varef1 = nm.opf_interior_va(mm, dm);
+            vm = obj.opf_interior_vm(mm, nm, dm);
+            v_ = vm * exp(1j*varef1);
+            x0(vv.i1.Vr:vv.iN.Vr) = real(v_);
+            x0(vv.i1.Vi:vv.iN.Vi) = imag(v_);
+        end
     end     %% methods
 end         %% classdef

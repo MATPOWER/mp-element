@@ -89,5 +89,12 @@ classdef mp_network_acc < mp_network_ac% & mp_form_acc
         function names = opf_legacy_user_var_names(obj)
             names = {'Vr', 'Vi', 'Pg', 'Qg'};
         end
+
+        function varef1 = opf_interior_va(obj, mm, dm)
+            %% return scalar va equal to angle of first reference node
+            ad = mm.aux_data;
+            ref1 = ad.ref(1);
+            varef1 = angle(ad.vr(ref1) + 1j * ad.vi(ref1));
+        end
     end     %% methods
 end         %% classdef

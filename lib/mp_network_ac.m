@@ -1130,27 +1130,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
 
             if mpopt.opf.start < 2
                 %% initialize interior point
-                x0 = obj.opf_interior_x0(mm, dm);
-
-                %% set voltages
-                %% va equal to angle of 1st ref bus
-                %% vm equal to avg of clipped limits
-                vv = mm.get_idx();
-                bus_dme = dm.elements.bus;
-                varefs = bus_dme.va_start(find(bus_dme.type == NODE_TYPE.REF));
-                vm_ub = min(bus_dme.vm_ub, 1.5);
-                vm_lb = max(bus_dme.vm_lb, 0.5);
-                vm = (vm_ub + vm_lb) / 2;
-                if mpopt.opf.v_cartesian
-                    V = vm * exp(1j*varefs(1));
-                    x0(vv.i1.Vr:vv.iN.Vr) = real(V);
-                    x0(vv.i1.Vi:vv.iN.Vi) = imag(V);
-                else
-                    x0(vv.i1.Va:vv.iN.Va) = varefs(1);  %% angles set to first reference angle
-                    x0(vv.i1.Vm:vv.iN.Vm) = vm;         %% voltage magnitudes
-                end
-
-                opt.x0 = x0;
+                opt.x0 = obj.opf_interior_x0(mm, obj, dm);
             end
         end
     end     %% methods

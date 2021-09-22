@@ -642,8 +642,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
-        %%-----  PF methods  -----
-        function ad = pf_aux_data(obj, dm, mpopt)
+        function ad = base_aux_data(obj, dm, mpopt)
             %% get model variables
             vvars = obj.model_vvars();
             zvars = obj.model_zvars();
@@ -659,6 +658,11 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
                     length(ref), length(pv), length(pq), by_elm}, ...
                 {vars{:}, 'var_map', 'ref', 'pv', 'pq', ...
                     'nref', 'npv', 'npq', 'node_type_by_elm'}, 2);
+        end
+
+        %%-----  PF methods  -----
+        function ad = pf_aux_data(obj, dm, mpopt)
+            ad = obj.base_aux_data(dm, mpopt);
         end
 
         function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
@@ -705,14 +709,7 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
 
         %%-----  OPF methods  -----
         function ad = opf_aux_data(obj, dm, mpopt)
-            %% get model variables
-            vvars = obj.model_vvars();
-            zvars = obj.model_zvars();
-            vars = {vvars{:} zvars{:}};
-            vals = cellfun(@(x)obj.params_var(x), vars, 'UniformOutput', false);
-
-            %% create aux_data struct
-            ad = cell2struct({vals{:}, {}}, {vars{:}, 'var_map'}, 2);
+            ad = obj.base_aux_data(dm, mpopt);
         end
 
         function obj = opf_add_vars(obj, mm, nm, dm, mpopt)
@@ -880,25 +877,34 @@ classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
             end
         end
 
-        function x0 = opf_interior_x0(obj, mm, dm)
-            %% generic interior point
-            [x0, xmin, xmax] = mm.params_var();     %% init var & bounds
-            s = 1;                      %% set init point inside bounds by s
-            lb = xmin; ub = xmax;
-            lb(xmin == -Inf) = -1e10;   %% replace Inf with numerical proxies
-            ub(xmax ==  Inf) =  1e10;   %% temporarily to avoid errors in next line
-            x0 = (lb + ub) / 2;         %% set x0 mid-way between bounds
-            k = find(xmin == -Inf & xmax < Inf);    %% if only bounded above
-            x0(k) = xmax(k) - s;                    %% set just below upper bound
-            k = find(xmin > -Inf & xmax == Inf);    %% if only bounded below
-            x0(k) = xmin(k) + s;                    %% set just above lower bound
+        function varef1 = opf_interior_va(obj, mm, dm)
+            %% return scalar va equal to angle of first reference node
+            ad = mm.aux_data;
+            ref1 = ad.ref(1);
+            varef1 = ad.va(ref1);
+        end
 
-            %% set gen cost variables to something feasible
-            gen_nme = obj.elements.gen;
-            if gen_nme.cost.pwl.n > 0
-                vv = mm.get_idx();
-                maxgc = dm.elements.gen.max_pwl_gencost();
-                x0(vv.i1.y:vv.iN.y) = maxgc + 0.1 * abs(maxgc);
+        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+            if nargin < 5 || isempty(x0)
+                %% generic interior point
+                [x0, xmin, xmax] = mm.params_var();     %% init var & bounds
+                s = 1;                      %% set init point inside bounds by s
+                lb = xmin; ub = xmax;
+                lb(xmin == -Inf) = -1e10;   %% replace Inf with numerical proxies
+                ub(xmax ==  Inf) =  1e10;   %% temporarily to avoid errors in next line
+                x0 = (lb + ub) / 2;         %% set x0 mid-way between bounds
+                k = find(xmin == -Inf & xmax < Inf);    %% if only bounded above
+                x0(k) = xmax(k) - s;                    %% set just below upper bound
+                k = find(xmin > -Inf & xmax == Inf);    %% if only bounded below
+                x0(k) = xmin(k) + s;                    %% set just above lower bound
+            end
+
+            %% allow each node or state creating element to initialize its vars
+            for k = 1:length(obj.elements)
+                nme = obj.elements{k};  %% network model element
+                if nme.nn || nme.nz     %% element creates nodes or states
+                    x0 = nme.opf_interior_x0(mm, obj, dm, x0);
+                end
             end
         end
     end     %% methods

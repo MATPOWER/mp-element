@@ -208,16 +208,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
                 case {'MIPS', 'IPOPT'}
                     if mpopt.opf.start < 2
                         %% initialize interior point
-                        x0 = obj.opf_interior_x0(mm, dm);
-
-                        %% set voltages
-                        %% Va equal to angle of 1st ref bus
-                        vv = mm.get_idx();
-                        bus_dme = dm.elements.bus;
-                        varefs = bus_dme.va_start(find(bus_dme.type == NODE_TYPE.REF));
-                        x0(vv.i1.Va:vv.iN.Va) = varefs(1);  %% angles set to first reference angle
-
-                        opt.x0 = x0;
+                        opt.x0 = obj.opf_interior_x0(mm, obj, dm);
                     end
                 case 'OSQP'
                     opt.x0 = [];        %% disable provided starting point

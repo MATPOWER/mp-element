@@ -429,5 +429,8 @@ classdef nm_element < handle
 
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
         end
+
+        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+        end
     end     %% methods
 end         %% classdef
