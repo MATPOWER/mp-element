@@ -55,5 +55,10 @@ classdef nme_gen3p < nm_element % & mp_form_ac
                 dme.tab.(sprintf('pf%d', p))(dme.on) = cos(angle(sg));
             end
         end
+
+        %%-----  OPF methods  -----
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+            obj.pf_data_model_update(mm, nm, dm, mpopt);
+        end
     end     %% methods
 end         %% classdef

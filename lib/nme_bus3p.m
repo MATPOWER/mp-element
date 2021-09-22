@@ -59,5 +59,10 @@ classdef nme_bus3p < nm_element
                 dme.tab.(sprintf('vm%d', p))(dme.on) = abs(v);
             end
         end
+
+        %%-----  OPF methods  -----
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+            obj.pf_data_model_update(mm, nm, dm, mpopt);
+        end
     end     %% methods
 end         %% classdef

@@ -1,5 +1,5 @@
-function tsk = t_run_pf_3p(quiet)
-%T_RUN_PF_3P  Tests for RUN_PF for 3-phase and hybrid test cases.
+function tsk = t_run_mp_3p(quiet)
+%T_RUN_MP_3P  Tests for RUN_PF and RUN_OPF for 3-phase and hybrid test cases.
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -38,9 +38,17 @@ cfg = {
     {'NR',  'Newton (current-cartesian)',   [],     {'pf.v_cartesian', 1, 'pf.current_balance', 1}  },
 };
 
-t_begin(4*(1+length(casefiles)*length(cfg)), quiet);
+%%  alg     name                            check   opts
+cfg2 = {
+    {'MIPS',  'MIPS (power-polar)',         [],     {}  },
+    {'MIPS',  'MIPS (power-cartesian)',     [],     {'opf.v_cartesian', 1}  },
+    {'MIPS',  'MIPS (current-polar)',       [],     {'opf.current_balance', 1}  },
+    {'MIPS',  'MIPS (current-cartesian)',   [],     {'opf.v_cartesian', 1, 'opf.current_balance', 1}  },
+};
 
-mpopt0 = mpoption('out.all', 0, 'verbose', 0);
+t_begin(4*(1+(length(casefiles)+1)*length(cfg)), quiet);
+
+mpopt0 = mpoption('out.all', 0, 'verbose', 0, 'mips.comptol', 1e-9);
 
 if have_feature('octave')
     sing_mat_warn_id = 'Octave:singular-matrix';
@@ -71,7 +79,7 @@ casefile = casefiles{c};
 alg = 'ZG';
 name = 'Z-Gauss (power-polar)';
 opts = {};
-t = sprintf('run_pf(''%s'') : %s : ', casefile, name);
+t = sprintf('PF - %s : %s : ', casefile, name);
 mpopt = mpoption(mpopt0, 'pf.alg', alg, opts{:});
 pf = run_pf(casefile, mpopt);
 
@@ -86,12 +94,12 @@ t_is(va, eva, 7, [t 'va']);
 t_is(vm, evm, 7, [t 'vm']);
 t_is(pl, epl, 5, [t 'pl']);
 
-%% Newton-Raphson, all cases
-for c = 1:length(casefiles)
-    casefile = casefiles{c};
-    for k = 1:length(cfg)
+%% Newton-Raphson power flow, all cases
+for k = 1:length(cfg)
+    for c = 1:length(casefiles)
+        casefile = casefiles{c};
         [alg, name, check, opts] = deal(cfg{k}{:});
-        t = sprintf('run_pf(''%s'') : %s : ', casefile, name);
+        t = sprintf('PF - %s : %s : ', casefile, name);
         mpopt = mpoption(mpopt0, 'pf.alg', alg, opts{:});
         pf = run_pf(casefile, mpopt);
 
@@ -121,6 +129,23 @@ for c = 1:length(casefiles)
                 t_is(pl, [epl; epl; epl], 5, [t 'pl']);
         end
     end
+
+    %% OPF
+    casefile = casefiles{7};
+    [alg, name, check, opts] = deal(cfg2{k}{:});
+    t = sprintf('OPF - %s : %s : ', casefile, name);
+    mpopt = mpoption(mpopt0, 'opf.ac.solver', alg, opts{:});
+    opf = run_opf(casefile, mpopt);
+
+    t_is(opf.success, 1, 12, [t 'success']);
+
+    va = opf.dm.elements.bus3p.tab{:, 10:12};
+    vm = opf.dm.elements.bus3p.tab{:, 7:9} .* ...
+        (opf.dm.elements.bus3p.tab.base_kv*ones(1,3))/sqrt(3);
+    pl = opf.dm.elements.line3p.tab{:, 9:20};
+    t_is(va, [eva; eva+3.656255521718970; eva+1.039772166853819], 7, [t 'va']);
+    t_is(vm, [evm; evm; evm], 7, [t 'vm']);
+    t_is(pl, [epl; epl; epl], 5, [t 'pl']);
 end
 
 warning('on', 'pf_update_z:multiple_nodes');

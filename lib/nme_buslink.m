@@ -39,6 +39,24 @@ classdef nme_buslink < nm_element %& mp_form_ac
                      -speye(obj.nk * obj.nz) ];
         end
 
+        function [A, b_va, b_vm, Istack_] = voltage_constraints(obj)
+            %% form constraint matrices for matching voltages
+            nk = obj.nk;
+
+            %% basic constraint matrix for voltage equality (all nodes)
+            Istack = repmat(speye(nk), obj.nz, 1);  %% stacked identities
+            A = [ Istack -speye(nk * obj.nz) ] * obj.C';
+            ang120 = 2*pi/3*ones(nk, 1);
+
+            %% RHS
+            b_va = [zeros(nk, 1); ang120; -ang120]; %% angle constraints
+            b_vm = zeros(nk*obj.nz, 1);             %% magnitude constraints
+
+            if nargout > 3
+                Istack_ = Istack;
+            end
+        end
+
         %%-----  PF methods  -----
         function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
             mm.init_indexed_name('var', 'Plink', {3});
@@ -91,9 +109,7 @@ classdef nme_buslink < nm_element %& mp_form_ac
             nk = obj.nk;
 
             %% basic constraint matrix for voltage equality (all nodes)
-            Istack = repmat(speye(nk), obj.nz, 1);  %% stacked identities
-            A = [ Istack -speye(nk * obj.nz) ] * obj.C';
-            ang120 = 2*pi/3*ones(nk, 1);
+            [A, b_va, b_vm, Istack] = obj.voltage_constraints();
 
             %% sub-matrices by node type
             A_ref = A(:, ad.ref);
@@ -103,11 +119,9 @@ classdef nme_buslink < nm_element %& mp_form_ac
             %% voltage angle constraints (all buslinks)
             A_va_pq = A_pq;
             A_va_pv = A_pv;
-            b_va = [zeros(nk, 1); ang120; -ang120];
 
             %% voltage magnitude constraints (all buslinks)
             A_vm = A_pq;
-            b_vm = zeros(nk*obj.nz, 1);
 
             %% indices of buslinks connected to REF nodes (fixed va)
             [~, k_va1, ~] = find(obj.C(ad.ref, 1:nk));      %% via port 1

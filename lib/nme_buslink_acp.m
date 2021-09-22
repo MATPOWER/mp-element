@@ -33,5 +33,16 @@ classdef nme_buslink_acp < nme_buslink & mp_form_acp
             %% call parent
             pf_add_constraints@nme_buslink(obj, mm, nm, dm, mpopt);
         end
+
+        %%-----  OPF methods  -----
+        function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
+            %% voltage equality constraints
+            [A, b_va, b_vm] = obj.voltage_constraints();
+            idx = {{}, {1}, {2}, {3}};
+            vs_va = struct('name', {'Va', 'Va3', 'Va3', 'Va3'}, 'idx', idx);
+            vs_vm = struct('name', {'Vm', 'Vm3', 'Vm3', 'Vm3'}, 'idx', idx);
+            mm.add_lin_constraint('buslink_va', A, b_va, b_va, vs_va);
+            mm.add_lin_constraint('buslink_vm', A, b_vm, b_vm, vs_vm);
+        end
     end     %% methods
 end         %% classdef
