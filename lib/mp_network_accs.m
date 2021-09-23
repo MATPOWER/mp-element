@@ -203,6 +203,15 @@ classdef mp_network_accs < mp_network_acc & mp_form_accs
         end
 
 
+        %%-----  CPF methods  -----
+        function obj = cpf_add_node_balance_constraints(obj, mm, dm, mpopt)
+            %% power balance constraints
+            ad = mm.aux_data;
+            fcn = @(x)cpf_node_balance_equations(obj, x, ad);
+            mm.add_nln_constraint({'Pmis', 'Qmis', 'Vmis'}, [ad.npv+ad.npq;ad.npq;ad.npv], 1, fcn, []);
+        end
+
+
         %%-----  OPF methods  -----
         function opf_add_node_balance_constraints(obj, mm)
             %% power balance constraints

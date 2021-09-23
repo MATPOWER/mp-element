@@ -358,55 +358,11 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
         end
 
         %%-----  CPF methods  -----
-        function [vx_, z_, x_] = cpf_convert_x(obj, mmx, ad, only_v)
-            nmt = ad.nmt;
-            lam = mmx(end);     %% continuation parameter lambda
-
-            %% update voltages and get base z_
-            [vx_,  zb_] = obj.pf_convert_x(mmx(1:end-1), ad,     1);
-            [vxt_, zt_] = nmt.pf_convert_x(mmx(1:end-1), ad.adt, 1);
-            assert(norm(vx_-vxt_, Inf) < eps);
-
-            %% compute z_ as function of continuation parameter lambda
-            z_ = (1-lam) * zb_+ lam * zt_;
-
-            %% update dependent portions of z, if requested
-            if nargin < 4 || ~only_v
-                rpv = [ad.ref; ad.pv];      %% slack and PV nodes
-                idx = find(any(obj.C(rpv, :), 1));  %% ports connected to slack/PV nodes
-                Sinjb = obj.port_inj_power([vx_; zb_], 1, idx);
-                Sinjt = nmt.port_inj_power([vx_; zt_], 1, idx);
-                Sinj = (1-lam) * Sinjb + lam * Sinjt;
-                z_ = obj.pf_update_z(vx_, z_, ad, Sinj, idx);
-            end
-
-            if nargout < 2
-                vx_ = [vx_; z_];
-            elseif nargout > 2
-                x_ = [vx_; z_];
-            end
-        end
-
-        function [f, J] = cpf_equations(obj, x, ad)
-            nmt = ad.nmt;
-            lam = x(end);   %% continuation parameter lambda
-
-            if nargout > 1
-                [fb, Jb] = obj.pf_node_balance_equations(x(1:end-1), ad);
-                [ft, Jt] = nmt.pf_node_balance_equations(x(1:end-1), ad.adt);
-                J = [(1-lam) * Jb + lam * Jt    ft - fb];
-            else
-                fb = obj.pf_node_balance_equations(x(1:end-1), ad);
-                ft = nmt.pf_node_balance_equations(x(1:end-1), ad.adt);
-            end
-            f = (1-lam) * fb + lam * ft;
-        end
-
         function cpf_add_node_balance_constraints(obj, mm, dm, mpopt)
             ad = mm.aux_data;
             
             %% continuation power balance constraints
-            fcn = @(x)cpf_equations(obj, x, ad);
+            fcn = @(x)cpf_node_balance_equations(obj, x, ad);
             mm.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end
 
