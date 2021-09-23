@@ -186,5 +186,10 @@ classdef nme_buslink < nm_element %& mp_form_ac
 %                 dme.tab.(sprintf('pf%d', p))(dme.on) = cos(angle(sg));
 %             end
 %         end
+
+        %%-----  CPF methods  -----
+        function obj = cpf_add_constraints(obj, mm, nm, dm, mpopt)
+            obj.pf_add_constraints(mm, nm, dm, mpopt);
+        end
     end     %% methods
 end         %% classdef
