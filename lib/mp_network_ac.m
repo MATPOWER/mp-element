@@ -574,11 +574,11 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         function cpf_add_constraints(obj, mm, nm, dm, mpopt)
             %% system constraints
             obj.cpf_add_system_constraints(mm, dm, mpopt);
-            
-%             %% each element adds its CPF constraints
-%             for mpe = obj.mpe_list
-%                 mpe{1}.cpf_add_constraints(mm, nm, dm, mpopt);
-%             end
+
+            %% each element adds its CPF constraints
+            for k = 1:length(obj.elements)
+                obj.elements{k}.cpf_add_constraints(mm, nm, dm, mpopt);
+            end
         end
 
         function cpf_add_system_constraints(obj, mm, dm, mpopt)
