@@ -73,6 +73,11 @@ epl = 1000 * [
    1.341424819729064   0.000810186868772   2.096102638991863   0.000842287956326   2.672344186741845   0.000815782460527  -1.337240567074279  -0.000811373266088  -2.074358800198112  -0.000843827379950  -2.652375609358164  -0.000823008485825
    1.323522914236636   0.000832422125427   2.043381641004953   0.000874507528138   2.598706417913070   0.000864833523297  -1.275000000001334  -0.000850000000000  -1.800000000000522  -0.000900000000001  -2.374999999955684  -0.000950000000000 ];
 
+va_fields = {'va1', 'va2', 'va3'};
+vm_fields = {'vm1', 'vm2', 'vm3'};
+pl_fields = {'pl1_fr', 'pf1_fr', 'pl2_fr', 'pf2_fr', 'pl3_fr', 'pf3_fr', ...
+             'pl1_to', 'pf1_to', 'pl2_to', 'pf2_to', 'pl3_to', 'pf3_to'};
+
 %% Z-Gauss, 3-phase only
 c = 1;
 casefile = casefiles{c};
@@ -85,10 +90,10 @@ pf = run_pf(casefile, mpopt);
 
 t_is(pf.success, 1, 12, [t 'success']);
 
-va = pf.dm.elements.bus3p.tab{:, 10:12};
-vm = pf.dm.elements.bus3p.tab{:, 7:9} .* ...
+va = cell2mat(cellfun(@(x)pf.dm.elements.bus3p.tab.(x), va_fields, 'UniformOutput', 0));
+vm = cell2mat(cellfun(@(x)pf.dm.elements.bus3p.tab.(x), vm_fields, 'UniformOutput', 0)) .* ...
     (pf.dm.elements.bus3p.tab.base_kv*ones(1,3))/sqrt(3);
-pl = pf.dm.elements.line3p.tab{:, 9:20};
+pl = cell2mat(cellfun(@(x)pf.dm.elements.line3p.tab.(x), pl_fields, 'UniformOutput', 0));
 
 t_is(va, eva, 7, [t 'va']);
 t_is(vm, evm, 7, [t 'vm']);
@@ -105,10 +110,10 @@ for k = 1:length(cfg)
 
         t_is(pf.success, 1, 12, [t 'success']);
 
-        va = pf.dm.elements.bus3p.tab{:, 10:12};
-        vm = pf.dm.elements.bus3p.tab{:, 7:9} .* ...
+        va = cell2mat(cellfun(@(x)pf.dm.elements.bus3p.tab.(x), va_fields, 'UniformOutput', 0));
+        vm = cell2mat(cellfun(@(x)pf.dm.elements.bus3p.tab.(x), vm_fields, 'UniformOutput', 0)) .* ...
             (pf.dm.elements.bus3p.tab.base_kv*ones(1,3))/sqrt(3);
-        pl = pf.dm.elements.line3p.tab{:, 9:20};
+        pl = cell2mat(cellfun(@(x)pf.dm.elements.line3p.tab.(x), pl_fields, 'UniformOutput', 0));
 
         switch casefile
             case {'t_case3p_a', 't_case3p_b', 't_case3p_c', 't_case3p_d', 't_case3p_e'}
@@ -139,10 +144,10 @@ for k = 1:length(cfg)
 
     t_is(opf.success, 1, 12, [t 'success']);
 
-    va = opf.dm.elements.bus3p.tab{:, 10:12};
-    vm = opf.dm.elements.bus3p.tab{:, 7:9} .* ...
+    va = cell2mat(cellfun(@(x)opf.dm.elements.bus3p.tab.(x), va_fields, 'UniformOutput', 0));
+    vm = cell2mat(cellfun(@(x)opf.dm.elements.bus3p.tab.(x), vm_fields, 'UniformOutput', 0)) .* ...
         (opf.dm.elements.bus3p.tab.base_kv*ones(1,3))/sqrt(3);
-    pl = opf.dm.elements.line3p.tab{:, 9:20};
+    pl = cell2mat(cellfun(@(x)opf.dm.elements.line3p.tab.(x), pl_fields, 'UniformOutput', 0));
     t_is(va, [eva; eva+3.656255521718970; eva+1.039772166853819], 7, [t 'va']);
     t_is(vm, [evm; evm; evm], 7, [t 'vm']);
     t_is(pl, [epl; epl; epl], 5, [t 'pl']);
