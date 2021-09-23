@@ -30,6 +30,39 @@ casefiles = {
     't_case3p_g', ...
     't_case3p_h'  };
 
+lam = [
+    0.6540504347;
+    0.6440398987;
+    0.6540504347;
+    0.6540504347;
+    0.6540504347;
+    0.6428930927;
+    0.6466143248;
+    0.6466969520;
+];
+
+vm1 = [
+    1.0;
+    1.0024291384;
+    1.0024291384;
+    1.0024291384;
+    1.0;
+    1.0193502204;
+    1.0;
+    1.0;
+];
+
+vm_end = [
+    0.6158223964;
+    0.6160907764;
+    0.6158223965;
+    0.6158223965;
+    0.6158223965;
+    0.6158556726;
+    0.6160426241;
+    0.6160460608;
+];
+
 %%  alg     name                            check   opts
 cfg = {
     {'NR',  'Newton (power-polar)',         [],     {}  },
@@ -39,14 +72,26 @@ cfg = {
 };
 
 %%  alg     name                            check   opts
-cfg2 = {
+cfg_cpf = {
+    {'CPF',  'CPF (power-polar)',           [],     {}  },
+    {'CPF',  'CPF (power-cartesian)',       [],     {'pf.v_cartesian', 1}  },
+    {'CPF',  'CPF (current-polar)',         [],     {'pf.current_balance', 1}  },
+    {'CPF',  'CPF (current-cartesian)',     [],     {'pf.v_cartesian', 1, 'pf.current_balance', 1}  },
+};
+
+%%  alg     name                            check   opts
+cfg_opf = {
     {'MIPS',  'MIPS (power-polar)',         [],     {}  },
     {'MIPS',  'MIPS (power-cartesian)',     [],     {'opf.v_cartesian', 1}  },
     {'MIPS',  'MIPS (current-polar)',       [],     {'opf.current_balance', 1}  },
     {'MIPS',  'MIPS (current-cartesian)',   [],     {'opf.v_cartesian', 1, 'opf.current_balance', 1}  },
 };
 
-t_begin(4*(1+(length(casefiles)+1)*length(cfg)), quiet);
+n_pf = 4 + 4 * length(casefiles)*length(cfg);
+n_cpf = 4 * length(casefiles)*length(cfg_cpf);
+n_opf = 4 * length(cfg_opf);
+
+t_begin(n_pf + n_cpf + n_opf, quiet);
 
 mpopt0 = mpoption('out.all', 0, 'verbose', 0, 'mips.comptol', 1e-9);
 
@@ -78,6 +123,7 @@ vm_fields = {'vm1', 'vm2', 'vm3'};
 pl_fields = {'pl1_fr', 'pf1_fr', 'pl2_fr', 'pf2_fr', 'pl3_fr', 'pf3_fr', ...
              'pl1_to', 'pf1_to', 'pl2_to', 'pf2_to', 'pl3_to', 'pf3_to'};
 
+%%-----  Power Flow  -----
 %% Z-Gauss, 3-phase only
 c = 1;
 casefile = casefiles{c};
@@ -134,10 +180,33 @@ for k = 1:length(cfg)
                 t_is(pl, [epl; epl; epl], 5, [t 'pl']);
         end
     end
+end
 
-    %% OPF
+%%-----  Continuation Power Flow  -----
+for k = 1:length(cfg_cpf)
+    for c = 1:length(casefiles)
+        casefile = casefiles{c};
+        [alg, name, check, opts] = deal(cfg_cpf{k}{:});
+        t = sprintf('CPF - %s : %s : ', casefile, name);
+        
+        mpopt = mpoption(mpopt0, opts{:}, 'cpf.adapt_step', 1, ...
+                        'cpf.nose_tol', 1e-8, 'cpf.stop_at', 'NOSE');
+        mpc = loadcase(casefile);
+        mpct = mpc;
+        mpct.load3p(:, 4:6) = mpct.load3p(:, 4:6) * 1.2;
+        cpf = run_cpf({mpc, mpct}, mpopt);
+
+        t_is(cpf.success, 1, 12, [t 'success']);
+        t_is(cpf.mm.soln.output.max_lam, lam(c), 8, [t 'max_lam']);
+        t_is(abs(cpf.mm.soln.output.V(1, end)), vm1(c), 8, [t '|v(1)|']);
+        t_is(abs(cpf.mm.soln.output.V(end, end)), vm_end(c), 8, [t '|v(end)|']);
+    end
+end
+
+%%-----  Optimal Power Flow  -----
+for k = 1:length(cfg_opf)
     casefile = casefiles{7};
-    [alg, name, check, opts] = deal(cfg2{k}{:});
+    [alg, name, check, opts] = deal(cfg_opf{k}{:});
     t = sprintf('OPF - %s : %s : ', casefile, name);
     mpopt = mpoption(mpopt0, 'opf.ac.solver', alg, opts{:});
     opf = run_opf(casefile, mpopt);
