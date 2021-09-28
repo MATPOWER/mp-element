@@ -1,10 +1,10 @@
-classdef mp_network < nm_element & mpe_container & mp_idx_manager% & mp_form
+classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_form
 %MP_NETWORK  Abstract base class for MATPOWER network model
 %   Explicitly a subclass of NM_ELEMENT, MP_IDX_MANAGER and MPE_CONTAINER,
 %   and implicitly assumed to be a subclass of MP_FORM as well.
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2021, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.

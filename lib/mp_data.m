@@ -1,4 +1,4 @@
-classdef mp_data < mpe_container
+classdef mp_data < mp_element_container
 %MP_DATA  Base class for MATPOWER data model
 
 %   MATPOWER
@@ -19,7 +19,7 @@ classdef mp_data < mpe_container
         %% constructor
         function obj = mp_data()
             %% call parent constructor
-            obj@mpe_container();
+            obj@mp_element_container();
             obj.element_classes = ...
                 { @dme_bus, @dme_gen, @dme_load, ...
                     @dme_branch, @dme_shunt };

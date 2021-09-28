@@ -1,8 +1,8 @@
-classdef mpe_container < handle
-%MPE_CONTAINER  Mix-in class for methods shared by MP_NETWORK and MP_DATA
+classdef mp_element_container < handle
+%MP_ELEMENT_CONTAINER  Mix-in class to handle named/ordered element object array
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
