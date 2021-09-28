@@ -23,6 +23,7 @@ classdef mp_math_cpf < mp_math
 
     methods
         function obj = build(obj, nm, dm, mpopt)
+            build@mp_math(obj, nm, dm, mpopt);  %% call parent
             obj.aux_data = nm.cpf_aux_data(dm, mpopt);
             nm.cpf_add_vars(obj, nm, dm, mpopt);
             nm.cpf_add_constraints(obj, nm, dm, mpopt);

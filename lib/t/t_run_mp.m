@@ -57,8 +57,7 @@ nm.userdata.target = nm_class().build(dm.userdata.target);
 for k = 1:length(mm_classes)
     t = sprintf('%s : ', tasks{k});
     mm_class = mm_classes{k};
-    mm = mm_class().init_set_types();
-    mm.build(nm, dm, mpopt);
+    mm = mm_class().build(nm, dm, mpopt);
     t_ok(isa(mm, 'mp_math'), [t 'build math model']);
 
     % opt = mm.solve_opts(nm, dm, mpopt);

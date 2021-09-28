@@ -674,7 +674,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         end
 
         function idx = cpf_plot_idx_default(obj, dm, ad)
-            %% plot voltage of PQ bus with max transfer as default
+            %% plot voltage of PQ node with max transfer as default
             nidx = obj.get_node_idx('bus');     %% node indices of buses
             [~, i] = max(abs(ad.xfer(ad.pq)) .* ismember(ad.pq, nidx));
             bi = ad.pq(i);                      %% index of bus w/max transfer

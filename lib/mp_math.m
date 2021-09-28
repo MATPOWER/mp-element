@@ -26,6 +26,19 @@ classdef mp_math < opt_model
     end
 
     methods
+        function obj = build(obj, nm, dm, mpopt)
+            %% Due to a bug related to inheritance in constructors in
+            %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
+            %% init_set_types() cannot be called directly in the
+            %% MP_IDX_MANAGER constructor, as desired.
+            %%
+            %% WORKAROUND:  Initialize MP_IDX_MANAGER fields here, if needed,
+            %%              after object construction, but before object use.
+            if isempty(obj.var)         %% only if not already initialized
+                obj.init_set_types();
+            end
+        end
+
         function display(obj)
             fprintf('MATH MODEL CLASS : %s\n', class(obj));
             display@opt_model(obj)

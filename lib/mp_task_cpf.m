@@ -88,7 +88,7 @@ classdef mp_task_cpf < mp_task_pf
         %%-----  data model converter methods  -----
         function dmc_class = dm_converter_class(obj, d, mpopt)
             if iscell(d) && length(d) == 2
-                dmc_class = dm_converter_class@mp_task(obj, d{1}, mpopt);
+                dmc_class = dm_converter_class@mp_task_pf(obj, d{1}, mpopt);
             else
                 error('mp_task_cpf/dm_converter_class: d must be 2-element cell array');
             end
@@ -119,7 +119,7 @@ classdef mp_task_cpf < mp_task_pf
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)
-            opt = math_model_opt@mp_task(obj, mm, nm, dm, mpopt);
+            opt = math_model_opt@mp_task_pf(obj, mm, nm, dm, mpopt);
 
             %% add the warmstart options, if available
             if ~isempty(obj.warmstart)
