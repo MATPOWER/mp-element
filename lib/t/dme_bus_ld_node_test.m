@@ -35,7 +35,7 @@ classdef dme_bus_ld_node_test < dme_bus_nld_node_test
         end
 
         function obj = build_params(obj, dm)
-            obj = build_params@dme_bus(obj, dm);   %% call parent
+            build_params@dme_bus(obj, dm);  %% call parent
 
             obj.pd = obj.tab.pd(obj.on) / dm.base_mva;
             obj.qd = obj.tab.qd(obj.on) / dm.base_mva;

@@ -34,7 +34,7 @@ classdef mp_mapped_array < handle
     methods
         function obj = mp_mapped_array(varargin)
             if nargin
-                obj = add_elements(obj, varargin{:});
+                obj.add_elements(varargin{:});
             end
         end
 

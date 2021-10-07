@@ -62,7 +62,7 @@ classdef mp_data < mp_element_container
             end
 
             %% import data from external format
-            obj = dmc.import(obj, d);
+            dmc.import(obj, d);
 
             %% count element objects for each class
             %% remove if count is zero
