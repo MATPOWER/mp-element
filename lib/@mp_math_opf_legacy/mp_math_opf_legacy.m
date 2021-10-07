@@ -1,4 +1,4 @@
-classdef mp_math_opf_legacy < mp_math_opf
+classdef mp_math_opf_legacy < handle
 %MP_MATH_OPF_LEGACY  MATPOWER mathematical model for optimal power flow (OPF) problem.
 %   ?
 %
@@ -24,38 +24,8 @@ classdef mp_math_opf_legacy < mp_math_opf
     end     %% properties
 
     methods
-        %% constructor
-        function om = mp_math_opf_legacy(mpc)
-            args = {};
-            have_mpc = 0;
-            if nargin > 0
-                if isa(mpc, 'mp_math_opf_legacy')
-                    args = { mpc };
-                elseif isstruct(mpc)
-                    have_mpc = 1;
-                end
-            end
-
-            %% call parent constructor
-            om@mp_math_opf(args{:});
-
-            if have_mpc
-                om.mpc = mpc;
-            end
-
-            %% Due to a bug related to inheritance in constructors in
-            %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
-            %% INIT_SET_TYPES() cannot be called directly in the
-            %% MP_IDX_MANAGER constructor, as desired.
-            %%
-            %% WORKAROUND:  INIT_SET_TYPES() is called explicitly as needed
-            %%              (if om.var is empty) in ADD_VAR(), DISPLAY() and
-            %%              INIT_INDEXED_NAME(), after object construction,
-            %%              but before object use.
-        end
-
-        function om = def_set_types(om)
-            om.set_types = struct(...
+        function obj = def_set_types_legacy(obj)
+            obj.set_types = struct(...
                     'var',  'VARIABLES', ...
                     'lin',  'LINEAR CONSTRAINTS', ...
                     'nle',  'NONLIN EQ CONSTRAINTS', ...
@@ -66,13 +36,10 @@ classdef mp_math_opf_legacy < mp_math_opf
                 );
         end
 
-        function om = init_set_types(om)
-            %% call parent to create base data structures for each type
-            init_set_types@mp_math_opf(om);
-
+        function obj = init_set_types_legacy(obj)
             %% finish initializing data structures for each type
             es = struct();  %% empty struct
-            om.cost.data = struct( ...
+            obj.cost.data = struct( ...
                 'N', es, ...
                 'H', es, ...
                 'Cw', es, ...
@@ -81,13 +48,10 @@ classdef mp_math_opf_legacy < mp_math_opf
                 'kk', es, ...
                 'mm', es, ...
                 'vs', es );
-            om.cost.params = [];
+            obj.cost.params = [];
         end
 
-        function obj = build(obj, nm, dm, mpopt)
-            obj.mpc = dm.source;
-            build@mp_math_opf(obj, nm, dm, mpopt);
-
+        function obj = build_legacy(obj, nm, dm, mpopt)
             if strcmp(nm.form_tag, 'dc') && toggle_softlims(obj.mpc, 'status')
                 %% user data required by toggle_softlims
                 branch_nme = nm.elements.branch;
