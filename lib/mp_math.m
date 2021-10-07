@@ -1,4 +1,4 @@
-classdef mp_math < opt_model
+classdef mp_math < mp_element_container & opt_model
 %MP_MATH  MATPOWER mathematical model abstract base class.
 %   ?
 %
@@ -36,6 +36,15 @@ classdef mp_math < opt_model
             %%              after object construction, but before object use.
             if isempty(obj.var)         %% only if not already initialized
                 obj.init_set_types();
+            end
+
+            %% create element objects for each class with data
+            obj.elements = mp_mapped_array();
+            for c = obj.element_classes
+                mme = c{1}();       %% element constructor
+                if is_index_name(nm.elements, mme.name) %% nm element exists
+                    obj.elements.add_elements(mme, mme.name);
+                end
             end
         end
 
