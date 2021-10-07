@@ -189,7 +189,24 @@ classdef mp_task_pf < mp_task
 
         %%-----  mathematical model methods  -----
         function mm_class = math_model_class(obj, nm, dm, mpopt)
-            mm_class = @mp_math_pf;
+            switch upper(mpopt.model)
+                case 'AC'
+                    if mpopt.pf.v_cartesian
+                        if mpopt.pf.current_balance
+                            mm_class = @mp_math_pf_acci;
+                        else
+                            mm_class = @mp_math_pf_accs;
+                        end
+                    else
+                        if mpopt.pf.current_balance
+                            mm_class = @mp_math_pf_acpi;
+                        else
+                            mm_class = @mp_math_pf_acps;
+                        end
+                    end
+                case 'DC'
+                    mm_class = @mp_math_pf_dc;
+            end
         end
     end     %% methods
 end         %% classdef

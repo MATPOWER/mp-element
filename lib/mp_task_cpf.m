@@ -115,7 +115,24 @@ classdef mp_task_cpf < mp_task_pf
 
         %%-----  mathematical model methods  -----
         function mm_class = math_model_class(obj, nm, dm, mpopt)
-            mm_class = @mp_math_cpf;
+            switch upper(mpopt.model)
+                case 'AC'
+                    if mpopt.pf.v_cartesian
+                        if mpopt.pf.current_balance
+                            mm_class = @mp_math_cpf_acci;
+                        else
+                            mm_class = @mp_math_cpf_accs;
+                        end
+                    else
+                        if mpopt.pf.current_balance
+                            mm_class = @mp_math_cpf_acpi;
+                        else
+                            mm_class = @mp_math_cpf_acps;
+                        end
+                    end
+                case 'DC'
+                    error('mp_task_cpf/math_model_class: CPF not applicable for DC model');
+            end
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)

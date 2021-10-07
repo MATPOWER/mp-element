@@ -44,6 +44,25 @@ classdef mp_task_opf_legacy < mp_task_opf
             %% support legacy cost functions and callback functions that
             %% expect to find mpc in mm.mpc.
             mm_class = @mp_math_opf_legacy;
+
+            switch upper(mpopt.model)
+                case 'AC'
+                    if mpopt.opf.v_cartesian
+                        if mpopt.opf.current_balance
+                            mm_class = @mp_math_opf_acci_legacy;
+                        else
+                            mm_class = @mp_math_opf_accs_legacy;
+                        end
+                    else
+                        if mpopt.opf.current_balance
+                            mm_class = @mp_math_opf_acpi_legacy;
+                        else
+                            mm_class = @mp_math_opf_acps_legacy;
+                        end
+                    end
+                case 'DC'
+                    mm_class = @mp_math_opf_dc_legacy;
+            end
         end
     end     %% methods
 end         %% classdef
