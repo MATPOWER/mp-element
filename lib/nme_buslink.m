@@ -58,44 +58,6 @@ classdef nme_buslink < nm_element %& mp_form_ac
         end
 
         %%-----  PF methods  -----
-        function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
-            mm.init_indexed_name('var', 'Plink', {3});
-            mm.init_indexed_name('var', 'Qlink', {3});
-            mmx_i1 = mm.var.N + 1;
-            for p = 1:3
-                mm.add_var('Plink', {p}, obj.nk, 0, -Inf, Inf);
-            end
-            mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {'zr', nm.zr.idx.i1.Plink(1), nm.zr.idx.iN.Plink(end), [], mmx_i1, mmx_iN, []};
-
-            mmx_i1 = mm.var.N + 1;
-            for p = 1:3
-                mm.add_var('Qlink', {p}, obj.nk, 0, -Inf, Inf);
-            end
-            mmx_iN = mm.var.N;
-            mm.aux_data.var_map{end+1} = ...
-                {'zi', nm.zi.idx.i1.Qlink(1), nm.zi.idx.iN.Qlink(end), [], mmx_i1, mmx_iN, []};
-        end
-
-        function obj = pf_add_constraints(obj, mm, nm, dm, mpopt)
-            %% add Qlink constraints for PV node on 3-phase side
-
-            %% indices of buslinks connected to PV nodes via port 2 (3&4)
-            ad = mm.aux_data;
-            [~, k, ~] = find(obj.C(ad.pv, obj.nk+1:2*obj.nk));
-            n = length(k);
-            if n
-                I = sparse(1:n, k, 1, n, obj.nk);
-                zz = sparse(n, obj.nk);
-                A = [I -I zz; I zz -I];
-                b = zeros(2*n, 1);
-                vs = struct('name', {'Qlink', 'Qlink', 'Qlink'}, ...
-                            'idx', {{1}, {2}, {3}} );
-                mm.add_lin_constraint('buslink_qlink', A, b, b, vs);
-            end
-        end
-
         function [A_va_pq, A_va_pv, b_va, A_vm, b_vm] = pf_voltage_constraints(obj, ad)
             %% form constraint matrices for matching
             %%  voltage angles for pv and pq nodes
@@ -186,10 +148,5 @@ classdef nme_buslink < nm_element %& mp_form_ac
 %                 dme.tab.(sprintf('pf%d', p))(dme.on) = cos(angle(sg));
 %             end
 %         end
-
-        %%-----  CPF methods  -----
-        function obj = cpf_add_constraints(obj, mm, nm, dm, mpopt)
-            obj.pf_add_constraints(mm, nm, dm, mpopt);
-        end
     end     %% methods
 end         %% classdef

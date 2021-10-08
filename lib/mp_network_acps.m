@@ -15,120 +15,6 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
     
     methods
         %%-----  PF methods  -----
-        function ad = pf_aux_data(obj, dm, mpopt)
-            %% call parent method
-            ad = pf_aux_data@mp_network_ac(obj, dm, mpopt);
-
-            switch mpopt.pf.alg
-                case 'GS'
-                    ad.Y = obj.C * obj.get_params([], 'Y') * obj.C';
-                case 'ZG'
-                    pvq = [ad.pv; ad.pq];
-                    Y = obj.C * obj.get_params([], 'Y') * obj.C';
-                    Y21 = Y(pvq, ad.ref);
-                    Y22 = Y(pvq, pvq);
-                    [L, U, p, q] = lu(Y22, 'vector');
-                    [junk, iq] = sort(q);
-                    [ad.Y, ad.Y21, ad.L, ad.U, ad.p, ad.iq] = ...
-                        deal(Y, Y21, L, U, p, iq);
-            end
-        end
-
-        function obj = pf_add_system_vars(obj, mm, nm, dm, mpopt)
-            %% get model variables
-            vvars = obj.model_vvars();
-
-            %% index vectors
-            ad = mm.aux_data;
-
-            %% voltage angles
-            st = obj.(vvars{1});
-            d = st.data;
-            mmx_i1 = mm.var.N + 1;
-            for k = 1:st.NS
-                name = st.order(k).name;
-                idx = st.order(k).idx;
-                pv = ad.node_type_by_elm(k).pv;
-                npv = length(pv);
-                if isempty(idx)
-                    mm.add_var([name '_pv'], npv, d.v0.(name)(pv), d.vl.(name)(pv), d.vu.(name)(pv));
-                else
-                    if all(cell2mat(idx) == 1)
-                        dim = size(st.idx.N.(name));
-                        if dim(end) == 1, dim(end) = []; end   %% delete trailing 1
-                        mm.init_indexed_name('var', [name '_pv'], num2cell(dim));
-                    end
-                    sc = struct('type', {'{}', '()'}, 'subs', {idx, {pv}});
-                    v0 = subsref(d.v0.(name), sc);
-                    vl = subsref(d.vl.(name), sc);
-                    vu = subsref(d.vu.(name), sc);
-                    mm.add_var([name '_pv'], idx, npv, v0, vl, vu);
-                end
-            end
-            mmx_iN = mm.var.N;
-            if ad.npv
-                mm.aux_data.var_map{end+1} = ...
-                    {vvars{1}, [], [], ad.pv, mmx_i1, mmx_iN, []};
-            end
-
-            mmx_i1 = mm.var.N + 1;
-            for k = 1:st.NS
-                name = st.order(k).name;
-                idx = st.order(k).idx;
-                pq = ad.node_type_by_elm(k).pq;
-                npq = length(pq);
-                if isempty(idx)
-                    mm.add_var([name '_pq'], npq, d.v0.(name)(pq), d.vl.(name)(pq), d.vu.(name)(pq));
-                else
-                    if all(cell2mat(idx) == 1)
-                        dim = size(st.idx.N.(name));
-                        if dim(end) == 1, dim(end) = []; end   %% delete trailing 1
-                        mm.init_indexed_name('var', [name '_pq'], num2cell(dim));
-                    end
-                    sc = struct('type', {'{}', '()'}, 'subs', {idx, {pq}});
-                    v0 = subsref(d.v0.(name), sc);
-                    vl = subsref(d.vl.(name), sc);
-                    vu = subsref(d.vu.(name), sc);
-                    mm.add_var([name '_pq'], idx, npq, v0, vl, vu);
-                end
-            end
-            mmx_iN = mm.var.N;
-            if ad.npq
-                mm.aux_data.var_map{end+1} = ...
-                    {vvars{1}, [], [], ad.pq, mmx_i1, mmx_iN, []};
-            end
-
-            %% voltage magnitudes
-            st = obj.(vvars{2});
-            d = st.data;
-            mmx_i1 = mm.var.N + 1;
-            for k = 1:st.NS
-                name = st.order(k).name;
-                idx = st.order(k).idx;
-                pq = ad.node_type_by_elm(k).pq;
-                npq = length(pq);
-                if isempty(idx)
-                    mm.add_var([name '_pq'], npq, d.v0.(name)(pq), d.vl.(name)(pq), d.vu.(name)(pq));
-                else
-                    if all(cell2mat(idx) == 1)
-                        dim = size(st.idx.N.(name));
-                        if dim(end) == 1, dim(end) = []; end   %% delete trailing 1
-                        mm.init_indexed_name('var', [name '_pq'], num2cell(dim));
-                    end
-                    sc = struct('type', {'{}', '()'}, 'subs', {idx, {pq}});
-                    v0 = subsref(d.v0.(name), sc);
-                    vl = subsref(d.vl.(name), sc);
-                    vu = subsref(d.vu.(name), sc);
-                    mm.add_var([name '_pq'], idx, npq, v0, vl, vu);
-                end
-            end
-            mmx_iN = mm.var.N;
-            if ad.npq
-                mm.aux_data.var_map{end+1} = ...
-                    {vvars{2}, [], [], ad.pq, mmx_i1, mmx_iN, []};
-            end
-        end
-
         function [f, J] = pf_node_balance_equations(obj, x, ad, fdpf)
             %% index vector
             pvq = [ad.pv; ad.pq];
@@ -189,20 +75,6 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
                 SS = C * S;
             end
             f = [real(SS(pvq)); imag(SS(ad.pq))];
-        end
-
-        function obj = pf_add_node_balance_constraints(obj, mm, dm, mpopt)
-            alg = mpopt.pf.alg;
-            ad = mm.aux_data;
-            
-            %% power balance constraints
-            switch alg
-                case  {'FDXB', 'FDBX'}
-                    fcn = @(x)pf_node_balance_equations(obj, x, ad, 1);
-                otherwise
-                    fcn = @(x)pf_node_balance_equations(obj, x, ad);
-            end
-            mm.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end
 
         function JJ = pf_fd_jac_approx(obj, mm, dm, mpopt)
@@ -358,14 +230,6 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
         end
 
         %%-----  CPF methods  -----
-        function cpf_add_node_balance_constraints(obj, mm, dm, mpopt)
-            ad = mm.aux_data;
-            
-            %% continuation power balance constraints
-            fcn = @(x)cpf_node_balance_equations(obj, x, ad);
-            mm.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
-        end
-
         function varargout = cpf_expand_z_warmstart(obj, ad, varargin)
             %% expand input tangent z vectors to all nodes + lambda
             varargout = cell(size(varargin));
@@ -393,15 +257,6 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
         end
 
         %%-----  OPF methods  -----
-        function opf_add_node_balance_constraints(obj, mm)
-            %% power balance constraints
-            nn = obj.node.N;            %% number of nodes
-            fcn_mis = @(x)opf_power_balance_fcn(obj, obj.opf_convert_x(x, mm.aux_data));
-            hess_mis = @(x, lam)opf_power_balance_hess(obj, ...
-                obj.opf_convert_x(x, mm.aux_data), lam);
-            mm.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
-        end
-
         function [lam_p, lam_q] = opf_node_power_balance_prices(obj, mm)
             %% shadow prices on node power balance
             nne = mm.get_idx('nle');

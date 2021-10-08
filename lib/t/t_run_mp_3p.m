@@ -65,26 +65,26 @@ vm_end = [
 
 %%  alg     name                            check   opts
 cfg = {
-    {'NR',  'Newton (power-polar)',         [],     {}  },
-    {'NR',  'Newton (power-cartesian)',     [],     {'pf.v_cartesian', 1}  },
-    {'NR',  'Newton (current-polar)',       [],     {'pf.current_balance', 1}  },
-    {'NR',  'Newton (current-cartesian)',   [],     {'pf.v_cartesian', 1, 'pf.current_balance', 1}  },
+    {'NR',  'Newton (polar-power)',         [],     {}  },
+    {'NR',  'Newton (cartesian-power)',     [],     {'pf.v_cartesian', 1}  },
+    {'NR',  'Newton (polar-current)',       [],     {'pf.current_balance', 1}  },
+    {'NR',  'Newton (cartesian-current)',   [],     {'pf.v_cartesian', 1, 'pf.current_balance', 1}  },
 };
 
 %%  alg     name                            check   opts
 cfg_cpf = {
-    {'CPF',  'CPF (power-polar)',           [],     {}  },
-    {'CPF',  'CPF (power-cartesian)',       [],     {'pf.v_cartesian', 1}  },
-    {'CPF',  'CPF (current-polar)',         [],     {'pf.current_balance', 1}  },
-    {'CPF',  'CPF (current-cartesian)',     [],     {'pf.v_cartesian', 1, 'pf.current_balance', 1}  },
+    {'CPF',  'CPF (polar-power)',           [],     {}  },
+    {'CPF',  'CPF (cartesian-power)',       [],     {'pf.v_cartesian', 1}  },
+    {'CPF',  'CPF (polar-current)',         [],     {'pf.current_balance', 1}  },
+    {'CPF',  'CPF (cartesian-current)',     [],     {'pf.v_cartesian', 1, 'pf.current_balance', 1}  },
 };
 
 %%  alg     name                            check   opts
 cfg_opf = {
-    {'MIPS',  'MIPS (power-polar)',         [],     {}  },
-    {'MIPS',  'MIPS (power-cartesian)',     [],     {'opf.v_cartesian', 1}  },
-    {'MIPS',  'MIPS (current-polar)',       [],     {'opf.current_balance', 1}  },
-    {'MIPS',  'MIPS (current-cartesian)',   [],     {'opf.v_cartesian', 1, 'opf.current_balance', 1}  },
+    {'MIPS',  'MIPS (polar-power)',         [],     {}  },
+    {'MIPS',  'MIPS (cartesian-power)',     [],     {'opf.v_cartesian', 1}  },
+    {'MIPS',  'MIPS (polar-current)',       [],     {'opf.current_balance', 1}  },
+    {'MIPS',  'MIPS (cartesian-current)',   [],     {'opf.v_cartesian', 1, 'opf.current_balance', 1}  },
 };
 
 n_pf = 4 + 4 * length(casefiles)*length(cfg);
@@ -128,7 +128,7 @@ pl_fields = {'pl1_fr', 'pf1_fr', 'pl2_fr', 'pf2_fr', 'pl3_fr', 'pf3_fr', ...
 c = 1;
 casefile = casefiles{c};
 alg = 'ZG';
-name = 'Z-Gauss (power-polar)';
+name = 'Z-Gauss (polar-power)';
 opts = {};
 t = sprintf('PF - %s : %s : ', casefile, name);
 mpopt = mpoption(mpopt0, 'pf.alg', alg, opts{:});
@@ -195,7 +195,6 @@ for k = 1:length(cfg_cpf)
         mpct = mpc;
         mpct.load3p(:, 4:6) = mpct.load3p(:, 4:6) * 1.2;
         cpf = run_cpf({mpc, mpct}, mpopt);
-
         t_is(cpf.success, 1, 12, [t 'success']);
         t_is(cpf.mm.soln.output.max_lam, lam(c), 8, [t 'max_lam']);
         t_is(abs(cpf.mm.soln.output.V(1, end)), vm1(c), 8, [t '|v(1)|']);

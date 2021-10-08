@@ -39,37 +39,6 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
         end
 
         %%-----  OPF methods  -----
-        function opf_add_constraints(obj, mm, nm, dm, mpopt)
-            %% voltage angle reference constraint
-            dme = obj.data_model_element(dm);
-            ref = find(obj.node_types(nm, dm) == NODE_TYPE.REF);
-            varef = dme.va_start(ref);
-            fcn_vref = @(xx)va_fcn(obj, xx, ref, varef);
-            hess_vref = @(xx, lam)va_hess(obj, xx, lam, ref);
-            mm.add_nln_constraint('Vref', length(ref), 1, fcn_vref, hess_vref, {'Vr', 'Vi'});
-
-            %% fixed voltage magnitudes
-            veq = find(dme.vm_lb == dme.vm_ub);
-            nveq = length(veq);
-            if nveq
-                fcn_vm2eq = @(xx)vm2_fcn(obj, xx, veq, dme.vm_ub(veq).^2);
-                hess_vm2eq = @(xx, lam)vm2_hess(obj, xx, lam, veq);
-                mm.add_nln_constraint('Veq', nveq, 1, fcn_vm2eq, hess_vm2eq, {'Vr', 'Vi'});
-            end
-            mm.userdata.veq = veq;
-
-            %% voltage magnitude limits
-            viq = find(dme.vm_lb ~= dme.vm_ub);
-            nviq = length(viq);
-            if nviq
-                fcn_vlim = @(xx)vm2_fcn(obj, xx, viq, ...
-                        {dme.vm_lb(viq).^2, dme.vm_ub(viq).^2} );
-                hess_vlim = @(xx, lam)vm2_hess(obj, xx, lam, viq);
-                mm.add_nln_constraint({'Vmin', 'Vmax'}, [nviq;nviq], 0, fcn_vlim, hess_vlim, {'Vr', 'Vi'});
-            end
-            mm.userdata.viq = viq;
-        end
-
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% complex bus voltages
             nn = nm.get_idx('node');

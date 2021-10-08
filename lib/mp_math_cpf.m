@@ -1,4 +1,4 @@
-classdef mp_math_cpf < mp_math
+classdef mp_math_cpf < mp_math_pf
 %MP_MATH_CPF  MATPOWER math model for continuation power flow (CPF) problem.
 %   ?
 %
@@ -22,11 +22,30 @@ classdef mp_math_cpf < mp_math
 %     end
 
     methods
-        function obj = build(obj, nm, dm, mpopt)
-            build@mp_math(obj, nm, dm, mpopt);  %% call parent
-            obj.aux_data = nm.cpf_aux_data(dm, mpopt);
-            nm.cpf_add_vars(obj, nm, dm, mpopt);
-            nm.cpf_add_constraints(obj, nm, dm, mpopt);
+        function obj = add_aux_data(obj, nm, dm, mpopt)
+            %% create aux_data struct
+            obj.aux_data = obj.cpf_aux_data(nm, dm, mpopt);
+        end
+
+        function ad = cpf_aux_data(obj, nm, dm, mpopt)
+            dmt = dm.userdata.target;
+            nmt = nm.userdata.target;
+
+            ad  = obj.pf_aux_data(nm, dm, mpopt);
+            adt = obj.pf_aux_data(nmt, dmt, mpopt);
+
+            ad = nm.cpf_check_xfer(nmt, ad, adt);
+            ad.nmt = nmt;
+            ad.dmb = dm.copy(); %% save copy of unmodified base case data model
+            ad.dmt = dmt;
+            ad.adt = adt;
+        end
+
+        function add_vars(obj, nm, dm, mpopt)
+            add_vars@mp_math_pf(obj, nm, dm, mpopt);
+            %% required for using nmt to compute nm state from mm state
+            obj.aux_data.adt.var_map = obj.aux_data.var_map;
+            obj.add_var('lambda', 1, 0);
         end
 
         function dm = data_model_update(obj, nm, dm, mpopt)

@@ -394,22 +394,9 @@ classdef nm_element < handle
         end
 
         %%-----  PF methods  -----
-        function obj = pf_add_vars(obj, mm, nm, dm, mpopt)
-        end
-
-        function obj = pf_add_constraints(obj, mm, nm, dm, mpopt)
-        end
-
         function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
         end
 
-
-        %%-----  CPF methods  -----
-%         function cpf_add_vars(obj, mm, nm, dm, mpopt)
-%         end
-
-        function cpf_add_constraints(obj, mm, nm, dm, mpopt)
-        end
 
         %%-----  CPF methods  -----
         function obj = cpf_data_model_update(obj, mm, nm, dm, mpopt)
@@ -418,15 +405,6 @@ classdef nm_element < handle
 
 
         %%-----  OPF methods  -----
-        function obj = opf_add_vars(obj, mm, nm, dm, mpopt)
-        end
-
-        function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
-        end
-
-        function obj = opf_add_costs(obj, mm, nm, dm, mpopt)
-        end
-
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
         end
 

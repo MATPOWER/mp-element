@@ -40,23 +40,6 @@ classdef nme_branch_acc < nme_branch_ac & mp_form_acc
             d2H = obj.va_hess(xx, Aang' * lam, []);
         end
 
-        function obj = opf_add_constraints(obj, mm, nm, dm, mpopt)
-            %% call parent
-            opf_add_constraints@nme_branch_ac(obj, mm, nm, dm, mpopt);
-
-            %% branch angle difference limits
-            [Aang, lang, uang, iang] = ...
-                dm.elements.branch.opf_branch_ang_diff_params(...
-                    dm, mpopt.opf.ignore_angle_lim);
-            nang = length(iang);
-            if nang
-                fcn_ang = @(xx)ang_diff_fcn(obj, xx, Aang, lang, uang);
-                hess_ang = @(xx, lam)ang_diff_hess(obj, xx, lam, Aang);
-                mm.add_nln_constraint({'angL', 'angU'}, [nang;nang], 0, fcn_ang, hess_ang, {'Vr', 'Vi'});
-            end
-            mm.userdata.ang_diff_constrained_branch_idx = iang;
-        end
-
         function [mu_vad_lb, mu_vad_ub] = opf_branch_ang_diff_prices(obj, mm)
             %% shadow prices on angle difference limits
             iang = mm.userdata.ang_diff_constrained_branch_idx;

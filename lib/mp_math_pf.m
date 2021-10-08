@@ -24,9 +24,18 @@ classdef mp_math_pf < mp_math
     methods
         function obj = build(obj, nm, dm, mpopt)
             build@mp_math(obj, nm, dm, mpopt);  %% call parent
-            obj.aux_data = nm.pf_aux_data(dm, mpopt);
-            nm.pf_add_vars(obj, nm, dm, mpopt);
-            nm.pf_add_constraints(obj, nm, dm, mpopt);
+            obj.add_aux_data(nm, dm, mpopt);
+            obj.add_vars(nm, dm, mpopt);
+            obj.add_constraints(nm, dm, mpopt);
+        end
+
+        function obj = add_aux_data(obj, nm, dm, mpopt)
+            %% create aux_data struct
+            obj.aux_data = obj.pf_aux_data(nm, dm, mpopt);
+        end
+
+        function obj = add_system_vars(obj, nm, dm, mpopt)
+            obj.add_pf_system_vars(nm, dm, mpopt);
         end
 
         function dm = data_model_update(obj, nm, dm, mpopt)

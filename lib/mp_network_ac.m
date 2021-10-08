@@ -497,20 +497,6 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         end
 
         %%-----  CPF methods  -----
-        function ad = cpf_aux_data(obj, dm, mpopt)
-            dmt =  dm.userdata.target;
-            nmt = obj.userdata.target;
-
-            ad  = obj.pf_aux_data(dm,  mpopt);
-            adt = nmt.pf_aux_data(dmt, mpopt);
-
-            ad = obj.cpf_check_xfer(nmt, ad, adt);
-            ad.nmt = nmt;
-            ad.dmb = dm.copy(); %% save copy of unmodified base case data model
-            ad.dmt = dmt;
-            ad.adt = adt;
-        end
-
         function [vx_, z_, x_] = cpf_convert_x(obj, mmx, ad, only_v)
             nmt = ad.nmt;
             lam = mmx(end);     %% continuation parameter lambda
@@ -591,30 +577,6 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             if norm(NN(:,k) - NNt(:,k), Inf) > tol
                 error('mpe_network_ac/cpf_check_xfer: base and target cases must have identical coefficients for any power injection state variables that vary from base to target.')
             end
-        end
-
-        function cpf_add_vars(obj, mm, nm, dm, mpopt)
-            obj.pf_add_vars(mm, nm, dm, mpopt);
-            %% required for using nmt to compute nm state from mm state
-            mm.aux_data.adt.var_map = mm.aux_data.var_map;
-            mm.add_var('lambda', 1, 0);
-        end
-
-        function cpf_add_constraints(obj, mm, nm, dm, mpopt)
-            %% system constraints
-            obj.cpf_add_system_constraints(mm, dm, mpopt);
-
-            %% each element adds its CPF constraints
-            for k = 1:length(obj.elements)
-                obj.elements{k}.cpf_add_constraints(mm, nm, dm, mpopt);
-            end
-        end
-
-        function cpf_add_system_constraints(obj, mm, dm, mpopt)
-            %% can be overridden to add additional system constraints
-
-            %% node balance constraints
-            obj.cpf_add_node_balance_constraints(mm, dm, mpopt);
         end
 
         function [f, J] = cpf_node_balance_equations(obj, x, ad)
@@ -1146,27 +1108,6 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             d2Gi = obj.nodal_complex_power_balance_hess(x_, lam_q);
 
             d2G = real(d2Gr) + imag(d2Gi);
-        end
-
-        function opf_add_system_costs(obj, mm, dm, mpopt)
-            %% can be overridden to add additional system costs
-
-            %% legacy user-defined costs
-            if isfield(dm.userdata, 'legacy_opf_user_mods')
-                obj.opf_add_legacy_user_costs(mm, dm, 0);
-            end
-        end
-
-        function opf_add_legacy_user_constraints(obj, mm, dm, mpopt)
-            %% call parent
-            opf_add_legacy_user_constraints@mp_network(obj, mm, dm, mpopt);
-
-            if ~isempty(dm.userdata.legacy_opf_user_mods)
-                uc = dm.userdata.legacy_opf_user_mods.nlc;
-                for k = 1:length(uc)
-                    mm.add_nln_constraint(uc{k}{:});
-                end
-            end
         end
 
         function opt = opf_solve_opts(obj, mm, dm, mpopt)

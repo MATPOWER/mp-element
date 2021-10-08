@@ -32,35 +32,6 @@ classdef nme_gen < nm_element
         end
 
         %%-----  OPF methods  -----
-        function obj = opf_add_vars(obj, mm, nm, dm, mpopt)
-            %% collect/construct all generator cost parameters
-            obj.opf_build_gen_cost_params(dm);
-
-            %% piecewise linear costs
-            if obj.cost.pwl.n
-                mm.add_var('y', obj.cost.pwl.n);
-            end
-        end
-
-        function obj = opf_add_costs(obj, mm, nm, dm, mpopt)
-            %% (quadratic) polynomial costs on Pg
-            if obj.cost.poly_p.have_quad_cost
-                mm.add_quad_cost('polPg', obj.cost.poly_p.Q, obj.cost.poly_p.c, obj.cost.poly_p.k, {'Pg'});
-            end
-
-            %% (order 3 and higher) polynomial costs on Pg
-            if ~isempty(obj.cost.poly_p.i3)
-                dme = obj.data_model_element(dm);
-                cost_Pg = @(xx)poly_cost_fcn(obj, xx, dm.base_mva, dme.cost_pg.poly_coef, obj.cost.poly_p.i3);
-                mm.add_nln_cost('polPg', 1, cost_Pg, {'Pg'});
-            end
-
-            %% piecewise linear costs
-            if obj.cost.pwl.n
-                mm.add_quad_cost('pwl', [], ones(obj.cost.pwl.n, 1), 0, {'y'});
-            end
-        end
-
         function [f, df, d2f] = poly_cost_fcn(obj, xx, x_scale, cost, idx)
             x = xx{1}(idx) * x_scale;
             n = length(xx{1});

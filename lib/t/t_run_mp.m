@@ -32,9 +32,9 @@ dmc_class = @mp_dm_converter_mpc2;
 dm_class = @mp_data;
 nm_class = @mp_network_acps;
 mm_classes = {
-    @mp_math_pf,
-    @mp_math_cpf,
-    @mp_math_opf
+    @mp_math_pf_acps,
+    @mp_math_cpf_acps,
+    @mp_math_opf_acps
 };
 tasks = {'PF', 'CPF', 'OPF'};
 d = {casefile, {casefile, casefilet}, casefile};

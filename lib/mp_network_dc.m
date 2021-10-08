@@ -54,44 +54,12 @@ classdef mp_network_dc < mp_network & mp_form_dc
 
 
         %%-----  PF methods  -----
-        function ad = pf_aux_data(obj, dm, mpopt)
-            ad = pf_aux_data@mp_network(obj, dm, mpopt);
-
-            %% get parameters
-            [B, K, p] = obj.get_params();
-
-            %% add DC model parameters
-            ad.B = obj.C * B * obj.C';
-            ad.Pbus = -(obj.C * K * obj.D' * ad.z + obj.C * p);
-        end
-
         function opt = pf_solve_opts(obj, mm, dm, mpopt)
             %% TO DO: move pf.alg to pf.ac.solver and add a
             %%        pf.dc.solver to set the 'leq_opt.solver' option here
             opt = struct( ...
                 'verbose',  mpopt.verbose, ...
                 'leq_opt',  struct('thresh', 1e5)   );
-        end
-
-        function obj = pf_add_system_vars(obj, mm, nm, dm, mpopt)
-            %% get model variables
-            vvars = obj.model_vvars();
-
-            %% index vectors
-            ad = mm.aux_data;
-            pvq = [ad.pv; ad.pq];
-
-            %% voltage angles
-            st = obj.(vvars{1});
-            for k = 1:st.NS
-                name = st.order(k).name;
-                if isempty(st.order(k).idx)
-                    d = st.data;
-                    mm.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
-                else
-                    error('mp_network_dc/pf_add_vars: handling of indexed sets not implmented here (yet)');
-                end
-            end
         end
 
         function [vx, z, x] = pf_convert_x(obj, mmx, ad, only_v)
@@ -152,16 +120,6 @@ classdef mp_network_dc < mp_network & mp_form_dc
             z(jr) = z(jr) - CC(:, jr) \ Pref;
         end
 
-        function obj = pf_add_node_balance_constraints(obj, mm, dm, mpopt)
-            ad = mm.aux_data;
-            pvq = [ad.pv; ad.pq];
-
-            %% power balance constraints
-            A = ad.B(pvq, pvq);
-            b = (ad.Pbus(pvq) - ad.B(pvq, ad.ref) * ad.va(ad.ref));
-            mm.add_lin_constraint('Pmis', A, b, b);
-        end
-
 
         %%-----  OPF methods  -----
         function [vx, z, x] = opf_convert_x(obj, mmx, ad)
@@ -174,26 +132,6 @@ classdef mp_network_dc < mp_network & mp_form_dc
                 vx = [vx; z];
             elseif nargout > 2
                 x = [vx; z];
-            end
-        end
-
-        function opf_add_node_balance_constraints(obj, mm)
-            [B, K, p] = obj.get_params();
-
-            %% power balance constraints
-            C = obj.C;
-            Amis = C * [B*C' K*obj.D'];
-            bmis = -C * p;
-            mm.add_lin_constraint('Pmis', Amis, bmis, bmis, ...
-                                [obj.va.order; obj.z.order]);
-        end
-
-        function opf_add_system_costs(obj, mm, dm, mpopt)
-            %% can be overridden to add additional system costs
-
-            %% legacy user-defined costs
-            if isfield(dm.userdata, 'legacy_opf_user_mods')
-                obj.opf_add_legacy_user_costs(mm, dm, 1);
             end
         end
 

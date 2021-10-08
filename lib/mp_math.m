@@ -52,5 +52,69 @@ classdef mp_math < mp_element_container & opt_model
             fprintf('MATH MODEL CLASS : %s\n', class(obj));
             display@opt_model(obj)
         end
+
+        function obj = add_aux_data(obj, nm, dm, mpopt)
+            %% create aux_data struct
+            obj.aux_data = obj.base_aux_data(nm, dm, mpopt);
+        end
+
+        function ad = base_aux_data(obj, nm, dm, mpopt)
+            %% get model variables
+            vvars = nm.model_vvars();
+            zvars = nm.model_zvars();
+            vars = {vvars{:} zvars{:}};
+            vals = cellfun(@(x)nm.params_var(x), vars, 'UniformOutput', false);
+
+            %% get node types
+            [ref, pv, pq, by_elm] = nm.node_types(nm, dm);
+
+            %% create aux_data struct
+            ad = cell2struct(...
+                {vals{:}, {}, ref, pv, pq, ...
+                    length(ref), length(pv), length(pq), by_elm}, ...
+                {vars{:}, 'var_map', 'ref', 'pv', 'pq', ...
+                    'nref', 'npv', 'npq', 'node_type_by_elm'}, 2);
+        end
+
+        function obj = add_vars(obj, nm, dm, mpopt)
+            obj.add_system_vars(nm, dm, mpopt);
+
+            %% each element adds its OPF variables
+            for k = 1:length(obj.elements)
+                obj.elements{k}.add_vars(obj, nm, dm, mpopt);
+            end
+        end
+
+        function obj = add_system_vars(obj, nm, dm, mpopt)
+        end
+
+        function obj = add_constraints(obj, nm, dm, mpopt)
+            obj.add_system_constraints(nm, dm, mpopt);
+
+            %% each element adds its OPF variables
+            for k = 1:length(obj.elements)
+                obj.elements{k}.add_constraints(obj, nm, dm, mpopt);
+            end
+        end
+
+        function obj = add_system_constraints(obj, nm, dm, mpopt)
+            %% node balance constraints
+            obj.add_node_balance_constraints(nm, dm, mpopt);
+        end
+
+        function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
+        end
+
+        function obj = add_costs(obj, nm, dm, mpopt)
+            obj.add_system_costs(nm, dm, mpopt);
+
+            %% each element adds its OPF variables
+            for k = 1:length(obj.elements)
+                obj.elements{k}.add_costs(obj, nm, dm, mpopt);
+            end
+        end
+
+        function obj = add_system_costs(obj, nm, dm, mpopt)
+        end
     end     %% methods
 end         %% classdef
