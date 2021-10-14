@@ -1,4 +1,4 @@
-classdef mme_opf_branch_dc < mme_branch
+classdef mme_branch_opf_acp < mme_branch_opf_ac
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -14,23 +14,8 @@ classdef mme_opf_branch_dc < mme_branch
     
     methods
         function obj = add_constraints(obj, mm, nm, dm, mpopt)
-            %% find branches with flow limits
-            dme = obj.data_model_element(dm);
-            nme = obj.network_model_element(nm);
-            ibr = find(dme.rate_a ~= 0 & dme.rate_a < 1e10);
-            nl2 = length(ibr);      %% number of constrained branches
-            mm.userdata.flow_constrained_branch_idx = ibr;
-
-            if nl2
-                %% limits
-                flow_max = dme.rate_a(ibr); %% RATE_A
-
-                %% branch flow constraints
-                [B, K, p] = nme.get_params(ibr);
-                Af = B * nme.C';
-                mm.add_lin_constraint('Pf', Af, -p-flow_max, -p+flow_max, ...
-                    nm.va.order);
-            end
+            %% call parent
+            add_constraints@mme_branch_opf_ac(obj, mm, nm, dm, mpopt);
 
             %% branch voltage angle difference limits
             [Aang, lang, uang, iang] = ...

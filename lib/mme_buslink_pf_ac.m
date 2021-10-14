@@ -1,4 +1,4 @@
-classdef mme_pf_buslink_ac < mme_buslink
+classdef mme_buslink_pf_ac < mme_buslink
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)

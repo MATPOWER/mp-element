@@ -1,4 +1,4 @@
-classdef mme_pf_buslink_acp < mme_pf_buslink_ac
+classdef mme_buslink_pf_acp < mme_buslink_pf_ac
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -33,7 +33,7 @@ classdef mme_pf_buslink_acp < mme_pf_buslink_ac
             mm.add_lin_constraint('buslink_vm', A_vm, b_vm, b_vm, vs_vm);
 
             %% call parent
-            add_constraints@mme_pf_buslink_ac(obj, mm, nm, dm, mpopt);
+            add_constraints@mme_buslink_pf_ac(obj, mm, nm, dm, mpopt);
         end
     end     %% methods
 end         %% classdef

@@ -25,8 +25,8 @@ classdef mp_math_opf_acpi < mp_math_opf_ac
         %% constructor
         function obj = mp_math_opf_acpi()
             obj@mp_math_opf_ac();
-            obj.element_classes = { @mme_opf_gen_ac, @mme_opf_branch_acp, ...
-                @mme_opf_buslink_acp };
+            obj.element_classes = { @mme_gen_opf_ac, @mme_branch_opf_acp, ...
+                @mme_buslink_opf_acp };
         end
 
         function add_node_balance_constraints(obj, nm, dm, mpopt)

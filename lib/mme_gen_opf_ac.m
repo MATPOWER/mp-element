@@ -1,4 +1,4 @@
-classdef mme_opf_gen_ac < mme_opf_gen
+classdef mme_gen_opf_ac < mme_gen_opf
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -35,14 +35,14 @@ classdef mme_opf_gen_ac < mme_opf_gen
             end
 
             %% call parent
-            add_constraints@mme_opf_gen(obj, mm, nm, dm, mpopt);
+            add_constraints@mme_gen_opf(obj, mm, nm, dm, mpopt);
         end
 
         function obj = add_costs(obj, mm, nm, dm, mpopt)
             nme = obj.network_model_element(nm);
 
             %% call parent
-            add_costs@mme_opf_gen(obj, mm, nm, dm, mpopt);
+            add_costs@mme_gen_opf(obj, mm, nm, dm, mpopt);
 
             %% costs on reactive dispatch
             if ~isempty(nme.cost.poly_q)

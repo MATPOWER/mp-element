@@ -1,4 +1,4 @@
-classdef mme_opf_gen_dc < mme_opf_gen
+classdef mme_gen_opf_dc < mme_gen_opf
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -22,7 +22,7 @@ classdef mme_opf_gen_dc < mme_opf_gen
             end
 
             %% call parent
-            add_constraints@mme_opf_gen(obj, mm, nm, dm, mpopt);
+            add_constraints@mme_gen_opf(obj, mm, nm, dm, mpopt);
         end
     end     %% methods
 end         %% classdef

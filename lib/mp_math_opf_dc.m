@@ -25,7 +25,7 @@ classdef mp_math_opf_dc < mp_math_opf
         %% constructor
         function obj = mp_math_opf_dc()
             obj@mp_math_opf();
-            obj.element_classes = { @mme_opf_gen_dc, @mme_opf_branch_dc };
+            obj.element_classes = { @mme_gen_opf_dc, @mme_branch_opf_dc };
         end
 
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)

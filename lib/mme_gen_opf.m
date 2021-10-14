@@ -1,4 +1,4 @@
-classdef mme_opf_gen < mme_gen
+classdef mme_gen_opf < mme_gen
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
