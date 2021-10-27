@@ -56,8 +56,9 @@ of MATLAB or Octave, including setting up your MATLAB/Octave path.
   t_port_inj_power_acp......ok
   t_node_test...............ok
   t_run_mp..................ok
-  All tests successful (1795 of 1795)
-  Elapsed time 7.30 seconds.
+  t_run_mp_3p...............ok
+  All tests successful (2075 of 2075)
+  Elapsed time 29.94 seconds.
 ```
 
 
