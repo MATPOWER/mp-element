@@ -1,4 +1,4 @@
-classdef mp_math_cpf_acps < mp_math_cpf & mm_pf_shared_acps
+classdef mp_math_cpf_acps < mp_math_cpf_acp & mm_pf_shared_acps
 %MP_MATH_CPF_ACPS  MATPOWER mathematical model for continuation power flow (CPF) problem.
 %   ?
 %
@@ -22,12 +22,6 @@ classdef mp_math_cpf_acps < mp_math_cpf & mm_pf_shared_acps
 %     end
 
     methods
-        %% constructor
-        function obj = mp_math_cpf_acps()
-            obj@mp_math_cpf();
-            obj.element_classes = { @mme_buslink_pf_acp };
-        end
-
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
             %% power balance constraints
             ad = obj.aux_data;
