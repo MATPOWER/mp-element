@@ -48,6 +48,21 @@ classdef mp_math_cpf < mp_math_pf
             obj.add_var('lambda', 1, 0);
         end
 
+        function [f, J] = cpf_node_balance_equations(obj, x, nm, ad)
+            nmt = ad.nmt;
+            lam = x(end);   %% continuation parameter lambda
+
+            if nargout > 1
+                [fb, Jb] = obj.pf_node_balance_equations(x(1:end-1), nm, ad);
+                [ft, Jt] = obj.pf_node_balance_equations(x(1:end-1), nmt, ad.adt);
+                J = [(1-lam) * Jb + lam * Jt    ft - fb];
+            else
+                fb = obj.pf_node_balance_equations(x(1:end-1), nm, ad);
+                ft = obj.pf_node_balance_equations(x(1:end-1), nmt, ad.adt);
+            end
+            f = (1-lam) * fb + lam * ft;
+        end
+
         function dm = data_model_update(obj, nm, dm, mpopt)
             nm.cpf_data_model_update(obj, nm, dm, mpopt);
         end

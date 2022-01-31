@@ -35,9 +35,9 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
             %% power balance constraints
             switch alg
                 case  {'FDXB', 'FDBX'}
-                    fcn = @(x)pf_node_balance_equations(nm, x, ad, 1);
+                    fcn = @(x)pf_node_balance_equations(obj, x, nm, ad, 1);
                 otherwise
-                    fcn = @(x)pf_node_balance_equations(nm, x, ad);
+                    fcn = @(x)pf_node_balance_equations(obj, x, nm, ad);
             end
             obj.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end

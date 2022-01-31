@@ -31,7 +31,7 @@ classdef mp_math_pf_accs < mp_math_pf & mm_pf_shared_accs
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
             %% power balance constraints
             ad = obj.aux_data;
-            fcn = @(x)pf_node_balance_equations(nm, x, ad);
+            fcn = @(x)pf_node_balance_equations(obj, x, nm, ad);
             obj.add_nln_constraint({'Pmis', 'Qmis', 'Vmis'}, [ad.npv+ad.npq;ad.npq;ad.npv], 1, fcn, []);
         end
     end     %% methods

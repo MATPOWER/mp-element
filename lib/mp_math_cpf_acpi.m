@@ -32,7 +32,7 @@ classdef mp_math_cpf_acpi < mp_math_cpf & mm_pf_shared_acpi
             %% power balance constraints
             ad = obj.aux_data;
             npvq = ad.npv+ad.npq;
-            fcn = @(x)cpf_node_balance_equations(nm, x, ad);
+            fcn = @(x)cpf_node_balance_equations(obj, x, nm, ad);
             obj.add_nln_constraint({'Irmis', 'Iimis'}, [npvq;npvq], 1, fcn, []);
         end
     end     %% methods

@@ -15,68 +15,6 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
     
     methods
         %%-----  PF methods  -----
-        function [f, J] = pf_node_balance_equations(obj, x, ad, fdpf)
-            %% index vector
-            pvq = [ad.pv; ad.pq];
-
-            %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = obj.pf_convert_x(x, ad, 1);
-
-            %% incidence matrix
-            C = obj.C;
-
-            %% Jacobian
-            if nargout > 1
-                %% get port power injections with derivatives
-                var_names = cellfun(@(x)x{1}, ad.var_map, 'UniformOutput', false);
-                dz = any(strcmp(var_names, 'zr')) || ...
-                     any(strcmp(var_names, 'zi'));
-                if dz
-                    [S, dS.va, dS.vm, dS.zr, dS.zi] = obj.port_inj_power([v_; z_], 1);
-                else
-                    [S, dS.va, dS.vm] = obj.port_inj_power([v_; z_], 1);
-                end
-                dS.va = C * dS.va;
-                dS.vm = C * dS.vm;
-                if dz
-                    dS.zr = C * dS.zr;
-                    dS.zi = C * dS.zi;
-                end
-                JJ = cell(2, length(ad.var_map));
-
-                for k = 1:length(ad.var_map)
-                    m = ad.var_map{k};
-                    name = m{1};
-                    if ~isempty(m{2})       %% i1:iN
-                        i1 = m{2};
-                        iN = m{3};
-                        JJ{1, k} = real(dS.(name)(pvq,   i1:iN));
-                        JJ{2, k} = imag(dS.(name)(ad.pq, i1:iN));
-                    elseif isempty(m{4})    %% :
-                        JJ{1, k} = real(dS.(name)(pvq,   :));
-                        JJ{2, k} = imag(dS.(name)(ad.pq, :));
-                    else                    %% idx
-                        idx = m{4};
-                        JJ{1, k} = real(dS.(name)(pvq,   idx));
-                        JJ{2, k} = imag(dS.(name)(ad.pq, idx));
-                    end
-                end
-                J = vertcat( horzcat(JJ{1, :}), ...
-                             horzcat(JJ{2, :})  );
-            else
-                %% get port power injections (w/o derivatives)
-                S = obj.port_inj_power([v_; z_], 1);
-            end
-
-            %% nodal power balance
-            if nargin > 3 && fdpf
-                SS = C * S ./ abs(v_);  %% for fast-decoupled formulation
-            else
-                SS = C * S;
-            end
-            f = [real(SS(pvq)); imag(SS(ad.pq))];
-        end
-
         function JJ = pf_fd_jac_approx(obj, mm, dm, mpopt)
             alg = mpopt.pf.alg;
 

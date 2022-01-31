@@ -548,21 +548,6 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             end
         end
 
-        function [f, J] = cpf_node_balance_equations(obj, x, ad)
-            nmt = ad.nmt;
-            lam = x(end);   %% continuation parameter lambda
-
-            if nargout > 1
-                [fb, Jb] = obj.pf_node_balance_equations(x(1:end-1), ad);
-                [ft, Jt] = nmt.pf_node_balance_equations(x(1:end-1), ad.adt);
-                J = [(1-lam) * Jb + lam * Jt    ft - fb];
-            else
-                fb = obj.pf_node_balance_equations(x(1:end-1), ad);
-                ft = nmt.pf_node_balance_equations(x(1:end-1), ad.adt);
-            end
-            f = (1-lam) * fb + lam * ft;
-        end
-
         function obj = cpf_data_model_update(obj, mm, nm, dm, mpopt)
             %% each element updates its data model
             for k = 1:length(obj.elements)

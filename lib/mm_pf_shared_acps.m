@@ -125,5 +125,67 @@ classdef mm_pf_shared_acps < mm_pf_shared
                     {vvars{2}, [], [], ad.pq, mmx_i1, mmx_iN, []};
             end
         end
+
+        function [f, J] = pf_node_balance_equations(obj, x, nm, ad, fdpf)
+            %% index vector
+            pvq = [ad.pv; ad.pq];
+
+            %% update network model state ([v_; z_]) from math model state (x)
+            [v_, z_] = nm.pf_convert_x(x, ad, 1);
+
+            %% incidence matrix
+            C = nm.C;
+
+            %% Jacobian
+            if nargout > 1
+                %% get port power injections with derivatives
+                var_names = cellfun(@(x)x{1}, ad.var_map, 'UniformOutput', false);
+                dz = any(strcmp(var_names, 'zr')) || ...
+                     any(strcmp(var_names, 'zi'));
+                if dz
+                    [S, dS.va, dS.vm, dS.zr, dS.zi] = nm.port_inj_power([v_; z_], 1);
+                else
+                    [S, dS.va, dS.vm] = nm.port_inj_power([v_; z_], 1);
+                end
+                dS.va = C * dS.va;
+                dS.vm = C * dS.vm;
+                if dz
+                    dS.zr = C * dS.zr;
+                    dS.zi = C * dS.zi;
+                end
+                JJ = cell(2, length(ad.var_map));
+
+                for k = 1:length(ad.var_map)
+                    m = ad.var_map{k};
+                    name = m{1};
+                    if ~isempty(m{2})       %% i1:iN
+                        i1 = m{2};
+                        iN = m{3};
+                        JJ{1, k} = real(dS.(name)(pvq,   i1:iN));
+                        JJ{2, k} = imag(dS.(name)(ad.pq, i1:iN));
+                    elseif isempty(m{4})    %% :
+                        JJ{1, k} = real(dS.(name)(pvq,   :));
+                        JJ{2, k} = imag(dS.(name)(ad.pq, :));
+                    else                    %% idx
+                        idx = m{4};
+                        JJ{1, k} = real(dS.(name)(pvq,   idx));
+                        JJ{2, k} = imag(dS.(name)(ad.pq, idx));
+                    end
+                end
+                J = vertcat( horzcat(JJ{1, :}), ...
+                             horzcat(JJ{2, :})  );
+            else
+                %% get port power injections (w/o derivatives)
+                S = nm.port_inj_power([v_; z_], 1);
+            end
+
+            %% nodal power balance
+            if nargin > 4 && fdpf
+                SS = C * S ./ abs(v_);  %% for fast-decoupled formulation
+            else
+                SS = C * S;
+            end
+            f = [real(SS(pvq)); imag(SS(ad.pq))];
+        end
     end     %% methods
 end         %% classdef
