@@ -22,6 +22,54 @@ classdef mp_math_opf_ac < mp_math_opf
 %     end
 
     methods
+        function [g, dg] = nodal_current_balance_fcn(obj, nm, x_)
+            if nargout > 1
+                [G, Gv1, Gv2, Gzr, Gzi] = nm.nodal_complex_current_balance(x_);
+                Gx = [Gv1 Gv2 Gzr Gzi];
+                dg = [  real(Gx);       %% Re{I} mismatch w.r.t v1, v2, zr, zi
+                        imag(Gx)    ];  %% Im{I} mismatch w.r.t v1, v2, zr, zi
+            else
+                G = nm.nodal_complex_current_balance(x_);
+            end
+            g = [ real(G);              %% real current mismatch
+                  imag(G) ];            %% imaginary current mismatch
+        end
+
+        function [g, dg] = nodal_power_balance_fcn(obj, nm, x_)
+            if nargout > 1
+                [G, Gv1, Gv2, Gzr, Gzi] = nm.nodal_complex_power_balance(x_);
+                Gx = [Gv1 Gv2 Gzr Gzi];
+                dg = [  real(Gx);       %% P mismatch w.r.t v1, v2, zr, zi
+                        imag(Gx)    ];  %% Q mismatch w.r.t v1, v2, zr, zi
+            else
+                G = nm.nodal_complex_power_balance(x_);
+            end
+            g = [ real(G);              %% active power (P) mismatch
+                  imag(G) ];            %% reactive power (Q) mismatch
+        end
+
+        function d2G = nodal_current_balance_hess(obj, nm, x_, lam)
+            nlam = length(lam) / 2;
+            lamIr = lam(1:nlam);
+            lamIi = lam((1:nlam)+nlam);
+
+            d2Gr = nm.nodal_complex_current_balance_hess(x_, lamIr);
+            d2Gi = nm.nodal_complex_current_balance_hess(x_, lamIi);
+
+            d2G = real(d2Gr) + imag(d2Gi);
+        end
+
+        function d2G = nodal_power_balance_hess(obj, nm, x_, lam)
+            nlam = length(lam) / 2;
+            lam_p = lam(1:nlam);
+            lam_q = lam((1:nlam)+nlam);
+
+            d2Gr = nm.nodal_complex_power_balance_hess(x_, lam_p);
+            d2Gi = nm.nodal_complex_power_balance_hess(x_, lam_q);
+
+            d2G = real(d2Gr) + imag(d2Gi);
+        end
+
         function add_system_costs(obj, nm, dm, mpopt)
             %% legacy user-defined costs
             if isfield(dm.userdata, 'legacy_opf_user_mods')

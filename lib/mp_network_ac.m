@@ -1005,54 +1005,5 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 s.events(i).msg = msg;
             end
         end
-
-        %%-----  OPF methods  -----
-        function [g, dg] = opf_current_balance_fcn(obj, x_)
-            if nargout > 1
-                [G, Gv1, Gv2, Gzr, Gzi] = obj.nodal_complex_current_balance(x_);
-                Gx = [Gv1 Gv2 Gzr Gzi];
-                dg = [  real(Gx);       %% Re{I} mismatch w.r.t v1, v2, zr, zi
-                        imag(Gx)    ];  %% Im{I} mismatch w.r.t v1, v2, zr, zi
-            else
-                G = obj.nodal_complex_current_balance(x_);
-            end
-            g = [ real(G);              %% real current mismatch
-                  imag(G) ];            %% imaginary current mismatch
-        end
-
-        function [g, dg] = opf_power_balance_fcn(obj, x_)
-            if nargout > 1
-                [G, Gv1, Gv2, Gzr, Gzi] = obj.nodal_complex_power_balance(x_);
-                Gx = [Gv1 Gv2 Gzr Gzi];
-                dg = [  real(Gx);       %% P mismatch w.r.t v1, v2, zr, zi
-                        imag(Gx)    ];  %% Q mismatch w.r.t v1, v2, zr, zi
-            else
-                G = obj.nodal_complex_power_balance(x_);
-            end
-            g = [ real(G);              %% active power (P) mismatch
-                  imag(G) ];            %% reactive power (Q) mismatch
-        end
-
-        function d2G = opf_current_balance_hess(obj, x_, lam)
-            nlam = length(lam) / 2;
-            lamIr = lam(1:nlam);
-            lamIi = lam((1:nlam)+nlam);
-
-            d2Gr = obj.nodal_complex_current_balance_hess(x_, lamIr);
-            d2Gi = obj.nodal_complex_current_balance_hess(x_, lamIi);
-
-            d2G = real(d2Gr) + imag(d2Gi);
-        end
-
-        function d2G = opf_power_balance_hess(obj, x_, lam)
-            nlam = length(lam) / 2;
-            lam_p = lam(1:nlam);
-            lam_q = lam((1:nlam)+nlam);
-
-            d2Gr = obj.nodal_complex_power_balance_hess(x_, lam_p);
-            d2Gi = obj.nodal_complex_power_balance_hess(x_, lam_q);
-
-            d2G = real(d2Gr) + imag(d2Gi);
-        end
     end     %% methods
 end         %% classdef
