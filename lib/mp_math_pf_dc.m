@@ -37,5 +37,14 @@ classdef mp_math_pf_dc < mp_math_pf & mm_pf_shared_dc
             b = (ad.Pbus(pvq) - ad.B(pvq, ad.ref) * ad.va(ad.ref));
             obj.add_lin_constraint('Pmis', A, b, b);
         end
+
+        function opt = solve_opts(obj, nm, dm, mpopt)
+            %% overrides mp_math_pf/solve_opts()
+            %% TO DO: move pf.alg to pf.ac.solver and add a
+            %%        pf.dc.solver to set the 'leq_opt.solver' option here
+            opt = struct( ...
+                'verbose',  mpopt.verbose, ...
+                'leq_opt',  struct('thresh', 1e5)   );
+        end
     end     %% methods
 end         %% classdef

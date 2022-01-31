@@ -59,7 +59,12 @@ classdef mp_math_cpf < mp_math_pf
         end
 
         function opt = solve_opts(obj, nm, dm, mpopt)
-            opt = nm.cpf_solve_opts(obj, dm, mpopt);
+            ad = obj.aux_data;
+            opt = mpopt2pneopt(mpopt);
+            opt.output_fcn = @(varargin)cpf_pne_output_fcn(nm, ad, varargin{:});
+            opt.plot.idx_default = @()cpf_plot_idx_default(nm, dm, ad);
+            opt.plot.yfcn = @(v_,idx)cpf_plot_yfcn(nm, dm, ad, v_, idx);
+            opt = nm.cpf_add_callbacks(opt, obj, dm, mpopt);
         end
     end     %% methods
 end         %% classdef

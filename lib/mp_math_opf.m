@@ -174,9 +174,5 @@ classdef mp_math_opf < mp_math
             [nm.soln.v, nm.soln.z, nm.soln.x] = ...
                 nm.opf_convert_x(obj.soln.x, obj.aux_data);
         end
-
-        function opt = solve_opts(obj, nm, dm, mpopt)
-            opt = nm.opf_solve_opts(obj, dm, mpopt);
-        end
     end     %% methods
 end         %% classdef

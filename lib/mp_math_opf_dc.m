@@ -45,5 +45,19 @@ classdef mp_math_opf_dc < mp_math_opf
                 obj.add_legacy_user_costs(nm, dm, 1);
             end
         end
+
+        function opt = solve_opts(obj, nm, dm, mpopt)
+            opt = mpopt2qpopt(mpopt, obj.problem_type());
+
+            switch opt.alg
+                case {'MIPS', 'IPOPT'}
+                    if mpopt.opf.start < 2
+                        %% initialize interior point
+                        opt.x0 = nm.opf_interior_x0(obj, nm, dm);
+                    end
+                case 'OSQP'
+                    opt.x0 = [];        %% disable provided starting point
+            end
+        end
     end     %% methods
 end         %% classdef

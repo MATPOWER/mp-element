@@ -1,9 +1,9 @@
 classdef mp_network_ac < mp_network% & mp_form_ac
 %MP_NETWORK_AC Abstract class, explicitly a subclass of MP_NETWORK and
-%              implicitly assumed to be subclasses of MP_FORM_AC as well
+%              implicitly assumed to be a subclass of MP_FORM_AC as well
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -326,37 +326,6 @@ classdef mp_network_ac < mp_network% & mp_form_ac
         end
 
         %%-----  PF methods  -----
-        function opt = pf_solve_opts(obj, mm, dm, mpopt)
-            switch mpopt.pf.alg
-                case 'DEFAULT'
-                    opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'DEFAULT');
-                case {'NR', 'NR-SP', 'NR-SC', 'NR-SH', 'NR-IP', 'NR-IC', 'NR-IH'}
-                    opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'NEWTON');
-                case {'FDXB', 'FDBX'}
-                    opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'FD');
-                    opt.fd_opt.jac_approx_fcn = @()obj.pf_fd_jac_approx(mm, dm, mpopt);
-                    opt.fd_opt.labels = {'P', 'Q'};
-                case 'FSOLVE'
-                    opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'FSOLVE');
-                case 'GS'
-                    opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'GS');
-                    opt.gs_opt.x_update_fcn = ...
-                        @(x, f)obj.pf_gs_x_update(x, f, mm, dm, mpopt);
-                case 'ZG'
-                    opt = mpopt2nleqopt(mpopt, mm.problem_type(), 'ZG');
-                    zg_x_update = @(x, f)obj.pf_zg_x_update(x, f, mm, dm, mpopt);
-                    opt.core_sp = struct(...
-                        'alg',              'ZG', ...
-                        'name',             'Implicit Z-bus Gauss', ...
-                        'default_max_it',   1000, ...
-                        'need_jac',         0, ...
-                        'update_fcn',       zg_x_update  );
-                otherwise
-                    error('mp_network_ac/pf_solve_opts: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
-            end
-            opt.verbose = mpopt.verbose;
-        end
-
         function z_ = pf_update_z(obj, v_, z_, ad, Sinj, idx)
             %% update/allocate slack node active power injections
             %% and slack/PV node reactive power injections
@@ -599,15 +568,6 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             for k = 1:length(obj.elements)
                 obj.elements{k}.cpf_data_model_update(mm, nm, dm, mpopt);
             end
-        end
-
-        function opt = cpf_solve_opts(obj, mm, dm, mpopt)
-            ad = mm.aux_data;
-            opt = mpopt2pneopt(mpopt);
-            opt.output_fcn = @(varargin)cpf_pne_output_fcn(obj, ad, varargin{:});
-            opt.plot.idx_default = @()cpf_plot_idx_default(obj, dm, ad);
-            opt.plot.yfcn = @(v_,idx)cpf_plot_yfcn(obj, dm, ad, v_, idx);
-            opt = obj.cpf_add_callbacks(opt, mm, dm, mpopt);
         end
 
         function [names, vals] = cpf_pne_output_fcn(obj, ad, x, x_hat)
@@ -1108,15 +1068,6 @@ classdef mp_network_ac < mp_network% & mp_form_ac
             d2Gi = obj.nodal_complex_power_balance_hess(x_, lam_q);
 
             d2G = real(d2Gr) + imag(d2Gi);
-        end
-
-        function opt = opf_solve_opts(obj, mm, dm, mpopt)
-            opt = mpopt2nlpopt(mpopt, mm.problem_type());
-
-            if mpopt.opf.start < 2
-                %% initialize interior point
-                opt.x0 = obj.opf_interior_x0(mm, obj, dm);
-            end
         end
     end     %% methods
 end         %% classdef

@@ -116,5 +116,9 @@ classdef mp_math < mp_element_container & opt_model
 
         function obj = add_system_costs(obj, nm, dm, mpopt)
         end
+
+        function opt = solve_opts(obj, nm, dm, mpopt)
+            opt = struct();
+        end
     end     %% methods
 end         %% classdef

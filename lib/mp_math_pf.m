@@ -48,7 +48,35 @@ classdef mp_math_pf < mp_math
         end
 
         function opt = solve_opts(obj, nm, dm, mpopt)
-            opt = nm.pf_solve_opts(obj, dm, mpopt);
+            %% for AC power flow only, must override for mp_math_pf_dc
+            switch mpopt.pf.alg
+                case 'DEFAULT'
+                    opt = mpopt2nleqopt(mpopt, obj.problem_type(), 'DEFAULT');
+                case {'NR', 'NR-SP', 'NR-SC', 'NR-SH', 'NR-IP', 'NR-IC', 'NR-IH'}
+                    opt = mpopt2nleqopt(mpopt, obj.problem_type(), 'NEWTON');
+                case {'FDXB', 'FDBX'}
+                    opt = mpopt2nleqopt(mpopt, obj.problem_type(), 'FD');
+                    opt.fd_opt.jac_approx_fcn = @()nm.pf_fd_jac_approx(obj, dm, mpopt);
+                    opt.fd_opt.labels = {'P', 'Q'};
+                case 'FSOLVE'
+                    opt = mpopt2nleqopt(mpopt, obj.problem_type(), 'FSOLVE');
+                case 'GS'
+                    opt = mpopt2nleqopt(mpopt, obj.problem_type(), 'GS');
+                    opt.gs_opt.x_update_fcn = ...
+                        @(x, f)nm.pf_gs_x_update(x, f, obj, dm, mpopt);
+                case 'ZG'
+                    opt = mpopt2nleqopt(mpopt, obj.problem_type(), 'ZG');
+                    zg_x_update = @(x, f)nm.pf_zg_x_update(x, f, obj, dm, mpopt);
+                    opt.core_sp = struct(...
+                        'alg',              'ZG', ...
+                        'name',             'Implicit Z-bus Gauss', ...
+                        'default_max_it',   1000, ...
+                        'need_jac',         0, ...
+                        'update_fcn',       zg_x_update  );
+                otherwise
+                    error('mp_math_pf/solve_opts: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
+            end
+            opt.verbose = mpopt.verbose;
         end
     end     %% methods
 end         %% classdef

@@ -650,8 +650,6 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
             end
         end
 
-        opt = pf_solve_opts(obj, mm, dm, mpopt)
-
         %%-----  OPF methods  -----
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% each element updates its data model

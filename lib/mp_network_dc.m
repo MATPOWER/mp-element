@@ -54,14 +54,6 @@ classdef mp_network_dc < mp_network & mp_form_dc
 
 
         %%-----  PF methods  -----
-        function opt = pf_solve_opts(obj, mm, dm, mpopt)
-            %% TO DO: move pf.alg to pf.ac.solver and add a
-            %%        pf.dc.solver to set the 'leq_opt.solver' option here
-            opt = struct( ...
-                'verbose',  mpopt.verbose, ...
-                'leq_opt',  struct('thresh', 1e5)   );
-        end
-
         function [vx, z, x] = pf_convert_x(obj, mmx, ad, only_v)
             %% x = obj.pf_convert(mmx, ad)
             %% [v, z] = obj.pf_convert(mmx, ad)
@@ -137,20 +129,6 @@ classdef mp_network_dc < mp_network & mp_form_dc
 
         function names = opf_legacy_user_var_names(obj)
             names = {'Va', 'Pg'};
-        end
-
-        function opt = opf_solve_opts(obj, mm, dm, mpopt)
-            opt = mpopt2qpopt(mpopt, mm.problem_type());
-
-            switch opt.alg
-                case {'MIPS', 'IPOPT'}
-                    if mpopt.opf.start < 2
-                        %% initialize interior point
-                        opt.x0 = obj.opf_interior_x0(mm, obj, dm);
-                    end
-                case 'OSQP'
-                    opt.x0 = [];        %% disable provided starting point
-            end
         end
     end     %% methods
 end         %% classdef
