@@ -44,5 +44,63 @@ classdef mm_pf_shared_dc < mm_pf_shared
                 end
             end
         end
+
+        function [vx, z, x] = pf_convert_x(obj, mmx, nm, ad, only_v)
+            %% x = obj.pf_convert(mmx, nm, ad)
+            %% [v, z] = obj.pf_convert(mmx, nm, ad)
+            %% [v, z, x] = obj.pf_convert(mmx, nm, ad)
+            %% ... = obj.pf_convert(mmx, nm, ad, only_v)
+
+            %% update v_, z_ from mmx
+            vx = ad.va;
+            vx([ad.pv; ad.pq]) = mmx(1:ad.npv+ad.npq);      %% va
+            z = ad.z;
+
+            %% update z, if requested
+            if nargin < 5 || ~only_v
+                z = obj.update_z(nm, vx, z, ad);
+            end
+
+            %% prepare return values
+            if nargout < 2
+                vx = [vx; z];
+            elseif nargout > 2
+                x = [vx; z];
+            end
+        end
+
+        function z = update_z(obj, nm, v, z, ad)
+            %% update/allocate slack node active power injections
+            
+            %% coefficient matrix for power injection states at slack bus
+            CC = nm.C(ad.ref, :) * nm.get_params([], 'K') * nm.D';
+            jr = find(any(CC, 1));  %% indices of corresponding states
+
+            %% power injections at slack nodes
+            idx = find(any(nm.C(ad.ref, :), 1));    %% ports connected to slack nodes
+            Pref = nm.C(ad.ref, idx) * nm.port_inj_power([v; z], 1, idx);
+
+            %% allocate active power at slack nodes to 1st direct inj state
+            %% find all z (except first one) with direct injection at each
+            %% slack node
+            [i, j] = find(CC);
+            if size(i, 2) > 1, i = i'; j = j'; end
+            ij = sortrows([i j]);       %% 1st state comes 1st for each node
+            [~, k1] = unique(ij(:, 1), 'first');%% index of 1st entry for each node
+            %% all included states that are not 1st at their node
+            jn = unique(ij(~ismember(1:length(i), k1), 2));
+
+            %% if we have extra states (more than 1) for any node(s)
+            if ~isempty(jn)
+                %% augment update equation CC * (z - zprev) = -Pref with
+                %% additional rows to force these states to remain fixed
+                I = speye(nm.nz);
+                CC = [CC; I(jn, :)];
+                Pref = [Pref; zeros(length(jn), 1)];
+            end
+
+            %% update z for active injections at slack nodes
+            z(jr) = z(jr) - CC(:, jr) \ Pref;
+        end
     end     %% methods
 end         %% classdef

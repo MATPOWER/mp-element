@@ -1,7 +1,8 @@
-classdef mm_pf_shared_ac_i < mm_pf_shared
+classdef mm_pf_shared_ac_i < handle
+%MM_PF_SHARED_AC_I  Mix-in class
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -12,10 +13,7 @@ classdef mm_pf_shared_ac_i < mm_pf_shared
 %     end
     
     methods
-        function ad = pf_aux_data(obj, nm, dm, mpopt)
-            %% call parent
-            ad = pf_aux_data@mm_pf_shared(obj, nm, dm, mpopt);
-
+        function ad = pf_aux_data_i(obj, nm, ad)
             %% build additional aux data
             N = nm.C(ad.pv, :) * nm.N;      %% z coefficients for z @ PV nodes
             [ii, jj, ~] = find(N == -1);    %% find element representing 1st

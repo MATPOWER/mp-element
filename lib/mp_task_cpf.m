@@ -52,8 +52,8 @@ classdef mp_task_cpf < mp_task_pf
                 %% for current & prev step
                 ws.clam = ws.x(end);
                 ws.plam = ws.xp(end);
-                [ws.cV, ~] = nm.cpf_convert_x(ws.x, ad);
-                [ws.pV, ~] = nm.cpf_convert_x(ws.xp, ad);
+                [ws.cV, ~] = mm.cpf_convert_x(ws.x, nm, ad);
+                [ws.pV, ~] = mm.cpf_convert_x(ws.xp, nm, ad);
 
                 %% expand tangent z to all nodes + lambda, for cur & prev step
                 [ws.z, ws.zp] = nm.cpf_expand_z_warmstart(ad, ws.z, ws.zp);

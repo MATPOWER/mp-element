@@ -555,7 +555,7 @@ pf = mp_task_pf();
 mpopt.exp.dmc_element_classes = @dmce_gizmo_mpc2;
 mpopt.exp.dm_element_classes = @dme_gizmo;
 mpopt.exp.network_model_class = @mp_network_acps_test;
-warn_id = 'pf_update_z:multiple_nodes';
+warn_id = 'update_z:multiple_nodes';
 s1 = warning('query', warn_id);
 warning('off', warn_id);
 success = pf.run(mpc, mpopt);

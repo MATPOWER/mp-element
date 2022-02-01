@@ -33,7 +33,7 @@ classdef mp_math_cpf_acp < mp_math_cpf
             ad = obj.aux_data;
 
             %% get current node voltage magnitudes and bounds
-            [v_, ~] = nm.cpf_convert_x(cx.x, ad, 1);
+            [v_, ~] = obj.cpf_convert_x(cx.x, nm, ad, 1);
             [~, vm_min, vm_max] = nm.params_var('vm');
 
             %% voltage magnitude violations
@@ -51,7 +51,7 @@ classdef mp_math_cpf_acp < mp_math_cpf
                 ad = obj.aux_data;
 
                 %% get current node voltage magnitudes and bounds
-                [v_, ~] = nm.cpf_convert_x(cx.x, ad, 1);
+                [v_, ~] = obj.cpf_convert_x(cx.x, nm, ad, 1);
                 [~, vm_min, vm_max] = nm.params_var('vm');
 
                 %% violated voltage magnitudes

@@ -1,4 +1,4 @@
-classdef mm_pf_shared_acci < mm_pf_shared_ac_i
+classdef mm_pf_shared_acci < mm_pf_shared_acc & mm_pf_shared_ac_i
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -12,6 +12,14 @@ classdef mm_pf_shared_acci < mm_pf_shared_ac_i
 %     end
     
     methods
+        function ad = pf_aux_data(obj, nm, dm, mpopt)
+             %% call parent
+            ad = pf_aux_data@mm_pf_shared_acc(obj, nm, dm, mpopt);
+
+            %% add data needed for current formulations
+            ad = obj.pf_aux_data_i(nm, ad);
+        end
+
         function obj = add_pf_system_vars(obj, nm, dm, mpopt)
             %% get model variables
             vvars = nm.model_vvars();
@@ -141,7 +149,7 @@ classdef mm_pf_shared_acci < mm_pf_shared_ac_i
             pqv = [ad.pq; ad.pv];
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = nm.pf_convert_x(x, ad, 1);
+            [v_, z_] = obj.pf_convert_x(x, nm, ad, 1);
 
             %% incidence matrix
             C = nm.C;

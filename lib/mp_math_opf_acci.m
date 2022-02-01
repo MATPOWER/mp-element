@@ -1,4 +1,4 @@
-classdef mp_math_opf_acci < mp_math_opf_ac
+classdef mp_math_opf_acci < mp_math_opf_acc
 %MP_MATH_OPF_ACCI  MATPOWER mathematical model for AC optimal power flow (OPF) problem.
 %   ?
 %
@@ -24,7 +24,7 @@ classdef mp_math_opf_acci < mp_math_opf_ac
     methods
         %% constructor
         function obj = mp_math_opf_acci()
-            obj@mp_math_opf_ac();
+            obj@mp_math_opf_acc();
             obj.element_classes = { @mme_bus_opf_acc, @mme_gen_opf_ac, ...
                 @mme_branch_opf_acc, @mme_buslink_opf_acc };
         end
@@ -32,9 +32,9 @@ classdef mp_math_opf_acci < mp_math_opf_ac
         function add_node_balance_constraints(obj, nm, dm, mpopt)
             %% power balance constraints
             nn = nm.node.N;             %% number of nodes
-            fcn_mis = @(x)nodal_current_balance_fcn(obj, nm, nm.opf_convert_x(x, obj.aux_data));
+            fcn_mis = @(x)nodal_current_balance_fcn(obj, nm, obj.opf_convert_x(x, nm, obj.aux_data));
             hess_mis = @(x, lam)nodal_current_balance_hess(obj, nm, ...
-                nm.opf_convert_x(x, obj.aux_data), lam);
+                obj.opf_convert_x(x, nm, obj.aux_data), lam);
             obj.add_nln_constraint({'rImis', 'iImis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
     end     %% methods

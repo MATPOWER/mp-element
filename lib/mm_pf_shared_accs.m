@@ -1,4 +1,4 @@
-classdef mm_pf_shared_accs < mm_pf_shared
+classdef mm_pf_shared_accs < mm_pf_shared_acc
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -127,7 +127,7 @@ classdef mm_pf_shared_accs < mm_pf_shared
             pqv = [ad.pq; ad.pv];
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = nm.pf_convert_x(x, ad, 1);
+            [v_, z_] = obj.pf_convert_x(x, nm, ad, 1);
 
             %% incidence matrix
             C = nm.C;

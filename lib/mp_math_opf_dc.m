@@ -28,6 +28,19 @@ classdef mp_math_opf_dc < mp_math_opf
             obj.element_classes = { @mme_gen_opf_dc, @mme_branch_opf_dc };
         end
 
+        function [vx, z, x] = opf_convert_x(obj, mmx, nm, ad)
+            nm_vars = nm.update_vars(mmx, ad);
+
+            %% convert (real) math model x to network model x
+            vx = nm_vars.va;
+            z  = nm_vars.z;
+            if nargout < 2
+                vx = [vx; z];
+            elseif nargout > 2
+                x = [vx; z];
+            end
+        end
+
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
             [B, K, p] = nm.get_params();
 

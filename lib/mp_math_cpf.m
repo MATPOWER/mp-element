@@ -48,6 +48,35 @@ classdef mp_math_cpf < mp_math_pf
             obj.add_var('lambda', 1, 0);
         end
 
+        function [vx_, z_, x_] = cpf_convert_x(obj, mmx, nm, ad, only_v)
+            nmt = ad.nmt;
+            lam = mmx(end);     %% continuation parameter lambda
+
+            %% update voltages and get base z_
+            [vx_,  zb_] = obj.pf_convert_x(mmx(1:end-1), nm,  ad,     1);
+            [vxt_, zt_] = obj.pf_convert_x(mmx(1:end-1), nmt, ad.adt, 1);
+            assert(norm(vx_-vxt_, Inf) < eps);
+
+            %% compute z_ as function of continuation parameter lambda
+            z_ = (1-lam) * zb_+ lam * zt_;
+
+            %% update dependent portions of z, if requested
+            if nargin < 5 || ~only_v
+                rpv = [ad.ref; ad.pv];      %% slack and PV nodes
+                idx = find(any(nm.C(rpv, :), 1));   %% ports connected to slack/PV nodes
+                Sinjb =  nm.port_inj_power([vx_; zb_], 1, idx);
+                Sinjt = nmt.port_inj_power([vx_; zt_], 1, idx);
+                Sinj = (1-lam) * Sinjb + lam * Sinjt;
+                z_ = obj.update_z(nm, vx_, z_, ad, Sinj, idx);
+            end
+
+            if nargout < 2
+                vx_ = [vx_; z_];
+            elseif nargout > 2
+                x_ = [vx_; z_];
+            end
+        end
+
         function [f, J] = cpf_node_balance_equations(obj, x, nm, ad)
             nmt = ad.nmt;
             lam = x(end);   %% continuation parameter lambda
@@ -70,7 +99,7 @@ classdef mp_math_cpf < mp_math_pf
         function nm = network_model_x_soln(obj, nm)
             %% convert solved state from math model to network model soln
             [nm.soln.v, nm.soln.z, nm.soln.x] = ...
-                nm.cpf_convert_x(obj.soln.x, obj.aux_data);
+                obj.cpf_convert_x(obj.soln.x, nm, obj.aux_data);
         end
 
         function opt = solve_opts(obj, nm, dm, mpopt)
@@ -140,8 +169,8 @@ classdef mp_math_cpf < mp_math_pf
             %% names = obj.pne_output_fcn(nm, ad)
             names = {'V_hat', 'V'};
             if nargin > 3
-                [V_hat, ~] = nm.cpf_convert_x(x_hat, ad, 1);
-                [V,     ~] = nm.cpf_convert_x(x,     ad, 1);
+                [V_hat, ~] = obj.cpf_convert_x(x_hat, nm, ad, 1);
+                [V,     ~] = obj.cpf_convert_x(x,     nm, ad, 1);
                 vals = {V_hat, V};
             end
         end
@@ -236,7 +265,7 @@ classdef mp_math_cpf < mp_math_pf
 
                 %% convert cx.x back to x_
                 ad = obj.aux_data;
-                x_ = nm.cpf_convert_x(cx.x, ad);
+                x_ = obj.cpf_convert_x(cx.x, nm, ad);
 
                 %% branch flows
                 S_fr = branch_nme.port_inj_power(x_, 1, ibr)    * dm.base_mva;
@@ -255,7 +284,7 @@ classdef mp_math_cpf < mp_math_pf
             ad = obj.aux_data;
 
             %% convert cx.x back to v_, z_
-            [v_, z_] = nm.cpf_convert_x(cx.x, ad);
+            [v_, z_] = obj.cpf_convert_x(cx.x, nm, ad);
 
             %% coefficient matrix for power injection states
             rpv = [ad.ref; ad.pv];      %% slack and PV nodes
@@ -277,7 +306,7 @@ classdef mp_math_cpf < mp_math_pf
             ad = obj.aux_data;
 
             %% convert cx.x back to v_, z_
-            [v_, z_] = nm.cpf_convert_x(cx.x, ad);
+            [v_, z_] = obj.cpf_convert_x(cx.x, nm, ad);
 
             %% limit violations
             [~, ~, zr_max] = nm.params_var('zr'); %% bounds on zr
@@ -307,7 +336,7 @@ classdef mp_math_cpf < mp_math_pf
 
                     %% convert cx.x back to x_
                     ad = obj.aux_data;
-                    x_ = nm.cpf_convert_x(cx.x, ad);
+                    x_ = obj.cpf_convert_x(cx.x, nm, ad);
 
                     %% branch flows
                     S_fr = branch_nme.port_inj_power(x_, 1, ibr)    * dm.base_mva;
@@ -427,7 +456,7 @@ classdef mp_math_cpf < mp_math_pf
                             nx.x(end), nlabel);
 
                     %% set Q to exact limit
-                    [v_, z_] = nm.cpf_convert_x(nx.x, ad);
+                    [v_, z_] = obj.cpf_convert_x(nx.x, nm, ad);
                     z_(idx) = real(z_(idx)) + 1j * lim / dm.base_mva;
 
                     %% change node type to PQ
@@ -529,7 +558,7 @@ classdef mp_math_cpf < mp_math_pf
                             msg, zlabel, nlabel, lim, nx.x(end));
 
                     %% set P to exact limit
-                    [v_, z_] = nm.cpf_convert_x(nx.x, ad);
+                    [v_, z_] = obj.cpf_convert_x(nx.x, nm, ad);
                     z_(idx) = lim / dm.base_mva + 1j * imag(z_(idx));
 
                     dmt = ad.dmt;

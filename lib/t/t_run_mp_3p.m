@@ -102,7 +102,7 @@ else
 end
 s = warning('query', sing_mat_warn_id);
 warning('off', sing_mat_warn_id);
-warning('off', 'pf_update_z:multiple_nodes');
+warning('off', 'update_z:multiple_nodes');
 
 eva = 100 * [
      0.000000000033021  -1.199999999966978   1.200000000033022
@@ -221,7 +221,7 @@ for k = 1:length(cfg_opf)
     t_is(pl, [epl; epl; epl], 5, [t 'pl']);
 end
 
-warning('on', 'pf_update_z:multiple_nodes');
+warning('on', 'update_z:multiple_nodes');
 warning(s.state, sing_mat_warn_id);
 
 if nargout  %% set output arg

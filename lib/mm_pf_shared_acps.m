@@ -1,4 +1,4 @@
-classdef mm_pf_shared_acps < mm_pf_shared
+classdef mm_pf_shared_acps < mm_pf_shared_acp
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef mm_pf_shared_acps < mm_pf_shared
     methods
         function ad = pf_aux_data(obj, nm, dm, mpopt)
             %% call parent
-            ad = pf_aux_data@mm_pf_shared(obj, nm, dm, mpopt);
+            ad = pf_aux_data@mm_pf_shared_acp(obj, nm, dm, mpopt);
 
             switch mpopt.pf.alg
                 case 'GS'
@@ -131,7 +131,7 @@ classdef mm_pf_shared_acps < mm_pf_shared
             pvq = [ad.pv; ad.pq];
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = nm.pf_convert_x(x, ad, 1);
+            [v_, z_] = obj.pf_convert_x(x, nm, ad, 1);
 
             %% incidence matrix
             C = nm.C;
