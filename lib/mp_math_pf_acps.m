@@ -169,5 +169,29 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
             x(1:ad.npv+ad.npq) = angle(v_(pvq));
             x(ad.npv+ad.npq+1:ad.npv+2*ad.npq) = abs(v_(pq));
         end
+
+        function JJ = fd_jac_approx(obj, nm, dm, mpopt)
+            alg = mpopt.pf.alg;
+
+            %% create copies of data model for building B prime, B double prime
+            [dm1, dm2] = dm.fdpf_B_matrix_models(alg);
+
+            %% build network models and get admittance matrices
+            nm1 = feval(class(nm)).build(dm1);
+            nm2 = feval(class(nm)).build(dm2);
+            [Y1, L, M] = nm1.get_params([], {'Y', 'L', 'M'});
+            Y2 = nm2.get_params();
+            if any(any(L)) || any(any(M))
+                error('mp_math_pf_acps/fd_jac_approx: fast-decoupled Jacobian approximation not implemented for models with non-zero L and/or M matrices.')
+            end
+
+            %% form reduced Bp and Bpp matrices
+            ad = obj.aux_data;
+            Cp  = nm1.C([ad.pv; ad.pq], :);
+            Cpp = nm2.C(ad.pq, :);
+            Bp  = -imag( Cp  * Y1 * Cp' );
+            Bpp = -imag( Cpp * Y2 * Cpp' );
+            JJ = {Bp, Bpp};
+        end
     end     %% methods
 end         %% classdef

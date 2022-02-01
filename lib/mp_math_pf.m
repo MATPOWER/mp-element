@@ -56,7 +56,7 @@ classdef mp_math_pf < mp_math
                     opt = mpopt2nleqopt(mpopt, obj.problem_type(), 'NEWTON');
                 case {'FDXB', 'FDBX'}
                     opt = mpopt2nleqopt(mpopt, obj.problem_type(), 'FD');
-                    opt.fd_opt.jac_approx_fcn = @()nm.pf_fd_jac_approx(obj, dm, mpopt);
+                    opt.fd_opt.jac_approx_fcn = @()obj.fd_jac_approx(nm, dm, mpopt);
                     opt.fd_opt.labels = {'P', 'Q'};
                 case 'FSOLVE'
                     opt = mpopt2nleqopt(mpopt, obj.problem_type(), 'FSOLVE');

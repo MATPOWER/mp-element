@@ -1,7 +1,7 @@
 classdef mp_network_acps < mp_network_acp & mp_form_acps
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -14,31 +14,6 @@ classdef mp_network_acps < mp_network_acp & mp_form_acps
 %     end
     
     methods
-        %%-----  PF methods  -----
-        function JJ = pf_fd_jac_approx(obj, mm, dm, mpopt)
-            alg = mpopt.pf.alg;
-
-            %% create copies of data model for building B prime, B double prime
-            [dm1, dm2] = dm.fdpf_B_matrix_models(alg);
-
-            %% build network models and get admittance matrices
-            nm1 = feval(class(obj)).build(dm1);
-            nm2 = feval(class(obj)).build(dm2);
-            [Y1, L, M] = nm1.get_params([], {'Y', 'L', 'M'});
-            Y2 = nm2.get_params();
-            if any(any(L)) || any(any(M))
-                error('mp_network_acps/df_jac_approx: fast-decoupled Jacobian approximation not implemented for models with non-zero L and/or M matrices.')
-            end
-
-            %% form reduced Bp and Bpp matrices
-            ad = mm.aux_data;
-            Cp  = nm1.C([ad.pv; ad.pq], :);
-            Cpp = nm2.C(ad.pq, :);
-            Bp  = -imag( Cp  * Y1 * Cp' );
-            Bpp = -imag( Cpp * Y2 * Cpp' );
-            JJ = {Bp, Bpp};
-        end
-
         %%-----  CPF methods  -----
         function varargout = cpf_expand_z_warmstart(obj, ad, varargin)
             %% expand input tangent z vectors to all nodes + lambda
