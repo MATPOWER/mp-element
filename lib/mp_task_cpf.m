@@ -56,7 +56,7 @@ classdef mp_task_cpf < mp_task_pf
                 [ws.pV, ~] = mm.cpf_convert_x(ws.xp, nm);
 
                 %% expand tangent z to all nodes + lambda, for cur & prev step
-                [ws.z, ws.zp] = nm.cpf_expand_z_warmstart(ad, ws.z, ws.zp);
+                [ws.z, ws.zp] = mm.expand_z_warmstart(nm, ad, ws.z, ws.zp);
 
                 %% set warmstart for next math model
                 obj.warmstart = ws;
@@ -140,7 +140,7 @@ classdef mp_task_cpf < mp_task_pf
 
             %% add the warmstart options, if available
             if ~isempty(obj.warmstart)
-                opt = nm.cpf_solve_opts_warmstart(opt, obj.warmstart, mm);
+                opt = mm.solve_opts_warmstart(opt, obj.warmstart, nm);
                 obj.warmstart = [];     %% delete warmstart data from task
             end
         end

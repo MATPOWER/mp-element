@@ -28,5 +28,31 @@ classdef mp_math_cpf_acps < mp_math_cpf_acp & mm_pf_shared_acps
             fcn = @(x)cpf_node_balance_equations(obj, x, nm);
             obj.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end
+
+        function varargout = expand_z_warmstart(obj, nm, ad, varargin)
+            %% expand input tangent z vectors to all nodes + lambda
+            varargout = cell(size(varargin));
+            i = [ad.pv; ad.pq; nm.nv/2 + ad.pq; nm.nv+1];
+            for k = 1:length(varargin)
+                z = zeros(nm.nv, 1);
+                z(i) = varargin{k};
+                varargout{k} = z;
+            end
+        end
+
+        function opt = solve_opts_warmstart(obj, opt, ws, nm)
+            ad = obj.aux_data;
+
+            %% update warm start states and tangent vectors
+            ws.x  = [angle(ws.cV([ad.pv; ad.pq])); abs(ws.cV(ad.pq)); ws.clam];
+            ws.xp = [angle(ws.pV([ad.pv; ad.pq])); abs(ws.pV(ad.pq)); ws.plam];
+            opt.x0 = ws.x;   %% ignored, overridden by ws.x
+
+            %% reduce tangent vectors for this mm
+            i = [ad.pv; ad.pq; nm.nv/2 + ad.pq; nm.nv+1];
+            ws.z  = ws.z(i);
+            ws.zp = ws.zp(i);
+            opt.warmstart = ws;
+        end
     end     %% methods
 end         %% classdef
