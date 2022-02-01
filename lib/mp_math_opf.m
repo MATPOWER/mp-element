@@ -76,7 +76,7 @@ classdef mp_math_opf < mp_math
 
         function add_legacy_user_vars(obj, nm, dm, mpopt)
             %% save data
-            obj.userdata.user_vars = nm.opf_legacy_user_var_names();
+            obj.userdata.user_vars = obj.opf_legacy_user_var_names();
 
             %% add any user-defined vars
             if isfield(dm.userdata.legacy_opf_user_mods, 'z')
@@ -163,6 +163,13 @@ classdef mp_math_opf < mp_math
                     end
                 end
             end
+        end
+
+        function varef1 = opf_interior_va(obj, nm, dm)
+            %% return scalar va equal to angle of first reference node
+            ad = obj.aux_data;
+            ref1 = ad.ref(1);
+            varef1 = ad.va(ref1);
         end
 
         function dm = data_model_update(obj, nm, dm, mpopt)

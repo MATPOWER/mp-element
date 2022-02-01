@@ -41,6 +41,10 @@ classdef mp_math_opf_dc < mp_math_opf
             end
         end
 
+        function names = opf_legacy_user_var_names(obj)
+            names = {'Va', 'Pg'};
+        end
+
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
             [B, K, p] = nm.get_params();
 

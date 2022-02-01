@@ -658,13 +658,6 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
             end
         end
 
-        function varef1 = opf_interior_va(obj, mm, dm)
-            %% return scalar va equal to angle of first reference node
-            ad = mm.aux_data;
-            ref1 = ad.ref(1);
-            varef1 = ad.va(ref1);
-        end
-
         function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
             if nargin < 5 || isempty(x0)
                 %% generic interior point

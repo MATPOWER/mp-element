@@ -34,5 +34,16 @@ classdef mp_math_opf_acc < mp_math_opf_ac
                 x_ = [vx_; z_];
             end
         end
+
+        function varef1 = opf_interior_va(obj, nm, dm)
+            %% return scalar va equal to angle of first reference node
+            ad = obj.aux_data;
+            ref1 = ad.ref(1);
+            varef1 = angle(ad.vr(ref1) + 1j * ad.vi(ref1));
+        end
+
+        function names = opf_legacy_user_var_names(obj)
+            names = {'Vr', 'Vi', 'Pg', 'Qg'};
+        end
     end     %% methods
 end         %% classdef

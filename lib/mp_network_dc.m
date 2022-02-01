@@ -51,11 +51,5 @@ classdef mp_network_dc < mp_network & mp_form_dc
             %% compute port injections
             obj.soln.gp = obj.port_inj_power(obj.soln.x);
         end
-
-
-        %%-----  OPF methods  -----
-        function names = opf_legacy_user_var_names(obj)
-            names = {'Va', 'Pg'};
-        end
     end     %% methods
 end         %% classdef

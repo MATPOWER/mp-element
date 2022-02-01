@@ -44,10 +44,5 @@ classdef mp_network_acp < mp_network_ac% & mp_form_acp
                 va = va(idx);
             end
         end
-
-        %%-----  OPF methods  -----
-        function names = opf_legacy_user_var_names(obj)
-            names = {'Va', 'Vm', 'Pg', 'Qg'};
-        end
     end     %% methods
 end         %% classdef

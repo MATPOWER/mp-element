@@ -38,7 +38,7 @@ classdef nme_bus3p_acc < nme_bus3p & mp_form_acc
             vm = 1;     %% voltage magnitude set to 1 p.u.
             %% voltage angles set to angle of 1st ref node
             %% + phase offset, i.e. +/-120 deg
-            varef1 = nm.opf_interior_va(mm, dm);
+            varef1 = mm.opf_interior_va(nm, dm);
             v1 = vm * exp(1j*varef1);
             v2 = vm * exp(1j*(varef1-2*pi/3));
             v3 = vm * exp(1j*(varef1+2*pi/3));
