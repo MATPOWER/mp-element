@@ -128,12 +128,13 @@ classdef mm_pf_shared_acpi < mm_pf_shared_acp & mm_pf_shared_ac_i
             end
         end
 
-        function [f, J] = pf_node_balance_equations(obj, x, nm, ad)
+        function [f, J] = pf_node_balance_equations(obj, x, nm)
             %% index vector
+            ad = obj.aux_data;
             pvq = [ad.pv; ad.pq];
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = obj.pf_convert_x(x, nm, ad, 1);
+            [v_, z_] = obj.pf_convert_x(x, nm, 1);
 
             %% incidence matrix
             C = nm.C;

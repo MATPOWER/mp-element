@@ -44,7 +44,7 @@ classdef mp_math_pf < mp_math
 
         function nm = network_model_x_soln(obj, nm)
             [nm.soln.v, nm.soln.z, nm.soln.x] = ...
-                obj.pf_convert_x(obj.soln.x, nm, obj.aux_data);
+                obj.pf_convert_x(obj.soln.x, nm);
         end
 
         function opt = solve_opts(obj, nm, dm, mpopt)

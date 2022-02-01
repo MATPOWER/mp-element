@@ -30,10 +30,8 @@ classdef mp_math_cpf_acp < mp_math_cpf
 
         function efv = event_vlim(obj, cx, opt, nm, dm, mpopt)
             %% convert cx.x back to v_
-            ad = obj.aux_data;
-
             %% get current node voltage magnitudes and bounds
-            [v_, ~] = obj.cpf_convert_x(cx.x, nm, ad, 1);
+            [v_, ~] = obj.cpf_convert_x(cx.x, nm, 1);
             [~, vm_min, vm_max] = nm.params_var('vm');
 
             %% voltage magnitude violations
@@ -48,10 +46,8 @@ classdef mp_math_cpf_acp < mp_math_cpf
             %% initialize
             if k == 0   %% check for base case voltage violations
                 %% convert cx.x back to v_
-                ad = obj.aux_data;
-
                 %% get current node voltage magnitudes and bounds
-                [v_, ~] = obj.cpf_convert_x(cx.x, nm, ad, 1);
+                [v_, ~] = obj.cpf_convert_x(cx.x, nm, 1);
                 [~, vm_min, vm_max] = nm.params_var('vm');
 
                 %% violated voltage magnitudes

@@ -126,12 +126,13 @@ classdef mm_pf_shared_acps < mm_pf_shared_acp
             end
         end
 
-        function [f, J] = pf_node_balance_equations(obj, x, nm, ad, fdpf)
+        function [f, J] = pf_node_balance_equations(obj, x, nm, fdpf)
             %% index vector
+            ad = obj.aux_data;
             pvq = [ad.pv; ad.pq];
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = obj.pf_convert_x(x, nm, ad, 1);
+            [v_, z_] = obj.pf_convert_x(x, nm, 1);
 
             %% incidence matrix
             C = nm.C;
@@ -180,7 +181,7 @@ classdef mm_pf_shared_acps < mm_pf_shared_acp
             end
 
             %% nodal power balance
-            if nargin > 4 && fdpf
+            if nargin > 3 && fdpf
                 SS = C * S ./ abs(v_);  %% for fast-decoupled formulation
             else
                 SS = C * S;

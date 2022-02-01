@@ -12,20 +12,20 @@ classdef mm_pf_shared_acp < mm_pf_shared_ac
 %     end
     
     methods
-        function [vx_, z_, x_] = pf_convert_x(obj, mmx, nm, ad, only_v)
-            %% x = obj.pf_convert(mmx, nm, ad)
-            %% [v, z] = obj.pf_convert(mmx, nm, ad)
-            %% [v, z, x] = obj.pf_convert(mmx, nm, ad)
-            %% ... = obj.pf_convert(mmx, nm, ad, only_v)
+        function [vx_, z_, x_] = pf_convert_x(obj, mmx, nm, only_v)
+            %% x = obj.pf_convert(mmx, nm)
+            %% [v, z] = obj.pf_convert(mmx, nm)
+            %% [v, z, x] = obj.pf_convert(mmx, nm)
+            %% ... = obj.pf_convert(mmx, nm, only_v)
 
             %% update v_, z_ from mmx
-            nm_vars = nm.update_vars(mmx, ad);
+            nm_vars = nm.update_vars(mmx, obj.aux_data);
             vx_ = nm_vars.vm .* exp(1j * nm_vars.va);
             z_ = nm_vars.zr + 1j * nm_vars.zi;
 
             %% update z, if requested
-            if nargin < 5 || ~only_v
-                z_ = obj.update_z(nm, vx_, z_, ad);
+            if nargin < 4 || ~only_v
+                z_ = obj.update_z(nm, vx_, z_, obj.aux_data);
             end
 
             if nargout < 2

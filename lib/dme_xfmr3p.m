@@ -85,42 +85,5 @@ classdef dme_xfmr3p < dm_element
             obj.base_kva = obj.tab.base_kva(obj.on);
             obj.base_kv  = obj.tab.base_kv(obj.on);
         end
-
-%         %%-----  OPF methods  -----
-%         function [A, l, u, i] = opf_branch_ang_diff_params(obj, dm, ignore)
-%             %% from makeAang()
-%             nb = dm.elements.bus.n;
-%             branch = obj.tab;
-% 
-%             if ignore
-%                 A  = sparse(0, nb);
-%                 l  = [];
-%                 u  = [];
-%                 i  = [];
-%             else
-%                 i = find( ...
-%                     branch.vad_lb ~= 0 & ...
-%                         (branch.vad_lb > -360 | branch.vad_ub == 0) | ...
-%                     branch.vad_ub ~= 0 & ...
-%                         (branch.vad_ub <  360 | branch.vad_lb == 0) );
-%                 n = length(i);
-% 
-%                 if n > 0
-%                     ii = [(1:n)'; (1:n)'];
-%                     jj = [obj.fbus(i); obj.tbus(i)];
-%                     A = sparse(ii, jj, [ones(n, 1); -ones(n, 1)], n, nb);
-%                     l = branch.vad_lb(i);
-%                     u = branch.vad_ub(i);
-%                     l(l < -360) = -Inf;
-%                     u(u >  360) =  Inf;
-%                     l = l * pi/180;
-%                     u = u * pi/180;
-%                 else
-%                     A = sparse(0, nb);
-%                     l =[];
-%                     u =[];
-%                 end
-%             end
-%         end
     end     %% methods
 end         %% classdef

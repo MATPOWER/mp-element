@@ -45,19 +45,20 @@ classdef mm_pf_shared_dc < mm_pf_shared
             end
         end
 
-        function [vx, z, x] = pf_convert_x(obj, mmx, nm, ad, only_v)
-            %% x = obj.pf_convert(mmx, nm, ad)
-            %% [v, z] = obj.pf_convert(mmx, nm, ad)
-            %% [v, z, x] = obj.pf_convert(mmx, nm, ad)
-            %% ... = obj.pf_convert(mmx, nm, ad, only_v)
+        function [vx, z, x] = pf_convert_x(obj, mmx, nm, only_v)
+            %% x = obj.pf_convert(mmx, nm)
+            %% [v, z] = obj.pf_convert(mmx, nm)
+            %% [v, z, x] = obj.pf_convert(mmx, nm)
+            %% ... = obj.pf_convert(mmx, nm, only_v)
 
             %% update v_, z_ from mmx
+            ad = obj.aux_data;
             vx = ad.va;
             vx([ad.pv; ad.pq]) = mmx(1:ad.npv+ad.npq);      %% va
             z = ad.z;
 
             %% update z, if requested
-            if nargin < 5 || ~only_v
+            if nargin < 4 || ~only_v
                 z = obj.update_z(nm, vx, z, ad);
             end
 

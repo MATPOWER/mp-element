@@ -35,9 +35,9 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
             %% power balance constraints
             switch alg
                 case  {'FDXB', 'FDBX'}
-                    fcn = @(x)pf_node_balance_equations(obj, x, nm, ad, 1);
+                    fcn = @(x)pf_node_balance_equations(obj, x, nm, 1);
                 otherwise
-                    fcn = @(x)pf_node_balance_equations(obj, x, nm, ad);
+                    fcn = @(x)pf_node_balance_equations(obj, x, nm);
             end
             obj.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end
@@ -47,7 +47,7 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
             ad = obj.aux_data;
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = obj.pf_convert_x(x, nm, ad, 1);
+            [v_, z_] = obj.pf_convert_x(x, nm, 1);
 
             [pv, pq, npv, npq, Y] = deal(ad.pv, ad.pq, ad.npv, ad.npq, ad.Y);
             
@@ -82,7 +82,7 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
             ad = obj.aux_data;
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = obj.pf_convert_x(x, nm, ad, 1);
+            [v_, z_] = obj.pf_convert_x(x, nm, 1);
 
             [pv, pq, ref, npv, npq] = deal(ad.pv, ad.pq, ad.ref, ad.npv, ad.npq);
             pvq = [pv; pq];
