@@ -32,9 +32,8 @@ classdef mp_math_opf_acps < mp_math_opf_acp
         function add_node_balance_constraints(obj, nm, dm, mpopt)
             %% power balance constraints
             nn = nm.node.N;             %% number of nodes
-            fcn_mis = @(x)nodal_power_balance_fcn(obj, nm, obj.opf_convert_x(x, nm));
-            hess_mis = @(x, lam)nodal_power_balance_hess(obj, nm, ...
-                obj.opf_convert_x(x, nm), lam);
+            fcn_mis = @(x)obj.nodal_power_balance_fcn(x, nm);
+            hess_mis = @(x, lam)obj.nodal_power_balance_hess(x, lam, nm);
             obj.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
     end     %% methods
