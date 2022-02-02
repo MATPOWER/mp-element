@@ -69,6 +69,7 @@ for k = 1:length(cases)
     t_is(qg, eqg, 9, [t 'qg']);
 
     t = sprintf('OPF - %s - ', cases{k});
+    mpopt.exp.math_model_class = @mp_math_opf_acps_node_test;
     have_feature('mp_element', 0);
     r = runopf(mpc, mpopt0);
     have_feature('mp_element', 1);
@@ -89,6 +90,7 @@ for k = 1:length(cases)
     t_is(vm, evm, 9, [t 'vm']);
     t_is(pg, epg, 9, [t 'pg']);
     t_is(qg, eqg, 9, [t 'qg']);
+    mpopt.exp.math_model_class = [];
 end
 
 t_end;

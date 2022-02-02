@@ -24,5 +24,8 @@ classdef mme_buslink_opf_acp < mme_buslink
             mm.add_lin_constraint('buslink_va', A, b_va, b_va, vs_va);
             mm.add_lin_constraint('buslink_vm', A, b_vm, b_vm, vs_vm);
         end
+
+        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+        end
     end     %% methods
 end         %% classdef

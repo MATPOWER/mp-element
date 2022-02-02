@@ -165,6 +165,33 @@ classdef mp_math_opf < mp_math
             end
         end
 
+        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+            if nargin < 5 || isempty(x0)
+                %% generic interior point
+                [x0, xmin, xmax] = mm.params_var();     %% init var & bounds
+                s = 1;                      %% set init point inside bounds by s
+                lb = xmin; ub = xmax;
+                lb(xmin == -Inf) = -1e10;   %% replace Inf with numerical proxies
+                ub(xmax ==  Inf) =  1e10;   %% temporarily to avoid errors in next line
+                x0 = (lb + ub) / 2;         %% set x0 mid-way between bounds
+                k = find(xmin == -Inf & xmax < Inf);    %% if only bounded above
+                x0(k) = xmax(k) - s;                    %% set just below upper bound
+                k = find(xmin > -Inf & xmax == Inf);    %% if only bounded below
+                x0(k) = xmin(k) + s;                    %% set just above lower bound
+            end
+
+            %% allow each node or state creating element to initialize its vars
+            for k = 1:length(nm.elements)
+                nme = nm.elements{k};   %% network model element
+                if nme.nn || nme.nz     %% element creates nodes or states
+                    mme = nme.math_model_element(mm);   %% math model element
+                    if ~isempty(mme)
+                        x0 = mme.opf_interior_x0(mm, nm, dm, x0);
+                    end
+                end
+            end
+        end
+
         function varef1 = opf_interior_va(obj, nm, dm)
             %% return scalar va equal to angle of first reference node
             ad = obj.aux_data;

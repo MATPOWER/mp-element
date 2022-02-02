@@ -1,7 +1,7 @@
 classdef nme_bus_dc < nme_bus & mp_form_dc
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -57,12 +57,6 @@ classdef nme_bus_dc < nme_bus & mp_form_dc
             dme.tab.va(dme.on) = va * 180/pi;
             dme.tab.vm(dme.on) = 1;
             dme.tab.lam_p(dme.on) = lam_p / dm.base_mva;
-        end
-
-        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
-            vv = mm.get_idx();
-            varef1 = mm.opf_interior_va(nm, dm);
-            x0(vv.i1.Va:vv.iN.Va) = varef1; %% angles set to 1st ref angle
         end
     end     %% methods
 end         %% classdef

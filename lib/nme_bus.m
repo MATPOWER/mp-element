@@ -1,7 +1,7 @@
 classdef nme_bus < nm_element
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -43,15 +43,6 @@ classdef nme_bus < nm_element
 
         function set_node_type_pq(obj, nm, dm, idx)
             obj.data_model_element(dm).set_bus_type_pq(dm, idx);
-        end
-
-        %%-----  OPF methods  -----
-        function vm = opf_interior_vm(obj, mm, nm, dm)
-            %% return vm equal to avg of clipped limits
-            dme = obj.data_model_element(dm);
-            vm_ub = min(dme.vm_ub, 1.5);
-            vm_lb = max(dme.vm_lb, 0.5);
-            vm = (vm_ub + vm_lb) / 2;
         end
     end     %% methods
 end         %% classdef

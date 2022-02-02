@@ -96,9 +96,8 @@ classdef mp_math_opf_ac < mp_math_opf
         function opt = solve_opts(obj, nm, dm, mpopt)
             opt = mpopt2nlpopt(mpopt, obj.problem_type());
 
-            if mpopt.opf.start < 2
-                %% initialize interior point
-                opt.x0 = nm.opf_interior_x0(obj, nm, dm);
+            if mpopt.opf.start < 2      %% initialize interior point
+                opt.x0 = obj.opf_interior_x0(obj, nm, dm);
             end
         end
     end     %% methods

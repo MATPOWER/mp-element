@@ -25,7 +25,7 @@ classdef mp_math_opf_dc < mp_math_opf
         %% constructor
         function obj = mp_math_opf_dc()
             obj@mp_math_opf();
-            obj.element_classes = { @mme_gen_opf_dc, @mme_branch_opf_dc };
+            obj.element_classes = { @mme_bus_opf_dc, @mme_gen_opf_dc, @mme_branch_opf_dc };
         end
 
         function [vx, z, x] = opf_convert_x(obj, mmx, nm)
@@ -68,9 +68,8 @@ classdef mp_math_opf_dc < mp_math_opf
 
             switch opt.alg
                 case {'MIPS', 'IPOPT'}
-                    if mpopt.opf.start < 2
-                        %% initialize interior point
-                        opt.x0 = nm.opf_interior_x0(obj, nm, dm);
+                    if mpopt.opf.start < 2      %% initialize interior point
+                        opt.x0 = obj.opf_interior_x0(obj, nm, dm);
                     end
                 case 'OSQP'
                     opt.x0 = [];        %% disable provided starting point

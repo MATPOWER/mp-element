@@ -1,7 +1,7 @@
 classdef nme_gen < nm_element
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -52,16 +52,6 @@ classdef nme_gen < nm_element
                     cpp = diff_poly_fcn(cp);
                     d2f = sparse(idx, idx, x_scale^2 * eval_poly_fcn(cpp, x), n, n);
                 end
-            end
-        end
-
-        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
-            %% set gen cost variables to something feasible
-            if obj.cost.pwl.n > 0
-                vv = mm.get_idx();
-                dme = obj.data_model_element(dm);
-                maxgc = dme.max_pwl_gencost();
-                x0(vv.i1.y:vv.iN.y) = maxgc + 0.1 * abs(maxgc);
             end
         end
     end     %% methods

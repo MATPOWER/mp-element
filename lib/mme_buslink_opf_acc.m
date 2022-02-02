@@ -30,5 +30,8 @@ classdef mme_buslink_opf_acc < mme_buslink
             hess_vm = @(xx, lam)opf_vm2_hess(nme, xx, lam, A);
             mm.add_nln_constraint('buslink_vm', length(b_vm), 1, fcn_vm, hess_vm, vs);
         end
+
+        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+        end
     end     %% methods
 end         %% classdef

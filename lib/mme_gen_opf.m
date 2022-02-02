@@ -45,5 +45,17 @@ classdef mme_gen_opf < mme_gen
                 mm.add_quad_cost('pwl', [], ones(nme.cost.pwl.n, 1), 0, {'y'});
             end
         end
+
+        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+            nme = obj.network_model_element(nm);
+
+            %% set gen cost variables to something feasible
+            if nme.cost.pwl.n > 0
+                vv = mm.get_idx();
+                dme = obj.data_model_element(dm);
+                maxgc = dme.max_pwl_gencost();
+                x0(vv.i1.y:vv.iN.y) = maxgc + 0.1 * abs(maxgc);
+            end
+        end
     end     %% methods
 end         %% classdef

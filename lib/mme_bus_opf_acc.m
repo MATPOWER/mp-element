@@ -1,7 +1,7 @@
-classdef mme_bus_opf_acc < mme_bus
+classdef mme_bus_opf_acc < mme_bus_opf_ac
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -44,6 +44,15 @@ classdef mme_bus_opf_acc < mme_bus
                 mm.add_nln_constraint({'Vmin', 'Vmax'}, [nviq;nviq], 0, fcn_vlim, hess_vlim, {'Vr', 'Vi'});
             end
             mm.userdata.viq = viq;
+        end
+
+        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+            vv = mm.get_idx();
+            varef1 = mm.opf_interior_va(nm, dm);
+            vm = obj.opf_interior_vm(mm, nm, dm);
+            v_ = vm * exp(1j*varef1);
+            x0(vv.i1.Vr:vv.iN.Vr) = real(v_);
+            x0(vv.i1.Vi:vv.iN.Vi) = imag(v_);
         end
     end     %% methods
 end         %% classdef
