@@ -19,7 +19,7 @@ classdef mm_pf_shared_acp < mm_pf_shared_ac
             %% ... = obj.pf_convert(mmx, nm, only_v)
 
             %% update v_, z_ from mmx
-            nm_vars = nm.update_vars(mmx, obj.aux_data);
+            nm_vars = obj.update_nm_vars(mmx, nm);
             vx_ = nm_vars.vm .* exp(1j * nm_vars.va);
             z_ = nm_vars.zr + 1j * nm_vars.zi;
 

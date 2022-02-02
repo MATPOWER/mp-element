@@ -130,5 +130,57 @@ classdef mp_math < mp_element_container & opt_model
         function opt = solve_opts(obj, nm, dm, mpopt)
             opt = struct();
         end
+
+        function nm_vars = update_nm_vars(obj, mmx, nm)
+            %% Returns a struct with the network model variables as fields.
+            %% The ad.var_map cell array is used to track mappings
+            %% of math model variables back to network model variables.
+            %% Each entry is a cell array:
+            %%  {nm_var_type, nm_i1, nm_iN, nm_idx, mm_i1, mm_iN, mm_idx}
+            %% where
+            %%  nm_var_type - network model variable type (e.g. va, vm, zr, zi)
+            %%  nm_i1 - starting index for network model variable type
+            %%  nm_iN - ending index for network model variable type
+            %%  nm_idx - vector of indices for network model variable type
+            %%  mm_i1 - starting index for math model variable
+            %%  mm_iN - ending index for math model variable
+            %%  mm_idx - vector of indices for math model variable
+            %% Uses either i1:iN (if i1 is not empty) or idx as the indices,
+            %% unless both are empty, in which case it uses ':'
+
+            ad = obj.aux_data;
+            vvars = nm.model_vvars();
+            zvars = nm.model_zvars();
+            vars = {vvars{:} zvars{:}};
+            nm_vars = cell2struct( ...
+                cellfun(@(x)ad.(x), vars, 'UniformOutput', false), ...
+                vars, 2);
+
+            %% copy mm state values to nm state based on ad.var_map
+            for k = 1:length(ad.var_map)
+                d = ad.var_map{k};
+
+                %% right hand side from mmx
+                if ~isempty(d{5})       %% use i1:iN
+                    rhs = mmx(d{5}:d{6});
+                elseif isempty(d{7})    %% use :
+                    rhs = mmx;
+                else                    %% use idx
+                    rhs = mmx(d{7});
+                end
+
+                %% left hand side to nm_vars
+                name = d{1};
+                if ~isempty(rhs)
+                    if ~isempty(d{2})       %% use i1:iN
+                        nm_vars.(name)(d{2}:d{3}) = rhs;
+                    elseif isempty(d{4})    %% use :
+                        nm_vars.(name) = rhs;
+                    else                    %% use idx
+                        nm_vars.(name)(d{4}) = rhs;
+                    end
+                end
+            end
+        end
     end     %% methods
 end         %% classdef

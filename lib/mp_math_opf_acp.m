@@ -31,7 +31,7 @@ classdef mp_math_opf_acp < mp_math_opf_ac
         end
 
         function [vx_, z_, x_] = opf_convert_x(obj, mmx, nm)
-            nm_vars = nm.update_vars(mmx, obj.aux_data);
+            nm_vars = obj.update_nm_vars(mmx, nm);
 
             %% convert (real) math model x to (complex) network model x_
             vx_ = nm_vars.vm .* exp(1j * nm_vars.va);
