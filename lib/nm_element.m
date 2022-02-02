@@ -65,6 +65,17 @@ classdef nm_element < handle
             dme = dm.elements.(name);
         end
 
+        function mme = math_model_element(obj, mm, name)
+            if nargin < 3
+                name = obj.name;
+            end
+            if mm.elements.is_index_name(name)
+                mme = mm.elements.(name);
+            else
+                mme = [];
+            end
+        end
+
         function nk = count(obj, dm)
             nk = dm.online(obj.name);
             obj.nk = nk;    %% update the count stored internally
