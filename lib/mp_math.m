@@ -51,6 +51,16 @@ classdef mp_math < mp_element_container & opt_model
         function display(obj)
             fprintf('MATH MODEL CLASS : %s\n', class(obj));
             display@opt_model(obj)
+
+            %% elements
+            fprintf('\nELEMENTS\n')
+            fprintf('========\n')
+            fprintf('  name           class\n');
+            fprintf(' -------------  --------------------\n');
+            for k = 1:length(obj.elements)
+                mme = obj.elements{k};
+                fprintf('  %-10s     %s\n', mme.name, class(mme));
+            end
         end
 
         function obj = add_aux_data(obj, nm, dm, mpopt)
