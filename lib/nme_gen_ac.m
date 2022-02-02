@@ -37,11 +37,6 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
         end
 
         %%-----  OPF methods  -----
-        function opf_build_gen_cost_params(obj, dm)
-            dme = obj.data_model_element(dm);
-            obj.cost = dme.opf_build_gen_cost_params(dm, 0);
-        end
-
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
             %% generator active power
             ss = nm.get_idx('state');

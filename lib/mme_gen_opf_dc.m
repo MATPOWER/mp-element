@@ -14,15 +14,18 @@ classdef mme_gen_opf_dc < mme_gen_opf
     
     methods
         function obj = add_constraints(obj, mm, nm, dm, mpopt)
-            nme = obj.network_model_element(nm);
-
             %% piecewise linear costs
-            if nme.cost.pwl.n
-                mm.add_lin_constraint('ycon', nme.cost.pwl.A, [], nme.cost.pwl.b, {'Pg', 'y'});
+            if obj.cost.pwl.n
+                mm.add_lin_constraint('ycon', obj.cost.pwl.A, [], obj.cost.pwl.b, {'Pg', 'y'});
             end
 
             %% call parent
             add_constraints@mme_gen_opf(obj, mm, nm, dm, mpopt);
+        end
+
+        function opf_build_gen_cost_params(obj, dm)
+            dme = obj.data_model_element(dm);
+            obj.cost = dme.opf_build_gen_cost_params(dm, 1);
         end
     end     %% methods
 end         %% classdef

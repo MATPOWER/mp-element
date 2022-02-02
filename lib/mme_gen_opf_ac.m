@@ -14,8 +14,6 @@ classdef mme_gen_opf_ac < mme_gen_opf
     
     methods
         function obj = add_constraints(obj, mm, nm, dm, mpopt)
-            nme = obj.network_model_element(nm);
-
             %% generator PQ capability curve constraints
             [Apqh, ubpqh, Apql, ubpql, Apqdata] = ...
                 dm.elements.gen.pq_capability_constraint(dm.base_mva);
@@ -30,8 +28,8 @@ classdef mme_gen_opf_ac < mme_gen_opf
             end
 
             %% piecewise linear costs
-            if nme.cost.pwl.n
-                mm.add_lin_constraint('ycon', nme.cost.pwl.A, [], nme.cost.pwl.b, {'Pg', 'Qg', 'y'});
+            if obj.cost.pwl.n
+                mm.add_lin_constraint('ycon', obj.cost.pwl.A, [], obj.cost.pwl.b, {'Pg', 'Qg', 'y'});
             end
 
             %% call parent
@@ -39,25 +37,28 @@ classdef mme_gen_opf_ac < mme_gen_opf
         end
 
         function obj = add_costs(obj, mm, nm, dm, mpopt)
-            nme = obj.network_model_element(nm);
-
             %% call parent
             add_costs@mme_gen_opf(obj, mm, nm, dm, mpopt);
 
             %% costs on reactive dispatch
-            if ~isempty(nme.cost.poly_q)
+            if ~isempty(obj.cost.poly_q)
                 %% (quadratic) polynomial costs on Qg
-                if nme.cost.poly_q.have_quad_cost
-                    mm.add_quad_cost('polQg', nme.cost.poly_q.Q, nme.cost.poly_q.c, nme.cost.poly_q.k, {'Qg'});
+                if obj.cost.poly_q.have_quad_cost
+                    mm.add_quad_cost('polQg', obj.cost.poly_q.Q, obj.cost.poly_q.c, obj.cost.poly_q.k, {'Qg'});
                 end
 
                 %% (order 3 and higher) polynomial costs on Qg
-                if ~isempty(nme.cost.poly_q.i3)
+                if ~isempty(obj.cost.poly_q.i3)
                     dme = obj.data_model_element(dm);
-                    cost_Qg = @(xx)poly_cost_fcn(nme, xx, dm.base_mva, dme.cost_qg.poly_coef, nme.cost.poly_q.i3);
+                    cost_Qg = @(xx)obj.poly_cost_fcn(xx, dm.base_mva, dme.cost_qg.poly_coef, obj.cost.poly_q.i3);
                     mm.add_nln_cost('polQg', 1, cost_Qg, {'Qg'});
                 end
             end
+        end
+
+        function opf_build_gen_cost_params(obj, dm)
+            dme = obj.data_model_element(dm);
+            obj.cost = dme.opf_build_gen_cost_params(dm, 0);
         end
     end     %% methods
 end         %% classdef
