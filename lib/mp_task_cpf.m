@@ -114,7 +114,7 @@ classdef mp_task_cpf < mp_task_pf
         end
 
         %%-----  mathematical model methods  -----
-        function mm_class = math_model_class(obj, nm, dm, mpopt)
+        function mm_class = math_model_class_default(obj, nm, dm, mpopt)
             switch upper(mpopt.model)
                 case 'AC'
                     if mpopt.pf.v_cartesian
@@ -131,7 +131,7 @@ classdef mp_task_cpf < mp_task_pf
                         end
                     end
                 case 'DC'
-                    error('mp_task_cpf/math_model_class: CPF not applicable for DC model');
+                    error('mp_task_cpf/math_model_class_default: CPF not applicable for DC model');
             end
         end
 

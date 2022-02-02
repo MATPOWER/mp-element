@@ -312,6 +312,12 @@ classdef mp_task < handle
 
         %%-----  mathematical model methods  -----
         function mm_class = math_model_class(obj, nm, dm, mpopt)
+            if isfield(mpopt.exp, 'math_model_class') && ...
+                    ~isempty(mpopt.exp.math_model_class)
+                mm_class = mpopt.exp.math_model_class;
+            else
+                mm_class = obj.math_model_class_default(nm, dm, mpopt);
+            end
         end
 
         function mm = math_model_create(obj, nm, dm, mpopt)

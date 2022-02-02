@@ -188,7 +188,7 @@ classdef mp_task_pf < mp_task
         end
 
         %%-----  mathematical model methods  -----
-        function mm_class = math_model_class(obj, nm, dm, mpopt)
+        function mm_class = math_model_class_default(obj, nm, dm, mpopt)
             switch upper(mpopt.model)
                 case 'AC'
                     if mpopt.pf.v_cartesian

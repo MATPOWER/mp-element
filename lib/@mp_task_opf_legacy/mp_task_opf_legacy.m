@@ -39,7 +39,7 @@ classdef mp_task_opf_legacy < mp_task_opf
         end
 
         %%-----  mathematical model methods  -----
-        function mm_class = math_model_class(obj, nm, dm, mpopt)
+        function mm_class = math_model_class_default(obj, nm, dm, mpopt)
             %% mp_math_opf_legacy (based on opf_model) is required to
             %% support legacy cost functions and callback functions that
             %% expect to find mpc in mm.mpc.
