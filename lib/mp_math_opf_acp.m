@@ -22,6 +22,14 @@ classdef mp_math_opf_acp < mp_math_opf_ac
 %     end
 
     methods
+        %% constructor
+        function obj = mp_math_opf_acp()
+            obj@mp_math_opf_ac();
+            obj.element_classes = { @mme_bus_opf_acp, @mme_gen_opf_ac, ...
+                @mme_branch_opf_acp, @mme_bus3p_opf_acp, ...
+                @mme_buslink_opf_acp };
+        end
+
         function [vx_, z_, x_] = opf_convert_x(obj, mmx, nm)
             nm_vars = nm.update_vars(mmx, obj.aux_data);
 
