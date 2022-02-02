@@ -41,13 +41,6 @@ classdef mp_dm_converter < mp_element_container
             new_obj.elements = new_obj.elements.copy();
         end
 
-        function dme = data_model_element(obj, dm, name)
-            if nargin < 3
-                name = obj.name;
-            end
-            dme = dm.elements.(name);
-        end
-
         function dm = import(obj, dm, d)
             for k = 1:length(obj.elements)
                 dmce = obj.elements{k};
