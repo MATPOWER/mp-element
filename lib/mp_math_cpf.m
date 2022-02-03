@@ -100,10 +100,6 @@ classdef mp_math_cpf < mp_math_pf
             f = (1-lam) * fb + lam * ft;
         end
 
-        function dm = data_model_update(obj, nm, dm, mpopt)
-            nm.cpf_data_model_update(obj, nm, dm, mpopt);
-        end
-
         function nm = network_model_x_soln(obj, nm)
             %% convert solved state from math model to network model soln
             [nm.soln.v, nm.soln.z, nm.soln.x] = ...

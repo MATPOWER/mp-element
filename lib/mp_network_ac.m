@@ -324,13 +324,5 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                 end
             end
         end
-
-        %%-----  CPF methods  -----
-        function obj = cpf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% each element updates its data model
-            for k = 1:length(obj.elements)
-                obj.elements{k}.cpf_data_model_update(mm, nm, dm, mpopt);
-            end
-        end
     end     %% methods
 end         %% classdef

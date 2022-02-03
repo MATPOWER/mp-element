@@ -403,10 +403,5 @@ classdef nm_element < handle
                 end
             end
         end
-
-        %%-----  CPF methods  -----
-        function obj = cpf_data_model_update(obj, mm, nm, dm, mpopt)
-            mm.pf_data_model_update(mm, nm, dm, mpopt);
-        end
     end     %% methods
 end         %% classdef
