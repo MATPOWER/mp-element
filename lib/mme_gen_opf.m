@@ -25,7 +25,7 @@ classdef mme_gen_opf < mme_gen
     methods
         function obj = add_vars(obj, mm, nm, dm, mpopt)
             %% collect/construct all generator cost parameters
-            obj.opf_build_gen_cost_params(dm);
+            obj.build_cost_params(dm);
 
             %% piecewise linear costs
             if obj.cost.pwl.n

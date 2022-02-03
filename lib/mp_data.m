@@ -139,7 +139,6 @@ classdef mp_data < mp_element_container
             end
         end
 
-        %%-----  OPF methods  -----
         function obj = set_bus_v_lims_via_vg(obj, use_vg)
             bus_dme = obj.elements.bus;
             gen_dme = obj.elements.gen;

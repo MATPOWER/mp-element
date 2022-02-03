@@ -138,7 +138,7 @@ classdef dme_gen < dm_element
         end
 
         %%-----  OPF methods  -----
-        function cost = opf_build_gen_cost_params(obj, dm, dc)
+        function cost = build_cost_params(obj, dm, dc)
             base_mva = dm.base_mva;
 
             poly_p = obj.gen_cost_poly_params(base_mva, obj.cost_pg);

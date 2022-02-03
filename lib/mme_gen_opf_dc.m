@@ -23,9 +23,9 @@ classdef mme_gen_opf_dc < mme_gen_opf
             add_constraints@mme_gen_opf(obj, mm, nm, dm, mpopt);
         end
 
-        function opf_build_gen_cost_params(obj, dm)
+        function build_cost_params(obj, dm)
             dme = obj.data_model_element(dm);
-            obj.cost = dme.opf_build_gen_cost_params(dm, 1);
+            obj.cost = dme.build_cost_params(dm, 1);
         end
 
         function obj = data_model_update(obj, mm, nm, dm, mpopt)

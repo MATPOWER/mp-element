@@ -56,9 +56,9 @@ classdef mme_gen_opf_ac < mme_gen_opf
             end
         end
 
-        function opf_build_gen_cost_params(obj, dm)
+        function build_cost_params(obj, dm)
             dme = obj.data_model_element(dm);
-            obj.cost = dme.opf_build_gen_cost_params(dm, 0);
+            obj.cost = dme.build_cost_params(dm, 0);
         end
 
         function obj = data_model_update(obj, mm, nm, dm, mpopt)
