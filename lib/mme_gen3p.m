@@ -19,7 +19,7 @@ classdef mme_gen3p < mm_element
             obj.name = 'gen3p';
         end
 
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+        function obj = data_model_update(obj, mm, nm, dm, mpopt)
             dme = obj.data_model_element(dm);
             nme = obj.network_model_element(nm);
 

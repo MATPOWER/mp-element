@@ -12,7 +12,7 @@ classdef mme_branch_pf_ac < mme_branch
 %     end
     
     methods
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+        function obj = data_model_update(obj, mm, nm, dm, mpopt)
             %% branch active power flow
             pp = nm.get_idx('port');
             S_fr = nm.soln.gs_(pp.i1.branch(1):pp.iN.branch(1)) * dm.base_mva;

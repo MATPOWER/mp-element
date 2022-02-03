@@ -61,7 +61,7 @@ classdef mme_branch_opf_ac < mme_branch_opf
             end
         end
 
-        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+        function obj = data_model_update(obj, mm, nm, dm, mpopt)
             dme = obj.data_model_element(dm);
             nme = obj.network_model_element(nm);
 

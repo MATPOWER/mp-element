@@ -182,5 +182,12 @@ classdef mp_math < mp_element_container & opt_model
                 end
             end
         end
+
+        function dm = data_model_update(obj, nm, dm, mpopt)
+            %% each element updates its data model
+            for k = 1:length(obj.elements)
+                obj.elements{k}.data_model_update(obj, nm, dm, mpopt);
+            end
+        end
     end     %% methods
 end         %% classdef

@@ -19,7 +19,7 @@ classdef mme_bus_opf_dc < mme_bus
             x0(vv.i1.Va:vv.iN.Va) = varef1; %% angles set to 1st ref angle
         end
 
-        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+        function obj = data_model_update(obj, mm, nm, dm, mpopt)
             %% bus voltage angles
             nn = nm.get_idx('node');
             va = nm.soln.v(nn.i1.bus:nn.iN.bus);

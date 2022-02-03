@@ -14,9 +14,5 @@ classdef mme_gen3p_opf < mme_gen3p
     methods
         function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
         end
-
-        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
-            obj.pf_data_model_update(mm, nm, dm, mpopt);
-        end
     end     %% methods
 end         %% classdef

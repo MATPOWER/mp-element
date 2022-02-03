@@ -41,7 +41,7 @@ classdef mme_branch_opf_dc < mme_branch_opf
             mm.userdata.ang_diff_constrained_branch_idx = iang;
         end
 
-        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+        function obj = data_model_update(obj, mm, nm, dm, mpopt)
             dme = obj.data_model_element(dm);
             nme = obj.network_model_element(nm);
 

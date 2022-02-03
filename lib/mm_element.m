@@ -36,5 +36,8 @@ classdef mm_element < handle
 
         function obj = add_costs(obj, mm, nm, dm, mpopt)
         end
+
+        function obj = data_model_update(obj, mm, nm, dm, mpopt)
+        end
     end     %% methods
 end         %% classdef

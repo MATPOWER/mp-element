@@ -23,7 +23,7 @@ classdef mme_bus_nld_opf_acps_node_test < mme_bus_opf_acp
             x0(vv.i1.(['vm_' obj.name]):vv.iN.(['vm_' obj.name])) = vm;     %% voltage magnitudes
         end
 
-        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+        function obj = data_model_update(obj, mm, nm, dm, mpopt)
             %% complex bus voltages
             nn = nm.get_idx('node');
             V = nm.soln.v(nn.i1.(obj.name):nn.iN.(obj.name));

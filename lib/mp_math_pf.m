@@ -38,13 +38,6 @@ classdef mp_math_pf < mp_math
             obj.add_pf_system_vars(nm, dm, mpopt);
         end
 
-        function dm = data_model_update(obj, nm, dm, mpopt)
-            %% each element updates its data model
-            for k = 1:length(obj.elements)
-                obj.elements{k}.pf_data_model_update(obj, nm, dm, mpopt);
-            end
-        end
-
         function nm = network_model_x_soln(obj, nm)
             [nm.soln.v, nm.soln.z, nm.soln.x] = ...
                 obj.pf_convert_x(obj.soln.x, nm);

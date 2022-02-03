@@ -12,7 +12,7 @@ classdef mme_gen_pf_ac < mme_gen
 %     end
     
     methods
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+        function obj = data_model_update(obj, mm, nm, dm, mpopt)
             %% generator active power
             ss = nm.get_idx('state');
             Sg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.base_mva;

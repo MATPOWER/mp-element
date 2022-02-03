@@ -12,7 +12,7 @@ classdef mme_bus_pf_acp < mme_bus
 %     end
     
     methods
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+        function obj = data_model_update(obj, mm, nm, dm, mpopt)
             %% complex bus voltages
             nn = nm.get_idx('node');
             V = nm.soln.v(nn.i1.bus:nn.iN.bus);

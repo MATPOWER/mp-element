@@ -28,7 +28,7 @@ classdef mme_gen_opf_dc < mme_gen_opf
             obj.cost = dme.opf_build_gen_cost_params(dm, 1);
         end
 
-        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+        function obj = data_model_update(obj, mm, nm, dm, mpopt)
             %% generator active power
             ss = nm.get_idx('state');
             pg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.base_mva;

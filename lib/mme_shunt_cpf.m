@@ -19,7 +19,7 @@ classdef mme_shunt_cpf < mm_element
             obj.name = 'shunt';
         end
 
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+        function obj = data_model_update(obj, mm, nm, dm, mpopt)
             ad = mm.aux_data;
             dme = obj.data_model_element(dm);
             dm = dme.parameterized(dm, ad.dmb, ad.dmt, mm.soln.x(end));

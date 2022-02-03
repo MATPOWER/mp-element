@@ -73,7 +73,7 @@ classdef mp_task_cpf < mp_task_pf
                 for k = 1:obj.nm.node.NS
                     nme = obj.nm.elements.(obj.nm.node.order(k).name);
                     mme = nme.math_model_element(mm);
-                    mme.pf_data_model_update(mm, obj.nm, obj.dm, mpopt);
+                    mme.data_model_update(mm, obj.nm, obj.dm, mpopt);
                 end
 
                 %% reset var_map
