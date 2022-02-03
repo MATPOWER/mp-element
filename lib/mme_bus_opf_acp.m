@@ -33,7 +33,7 @@ classdef mme_bus_opf_acp < mme_bus_opf_ac
             mu_vm_ub = lambda.upper(vv.i1.Vm:vv.iN.Vm);
 
             %% shadow prices on node power balance
-            [lam_p, lam_q] = nm.opf_node_power_balance_prices(mm);
+            [lam_p, lam_q] = mm.opf_node_power_balance_prices(nm);
             lam_p = lam_p(nn.i1.bus:nn.iN.bus);     %% for bus nodes only
             lam_q = lam_q(nn.i1.bus:nn.iN.bus);     %% for bus nodes only
 

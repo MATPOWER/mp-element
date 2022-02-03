@@ -29,5 +29,13 @@ classdef mp_math_opf_acps < mp_math_opf_acp
             hess_mis = @(x, lam)obj.nodal_power_balance_hess(x, lam, nm);
             obj.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
+
+        function [lam_p, lam_q] = opf_node_power_balance_prices(obj, nm)
+            %% shadow prices on node power balance
+            nne = obj.get_idx('nle');
+            lambda = obj.soln.lambda;
+            lam_p = lambda.eqnonlin(nne.i1.Pmis:nne.iN.Pmis);
+            lam_q = lambda.eqnonlin(nne.i1.Qmis:nne.iN.Qmis);
+        end
     end     %% methods
 end         %% classdef
