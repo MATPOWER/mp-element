@@ -21,17 +21,61 @@ classdef mme_buslink_opf_acc < mme_buslink
             vs = struct('name', {'Vr', 'Vr3', 'Vr3', 'Vr3', ...
                                  'Vi', 'Vi3', 'Vi3', 'Vi3'}, ...
                         'idx', {{}, {1}, {2}, {3}, {}, {1}, {2}, {3}});
-
-            fcn_va = @(xx)opf_va_fcn(nme, xx, A, b_va);
-            hess_va = @(xx, lam)opf_va_hess(nme, xx, lam, A);
+    
+            fcn_va = @(xx)obj.opf_va_fcn(nme, xx, A, b_va);
+            hess_va = @(xx, lam)obj.opf_va_hess(nme, xx, lam, A);
             mm.add_nln_constraint('buslink_va', length(b_va), 1, fcn_va, hess_va, vs);
 
-            fcn_vm = @(xx)opf_vm2_fcn(nme, xx, A, b_vm);
-            hess_vm = @(xx, lam)opf_vm2_hess(nme, xx, lam, A);
+            fcn_vm = @(xx)obj.opf_vm2_fcn(nme, xx, A, b_vm);
+            hess_vm = @(xx, lam)obj.opf_vm2_hess(nme, xx, lam, A);
             mm.add_nln_constraint('buslink_vm', length(b_vm), 1, fcn_vm, hess_vm, vs);
         end
 
         function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+        end
+
+        function [g, dg] = opf_va_fcn(obj, nme, xx, A, b)
+            %% unpack data
+            vr = vertcat(xx{1:4});
+            vi = vertcat(xx{5:8});
+
+            if nargout > 1
+                [va, dva] = nme.va_fcn({vr, vi}, [], 0);
+                dg = A * dva;
+            else
+                va = nme.va_fcn({vr, vi}, [], 0);
+            end
+            g = A * va - b;
+        end
+
+        function d2G = opf_va_hess(obj, nme, xx, lam, A)
+            %% unpack data
+            vr = vertcat(xx{1:4});
+            vi = vertcat(xx{5:8});
+
+            d2G = nme.va_hess({vr, vi}, A' * lam, []);
+        end
+
+        function [g, dg] = opf_vm2_fcn(obj, nme, xx, A, b)
+            %% unpack data
+            vr = vertcat(xx{1:4});
+            vi = vertcat(xx{5:8});
+
+            if nargout > 1
+                [vm, dvm] = nme.vm2_fcn({vr, vi}, [], 0);
+                dg = A * dvm;
+            else
+                vm = nme.vm2_fcn({vr, vi}, [], 0);
+            end
+            g = A * vm - b;
+        end
+
+        function d2G = opf_vm2_hess(obj, nme, xx, lam, A)
+            %% unpack data
+            vr = vertcat(xx{1:4});
+            vi = vertcat(xx{5:8});
+
+            d2G = nme.vm2_hess({vr, vi}, A' * lam, []);
         end
     end     %% methods
 end         %% classdef

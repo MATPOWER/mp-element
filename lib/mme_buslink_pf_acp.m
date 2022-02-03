@@ -19,7 +19,7 @@ classdef mme_buslink_pf_acp < mme_buslink_pf_ac
             %% add constraints for matching
             %%  voltage angles at pv and pq nodes
             %%  voltage magnitudes at pq nodes
-            [A_va_pq, A_va_pv, b_va, A_vm, b_vm] = pf_voltage_constraints(nme, mm.aux_data);
+            [A_va_pq, A_va_pv, b_va, A_vm, b_vm] = obj.pf_voltage_constraints(nme, mm.aux_data);
 
             %% prep variable set structs
             vs_va = struct('name', {'Va_pv', 'Va3_pv', 'Va3_pv', 'Va3_pv', ...
