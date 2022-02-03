@@ -139,44 +139,6 @@ classdef mp_data < mp_element_container
             end
         end
 
-        %%-----  PF methods  -----
-        function [dm1, dm2] = fdpf_B_matrix_models(obj, alg)
-            %% [dmp, dmpp] = obj.fdpf_B_matrix_models(alg)
-            %% dmpp = obj.fdpf_B_matrix_models(alg)
-            %% returns copies of dm used for building B prime, B double prime
-            %% for fast-decoupled power flow
-
-            %% modify data model to form Bp (B prime)
-            if nargout > 1      %% for both Bp and Bpp
-                dm1 = obj.copy();
-                if dm1.elements.is_index_name('shunt')
-                    dm1.elements.shunt.tab.bs(:) = 0;   %% zero out shunts at buses
-                end
-                dm2 = dm1.copy();
-                dm1.elements.branch.tab.b_fr(:) = 0;    %% zero out line charging shunts
-                dm1.elements.branch.tab.b_to(:) = 0;
-                dm1.elements.branch.tab.tm(:) = 1;      %% cancel out taps
-                if strcmp(alg, 'FDXB')                  %% if XB method
-                    dm1.elements.branch.tab.r(:) = 0;   %% zero out line resistance
-                end
-                dm1 = dm1.build_params(dm1);
-            else
-                dm2 = obj.copy();
-            end
-
-            %% modify data model to form Bpp (B double prime)
-            dm2.elements.branch.tab.ta(:) = 0;      %% zero out phase shifters
-            if strcmp(alg, 'FDBX')                  %% if BX method
-                dm2.elements.branch.tab.r(:) = 0;   %% zero out line resistance
-            end
-
-            if nargout > 1      %% for both Bp and Bpp
-                dm2 = dm2.build_params(dm2);
-            else                %% for just Bpp
-                dm1 = dm2.build_params(dm2);
-            end
-        end
-
         %%-----  OPF methods  -----
         function obj = set_bus_v_lims_via_vg(obj, use_vg)
             bus_dme = obj.elements.bus;

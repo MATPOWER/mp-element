@@ -120,7 +120,7 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
                     vmpv = vmpv0;
 
                     %% modify data model to form Bpp (B double prime)
-                    dm2 = dm.fdpf_B_matrix_models('FDBX');
+                    dm2 = obj.fdpf_B_matrix_models(dm, 'FDBX');
 
                     %% build network models and get admittance matrices
                     nm2 = feval(class(nm)).build(dm2);
@@ -177,7 +177,7 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
             alg = mpopt.pf.alg;
 
             %% create copies of data model for building B prime, B double prime
-            [dm1, dm2] = dm.fdpf_B_matrix_models(alg);
+            [dm1, dm2] = obj.fdpf_B_matrix_models(dm, alg);
 
             %% build network models and get admittance matrices
             nm1 = feval(class(nm)).build(dm1);
@@ -195,6 +195,43 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
             Bp  = -imag( Cp  * Y1 * Cp' );
             Bpp = -imag( Cpp * Y2 * Cpp' );
             JJ = {Bp, Bpp};
+        end
+
+        function [dm1, dm2] = fdpf_B_matrix_models(obj, dm, alg)
+            %% [dmp, dmpp] = obj.fdpf_B_matrix_models(dm, alg)
+            %% dmpp = obj.fdpf_B_matrix_models(dm, alg)
+            %% returns copies of dm used for building B prime, B double prime
+            %% for fast-decoupled power flow
+
+            %% modify data model to form Bp (B prime)
+            if nargout > 1      %% for both Bp and Bpp
+                dm1 = dm.copy();
+                if dm1.elements.is_index_name('shunt')
+                    dm1.elements.shunt.tab.bs(:) = 0;   %% zero out shunts at buses
+                end
+                dm2 = dm1.copy();
+                dm1.elements.branch.tab.b_fr(:) = 0;    %% zero out line charging shunts
+                dm1.elements.branch.tab.b_to(:) = 0;
+                dm1.elements.branch.tab.tm(:) = 1;      %% cancel out taps
+                if strcmp(alg, 'FDXB')                  %% if XB method
+                    dm1.elements.branch.tab.r(:) = 0;   %% zero out line resistance
+                end
+                dm1 = dm1.build_params(dm1);
+            else
+                dm2 = dm.copy();
+            end
+
+            %% modify data model to form Bpp (B double prime)
+            dm2.elements.branch.tab.ta(:) = 0;      %% zero out phase shifters
+            if strcmp(alg, 'FDBX')                  %% if BX method
+                dm2.elements.branch.tab.r(:) = 0;   %% zero out line resistance
+            end
+
+            if nargout > 1      %% for both Bp and Bpp
+                dm2 = dm2.build_params(dm2);
+            else                %% for just Bpp
+                dm1 = dm2.build_params(dm2);
+            end
         end
     end     %% methods
 end         %% classdef
