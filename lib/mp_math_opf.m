@@ -200,7 +200,10 @@ classdef mp_math_opf < mp_math
         end
 
         function dm = data_model_update(obj, nm, dm, mpopt)
-            nm.opf_data_model_update(obj, nm, dm, mpopt);
+            %% each element updates its data model
+            for k = 1:length(obj.elements)
+                obj.elements{k}.opf_data_model_update(obj, nm, dm, mpopt);
+            end
         end
 
         function nm = network_model_x_soln(obj, nm)

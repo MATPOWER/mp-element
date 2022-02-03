@@ -1,4 +1,4 @@
-classdef mme_buslink_opf_acc < mme_buslink
+classdef mme_buslink_opf_acc < mme_buslink_opf
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -29,9 +29,6 @@ classdef mme_buslink_opf_acc < mme_buslink
             fcn_vm = @(xx)obj.opf_vm2_fcn(nme, xx, A, b_vm);
             hess_vm = @(xx, lam)obj.opf_vm2_hess(nme, xx, lam, A);
             mm.add_nln_constraint('buslink_vm', length(b_vm), 1, fcn_vm, hess_vm, vs);
-        end
-
-        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
         end
 
         function [g, dg] = opf_va_fcn(obj, nme, xx, A, b)

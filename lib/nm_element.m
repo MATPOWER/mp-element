@@ -413,10 +413,5 @@ classdef nm_element < handle
         function obj = cpf_data_model_update(obj, mm, nm, dm, mpopt)
             obj.pf_data_model_update(mm, nm, dm, mpopt);
         end
-
-
-        %%-----  OPF methods  -----
-        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
-        end
     end     %% methods
 end         %% classdef

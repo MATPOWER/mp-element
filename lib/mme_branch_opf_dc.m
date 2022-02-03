@@ -41,5 +41,37 @@ classdef mme_branch_opf_dc < mme_branch
             end
             mm.userdata.ang_diff_constrained_branch_idx = iang;
         end
+
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+            dme = obj.data_model_element(dm);
+            nme = obj.network_model_element(nm);
+
+            %% branch active power flow
+            pp = nm.get_idx('port');
+            pl_fr = nm.soln.gp(pp.i1.branch(1):pp.iN.branch(1)) * dm.base_mva;
+            pl_to = nm.soln.gp(pp.i1.branch(2):pp.iN.branch(2)) * dm.base_mva;
+
+            %% shadow prices on branch flow constraints
+            ibr = mm.userdata.flow_constrained_branch_idx;
+            mu_flow_fr_ub = zeros(nme.nk, 1);
+            mu_flow_to_ub = mu_flow_fr_ub;
+            if length(ibr)
+                ll = mm.get_idx('lin');
+                lambda = mm.soln.lambda;
+                mu_flow_fr_ub(ibr) = lambda.mu_u(ll.i1.Pf:ll.iN.Pf);
+                mu_flow_to_ub(ibr) = lambda.mu_l(ll.i1.Pf:ll.iN.Pf);
+            end
+
+            %% shadow prices on angle difference limits
+            [mu_vad_lb, mu_vad_ub] = nme.opf_branch_ang_diff_prices(mm);
+
+            %% update in the data model
+            dme.tab.pl_fr(dme.on) = pl_fr;
+            dme.tab.pl_to(dme.on) = pl_to;
+            dme.tab.mu_flow_fr_ub(dme.on) = mu_flow_fr_ub / dm.base_mva;
+            dme.tab.mu_flow_to_ub(dme.on) = mu_flow_to_ub / dm.base_mva;
+            dme.tab.mu_vad_lb(dme.on) = mu_vad_lb * pi/180;
+            dme.tab.mu_vad_ub(dme.on) = mu_vad_ub * pi/180;
+        end
     end     %% methods
 end         %% classdef

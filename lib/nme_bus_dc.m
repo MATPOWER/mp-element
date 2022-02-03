@@ -38,25 +38,5 @@ classdef nme_bus_dc < nme_bus & mp_form_dc
             dme.tab.va(dme.on) = va * 180/pi;
             dme.tab.vm(dme.on) = 1;
         end
-
-        %%-----  OPF methods  -----
-        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% bus voltage angles
-            nn = nm.get_idx('node');
-            va = nm.soln.v(nn.i1.bus:nn.iN.bus);
-
-            %% shadow prices on node power balance
-            ll = mm.get_idx('lin');
-            lambda = mm.soln.lambda;
-            lam_p = lambda.mu_u(ll.i1.Pmis:ll.iN.Pmis) - ...
-                    lambda.mu_l(ll.i1.Pmis:ll.iN.Pmis);
-            lam_p = lam_p(nn.i1.bus:nn.iN.bus);     %% for bus nodes only
-
-            %% update in the data model
-            dme = obj.data_model_element(dm);
-            dme.tab.va(dme.on) = va * 180/pi;
-            dme.tab.vm(dme.on) = 1;
-            dme.tab.lam_p(dme.on) = lam_p / dm.base_mva;
-        end
     end     %% methods
 end         %% classdef

@@ -128,7 +128,7 @@ classdef mp_task < handle
                 end                 %% end network model loop
                 nm = obj.nm;        %% use stashed network model below
 
-                %% update data model with network model solution
+                %% update data model with network/math model solution
                 dm = mm.data_model_update(nm, dm, mpopt);
                 if mpopt.verbose
                     fprintf('%s\n', obj.message);

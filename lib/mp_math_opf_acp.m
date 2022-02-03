@@ -26,8 +26,8 @@ classdef mp_math_opf_acp < mp_math_opf_ac
         function obj = mp_math_opf_acp()
             obj@mp_math_opf_ac();
             obj.element_classes = { @mme_bus_opf_acp, @mme_gen_opf_ac, ...
-                @mme_branch_opf_acp, @mme_bus3p_opf_acp, ...
-                @mme_buslink_opf_acp };
+                @mme_branch_opf_acp, @mme_bus3p_opf_acp, @mme_gen3p_opf, ...
+                @mme_line3p_opf, @mme_xfmr3p_opf, @mme_buslink_opf_acp };
         end
 
         function [vx_, z_, x_] = opf_convert_x(obj, mmx, nm)

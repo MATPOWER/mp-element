@@ -45,33 +45,5 @@ classdef nme_bus_nld_acp_node_test < nme_bus_acp
             dme.tab.va(dme.on) = angle(V) * 180/pi;
             dme.tab.vm(dme.on) = abs(V);
         end
-
-        %%-----  OPF methods  -----
-        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% complex bus voltages
-            nn = nm.get_idx('node');
-            V = nm.soln.v(nn.i1.(obj.name):nn.iN.(obj.name));
-
-            %% shadow prices on voltage magnitudes
-            vv = mm.get_idx('var');
-            lambda = mm.soln.lambda;
-            vVm = ['vm_' obj.name];
-            mu_vm_lb = lambda.lower(vv.i1.(vVm):vv.iN.(vVm));
-            mu_vm_ub = lambda.upper(vv.i1.(vVm):vv.iN.(vVm));
-
-            %% shadow prices on node power balance
-            [lam_p, lam_q] = nm.opf_node_power_balance_prices(mm);
-            lam_p = lam_p(nn.i1.(obj.name):nn.iN.(obj.name));   %% for (obj.name) nodes only
-            lam_q = lam_q(nn.i1.(obj.name):nn.iN.(obj.name));   %% for (obj.name) nodes only
-
-            %% update in the data model
-            dme = obj.data_model_element(dm);
-            dme.tab.va(dme.on) = angle(V) * 180/pi;
-            dme.tab.vm(dme.on) = abs(V);
-            dme.tab.lam_p(dme.on) = lam_p / dm.base_mva;
-            dme.tab.lam_q(dme.on) = lam_q / dm.base_mva;
-            dme.tab.mu_vm_lb(dme.on) = mu_vm_lb;
-            dme.tab.mu_vm_ub(dme.on) = mu_vm_ub;
-        end
     end     %% methods
 end         %% classdef

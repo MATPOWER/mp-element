@@ -599,13 +599,5 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
                 obj.elements{k}.pf_data_model_update(mm, nm, dm, mpopt);
             end
         end
-
-        %%-----  OPF methods  -----
-        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% each element updates its data model
-            for k = 1:length(obj.elements)
-                obj.elements{k}.opf_data_model_update(mm, nm, dm, mpopt);
-            end
-        end
     end     %% methods
 end         %% classdef

@@ -1,4 +1,4 @@
-classdef mme_bus3p_opf_acc < mme_bus3p
+classdef mme_bus3p_opf_acc < mme_bus3p_opf
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)

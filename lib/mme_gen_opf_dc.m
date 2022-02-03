@@ -27,5 +27,23 @@ classdef mme_gen_opf_dc < mme_gen_opf
             dme = obj.data_model_element(dm);
             obj.cost = dme.opf_build_gen_cost_params(dm, 1);
         end
+
+        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% generator active power
+            ss = nm.get_idx('state');
+            pg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.base_mva;
+
+            %% shadow prices on generator limits
+            vv = mm.get_idx();
+            lambda = mm.soln.lambda;
+            mu_pg_ub = lambda.upper(vv.i1.Pg:vv.iN.Pg);
+            mu_pg_lb = lambda.lower(vv.i1.Pg:vv.iN.Pg);
+
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.tab.pg(dme.on) = pg;
+            dme.tab.mu_pg_lb(dme.on) = mu_pg_lb / dm.base_mva;
+            dme.tab.mu_pg_ub(dme.on) = mu_pg_ub / dm.base_mva;
+        end
     end     %% methods
 end         %% classdef

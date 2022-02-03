@@ -58,45 +58,5 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
             dme.tab.pl_to(dme.on) = real(S_to);
             dme.tab.ql_to(dme.on) = imag(S_to);
         end
-
-        %%-----  OPF methods  -----
-        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% branch active power flow
-            pp = nm.get_idx('port');
-            S_fr = nm.soln.gs_(pp.i1.branch(1):pp.iN.branch(1)) * dm.base_mva;
-            S_to = nm.soln.gs_(pp.i1.branch(2):pp.iN.branch(2)) * dm.base_mva;
-
-            %% shadow prices on branch flow constraints
-            ibr = mm.userdata.flow_constrained_branch_idx;
-            mu_flow_fr_ub = zeros(obj.nk, 1);
-            mu_flow_to_ub = mu_flow_fr_ub;
-            if length(ibr)
-                lim_type = upper(mpopt.opf.flow_lim(1));
-                nni = mm.get_idx('nli');
-                lambda = mm.soln.lambda;
-                if lim_type == 'P'
-                    mu_flow_fr_ub(ibr) = lambda.ineqnonlin(nni.i1.Sf:nni.iN.Sf);
-                    mu_flow_to_ub(ibr) = lambda.ineqnonlin(nni.i1.St:nni.iN.St);
-                else
-                    rate_a = obj.data_model_element(dm).rate_a(ibr);
-                    mu_flow_fr_ub(ibr) = 2 * lambda.ineqnonlin(nni.i1.Sf:nni.iN.Sf) .* rate_a;
-                    mu_flow_to_ub(ibr) = 2 * lambda.ineqnonlin(nni.i1.St:nni.iN.St) .* rate_a;
-                end
-            end
-
-            %% shadow prices on angle difference limits
-            [mu_vad_lb, mu_vad_ub] = obj.opf_branch_ang_diff_prices(mm);
-
-            %% update in the data model
-            dme = obj.data_model_element(dm);
-            dme.tab.pl_fr(dme.on) = real(S_fr);
-            dme.tab.ql_fr(dme.on) = imag(S_fr);
-            dme.tab.pl_to(dme.on) = real(S_to);
-            dme.tab.ql_to(dme.on) = imag(S_to);
-            dme.tab.mu_flow_fr_ub(dme.on) = mu_flow_fr_ub / dm.base_mva;
-            dme.tab.mu_flow_to_ub(dme.on) = mu_flow_to_ub / dm.base_mva;
-            dme.tab.mu_vad_lb(dme.on) = mu_vad_lb * pi/180;
-            dme.tab.mu_vad_ub(dme.on) = mu_vad_ub * pi/180;
-        end
     end     %% methods
 end         %% classdef
