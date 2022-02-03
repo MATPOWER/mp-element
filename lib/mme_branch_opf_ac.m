@@ -1,4 +1,4 @@
-classdef mme_branch_opf_ac < mme_branch
+classdef mme_branch_opf_ac < mme_branch_opf
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -9,7 +9,6 @@ classdef mme_branch_opf_ac < mme_branch
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'branch';
 %     end
     
     methods
@@ -90,7 +89,7 @@ classdef mme_branch_opf_ac < mme_branch
             end
 
             %% shadow prices on angle difference limits
-            [mu_vad_lb, mu_vad_ub] = nme.opf_branch_ang_diff_prices(mm);
+            [mu_vad_lb, mu_vad_ub] = obj.opf_branch_ang_diff_prices(mm, nme);
 
             %% update in the data model
             dme.tab.pl_fr(dme.on) = real(S_fr);
