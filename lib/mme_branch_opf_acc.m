@@ -21,8 +21,7 @@ classdef mme_branch_opf_acc < mme_branch_opf_ac
             add_constraints@mme_branch_opf_ac(obj, mm, nm, dm, mpopt);
 
             %% branch angle difference limits
-            [Aang, lang, uang, iang] = ...
-                dm.elements.branch.opf_branch_ang_diff_params(...
+            [Aang, lang, uang, iang] = obj.opf_branch_ang_diff_params(...
                     dm, mpopt.opf.ignore_angle_lim);
             nang = length(iang);
             if nang

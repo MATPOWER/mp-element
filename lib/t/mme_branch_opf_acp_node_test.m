@@ -1,4 +1,4 @@
-classdef mme_branch_opf < mme_branch
+classdef mme_branch_opf_acp_node_test < mme_branch_opf_acp
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)
@@ -8,15 +8,17 @@ classdef mme_branch_opf < mme_branch
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%     properties
-%     end
-    
     methods
         function [A, l, u, i] = opf_branch_ang_diff_params(obj, dm, ignore)
             dme = obj.data_model_element(dm);
 
             %% from makeAang()
-            nb = dm.elements.bus.n;
+            nb = 0;
+            for k = 1:dme.nbet
+                if dm.elements.is_index_name(dme.cxn_type{k})
+                    nb = nb + dm.elements.(dme.cxn_type{k}).n;
+                end
+            end
             branch = dme.tab;
 
             if ignore
@@ -48,18 +50,8 @@ classdef mme_branch_opf < mme_branch
                     u =[];
                 end
             end
-        end
-
-        function [mu_vad_lb, mu_vad_ub] = opf_branch_ang_diff_prices(obj, mm, nme)
-            %% shadow prices on angle difference limits
-            iang = mm.userdata.ang_diff_constrained_branch_idx;
-            mu_vad_lb = zeros(nme.nk, 1);
-            mu_vad_ub = mu_vad_lb;
-            if length(iang)
-                ll = mm.get_idx('lin');
-                lambda = mm.soln.lambda;
-                mu_vad_lb(iang) = lambda.mu_l(ll.i1.ang:ll.iN.ang);
-                mu_vad_ub(iang) = lambda.mu_u(ll.i1.ang:ll.iN.ang);
+            if length(i)
+                warning('OPF branch angle difference limits not implemented for this case.');
             end
         end
     end     %% methods

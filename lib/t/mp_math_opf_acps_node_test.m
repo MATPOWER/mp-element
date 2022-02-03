@@ -14,7 +14,7 @@ classdef mp_math_opf_acps_node_test < mp_math_opf_acps
             obj@mp_math_opf_acps();
             obj.element_classes = { @mme_bus_nld_opf_acps_node_test, ...
                 @mme_bus_ld_opf_acps_node_test, @mme_gen_opf_ac, ...
-                @mme_branch_opf_acp };
+                @mme_branch_opf_acp_node_test };
 
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
