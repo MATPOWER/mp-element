@@ -1,4 +1,4 @@
-classdef mme_gen3p_opf < mme_gen3p
+classdef mme_gen_pf_dc < mme_gen
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)
@@ -12,11 +12,14 @@ classdef mme_gen3p_opf < mme_gen3p
 %     end
     
     methods
-        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
-        end
+        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+            %% generator active power
+            ss = nm.get_idx('state');
+            pg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.base_mva;
 
-        function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
-            obj.pf_data_model_update(mm, nm, dm, mpopt);
+            %% update in the data model
+            dme = obj.data_model_element(dm);
+            dme.tab.pg(dme.on) = pg;
         end
     end     %% methods
 end         %% classdef

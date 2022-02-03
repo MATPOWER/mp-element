@@ -31,9 +31,12 @@ mpopt0.exp.mpe = 0;
 mpopt.exp.dm_converter_class = @mp_dm_converter_mpc2_node_test;
 mpopt.exp.data_model_class = @mp_data_node_test;
 mpopt.exp.network_model_class = @mp_network_acps_node_test;
+mm_class = struct(  'PF',   @mp_math_pf_acps_node_test, ...
+                    'OPF',  @mp_math_opf_acps_node_test );
 
 for k = 1:length(cases)
     t = sprintf('PF - %s - ', cases{k});
+    mpopt.exp.math_model_class = mm_class.PF;
     mpc = loadcase(cases{k});
     if strcmp(cases{k}, 't_case9_gizmo')
         mpc.bus(2, BS) = 1;
@@ -69,7 +72,7 @@ for k = 1:length(cases)
     t_is(qg, eqg, 9, [t 'qg']);
 
     t = sprintf('OPF - %s - ', cases{k});
-    mpopt.exp.math_model_class = @mp_math_opf_acps_node_test;
+    mpopt.exp.math_model_class = mm_class.OPF;
     have_feature('mp_element', 0);
     r = runopf(mpc, mpopt0);
     have_feature('mp_element', 1);
@@ -90,7 +93,6 @@ for k = 1:length(cases)
     t_is(vm, evm, 9, [t 'vm']);
     t_is(pg, epg, 9, [t 'pg']);
     t_is(qg, eqg, 9, [t 'qg']);
-    mpopt.exp.math_model_class = [];
 end
 
 t_end;

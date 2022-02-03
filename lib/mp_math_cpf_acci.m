@@ -25,7 +25,10 @@ classdef mp_math_cpf_acci < mp_math_cpf & mm_pf_shared_acci
         %% constructor
         function obj = mp_math_cpf_acci()
             obj@mp_math_cpf();
-            obj.element_classes = { @mme_buslink_pf_acc };
+            obj.element_classes = { mme_bus_pf_acc, mme_gen_pf_ac, ...
+                mme_branch_pf_ac, ...
+                @mme_bus3p, @mme_gen3p, @mme_line3p, @mme_xfmr3p, ...
+                @mme_buslink_pf_acc };
         end
 
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)

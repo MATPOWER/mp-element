@@ -16,8 +16,7 @@ classdef mme_line3p_opf < mme_line3p
         end
 
         function obj = opf_data_model_update(obj, mm, nm, dm, mpopt)
-            nme = obj.network_model_element(nm);
-            nme.pf_data_model_update(mm, nm, dm, mpopt);
+            obj.pf_data_model_update(mm, nm, dm, mpopt);
         end
     end     %% methods
 end         %% classdef

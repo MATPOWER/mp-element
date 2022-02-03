@@ -25,7 +25,10 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
         %% constructor
         function obj = mp_math_pf_acps()
             obj@mp_math_pf();
-            obj.element_classes = { @mme_buslink_pf_acp };
+            obj.element_classes = { @mme_bus_pf_acp, @mme_gen_pf_ac, ...
+                @mme_branch_pf_ac, ...
+                @mme_bus3p, @mme_gen3p, @mme_line3p, @mme_xfmr3p, ...
+                @mme_buslink_pf_acp };
         end
 
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)

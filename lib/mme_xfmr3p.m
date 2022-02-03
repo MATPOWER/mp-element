@@ -18,5 +18,25 @@ classdef mme_xfmr3p < mm_element
             obj@mm_element();
             obj.name = 'xfmr3p';
         end
+
+        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+            dme = obj.data_model_element(dm);
+            nme = obj.network_model_element(nm);
+
+            pp = nm.get_idx('port');
+            nn = nme.np/2;
+
+            %% branch active power flow
+            for p = 1:nn
+                s_fr = nm.soln.gs_(pp.i1.xfmr3p(p):pp.iN.xfmr3p(p)) * dm.base_kva;
+                s_to = nm.soln.gs_(pp.i1.xfmr3p(p+nn):pp.iN.xfmr3p(p+nn)) * dm.base_kva;
+
+                %% update in the data model
+                dme.tab.(sprintf('pl%d_fr', p))(dme.on) = real(s_fr);
+                dme.tab.(sprintf('pf%d_fr', p))(dme.on) = cos(angle(s_fr));
+                dme.tab.(sprintf('pl%d_to', p))(dme.on) = real(s_to);
+                dme.tab.(sprintf('pf%d_to', p))(dme.on) = cos(angle(s_to));
+            end
+        end
     end     %% methods
 end         %% classdef

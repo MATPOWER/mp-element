@@ -130,5 +130,8 @@ classdef mme_buslink_pf_ac < mme_buslink
                 end
             end
         end
+
+        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
+        end
     end     %% methods
 end         %% classdef

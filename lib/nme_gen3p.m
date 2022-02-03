@@ -39,21 +39,5 @@ classdef nme_gen3p < nm_element % & mp_form_ac
             build_params@nm_element(obj, nm, dm);   %% call parent
             obj.N = -speye(obj.nk * obj.nz);
         end
-
-        %%-----  PF methods  -----
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
-            dme = obj.data_model_element(dm);
-            ss = nm.get_idx('state');
-
-            for p = 1:obj.nz
-                %% generator active power
-                sg = nm.soln.z(ss.i1.gen3p(p):ss.iN.gen3p(p)) * dm.base_kva;
-                pg = real(sg);
-
-                %% update in the data model
-                dme.tab.(sprintf('pg%d', p))(dme.on) = real(sg);
-                dme.tab.(sprintf('pf%d', p))(dme.on) = cos(angle(sg));
-            end
-        end
     end     %% methods
 end         %% classdef

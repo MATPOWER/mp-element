@@ -23,17 +23,5 @@ classdef nme_gen_ac < nme_gen% & mp_form_ac
             build_params@nme_gen(obj, nm, dm);      %% call parent
             obj.N = -speye(obj.nk * obj.nz);
         end
-
-        %%-----  PF methods  -----
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% generator active power
-            ss = nm.get_idx('state');
-            Sg = nm.soln.z(ss.i1.gen:ss.iN.gen) * dm.base_mva;
-
-            %% update in the data model
-            dme = obj.data_model_element(dm);
-            dme.tab.pg(dme.on) = real(Sg);
-            dme.tab.qg(dme.on) = imag(Sg);
-        end
     end     %% methods
 end         %% classdef

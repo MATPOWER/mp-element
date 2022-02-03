@@ -33,17 +33,5 @@ classdef nme_bus_nld_acp_node_test < nme_bus_acp
             nm.add_var('va', ['va_' obj.name], nb, dme.va_start, va_lb, va_ub);
             nm.add_var('vm', ['vm_' obj.name], nb, dme.vm_start, dme.vm_lb, dme.vm_ub);
         end
-
-        %%-----  PF methods  -----
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% complex bus voltages
-            nn = nm.get_idx('node');
-            V = nm.soln.v(nn.i1.(obj.name):nn.iN.(obj.name));
-
-            %% update in the data model
-            dme = obj.data_model_element(dm);
-            dme.tab.va(dme.on) = angle(V) * 180/pi;
-            dme.tab.vm(dme.on) = abs(V);
-        end
     end     %% methods
 end         %% classdef

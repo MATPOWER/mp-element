@@ -590,14 +590,5 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
                 nme.set_node_type_pq(obj, dm, s(k).i);
             end
         end
-
-
-        %%-----  PF methods  -----
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% each element updates its data model
-            for k = 1:length(obj.elements)
-                obj.elements{k}.pf_data_model_update(mm, nm, dm, mpopt);
-            end
-        end
     end     %% methods
 end         %% classdef

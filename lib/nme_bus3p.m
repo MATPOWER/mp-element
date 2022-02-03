@@ -44,20 +44,5 @@ classdef nme_bus3p < nm_element
 %         function set_node_type_pq(obj, nm, dm, idx)
 %             obj.data_model_element(dm).set_bus_type_pq(dm, idx);
 %         end
-
-        %%-----  PF methods  -----
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
-            dme = obj.data_model_element(dm);
-            nn = nm.get_idx('node');
-
-            for p = 1:obj.nn
-                %% complex bus voltages
-                v = nm.soln.v(nn.i1.bus3p(p):nn.iN.bus3p(p));
-
-                %% update in the data model
-                dme.tab.(sprintf('va%d', p))(dme.on) = angle(v) * 180/pi;
-                dme.tab.(sprintf('vm%d', p))(dme.on) = abs(v);
-            end
-        end
     end     %% methods
 end         %% classdef

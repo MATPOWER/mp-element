@@ -33,18 +33,5 @@ classdef nme_branch_dc < nme_branch & mp_form_dc
                 2*nl, 2*nl );
             obj.p = [Pfinj + dme.g_fr; -Pfinj + dme.g_to];
         end
-
-        %%-----  PF methods  -----
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% branch active power flow
-            pp = nm.get_idx('port');
-            pl_fr = nm.soln.gp(pp.i1.branch(1):pp.iN.branch(1)) * dm.base_mva;
-            pl_to = nm.soln.gp(pp.i1.branch(2):pp.iN.branch(2)) * dm.base_mva;
-
-            %% update in the data model
-            dme = obj.data_model_element(dm);
-            dme.tab.pl_fr(dme.on) = pl_fr;
-            dme.tab.pl_to(dme.on) = pl_to;
-        end
     end     %% methods
 end         %% classdef

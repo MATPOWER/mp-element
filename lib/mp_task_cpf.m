@@ -72,7 +72,8 @@ classdef mp_task_cpf < mp_task_pf
                 %% preserve original base/target specifications
                 for k = 1:obj.nm.node.NS
                     nme = obj.nm.elements.(obj.nm.node.order(k).name);
-                    nme.pf_data_model_update(mm, obj.nm, obj.dm, mpopt);
+                    mme = nme.math_model_element(mm);
+                    mme.pf_data_model_update(mm, obj.nm, obj.dm, mpopt);
                 end
 
                 %% reset var_map

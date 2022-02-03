@@ -26,17 +26,5 @@ classdef nme_bus_dc < nme_bus & mp_form_dc
 
             nm.add_var('va', 'Va', nb, dme.va_start, va_lb, va_ub);
         end
-
-        %%-----  PF methods  -----
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% bus voltage angles
-            nn = nm.get_idx('node');
-            va = nm.soln.v(nn.i1.bus:nn.iN.bus);
-
-            %% update in the data model
-            dme = obj.data_model_element(dm);
-            dme.tab.va(dme.on) = va * 180/pi;
-            dme.tab.vm(dme.on) = 1;
-        end
     end     %% methods
 end         %% classdef

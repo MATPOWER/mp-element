@@ -27,17 +27,5 @@ classdef nme_bus_acp < nme_bus & mp_form_acp
             nm.add_var('va', 'Va', nb, dme.va_start, va_lb, va_ub);
             nm.add_var('vm', 'Vm', nb, dme.vm_start, dme.vm_lb, dme.vm_ub);
         end
-
-        %%-----  PF methods  -----
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% complex bus voltages
-            nn = nm.get_idx('node');
-            V = nm.soln.v(nn.i1.bus:nn.iN.bus);
-
-            %% update in the data model
-            dme = obj.data_model_element(dm);
-            dme.tab.va(dme.on) = angle(V) * 180/pi;
-            dme.tab.vm(dme.on) = abs(V);
-        end
     end     %% methods
 end         %% classdef

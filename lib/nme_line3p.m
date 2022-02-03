@@ -56,24 +56,5 @@ classdef nme_line3p < nm_element & mp_form_acp
                  v{2} v{4} v{5};
                  v{3} v{5} v{6} ];
         end
-
-        %%-----  PF methods  -----
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
-            dme = obj.data_model_element(dm);
-            pp = nm.get_idx('port');
-            nn = obj.np/2;
-
-            %% branch active power flow
-            for p = 1:nn
-                s_fr = nm.soln.gs_(pp.i1.line3p(p):pp.iN.line3p(p)) * dm.base_kva;
-                s_to = nm.soln.gs_(pp.i1.line3p(p+nn):pp.iN.line3p(p+nn)) * dm.base_kva;
-
-                %% update in the data model
-                dme.tab.(sprintf('pl%d_fr', p))(dme.on) = real(s_fr);
-                dme.tab.(sprintf('pf%d_fr', p))(dme.on) = cos(angle(s_fr));
-                dme.tab.(sprintf('pl%d_to', p))(dme.on) = real(s_to);
-                dme.tab.(sprintf('pf%d_to', p))(dme.on) = cos(angle(s_to));
-            end
-        end
     end     %% methods
 end         %% classdef

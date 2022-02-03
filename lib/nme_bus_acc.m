@@ -25,17 +25,5 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
             nm.add_var('vr', 'Vr', nb, real(V0), -vclim, vclim);
             nm.add_var('vi', 'Vi', nb, imag(V0), -vclim, vclim);
         end
-
-        %%-----  PF methods  -----
-        function obj = pf_data_model_update(obj, mm, nm, dm, mpopt)
-            %% complex bus voltages
-            nn = nm.get_idx('node');
-            V = nm.soln.v(nn.i1.bus:nn.iN.bus);
-
-            %% update in the data model
-            dme = obj.data_model_element(dm);
-            dme.tab.va(dme.on) = angle(V) * 180/pi;
-            dme.tab.vm(dme.on) = abs(V);
-        end
     end     %% methods
 end         %% classdef
