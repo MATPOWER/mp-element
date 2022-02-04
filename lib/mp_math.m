@@ -13,7 +13,7 @@ classdef mp_math < mp_element_container & opt_model
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -208,6 +208,12 @@ classdef mp_math < mp_element_container & opt_model
             for k = 1:length(obj.elements)
                 obj.elements{k}.data_model_update(obj, nm, dm, mpopt);
             end
+        end
+
+        function nm = network_model_x_soln(obj, nm)
+            %% convert solved state from math model to network model soln
+            [nm.soln.v, nm.soln.z, nm.soln.x] = ...
+                obj.convert_x_m2n(obj.soln.x, nm);
         end
     end     %% methods
 end         %% classdef

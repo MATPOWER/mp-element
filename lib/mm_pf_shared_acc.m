@@ -12,7 +12,7 @@ classdef mm_pf_shared_acc < mm_pf_shared_ac
 %     end
     
     methods
-        function [vx_, z_, x_] = pf_convert_x(obj, mmx, nm, only_v)
+        function [vx_, z_, x_] = convert_x_m2n(obj, mmx, nm, only_v)
             %% x = obj.pf_convert(mmx, nm)
             %% [v, z] = obj.pf_convert(mmx, nm)
             %% [v, z, x] = obj.pf_convert(mmx, nm,)

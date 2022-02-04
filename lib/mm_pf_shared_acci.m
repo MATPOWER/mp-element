@@ -1,7 +1,7 @@
 classdef mm_pf_shared_acci < mm_pf_shared_acc & mm_pf_shared_ac_i
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -143,13 +143,13 @@ classdef mm_pf_shared_acci < mm_pf_shared_acc & mm_pf_shared_ac_i
             end
         end
 
-        function [f, J] = pf_node_balance_equations(obj, x, nm)
+        function [f, J] = node_balance_equations(obj, x, nm)
             %% index vectors
             ad = obj.aux_data;
             pvq = [ad.pv; ad.pq];
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = obj.pf_convert_x(x, nm, 1);
+            [v_, z_] = obj.convert_x_m2n(x, nm, 1);
 
             %% incidence matrix
             C = nm.C;

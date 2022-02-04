@@ -30,7 +30,7 @@ classdef mp_math_opf_acc < mp_math_opf_ac
                 @mme_line3p_opf, @mme_xfmr3p_opf, @mme_buslink_opf_acc };
         end
 
-        function [vx_, z_, x_] = opf_convert_x(obj, mmx, nm)
+        function [vx_, z_, x_] = convert_x_m2n(obj, mmx, nm)
             nm_vars = obj.update_nm_vars(mmx, nm);
 
             %% convert (real) math model x to (complex) network model x_

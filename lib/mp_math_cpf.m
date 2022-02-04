@@ -11,7 +11,7 @@ classdef mp_math_cpf < mp_math_pf
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -56,15 +56,17 @@ classdef mp_math_cpf < mp_math_pf
             obj.add_var('lambda', 1, 0);
         end
 
-        function [vx_, z_, x_] = cpf_convert_x(obj, mmx, nm, only_v)
+        %% can't simply override convert_x_m2n(), since we
+        %% need to be able to call the PF version too
+        function [vx_, z_, x_] = convert_x_m2n_cpf(obj, mmx, nm, only_v)
             ad = obj.aux_data;
             nmt = ad.nmt;
             lam = mmx(end);     %% continuation parameter lambda
 
             %% update voltages and get base z_
-            [vx_,  zb_] = obj.pf_convert_x(mmx(1:end-1), nm, 1);
+            [vx_,  zb_] = obj.convert_x_m2n(mmx(1:end-1), nm, 1);
             obj.aux_data = ad.adt;  %% swap to target aux_data
-            [vxt_, zt_] = obj.pf_convert_x(mmx(1:end-1), nmt, 1);
+            [vxt_, zt_] = obj.convert_x_m2n(mmx(1:end-1), nmt, 1);
             obj.aux_data = ad;      %% restore base aux_data
             assert(norm(vx_-vxt_, Inf) < eps);
 
@@ -88,21 +90,23 @@ classdef mp_math_cpf < mp_math_pf
             end
         end
 
-        function [f, J] = cpf_node_balance_equations(obj, x, nm)
+        %% can't simply override node_balance_equations(), since we
+        %% need to be able to call the PF version too
+        function [f, J] = node_balance_equations_cpf(obj, x, nm)
             ad = obj.aux_data;
             nmt = ad.nmt;
             lam = x(end);   %% continuation parameter lambda
 
             if nargout > 1
-                [fb, Jb] = obj.pf_node_balance_equations(x(1:end-1), nm);
+                [fb, Jb] = obj.node_balance_equations(x(1:end-1), nm);
                 obj.aux_data = ad.adt;  %% swap to target aux_data
-                [ft, Jt] = obj.pf_node_balance_equations(x(1:end-1), nmt);
+                [ft, Jt] = obj.node_balance_equations(x(1:end-1), nmt);
                 obj.aux_data = ad;      %% restore base aux_data
                 J = [(1-lam) * Jb + lam * Jt    ft - fb];
             else
-                fb = obj.pf_node_balance_equations(x(1:end-1), nm);
+                fb = obj.node_balance_equations(x(1:end-1), nm);
                 obj.aux_data = ad.adt;  %% swap to target aux_data
-                ft = obj.pf_node_balance_equations(x(1:end-1), nmt);
+                ft = obj.node_balance_equations(x(1:end-1), nmt);
                 obj.aux_data = ad;      %% restore base aux_data
             end
             f = (1-lam) * fb + lam * ft;
@@ -111,7 +115,7 @@ classdef mp_math_cpf < mp_math_pf
         function nm = network_model_x_soln(obj, nm)
             %% convert solved state from math model to network model soln
             [nm.soln.v, nm.soln.z, nm.soln.x] = ...
-                obj.cpf_convert_x(obj.soln.x, nm);
+                obj.convert_x_m2n_cpf(obj.soln.x, nm);
         end
 
         function opt = solve_opts(obj, nm, dm, mpopt)
@@ -181,8 +185,8 @@ classdef mp_math_cpf < mp_math_pf
             %% names = obj.pne_output_fcn(nm, ad)
             names = {'V_hat', 'V'};
             if nargin > 3
-                [V_hat, ~] = obj.cpf_convert_x(x_hat, nm, 1);
-                [V,     ~] = obj.cpf_convert_x(x,     nm, 1);
+                [V_hat, ~] = obj.convert_x_m2n_cpf(x_hat, nm, 1);
+                [V,     ~] = obj.convert_x_m2n_cpf(x,     nm, 1);
                 vals = {V_hat, V};
             end
         end
@@ -276,7 +280,7 @@ classdef mp_math_cpf < mp_math_pf
                 nl = branch_nme.nk;     %% port indexes
 
                 %% convert cx.x back to x_
-                x_ = obj.cpf_convert_x(cx.x, nm);
+                x_ = obj.convert_x_m2n_cpf(cx.x, nm);
 
                 %% branch flows
                 S_fr = branch_nme.port_inj_power(x_, 1, ibr)    * dm.base_mva;
@@ -295,7 +299,7 @@ classdef mp_math_cpf < mp_math_pf
             ad = obj.aux_data;
 
             %% convert cx.x back to v_, z_
-            [v_, z_] = obj.cpf_convert_x(cx.x, nm);
+            [v_, z_] = obj.convert_x_m2n_cpf(cx.x, nm);
 
             %% coefficient matrix for power injection states
             rpv = [ad.ref; ad.pv];      %% slack and PV nodes
@@ -315,7 +319,7 @@ classdef mp_math_cpf < mp_math_pf
 
         function efv = event_plim(obj, cx, opt, nm, dm, mpopt)
             %% convert cx.x back to v_, z_
-            [v_, z_] = obj.cpf_convert_x(cx.x, nm);
+            [v_, z_] = obj.convert_x_m2n_cpf(cx.x, nm);
 
             %% limit violations
             [~, ~, zr_max] = nm.params_var('zr'); %% bounds on zr
@@ -344,7 +348,7 @@ classdef mp_math_cpf < mp_math_pf
                     nl = branch_nme.nk;     %% port indexes
 
                     %% convert cx.x back to x_
-                    x_ = obj.cpf_convert_x(cx.x, nm);
+                    x_ = obj.convert_x_m2n_cpf(cx.x, nm);
 
                     %% branch flows
                     S_fr = branch_nme.port_inj_power(x_, 1, ibr)    * dm.base_mva;
@@ -464,7 +468,7 @@ classdef mp_math_cpf < mp_math_pf
                             nx.x(end), nlabel);
 
                     %% set Q to exact limit
-                    [v_, z_] = obj.cpf_convert_x(nx.x, nm);
+                    [v_, z_] = obj.convert_x_m2n_cpf(nx.x, nm);
                     z_(idx) = real(z_(idx)) + 1j * lim / dm.base_mva;
 
                     %% change node type to PQ
@@ -566,7 +570,7 @@ classdef mp_math_cpf < mp_math_pf
                             msg, zlabel, nlabel, lim, nx.x(end));
 
                     %% set P to exact limit
-                    [v_, z_] = obj.cpf_convert_x(nx.x, nm);
+                    [v_, z_] = obj.convert_x_m2n_cpf(nx.x, nm);
                     z_(idx) = lim / dm.base_mva + 1j * imag(z_(idx));
 
                     dmt = ad.dmt;

@@ -11,7 +11,7 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -46,9 +46,9 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
             %% power balance constraints
             switch alg
                 case  {'FDXB', 'FDBX'}
-                    fcn = @(x)pf_node_balance_equations(obj, x, nm, 1);
+                    fcn = @(x)node_balance_equations(obj, x, nm, 1);
                 otherwise
-                    fcn = @(x)pf_node_balance_equations(obj, x, nm);
+                    fcn = @(x)node_balance_equations(obj, x, nm);
             end
             obj.add_nln_constraint({'Pmis', 'Qmis'}, [ad.npv+ad.npq;ad.npq], 1, fcn, []);
         end
@@ -58,7 +58,7 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
             ad = obj.aux_data;
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = obj.pf_convert_x(x, nm, 1);
+            [v_, z_] = obj.convert_x_m2n(x, nm, 1);
 
             [pv, pq, npv, npq, Y] = deal(ad.pv, ad.pq, ad.npv, ad.npq, ad.Y);
             
@@ -93,7 +93,7 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
             ad = obj.aux_data;
 
             %% update network model state ([v_; z_]) from math model state (x)
-            [v_, z_] = obj.pf_convert_x(x, nm, 1);
+            [v_, z_] = obj.convert_x_m2n(x, nm, 1);
 
             [pv, pq, ref, npv, npq] = deal(ad.pv, ad.pq, ad.ref, ad.npv, ad.npq);
             pvq = [pv; pq];

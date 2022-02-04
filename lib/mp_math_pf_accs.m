@@ -11,7 +11,7 @@ classdef mp_math_pf_accs < mp_math_pf & mm_pf_shared_accs
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -42,7 +42,7 @@ classdef mp_math_pf_accs < mp_math_pf & mm_pf_shared_accs
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
             %% power balance constraints
             ad = obj.aux_data;
-            fcn = @(x)pf_node_balance_equations(obj, x, nm);
+            fcn = @(x)node_balance_equations(obj, x, nm);
             obj.add_nln_constraint({'Pmis', 'Qmis', 'Vmis'}, [ad.npv+ad.npq;ad.npq;ad.npv], 1, fcn, []);
         end
     end     %% methods

@@ -36,7 +36,7 @@ classdef mp_math_opf_dc < mp_math_opf
             name = 'DC';
         end
 
-        function [vx, z, x] = opf_convert_x(obj, mmx, nm)
+        function [vx, z, x] = convert_x_m2n(obj, mmx, nm)
             nm_vars = obj.update_nm_vars(mmx, nm);
 
             %% convert (real) math model x to network model x

@@ -23,7 +23,7 @@ classdef mp_math_opf_ac < mp_math_opf
 
     methods
         function [g, dg] = nodal_current_balance_fcn(obj, x, nm)
-            x_ = obj.opf_convert_x(x, nm);
+            x_ = obj.convert_x_m2n(x, nm);
             if nargout > 1
                 [G, Gv1, Gv2, Gzr, Gzi] = nm.nodal_complex_current_balance(x_);
                 Gx = [Gv1 Gv2 Gzr Gzi];
@@ -37,7 +37,7 @@ classdef mp_math_opf_ac < mp_math_opf
         end
 
         function [g, dg] = nodal_power_balance_fcn(obj, x, nm)
-            x_ = obj.opf_convert_x(x, nm);
+            x_ = obj.convert_x_m2n(x, nm);
             if nargout > 1
                 [G, Gv1, Gv2, Gzr, Gzi] = nm.nodal_complex_power_balance(x_);
                 Gx = [Gv1 Gv2 Gzr Gzi];
@@ -51,7 +51,7 @@ classdef mp_math_opf_ac < mp_math_opf
         end
 
         function d2G = nodal_current_balance_hess(obj, x, lam, nm)
-            x_ = obj.opf_convert_x(x, nm);
+            x_ = obj.convert_x_m2n(x, nm);
             nlam = length(lam) / 2;
             lamIr = lam(1:nlam);
             lamIi = lam((1:nlam)+nlam);
@@ -63,7 +63,7 @@ classdef mp_math_opf_ac < mp_math_opf
         end
 
         function d2G = nodal_power_balance_hess(obj, x, lam, nm)
-            x_ = obj.opf_convert_x(x, nm);
+            x_ = obj.convert_x_m2n(x, nm);
             nlam = length(lam) / 2;
             lam_p = lam(1:nlam);
             lam_q = lam((1:nlam)+nlam);

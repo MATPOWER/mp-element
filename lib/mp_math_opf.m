@@ -206,11 +206,5 @@ classdef mp_math_opf < mp_math
             ref1 = ad.ref(1);
             varef1 = ad.va(ref1);
         end
-
-        function nm = network_model_x_soln(obj, nm)
-            %% convert solved state from math model to network model soln
-            [nm.soln.v, nm.soln.z, nm.soln.x] = ...
-                obj.opf_convert_x(obj.soln.x, nm);
-        end
     end     %% methods
 end         %% classdef

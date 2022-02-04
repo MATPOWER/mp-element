@@ -1,7 +1,7 @@
 classdef mm_pf_shared_dc < mm_pf_shared
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -45,7 +45,7 @@ classdef mm_pf_shared_dc < mm_pf_shared
             end
         end
 
-        function [vx, z, x] = pf_convert_x(obj, mmx, nm, only_v)
+        function [vx, z, x] = convert_x_m2n(obj, mmx, nm, only_v)
             %% x = obj.pf_convert(mmx, nm)
             %% [v, z] = obj.pf_convert(mmx, nm)
             %% [v, z, x] = obj.pf_convert(mmx, nm)

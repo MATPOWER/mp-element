@@ -11,7 +11,7 @@ classdef mp_math_pf < mp_math
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -44,11 +44,6 @@ classdef mp_math_pf < mp_math
 
         function obj = add_system_vars(obj, nm, dm, mpopt)
             obj.add_pf_system_vars(nm, dm, mpopt);
-        end
-
-        function nm = network_model_x_soln(obj, nm)
-            [nm.soln.v, nm.soln.z, nm.soln.x] = ...
-                obj.pf_convert_x(obj.soln.x, nm);
         end
 
         function opt = solve_opts(obj, nm, dm, mpopt)
