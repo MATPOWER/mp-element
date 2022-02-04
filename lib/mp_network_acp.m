@@ -1,7 +1,7 @@
-classdef mp_network_acp < mp_network_ac% & mp_form_acp
+classdef mp_network_acp < mp_network_ac & mp_form_acp
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.

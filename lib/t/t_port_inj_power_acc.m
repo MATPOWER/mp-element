@@ -2,7 +2,7 @@ function obj = t_port_inj_power_acc(quiet)
 %T_PORT_SNJ_POWER_ACC  Tests of port_inj_power() derivatives wrt cartesian V.
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -39,7 +39,7 @@ dmc = mp_dm_converter_mpc2().modify_element_classes(@dmce_gizmo_mpc2).build();
 for c = 1:length(tc)
     %% create network model object
     dm = mp_data().modify_element_classes(@dme_gizmo).build(casefile, dmc);
-    ac = mp_network_accs().modify_element_classes(tc(c).ec).build(dm);
+    ac = mp_network_acc().modify_element_classes(tc(c).ec).build(dm);
     C = ac.C;
     D = ac.D;
     np = ac.np;

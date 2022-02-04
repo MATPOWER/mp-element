@@ -15,7 +15,7 @@ classdef mp_task_pf < mp_task
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -137,19 +137,9 @@ classdef mp_task_pf < mp_task
             switch upper(mpopt.model)
                 case 'AC'
                     if mpopt.pf.v_cartesian
-                        if mpopt.pf.current_balance
-                            nm_class = @mp_network_acci;
-                        else
-                            nm_class = @mp_network_accs;
-%                                nm_class = @mp_network_accs_test_nln;
-                        end
+                        nm_class = @mp_network_acc;
                     else
-                        if mpopt.pf.current_balance
-                            nm_class = @mp_network_acpi;
-                        else
-                            nm_class = @mp_network_acps;
-%                                nm_class = @mp_network_acps_test_nln;
-                        end
+                        nm_class = @mp_network_acp;
                     end
                 case 'DC'
                     nm_class = @mp_network_dc;

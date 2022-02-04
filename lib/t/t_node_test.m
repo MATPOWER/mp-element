@@ -2,7 +2,7 @@ function [pf_, opf_] = t_node_test(quiet)
 %T_NODE_TEST  Tests for network model with multipe node-creating elements.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -30,7 +30,7 @@ mpopt0 = mpopt;
 mpopt0.exp.mpe = 0;
 mpopt.exp.dm_converter_class = @mp_dm_converter_mpc2_node_test;
 mpopt.exp.data_model_class = @mp_data_node_test;
-mpopt.exp.network_model_class = @mp_network_acps_node_test;
+mpopt.exp.network_model_class = @mp_network_acp_node_test;
 mm_class = struct(  'PF',   @mp_math_pf_acps_node_test, ...
                     'OPF',  @mp_math_opf_acps_node_test );
 

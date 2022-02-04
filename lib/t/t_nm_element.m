@@ -2,7 +2,7 @@ function obj = t_nm_element(quiet, out_ac)
 %T_NM_ELEMENT  Tests for NM_ELEMENT.
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -198,13 +198,13 @@ pg2 = gen.port_inj_power(x, 1, 2);
 t_is(pg2, epg(2), 12, t);
 
 %%-----  AC formulation  -----
-t = 'mp_network_acps() : ';
-ac = mp_network_acps();
+t = 'mp_network_acp() : ';
+ac = mp_network_acp();
 t_ok(strcmp(ac.name, 'network'), [t 'name']);
-t_ok(strcmp(class(ac), 'mp_network_acps'), [t 'class']);
-t_ok(strcmp(ac.find_form_class(), 'mp_form_acps'), [t 'formulation class']);
-t_ok(strcmp(ac.form_name, 'AC-polar-power'), [t 'formulation name']);
-t_ok(strcmp(ac.form_tag, 'acps'), [t 'formulation tag']);
+t_ok(strcmp(class(ac), 'mp_network_acp'), [t 'class']);
+t_ok(strcmp(ac.find_form_class(), 'mp_form_acp'), [t 'formulation class']);
+t_ok(strcmp(ac.form_name, 'AC-polar'), [t 'formulation name']);
+t_ok(strcmp(ac.form_tag, 'acp'), [t 'formulation tag']);
 p = ac.model_params();
 t_is(length(p), 6, 12, [t '# of model params']);
 t_ok(strcmp(p{1}, 'Y'), [t 'Y']);
@@ -516,13 +516,13 @@ t_is(success, 1, 12, [t 'success']);
 t_is(i, 4, 12, [t 'i']);
 
 %%-----  AC gizmo test formulation  -----
-t = 'mp_network_acps_test() : ';
-ac = mp_network_acps_test();
+t = 'mp_network_acp_test() : ';
+ac = mp_network_acp_test();
 t_ok(strcmp(ac.name, 'network'), [t 'name']);
-t_ok(strcmp(class(ac), 'mp_network_acps_test'), [t 'class']);
-t_ok(strcmp(ac.find_form_class(), 'mp_form_acps'), [t 'formulation class']);
-t_ok(strcmp(ac.form_name, 'AC-polar-power'), [t 'formulation name']);
-t_ok(strcmp(ac.form_tag, 'acps'), [t 'formulation tag']);
+t_ok(strcmp(class(ac), 'mp_network_acp_test'), [t 'class']);
+t_ok(strcmp(ac.find_form_class(), 'mp_form_acp'), [t 'formulation class']);
+t_ok(strcmp(ac.form_name, 'AC-polar'), [t 'formulation name']);
+t_ok(strcmp(ac.form_tag, 'acp'), [t 'formulation tag']);
 p = ac.model_params();
 t_is(length(p), 6, 12, [t '# of model params']);
 t_ok(strcmp(p{1}, 'Y'), [t 'Y']);
@@ -554,7 +554,7 @@ mpc.gen(:, QG) = [0.2570733353840 0.0079004398259 -0.1749046999314].' * mpc.base
 pf = mp_task_pf();
 mpopt.exp.dmc_element_classes = @dmce_gizmo_mpc2;
 mpopt.exp.dm_element_classes = @dme_gizmo;
-mpopt.exp.network_model_class = @mp_network_acps_test;
+mpopt.exp.network_model_class = @mp_network_acp_test;
 warn_id = 'update_z:multiple_nodes';
 s1 = warning('query', warn_id);
 warning('off', warn_id);
@@ -574,7 +574,7 @@ mpc.bus(:, VA) = angle(v_) * 180/pi;
 mpc.bus(:, VM) = abs(v_);
 dmc = mp_dm_converter_mpc2().modify_element_classes(@dmce_gizmo_mpc2).build();
 dm = mp_data().modify_element_classes(@dme_gizmo).build(mpc, dmc);
-ac = mp_network_acps_test().build(dm);
+ac = mp_network_acp_test().build(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);
 t_is(ac.nz, 7, 12, [t 'nz']);

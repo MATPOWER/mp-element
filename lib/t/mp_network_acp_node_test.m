@@ -1,7 +1,7 @@
-classdef mp_network_acps_test < mp_network_acps
+classdef mp_network_acp_node_test < mp_network_acp
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -10,9 +10,11 @@ classdef mp_network_acps_test < mp_network_acps
 
     methods
         %% constructor
-        function obj = mp_network_acps_test()
-            obj@mp_network_acps();
-            obj.element_classes{end+1} = @nme_gizmo_acp;
+        function obj = mp_network_acp_node_test()
+            obj@mp_network_acp();
+            obj.element_classes = ...
+                { @nme_bus_nld_acp_node_test, @nme_bus_ld_acp_node_test, ...
+                    @nme_gen_acp, @nme_branch_acp };
 
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),

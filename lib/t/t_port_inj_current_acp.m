@@ -2,7 +2,7 @@ function obj = t_port_inj_current_acp(quiet)
 %T_PORT_INJ_CURRENT_ACP  Tests of port_inj_current() derivatives wrt polar V.
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -40,7 +40,7 @@ for c = 1:length(tc)
     %% create network model object
     mpc = loadcase(casefile);
     dm = mp_data().modify_element_classes(@dme_gizmo).build(mpc, dmc);
-    ac = mp_network_acps().modify_element_classes(@nme_gizmo_acp).build(dm);
+    ac = mp_network_acp().modify_element_classes(@nme_gizmo_acp).build(dm);
     C = ac.C;
     D = ac.D;
     np = ac.np;
