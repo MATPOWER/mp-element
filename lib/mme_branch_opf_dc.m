@@ -1,7 +1,7 @@
 classdef mme_branch_opf_dc < mme_branch_opf
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -32,7 +32,7 @@ classdef mme_branch_opf_dc < mme_branch_opf
             end
 
             %% branch voltage angle difference limits
-            [Aang, lang, uang, iang] = obj.opf_branch_ang_diff_params(...
+            [Aang, lang, uang, iang] = obj.ang_diff_params(...
                     dm, mpopt.opf.ignore_angle_lim);
             if length(iang)
                 mm.add_lin_constraint('ang', Aang, lang, uang, {'Va'});
@@ -61,7 +61,7 @@ classdef mme_branch_opf_dc < mme_branch_opf
             end
 
             %% shadow prices on angle difference limits
-            [mu_vad_lb, mu_vad_ub] = obj.opf_branch_ang_diff_prices(mm, nme);
+            [mu_vad_lb, mu_vad_ub] = obj.ang_diff_prices(mm, nme);
 
             %% update in the data model
             dme.tab.pl_fr(dme.on) = pl_fr;

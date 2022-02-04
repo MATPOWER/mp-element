@@ -1,7 +1,7 @@
 classdef nme_branch_acc < nme_branch_ac & mp_form_acc
 
 %   MATPOWER
-%   Copyright (c) 2018-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2018-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %   and Baljinnyam Sereeter, Delft University of Technology
 %

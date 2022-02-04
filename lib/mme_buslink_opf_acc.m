@@ -22,16 +22,16 @@ classdef mme_buslink_opf_acc < mme_buslink_opf
                                  'Vi', 'Vi3', 'Vi3', 'Vi3'}, ...
                         'idx', {{}, {1}, {2}, {3}, {}, {1}, {2}, {3}});
     
-            fcn_va = @(xx)obj.opf_va_fcn(nme, xx, A, b_va);
-            hess_va = @(xx, lam)obj.opf_va_hess(nme, xx, lam, A);
+            fcn_va = @(xx)obj.va_fcn(nme, xx, A, b_va);
+            hess_va = @(xx, lam)obj.va_hess(nme, xx, lam, A);
             mm.add_nln_constraint('buslink_va', length(b_va), 1, fcn_va, hess_va, vs);
 
-            fcn_vm = @(xx)obj.opf_vm2_fcn(nme, xx, A, b_vm);
-            hess_vm = @(xx, lam)obj.opf_vm2_hess(nme, xx, lam, A);
+            fcn_vm = @(xx)obj.vm2_fcn(nme, xx, A, b_vm);
+            hess_vm = @(xx, lam)obj.vm2_hess(nme, xx, lam, A);
             mm.add_nln_constraint('buslink_vm', length(b_vm), 1, fcn_vm, hess_vm, vs);
         end
 
-        function [g, dg] = opf_va_fcn(obj, nme, xx, A, b)
+        function [g, dg] = va_fcn(obj, nme, xx, A, b)
             %% unpack data
             vr = vertcat(xx{1:4});
             vi = vertcat(xx{5:8});
@@ -45,7 +45,7 @@ classdef mme_buslink_opf_acc < mme_buslink_opf
             g = A * va - b;
         end
 
-        function d2G = opf_va_hess(obj, nme, xx, lam, A)
+        function d2G = va_hess(obj, nme, xx, lam, A)
             %% unpack data
             vr = vertcat(xx{1:4});
             vi = vertcat(xx{5:8});
@@ -53,7 +53,7 @@ classdef mme_buslink_opf_acc < mme_buslink_opf
             d2G = nme.va_hess({vr, vi}, A' * lam, []);
         end
 
-        function [g, dg] = opf_vm2_fcn(obj, nme, xx, A, b)
+        function [g, dg] = vm2_fcn(obj, nme, xx, A, b)
             %% unpack data
             vr = vertcat(xx{1:4});
             vi = vertcat(xx{5:8});
@@ -67,7 +67,7 @@ classdef mme_buslink_opf_acc < mme_buslink_opf
             g = A * vm - b;
         end
 
-        function d2G = opf_vm2_hess(obj, nme, xx, lam, A)
+        function d2G = vm2_hess(obj, nme, xx, lam, A)
             %% unpack data
             vr = vertcat(xx{1:4});
             vi = vertcat(xx{5:8});

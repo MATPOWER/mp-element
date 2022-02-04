@@ -11,7 +11,7 @@ classdef mp_math_opf < mp_math
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -84,7 +84,7 @@ classdef mp_math_opf < mp_math
 
         function add_legacy_user_vars(obj, nm, dm, mpopt)
             %% save data
-            obj.userdata.user_vars = obj.opf_legacy_user_var_names();
+            obj.userdata.user_vars = obj.legacy_user_var_names();
 
             %% add any user-defined vars
             if isfield(dm.userdata.legacy_opf_user_mods, 'z')
@@ -173,7 +173,7 @@ classdef mp_math_opf < mp_math
             end
         end
 
-        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+        function x0 = interior_x0(obj, mm, nm, dm, x0)
             if nargin < 5 || isempty(x0)
                 %% generic interior point
                 [x0, xmin, xmax] = mm.params_var();     %% init var & bounds
@@ -194,13 +194,13 @@ classdef mp_math_opf < mp_math
                 if nme.nn || nme.nz     %% element creates nodes or states
                     mme = nme.math_model_element(mm);   %% math model element
                     if ~isempty(mme)
-                        x0 = mme.opf_interior_x0(mm, nm, dm, x0);
+                        x0 = mme.interior_x0(mm, nm, dm, x0);
                     end
                 end
             end
         end
 
-        function varef1 = opf_interior_va(obj, nm, dm)
+        function varef1 = interior_va(obj, nm, dm)
             %% return scalar va equal to angle of first reference node
             ad = obj.aux_data;
             ref1 = ad.ref(1);

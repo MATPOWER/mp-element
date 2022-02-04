@@ -1,7 +1,7 @@
 classdef mme_buslink_pf_acc < mme_buslink_pf_ac
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -19,7 +19,7 @@ classdef mme_buslink_pf_acc < mme_buslink_pf_ac
             %% add constraints for matching
             %%  voltage angles at pv and pq nodes
             %%  voltage magnitudes at pq nodes
-            [A_va_pq, A_va_pv, b_va, A_vm, b_vm] = obj.pf_voltage_constraints(nme, mm.aux_data);
+            [A_va_pq, A_va_pv, b_va, A_vm, b_vm] = obj.voltage_constraints(nme, mm.aux_data);
 
             %% prep variable set structs
             vs_va = struct('name', {'Vr_pq', 'Vr3_pq', 'Vr3_pq', 'Vr3_pq', ...

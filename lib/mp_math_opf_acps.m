@@ -11,7 +11,7 @@ classdef mp_math_opf_acps < mp_math_opf_acp
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -38,7 +38,7 @@ classdef mp_math_opf_acps < mp_math_opf_acp
             obj.add_nln_constraint({'Pmis', 'Qmis'}, [nn;nn], 1, fcn_mis, hess_mis);
         end
 
-        function [lam_p, lam_q] = opf_node_power_balance_prices(obj, nm)
+        function [lam_p, lam_q] = node_power_balance_prices(obj, nm)
             %% shadow prices on node power balance
             nne = obj.get_idx('nle');
             lambda = obj.soln.lambda;

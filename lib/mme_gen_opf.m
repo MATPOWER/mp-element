@@ -1,7 +1,7 @@
 classdef mme_gen_opf < mme_gen
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -75,7 +75,7 @@ classdef mme_gen_opf < mme_gen
             end
         end
 
-        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+        function x0 = interior_x0(obj, mm, nm, dm, x0)
             %% set gen cost variables to something feasible
             if obj.cost.pwl.n > 0
                 vv = mm.get_idx();

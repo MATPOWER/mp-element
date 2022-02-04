@@ -13,9 +13,9 @@ classdef mme_bus_opf_dc < mme_bus
 %     end
     
     methods
-        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+        function x0 = interior_x0(obj, mm, nm, dm, x0)
             vv = mm.get_idx();
-            varef1 = mm.opf_interior_va(nm, dm);
+            varef1 = mm.interior_va(nm, dm);
             x0(vv.i1.Va:vv.iN.Va) = varef1; %% angles set to 1st ref angle
         end
 

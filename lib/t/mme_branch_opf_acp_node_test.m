@@ -9,7 +9,7 @@ classdef mme_branch_opf_acp_node_test < mme_branch_opf_acp
 %   See https://matpower.org for more info.
 
     methods
-        function [A, l, u, i] = opf_branch_ang_diff_params(obj, dm, ignore)
+        function [A, l, u, i] = ang_diff_params(obj, dm, ignore)
             dme = obj.data_model_element(dm);
 
             %% from makeAang()

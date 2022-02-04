@@ -12,7 +12,7 @@ classdef mme_branch_opf < mme_branch
 %     end
     
     methods
-        function [A, l, u, i] = opf_branch_ang_diff_params(obj, dm, ignore)
+        function [A, l, u, i] = ang_diff_params(obj, dm, ignore)
             dme = obj.data_model_element(dm);
 
             %% from makeAang()
@@ -50,7 +50,7 @@ classdef mme_branch_opf < mme_branch
             end
         end
 
-        function [mu_vad_lb, mu_vad_ub] = opf_branch_ang_diff_prices(obj, mm, nme)
+        function [mu_vad_lb, mu_vad_ub] = ang_diff_prices(obj, mm, nme)
             %% shadow prices on angle difference limits
             iang = mm.userdata.ang_diff_constrained_branch_idx;
             mu_vad_lb = zeros(nme.nk, 1);

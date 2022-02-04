@@ -15,9 +15,9 @@ classdef mme_bus_nld_opf_acps_node_test < mme_bus_opf_acp
             obj.name = 'bus_nld';
         end
 
-        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
-            varef1 = mm.opf_interior_va(nm, dm);
-            vm = obj.opf_interior_vm(mm, nm, dm);
+        function x0 = interior_x0(obj, mm, nm, dm, x0)
+            varef1 = mm.interior_va(nm, dm);
+            vm = obj.interior_vm(mm, nm, dm);
             vv = mm.get_idx();
             x0(vv.i1.(['va_' obj.name]):vv.iN.(['va_' obj.name])) = varef1; %% angles set to 1st ref angle
             x0(vv.i1.(['vm_' obj.name]):vv.iN.(['vm_' obj.name])) = vm;     %% voltage magnitudes
@@ -36,7 +36,7 @@ classdef mme_bus_nld_opf_acps_node_test < mme_bus_opf_acp
             mu_vm_ub = lambda.upper(vv.i1.(vVm):vv.iN.(vVm));
 
             %% shadow prices on node power balance
-            [lam_p, lam_q] = mm.opf_node_power_balance_prices(nm);
+            [lam_p, lam_q] = mm.node_power_balance_prices(nm);
             lam_p = lam_p(nn.i1.(obj.name):nn.iN.(obj.name));   %% for (obj.name) nodes only
             lam_q = lam_q(nn.i1.(obj.name):nn.iN.(obj.name));   %% for (obj.name) nodes only
 

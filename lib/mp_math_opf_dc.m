@@ -11,7 +11,7 @@ classdef mp_math_opf_dc < mp_math_opf
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -49,7 +49,7 @@ classdef mp_math_opf_dc < mp_math_opf
             end
         end
 
-        function names = opf_legacy_user_var_names(obj)
+        function names = legacy_user_var_names(obj)
             names = {'Va', 'Pg'};
         end
 
@@ -77,7 +77,7 @@ classdef mp_math_opf_dc < mp_math_opf
             switch opt.alg
                 case {'MIPS', 'IPOPT'}
                     if mpopt.opf.start < 2      %% initialize interior point
-                        opt.x0 = obj.opf_interior_x0(obj, nm, dm);
+                        opt.x0 = obj.interior_x0(obj, nm, dm);
                     end
                 case 'OSQP'
                     opt.x0 = [];        %% disable provided starting point

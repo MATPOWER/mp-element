@@ -1,7 +1,7 @@
 classdef mme_buslink_pf_ac < mme_buslink
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -55,7 +55,7 @@ classdef mme_buslink_pf_ac < mme_buslink
             end
         end
 
-        function [A_va_pq, A_va_pv, b_va, A_vm, b_vm] = pf_voltage_constraints(obj, nme, ad)
+        function [A_va_pq, A_va_pv, b_va, A_vm, b_vm] = voltage_constraints(obj, nme, ad)
             %% form constraint matrices for matching
             %%  voltage angles for pv and pq nodes
             %%  voltage magnitudes for pq nodes

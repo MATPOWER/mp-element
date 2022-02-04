@@ -46,10 +46,10 @@ classdef mme_bus_opf_acc < mme_bus_opf_ac
             mm.userdata.viq = viq;
         end
 
-        function x0 = opf_interior_x0(obj, mm, nm, dm, x0)
+        function x0 = interior_x0(obj, mm, nm, dm, x0)
             vv = mm.get_idx();
-            varef1 = mm.opf_interior_va(nm, dm);
-            vm = obj.opf_interior_vm(mm, nm, dm);
+            varef1 = mm.interior_va(nm, dm);
+            vm = obj.interior_vm(mm, nm, dm);
             v_ = vm * exp(1j*varef1);
             x0(vv.i1.Vr:vv.iN.Vr) = real(v_);
             x0(vv.i1.Vi:vv.iN.Vi) = imag(v_);
@@ -82,7 +82,7 @@ classdef mme_bus_opf_acc < mme_bus_opf_ac
             mu_vm_ub = mu_vm_ub .* vm * 2;
 
             %% shadow prices on node power balance
-            [lam_p, lam_q] = mm.opf_node_power_balance_prices(nm);
+            [lam_p, lam_q] = mm.node_power_balance_prices(nm);
             lam_p = lam_p(nn.i1.bus:nn.iN.bus);     %% for bus nodes only
             lam_q = lam_q(nn.i1.bus:nn.iN.bus);     %% for bus nodes only
 

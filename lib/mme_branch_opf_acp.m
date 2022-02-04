@@ -1,7 +1,7 @@
 classdef mme_branch_opf_acp < mme_branch_opf_ac
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -18,7 +18,7 @@ classdef mme_branch_opf_acp < mme_branch_opf_ac
             add_constraints@mme_branch_opf_ac(obj, mm, nm, dm, mpopt);
 
             %% branch voltage angle difference limits
-            [Aang, lang, uang, iang] = obj.opf_branch_ang_diff_params(...
+            [Aang, lang, uang, iang] = obj.ang_diff_params(...
                     dm, mpopt.opf.ignore_angle_lim);
             if length(iang)
                 mm.add_lin_constraint('ang', Aang, lang, uang, {'Va'});

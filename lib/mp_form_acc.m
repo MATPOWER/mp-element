@@ -15,7 +15,7 @@ classdef mp_form_acc < mp_form_ac
 %       form_tag() - returns string w/short label for formulation ('acc')
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2021, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.

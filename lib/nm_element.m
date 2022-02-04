@@ -29,12 +29,9 @@ classdef nm_element < handle
 %       add_vvars()
 %       add_zvars()
 %       build_params() - build model parameters from data model
-%       opf_add_vars()
-%       opf_add_constraints()
-%       opf_add_costs()
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.

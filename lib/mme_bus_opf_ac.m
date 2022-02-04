@@ -13,7 +13,7 @@ classdef mme_bus_opf_ac < mme_bus
 %     end
     
     methods
-        function vm = opf_interior_vm(obj, mm, nm, dm)
+        function vm = interior_vm(obj, mm, nm, dm)
             %% return vm equal to avg of clipped limits
             dme = obj.data_model_element(dm);
             vm_ub = min(dme.vm_ub, 1.5);
