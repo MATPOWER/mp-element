@@ -32,15 +32,17 @@ classdef mp_math_cpf < mp_math_pf
 
         function obj = add_aux_data(obj, nm, dm, mpopt)
             %% create aux_data struct
-            obj.aux_data = obj.cpf_aux_data(nm, dm, mpopt);
+            obj.aux_data = obj.build_aux_data_cpf(nm, dm, mpopt);
         end
 
-        function ad = cpf_aux_data(obj, nm, dm, mpopt)
+        %% can't simply override build_aux_data(), since we
+        %% need to be able to call the PF version too
+        function ad = build_aux_data_cpf(obj, nm, dm, mpopt)
             dmt = dm.userdata.target;
             nmt = nm.userdata.target;
 
-            ad  = obj.pf_aux_data(nm, dm, mpopt);
-            adt = obj.pf_aux_data(nmt, dmt, mpopt);
+            ad  = obj.build_aux_data(nm, dm, mpopt);
+            adt = obj.build_aux_data(nmt, dmt, mpopt);
 
             ad = obj.check_xfer(nm, nmt, ad, adt);
             ad.nmt = nmt;

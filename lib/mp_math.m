@@ -85,10 +85,10 @@ classdef mp_math < mp_element_container & opt_model
 
         function obj = add_aux_data(obj, nm, dm, mpopt)
             %% create aux_data struct
-            obj.aux_data = obj.base_aux_data(nm, dm, mpopt);
+            obj.aux_data = obj.build_aux_data(nm, dm, mpopt);
         end
 
-        function ad = base_aux_data(obj, nm, dm, mpopt)
+        function ad = build_base_aux_data(obj, nm, dm, mpopt)
             %% get model variables
             vvars = nm.model_vvars();
             zvars = nm.model_zvars();

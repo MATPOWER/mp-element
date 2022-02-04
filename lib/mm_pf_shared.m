@@ -12,9 +12,9 @@ classdef mm_pf_shared < handle
 %     end
     
     methods
-        function ad = pf_aux_data(obj, nm, dm, mpopt)
+        function ad = build_aux_data(obj, nm, dm, mpopt)
             %% create aux_data struct
-            ad = obj.base_aux_data(nm, dm, mpopt);
+            ad = obj.build_base_aux_data(nm, dm, mpopt);
         end
     end     %% methods
 end         %% classdef

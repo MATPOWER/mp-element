@@ -12,9 +12,9 @@ classdef mm_pf_shared_acps < mm_pf_shared_acp
 %     end
     
     methods
-        function ad = pf_aux_data(obj, nm, dm, mpopt)
+        function ad = build_aux_data(obj, nm, dm, mpopt)
             %% call parent
-            ad = pf_aux_data@mm_pf_shared_acp(obj, nm, dm, mpopt);
+            ad = build_aux_data@mm_pf_shared_acp(obj, nm, dm, mpopt);
 
             switch mpopt.pf.alg
                 case 'GS'

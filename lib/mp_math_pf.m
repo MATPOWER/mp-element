@@ -37,11 +37,6 @@ classdef mp_math_pf < mp_math
             obj.add_constraints(nm, dm, mpopt);
         end
 
-        function obj = add_aux_data(obj, nm, dm, mpopt)
-            %% create aux_data struct
-            obj.aux_data = obj.pf_aux_data(nm, dm, mpopt);
-        end
-
         function obj = add_system_vars(obj, nm, dm, mpopt)
             obj.add_pf_system_vars(nm, dm, mpopt);
         end

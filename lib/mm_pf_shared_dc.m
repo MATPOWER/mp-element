@@ -12,9 +12,9 @@ classdef mm_pf_shared_dc < mm_pf_shared
 %     end
     
     methods
-        function ad = pf_aux_data(obj, nm, dm, mpopt)
+        function ad = build_aux_data(obj, nm, dm, mpopt)
             %% call parent
-            ad = pf_aux_data@mm_pf_shared(obj, nm, dm, mpopt);
+            ad = build_aux_data@mm_pf_shared(obj, nm, dm, mpopt);
 
             %% get parameters
             [B, K, p] = nm.get_params();

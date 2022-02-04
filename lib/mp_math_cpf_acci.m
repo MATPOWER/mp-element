@@ -1,4 +1,4 @@
-classdef mp_math_cpf_acci < mp_math_cpf & mm_pf_shared_acci
+classdef mp_math_cpf_acci < mp_math_cpf_acc & mm_pf_shared_acci
 %MP_MATH_CPF_ACCI  MATPOWER mathematical model for continuation power flow (CPF) problem.
 %   ?
 %
@@ -22,15 +22,6 @@ classdef mp_math_cpf_acci < mp_math_cpf & mm_pf_shared_acci
 %     end
 
     methods
-        %% constructor
-        function obj = mp_math_cpf_acci()
-            obj@mp_math_cpf();
-            obj.element_classes = { @mme_bus_pf_acc, @mme_gen_pf_ac, ...
-                @mme_branch_pf_ac, @mme_load_cpf, @mme_shunt_cpf, ...
-                @mme_bus3p, @mme_gen3p, @mme_line3p, @mme_xfmr3p, ...
-                @mme_buslink_pf_acc };
-        end
-
         function tag = form_tag(obj)
             tag = 'acci';
         end

@@ -13,7 +13,7 @@ classdef mm_pf_shared_ac_i < handle
 %     end
     
     methods
-        function ad = pf_aux_data_i(obj, nm, ad)
+        function ad = build_aux_data_i(obj, nm, ad)
             %% build additional aux data
             N = nm.C(ad.pv, :) * nm.N;      %% z coefficients for z @ PV nodes
             [ii, jj, ~] = find(N == -1);    %% find element representing 1st
