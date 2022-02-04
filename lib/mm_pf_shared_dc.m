@@ -24,7 +24,7 @@ classdef mm_pf_shared_dc < mm_pf_shared
             ad.Pbus = -(nm.C * K * nm.D' * ad.z + nm.C * p);
         end
 
-        function obj = add_pf_system_vars(obj, nm, dm, mpopt)
+        function obj = add_system_vars_pf(obj, nm, dm, mpopt)
             %% get model variables
             vvars = nm.model_vvars();
 
@@ -40,7 +40,7 @@ classdef mm_pf_shared_dc < mm_pf_shared
                     d = st.data;
                     obj.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
                 else
-                    error('mp_math_pf/add_pf_system_vars: handling of indexed sets not implmented here (yet)');
+                    error('mp_math_pf/add_system_vars_pf: handling of indexed sets not implmented here (yet)');
                 end
             end
         end

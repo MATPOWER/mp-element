@@ -20,7 +20,7 @@ classdef mm_pf_shared_acci < mm_pf_shared_acc & mm_pf_shared_ac_i
             ad = obj.build_aux_data_i(nm, ad);
         end
 
-        function obj = add_pf_system_vars(obj, nm, dm, mpopt)
+        function obj = add_system_vars_pf(obj, nm, dm, mpopt)
             %% get model variables
             vvars = nm.model_vvars();
 

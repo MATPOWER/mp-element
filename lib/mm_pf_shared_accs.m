@@ -12,7 +12,7 @@ classdef mm_pf_shared_accs < mm_pf_shared_acc
 %     end
     
     methods
-        function obj = add_pf_system_vars(obj, nm, dm, mpopt)
+        function obj = add_system_vars_pf(obj, nm, dm, mpopt)
             %% get model variables
             vvars = nm.model_vvars();
 

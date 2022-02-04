@@ -31,7 +31,7 @@ classdef mm_pf_shared_acps < mm_pf_shared_acp
             end
         end
 
-        function obj = add_pf_system_vars(obj, nm, dm, mpopt)
+        function obj = add_system_vars_pf(obj, nm, dm, mpopt)
             %% get model variables
             vvars = nm.model_vvars();
 

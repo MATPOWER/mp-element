@@ -38,7 +38,8 @@ classdef mp_math_pf < mp_math
         end
 
         function obj = add_system_vars(obj, nm, dm, mpopt)
-            obj.add_pf_system_vars(nm, dm, mpopt);
+            %% put implementation in method in mm_pf_shared class hierarchy
+            obj.add_system_vars_pf(nm, dm, mpopt);
         end
 
         function opt = solve_opts(obj, nm, dm, mpopt)
