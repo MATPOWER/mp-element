@@ -26,6 +26,22 @@ classdef mp_math < mp_element_container & opt_model
     end
 
     methods
+        function tag = task_tag(obj)
+            error('mp_math/task_tag: must be implemented in sub-class');
+        end
+
+        function name = task_name(obj)
+            error('mp_math/task_name: must be implemented in sub-class');
+        end
+
+        function tag = form_tag(obj)
+            error('mp_math/form_tag: must be implemented in sub-class');
+        end
+
+        function name = form_name(obj)
+            error('mp_math/form_name: must be implemented in sub-class');
+        end
+
         function obj = build(obj, nm, dm, mpopt)
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
@@ -50,6 +66,10 @@ classdef mp_math < mp_element_container & opt_model
 
         function display(obj)
             fprintf('MATH MODEL CLASS : %s\n', class(obj));
+            fprintf('    TASK NAME               : %s\n', obj.task_name());
+            fprintf('    TASK TAG                : %s\n', obj.task_tag());
+            fprintf('    FORMULATION NAME        : %s\n', obj.form_name());
+            fprintf('    FORMULATION TAG         : %s\n', obj.form_tag());
             display@opt_model(obj)
 
             %% elements

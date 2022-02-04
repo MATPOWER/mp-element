@@ -22,6 +22,14 @@ classdef mp_math_opf_accs < mp_math_opf_acc
 %     end
 
     methods
+        function tag = form_tag(obj)
+            tag = 'accs';
+        end
+
+        function name = form_name(obj)
+            name = 'AC-cartesian-power';
+        end
+
         function add_node_balance_constraints(obj, nm, dm, mpopt)
             %% power balance constraints
             nn = nm.node.N;             %% number of nodes

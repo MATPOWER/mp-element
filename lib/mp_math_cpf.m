@@ -22,6 +22,14 @@ classdef mp_math_cpf < mp_math_pf
 %     end
 
     methods
+        function tag = task_tag(obj)
+            tag = 'cpf';
+        end
+
+        function name = task_name(obj)
+            name = 'Continuation Power Flow';
+        end
+
         function obj = add_aux_data(obj, nm, dm, mpopt)
             %% create aux_data struct
             obj.aux_data = obj.cpf_aux_data(nm, dm, mpopt);

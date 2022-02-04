@@ -52,7 +52,7 @@ classdef mp_math_opf_legacy < handle
         end
 
         function obj = build_legacy(obj, nm, dm, mpopt)
-            if strcmp(nm.form_tag, 'dc') && toggle_softlims(obj.mpc, 'status')
+            if strcmp(obj.form_tag, 'dc') && toggle_softlims(obj.mpc, 'status')
                 %% user data required by toggle_softlims
                 branch_nme = nm.elements.branch;
                 [Bbr, pbr] = branch_nme.get_params(1:branch_nme.nk, {'B', 'p'});

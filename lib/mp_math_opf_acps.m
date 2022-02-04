@@ -22,6 +22,14 @@ classdef mp_math_opf_acps < mp_math_opf_acp
 %     end
 
     methods
+        function tag = form_tag(obj)
+            tag = 'acps';
+        end
+
+        function name = form_name(obj)
+            name = 'AC-polar-power';
+        end
+
         function add_node_balance_constraints(obj, nm, dm, mpopt)
             %% power balance constraints
             nn = nm.node.N;             %% number of nodes

@@ -31,6 +31,14 @@ classdef mp_math_pf_acpi < mp_math_pf & mm_pf_shared_acpi
                 @mme_buslink_pf_acp };
         end
 
+        function tag = form_tag(obj)
+            tag = 'acpi';
+        end
+
+        function name = form_name(obj)
+            name = 'AC-polar-current';
+        end
+
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
             %% power balance constraints
             ad = obj.aux_data;

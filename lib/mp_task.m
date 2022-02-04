@@ -71,18 +71,19 @@ classdef mp_task < handle
                 nm = obj.network_model_build(dm, mpopt);
                 obj.nm = nm;    %% stash current network model in task object
 
-                %% print initial output
-                if mpopt.verbose && obj.i_dm == 1
-                    v = mpver('all');
-                    fprintf('\nMATPOWER Version %s, %s\n', v.Version, v.Date);
-                    fprintf('%s -- %s formulation\n', obj.name, nm.form_name());
-                end
-
                 while ~isempty(nm)  %% begin network model loop
                     %% build math model
                     obj.i_mm = obj.i_mm + 1;
                     mm = obj.math_model_build(nm, dm, mpopt);
                     obj.mm = mm;    %% stash current math model in task object
+
+                    %% print initial output
+                    if mpopt.verbose && obj.i_dm == 1 && obj.i_nm == 1
+                        v = mpver('all');
+                        fprintf('\nMATPOWER Version %s, %s\n', v.Version, v.Date);
+                        fprintf('%s -- %s formulation\n', ...
+                            mm.task_name(), mm.form_name());
+                    end
 
                     while ~isempty(mm)  %% begin math model loop
                         if mm.getN('var') == 0  %% model IS empty

@@ -28,6 +28,14 @@ classdef mp_math_opf_dc < mp_math_opf
             obj.element_classes = { @mme_bus_opf_dc, @mme_gen_opf_dc, @mme_branch_opf_dc };
         end
 
+        function tag = form_tag(obj)
+            tag = 'dc';
+        end
+
+        function name = form_name(obj)
+            name = 'DC';
+        end
+
         function [vx, z, x] = opf_convert_x(obj, mmx, nm)
             nm_vars = obj.update_nm_vars(mmx, nm);
 

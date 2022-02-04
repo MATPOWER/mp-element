@@ -22,6 +22,14 @@ classdef mp_math_cpf_acpi < mp_math_cpf_acp & mm_pf_shared_acpi
 %     end
 
     methods
+        function tag = form_tag(obj)
+            tag = 'acpi';
+        end
+
+        function name = form_name(obj)
+            name = 'AC-polar-current';
+        end
+
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
             %% power balance constraints
             ad = obj.aux_data;

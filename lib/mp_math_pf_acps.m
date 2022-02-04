@@ -31,6 +31,14 @@ classdef mp_math_pf_acps < mp_math_pf & mm_pf_shared_acps
                 @mme_buslink_pf_acp };
         end
 
+        function tag = form_tag(obj)
+            tag = 'acps';
+        end
+
+        function name = form_name(obj)
+            name = 'AC-polar-power';
+        end
+
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
             alg = mpopt.pf.alg;
             ad = obj.aux_data;

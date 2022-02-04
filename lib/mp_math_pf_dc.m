@@ -29,6 +29,14 @@ classdef mp_math_pf_dc < mp_math_pf & mm_pf_shared_dc
                 @mme_branch_pf_dc };
         end
 
+        function tag = form_tag(obj)
+            tag = 'dc';
+        end
+
+        function name = form_name(obj)
+            name = 'DC';
+        end
+
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
             ad = obj.aux_data;
             pvq = [ad.pv; ad.pq];

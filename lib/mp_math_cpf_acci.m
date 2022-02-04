@@ -31,6 +31,14 @@ classdef mp_math_cpf_acci < mp_math_cpf & mm_pf_shared_acci
                 @mme_buslink_pf_acc };
         end
 
+        function tag = form_tag(obj)
+            tag = 'acci';
+        end
+
+        function name = form_name(obj)
+            name = 'AC-cartesian-current';
+        end
+
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
             %% power balance constraints
             ad = obj.aux_data;

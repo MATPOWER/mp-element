@@ -22,6 +22,14 @@ classdef mp_math_pf < mp_math
 %     end
 
     methods
+        function tag = task_tag(obj)
+            tag = 'pf';
+        end
+
+        function name = task_name(obj)
+            name = 'Power Flow';
+        end
+
         function obj = build(obj, nm, dm, mpopt)
             build@mp_math(obj, nm, dm, mpopt);  %% call parent
             obj.add_aux_data(nm, dm, mpopt);
