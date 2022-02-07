@@ -43,15 +43,6 @@ classdef mp_math_opf < mp_math
             ad = obj.build_base_aux_data(nm, dm, mpopt);
         end
 
-        function obj = add_vars(obj, nm, dm, mpopt)
-            add_vars@mp_math(obj, nm, dm, mpopt);   %% call parent
-
-            %% legacy user-defined variables
-            if isfield(dm.userdata, 'legacy_opf_user_mods')
-                obj.add_legacy_user_vars(nm, dm, mpopt);
-            end
-        end
-
         function obj = add_system_vars(obj, nm, dm, mpopt)
             %% add network voltage and non-voltage state variables
             vars = horzcat(nm.model_vvars(), nm.model_zvars());
@@ -84,20 +75,6 @@ classdef mp_math_opf < mp_math
                 mmx_iN = obj.var.N;
                 obj.aux_data.var_map{end+1} = ...
                     {vtype{1}, [], [], [], mmx_i1, mmx_iN, []};
-            end
-        end
-
-        function add_legacy_user_vars(obj, nm, dm, mpopt)
-            %% save data
-            obj.userdata.user_vars = obj.legacy_user_var_names();
-
-            %% add any user-defined vars
-            if isfield(dm.userdata.legacy_opf_user_mods, 'z')
-                z = dm.userdata.legacy_opf_user_mods.z;
-                if z.nz > 0
-                    obj.add_var('z', z.nz, z.z0, z.zl, z.zu);
-                    obj.userdata.user_vars{end+1} = 'z';
-                end
             end
         end
 

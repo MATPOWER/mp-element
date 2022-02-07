@@ -60,5 +60,18 @@ classdef mp_math_opf_dc_legacy < mp_math_opf_dc & mp_math_opf_legacy
             build@mp_math_opf_dc(obj, nm, dm, mpopt);
             obj.build_legacy(nm, dm, mpopt);
         end
+
+        function obj = add_vars(obj, nm, dm, mpopt)
+            add_vars@mp_math_opf_dc(obj, nm, dm, mpopt);    %% call parent
+
+            %% legacy user-defined variables
+            if isfield(dm.userdata, 'legacy_opf_user_mods')
+                obj.add_legacy_user_vars(nm, dm, mpopt);
+            end
+        end
+
+        function names = legacy_user_var_names(obj)
+            names = {'Va', 'Pg'};
+        end
     end     %% methods
 end         %% classdef

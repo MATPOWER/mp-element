@@ -68,5 +68,19 @@ classdef mp_math_opf_legacy < handle
             end
             obj = run_userfcn(userfcn, 'formulation', obj, mpopt);
         end
+
+        function add_legacy_user_vars(obj, nm, dm, mpopt)
+            %% save data
+            obj.userdata.user_vars = obj.legacy_user_var_names();
+
+            %% add any user-defined vars
+            if isfield(dm.userdata.legacy_opf_user_mods, 'z')
+                z = dm.userdata.legacy_opf_user_mods.z;
+                if z.nz > 0
+                    obj.add_var('z', z.nz, z.z0, z.zl, z.zu);
+                    obj.userdata.user_vars{end+1} = 'z';
+                end
+            end
+        end
     end     %% methods
 end         %% classdef

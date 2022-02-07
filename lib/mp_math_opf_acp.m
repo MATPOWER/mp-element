@@ -42,9 +42,5 @@ classdef mp_math_opf_acp < mp_math_opf_ac
                 x_ = [vx_; z_];
             end
         end
-
-        function names = legacy_user_var_names(obj)
-            names = {'Va', 'Vm', 'Pg', 'Qg'};
-        end
     end     %% methods
 end         %% classdef
