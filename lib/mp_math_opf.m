@@ -78,27 +78,6 @@ classdef mp_math_opf < mp_math
             end
         end
 
-        function obj = add_system_constraints(obj, nm, dm, mpopt)
-            %% call parent
-            add_system_constraints@mp_math(obj, nm, dm, mpopt);
-
-            %% legacy user-defined constraints
-            if isfield(dm.userdata, 'legacy_opf_user_mods')
-                obj.add_legacy_user_constraints(nm, dm, mpopt);
-            end
-        end
-
-        function add_legacy_user_constraints(obj, nm, dm, mpopt)
-            %% user-defined linear constraints
-            if isfield(dm.userdata.legacy_opf_user_mods, 'lin')
-                lin = dm.userdata.legacy_opf_user_mods.lin;
-                if lin.nlin
-                    uv = obj.get_userdata('user_vars');
-                    obj.add_lin_constraint('usr', lin.A, lin.l, lin.u, uv);
-                end
-            end
-        end
-
         function x0 = interior_x0(obj, mm, nm, dm, x0)
             if nargin < 5 || isempty(x0)
                 %% generic interior point

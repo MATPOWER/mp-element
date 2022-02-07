@@ -79,6 +79,16 @@ classdef mp_math_opf_acpi_legacy < mp_math_opf_acpi & mp_math_opf_legacy
             end
         end
 
+        function obj = add_system_constraints(obj, nm, dm, mpopt)
+            %% call parent
+            add_system_constraints@mp_math_opf_acpi(obj, nm, dm, mpopt);
+
+            %% legacy user-defined constraints
+            if isfield(dm.userdata, 'legacy_opf_user_mods')
+                obj.add_legacy_user_constraints_ac(nm, dm, mpopt);
+            end
+        end
+
         function names = legacy_user_var_names(obj)
             names = {'Va', 'Vm', 'Pg', 'Qg'};
         end

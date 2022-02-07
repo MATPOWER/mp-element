@@ -74,18 +74,6 @@ classdef mp_math_opf_ac < mp_math_opf
             d2G = real(d2Gr) + imag(d2Gi);
         end
 
-        function add_legacy_user_constraints(obj, nm, dm, mpopt)
-            %% call parent
-            add_legacy_user_constraints@mp_math_opf(obj, nm, dm, mpopt);
-
-            if ~isempty(dm.userdata.legacy_opf_user_mods)
-                uc = dm.userdata.legacy_opf_user_mods.nlc;
-                for k = 1:length(uc)
-                    obj.add_nln_constraint(uc{k}{:});
-                end
-            end
-        end
-
         function opt = solve_opts(obj, nm, dm, mpopt)
             opt = mpopt2nlpopt(mpopt, obj.problem_type());
 

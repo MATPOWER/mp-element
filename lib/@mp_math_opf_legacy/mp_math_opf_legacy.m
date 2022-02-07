@@ -135,5 +135,28 @@ classdef mp_math_opf_legacy < handle
                 end
             end
         end
+
+        function add_legacy_user_constraints(obj, nm, dm, mpopt)
+            %% user-defined linear constraints
+            if isfield(dm.userdata.legacy_opf_user_mods, 'lin')
+                lin = dm.userdata.legacy_opf_user_mods.lin;
+                if lin.nlin
+                    uv = obj.get_userdata('user_vars');
+                    obj.add_lin_constraint('usr', lin.A, lin.l, lin.u, uv);
+                end
+            end
+        end
+
+        function add_legacy_user_constraints_ac(obj, nm, dm, mpopt)
+            obj.add_legacy_user_constraints(nm, dm, mpopt);
+
+            if ~isempty(dm.userdata.legacy_opf_user_mods)
+                uc = dm.userdata.legacy_opf_user_mods.nlc;
+                for k = 1:length(uc)
+                    obj.add_nln_constraint(uc{k}{:});
+                end
+            end
+        end
+
     end     %% methods
 end         %% classdef
