@@ -74,13 +74,6 @@ classdef mp_math_opf_ac < mp_math_opf
             d2G = real(d2Gr) + imag(d2Gi);
         end
 
-        function add_system_costs(obj, nm, dm, mpopt)
-            %% legacy user-defined costs
-            if isfield(dm.userdata, 'legacy_opf_user_mods')
-                obj.add_legacy_user_costs(nm, dm, 0);
-            end
-        end
-
         function add_legacy_user_constraints(obj, nm, dm, mpopt)
             %% call parent
             add_legacy_user_constraints@mp_math_opf(obj, nm, dm, mpopt);

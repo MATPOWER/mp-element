@@ -60,13 +60,6 @@ classdef mp_math_opf_dc < mp_math_opf
                                 [nm.va.order; nm.z.order]);
         end
 
-        function add_system_costs(obj, nm, dm, mpopt)
-            %% legacy user-defined costs
-            if isfield(dm.userdata, 'legacy_opf_user_mods')
-                obj.add_legacy_user_costs(nm, dm, 1);
-            end
-        end
-
         function opt = solve_opts(obj, nm, dm, mpopt)
             opt = mpopt2qpopt(mpopt, obj.problem_type());
 

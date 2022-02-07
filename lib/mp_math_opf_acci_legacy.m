@@ -70,6 +70,15 @@ classdef mp_math_opf_acci_legacy < mp_math_opf_acci & mp_math_opf_legacy
             end
         end
 
+        function add_system_costs(obj, nm, dm, mpopt)
+            add_system_costs@mp_math_opf_acci(obj, nm, dm, mpopt);  %% call parent
+
+            %% legacy user-defined costs
+            if isfield(dm.userdata, 'legacy_opf_user_mods')
+                obj.add_legacy_user_costs(nm, dm, 0);
+            end
+        end
+
         function names = legacy_user_var_names(obj)
             names = {'Vr', 'Vi', 'Pg', 'Qg'};
         end
