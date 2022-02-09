@@ -29,6 +29,11 @@ classdef mp_task_opf_legacy < mp_task_opf
             end
         end
 
+        %%-----  data model converter methods  -----
+        function dmc_class = dm_converter_class_mpc2_default(obj)
+            dmc_class = @mp_dm_converter_mpc2_legacy;
+        end
+
         %%-----  data model methods  -----
         function dm = data_model_build_post(obj, dm, dmc, mpopt)
             %% call parent

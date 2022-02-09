@@ -201,11 +201,15 @@ classdef mp_task < handle
                 dmc_class = mpopt.exp.dm_converter_class;
             else
                 if ismpc2(d)
-                    dmc_class = @mp_dm_converter_mpc2;
+                    dmc_class = obj.dm_converter_class_mpc2_default();
                 else
                     error('mp_task: input data format not recognized');
                 end
             end
+        end
+
+        function dmc_class = dm_converter_class_mpc2_default(obj)
+            dmc_class = @mp_dm_converter_mpc2;
         end
 
         function dmc = dm_converter_create(obj, d, mpopt)
