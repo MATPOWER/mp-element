@@ -40,7 +40,7 @@ classdef mm_shared_pfcpf_dc < mm_shared_pfcpf
                     d = st.data;
                     obj.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
                 else
-                    error('mp_math_pf/add_system_vars_pf: handling of indexed sets not implmented here (yet)');
+                    error('mm_shared_pfcpf_dc/add_system_vars_pf: handling of indexed sets not implmented here (yet)');
                 end
             end
         end

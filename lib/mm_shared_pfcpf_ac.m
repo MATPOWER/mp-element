@@ -12,6 +12,38 @@ classdef mm_shared_pfcpf_ac < mm_shared_pfcpf
 %     end
     
     methods
+        function obj = add_system_varset_pf(obj, nm, vvar, typ)
+            ad = obj.aux_data;
+            st = nm.(vvar);
+            d = st.data;
+            mmx_i1 = obj.var.N + 1;
+            for k = 1:st.NS
+                name = st.order(k).name;
+                idx = st.order(k).idx;
+                ii = ad.node_type_by_elm(k).(typ);
+                nii = length(ii);
+                if isempty(idx)
+                    obj.add_var([name '_' typ], nii, d.v0.(name)(ii), d.vl.(name)(ii), d.vu.(name)(ii));
+                else
+                    if all(cell2mat(idx) == 1)
+                        dim = size(st.idx.N.(name));
+                        if dim(end) == 1, dim(end) = []; end    %% delete trailing 1
+                        obj.init_indexed_name('var', [name '_' typ], num2cell(dim));
+                    end
+                    sc = struct('type', {'{}', '()'}, 'subs', {idx, {ii}});
+                    v0 = subsref(d.v0.(name), sc);
+                    vl = subsref(d.vl.(name), sc);
+                    vu = subsref(d.vu.(name), sc);
+                    obj.add_var([name '_' typ], idx, nii, v0, vl, vu);
+                end
+            end
+            mmx_iN = obj.var.N;
+            if ad.(['n' typ])
+                obj.aux_data.var_map{end+1} = ...
+                    {vvar, [], [], ad.(typ), mmx_i1, mmx_iN, []};
+            end
+        end
+
         function z_ = update_z(obj, nm, v_, z_, ad, Sinj, idx)
             %% update/allocate slack node active power injections
             %% and slack/PV node reactive power injections
