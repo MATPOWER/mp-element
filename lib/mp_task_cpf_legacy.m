@@ -1,4 +1,4 @@
-classdef mp_task_cpf_legacy < mp_task_cpf
+classdef mp_task_cpf_legacy < mp_task_cpf & tsk_shared_legacy
 %MP_TASK_CPF_LEGACY  MATPOWER task for legacy continuation power flow (CPF).
 %   MP_TASK_CPF_LEGACY provides implementation for continuation power flow problem.
 %
@@ -23,6 +23,12 @@ classdef mp_task_cpf_legacy < mp_task_cpf
 
     methods
         %%-----  task methods  -----
+        function [d, mpopt] = run_pre(obj, d, mpopt)
+            [d{1}, mpopt] = obj.run_pre_legacy(d{1}, mpopt);
+            [d{2}, mpopt] = obj.run_pre_legacy(d{2}, mpopt);
+            [d, mpopt] = run_pre@mp_task_cpf(obj, d, mpopt);
+        end
+
         function obj = run_post(obj, mm, nm, dm, mpopt);
             if obj.nm.np ~= 0
                 obj.dm.source = obj.dmc.export(obj.dm, obj.dm.source, obj.tag);

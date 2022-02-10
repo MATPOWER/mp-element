@@ -160,21 +160,6 @@ classdef mp_task < handle
         end
 
         function [d, mpopt] = run_pre(obj, d, mpopt)
-            if ~isa(d, 'mp_data')
-                d = loadcase(d);
-
-                %% Handle experimental system-wide ZIP loads (for backward
-                %% compatibility), by moving data from
-                %%  mpopt.exp.sys_wide_zip_loads to
-                %%  mpc.sys_wide_zip_loads
-                if nargin == 3 && isfield(mpopt, 'exp') && ...
-                        ~isempty(mpopt.exp) && ...
-                        isfield(mpopt.exp, 'sys_wide_zip_loads') && ...
-                        (~isempty(mpopt.exp.sys_wide_zip_loads.pw) || ...
-                         ~isempty(mpopt.exp.sys_wide_zip_loads.qw))
-                    d.sys_wide_zip_loads = mpopt.exp.sys_wide_zip_loads;
-                end
-            end
         end
 
         function obj = run_post(obj, mm, nm, dm, mpopt);
@@ -353,7 +338,7 @@ classdef mp_task < handle
 end         %% classdef
 
 function TorF = ismpc2(d)
-    TorF = isstruct(d) && isfield(d, 'bus') && ...
+    TorF = ischar(d) || isstruct(d) && isfield(d, 'bus') && ...
         isfield(d, 'gen') && isfield(d, 'branch') && ...
         isfield(d, 'version') && strcmp(d.version, '2');
 end

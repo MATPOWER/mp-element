@@ -1,4 +1,4 @@
-classdef mp_task_opf_legacy < mp_task_opf
+classdef mp_task_opf_legacy < mp_task_opf & tsk_shared_legacy
 %MP_TASK_OPF_LEGACY  MATPOWER task for legacy optimal power flow (OPF).
 %   MP_TASK_OPF_LEGACY provides implementation for optimal power flow problem.
 %
@@ -23,6 +23,11 @@ classdef mp_task_opf_legacy < mp_task_opf
 
     methods
         %%-----  task methods  -----
+        function [d, mpopt] = run_pre(obj, d, mpopt)
+            [d, mpopt] = obj.run_pre_legacy(d, mpopt);
+            [d, mpopt] = run_pre@mp_task_opf(obj, d, mpopt);
+        end
+
         function obj = run_post(obj, mm, nm, dm, mpopt);
             if obj.nm.np ~= 0
                 obj.dm.source = obj.dmc.export(obj.dm, obj.dm.source, obj.tag);
