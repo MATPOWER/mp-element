@@ -1,4 +1,4 @@
-classdef mp_math_pf_dc < mp_math_pf & mm_pf_shared_dc
+classdef mp_math_pf_dc < mp_math_pf & mm_shared_pfcpf_dc
 %MP_MATH_PF_DC  MATPOWER mathematical model for DC power flow (PF) problem.
 %   ?
 %

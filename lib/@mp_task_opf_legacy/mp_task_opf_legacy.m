@@ -11,7 +11,7 @@ classdef mp_task_opf_legacy < mp_task_opf
 %   See also MP_TASK_OPF
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -45,11 +45,9 @@ classdef mp_task_opf_legacy < mp_task_opf
 
         %%-----  mathematical model methods  -----
         function mm_class = math_model_class_default(obj, nm, dm, mpopt)
-            %% mp_math_opf_legacy (based on opf_model) is required to
-            %% support legacy cost functions and callback functions that
+            %% mm_shared_opf_legacy (compatible with opf_model) is required
+            %% to support legacy cost functions and callback functions that
             %% expect to find mpc in mm.mpc.
-            mm_class = @mp_math_opf_legacy;
-
             switch upper(mpopt.model)
                 case 'AC'
                     if mpopt.opf.v_cartesian

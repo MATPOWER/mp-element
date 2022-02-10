@@ -1,4 +1,4 @@
-classdef mm_pf_shared_dc < mm_pf_shared
+classdef mm_shared_pfcpf_dc < mm_shared_pfcpf
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef mm_pf_shared_dc < mm_pf_shared
     methods
         function ad = build_aux_data(obj, nm, dm, mpopt)
             %% call parent
-            ad = build_aux_data@mm_pf_shared(obj, nm, dm, mpopt);
+            ad = build_aux_data@mm_shared_pfcpf(obj, nm, dm, mpopt);
 
             %% get parameters
             [B, K, p] = nm.get_params();

@@ -1,5 +1,4 @@
-classdef mm_pf_shared_ac_i < handle
-%MM_PF_SHARED_AC_I  Mix-in class
+classdef mm_shared_pfcpf_ac_i < handle
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

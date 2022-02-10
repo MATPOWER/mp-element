@@ -38,7 +38,7 @@ classdef mp_math_pf < mp_math
         end
 
         function obj = add_system_vars(obj, nm, dm, mpopt)
-            %% put implementation in method in mm_pf_shared class hierarchy
+            %% implementation in method in mm_shared_pfcpf class hierarchy
             obj.add_system_vars_pf(nm, dm, mpopt);
         end
 

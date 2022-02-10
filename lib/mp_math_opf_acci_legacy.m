@@ -1,4 +1,4 @@
-classdef mp_math_opf_acci_legacy < mp_math_opf_acci & mp_math_opf_legacy
+classdef mp_math_opf_acci_legacy < mp_math_opf_acci & mm_shared_opf_legacy
 %MP_MATH_OPF_ACCI_LEGACY  MATPOWER mathematical model for AC optimal power flow (OPF) problem.
 %   ?
 %
@@ -11,7 +11,7 @@ classdef mp_math_opf_acci_legacy < mp_math_opf_acci & mp_math_opf_legacy
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.

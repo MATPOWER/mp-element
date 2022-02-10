@@ -1,4 +1,4 @@
-classdef mm_pf_shared_ac < mm_pf_shared
+classdef mm_shared_pfcpf_ac < mm_shared_pfcpf
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)
@@ -88,7 +88,7 @@ classdef mm_pf_shared_ac < mm_pf_shared
                 if any(sum(CCrpv ~= 0) > 1)
                     k = find(sum(CCrpv ~= 0) > 1);
                     warning('update_z:multiple_nodes', ...
-                        'mm_pf_shared_ac/update_z: unable to distribute reactive power due to z var %d affecting multiple nodes.', k(1));
+                        'mm_shared_pfcpf_ac/update_z: unable to distribute reactive power due to z var %d affecting multiple nodes.', k(1));
                 end
 
                 %% define a numerical proxy to replace +/- Inf limits

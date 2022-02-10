@@ -1,4 +1,4 @@
-classdef mm_pf_shared_acps < mm_pf_shared_acp
+classdef mm_shared_pfcpf_acpi < mm_shared_pfcpf_acp & mm_shared_pfcpf_ac_i
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
@@ -14,21 +14,10 @@ classdef mm_pf_shared_acps < mm_pf_shared_acp
     methods
         function ad = build_aux_data(obj, nm, dm, mpopt)
             %% call parent
-            ad = build_aux_data@mm_pf_shared_acp(obj, nm, dm, mpopt);
+            ad = build_aux_data@mm_shared_pfcpf_acp(obj, nm, dm, mpopt);
 
-            switch mpopt.pf.alg
-                case 'GS'
-                    ad.Y = nm.C * nm.get_params([], 'Y') * nm.C';
-                case 'ZG'
-                    pvq = [ad.pv; ad.pq];
-                    Y = nm.C * nm.get_params([], 'Y') * nm.C';
-                    Y21 = Y(pvq, ad.ref);
-                    Y22 = Y(pvq, pvq);
-                    [L, U, p, q] = lu(Y22, 'vector');
-                    [junk, iq] = sort(q);
-                    [ad.Y, ad.Y21, ad.L, ad.U, ad.p, ad.iq] = ...
-                        deal(Y, Y21, L, U, p, iq);
-            end
+            %% add data needed for current formulations
+            ad = obj.build_aux_data_i(nm, ad);
         end
 
         function obj = add_system_vars_pf(obj, nm, dm, mpopt)
@@ -95,6 +84,19 @@ classdef mm_pf_shared_acps < mm_pf_shared_acp
                     {vvars{1}, [], [], ad.pq, mmx_i1, mmx_iN, []};
             end
 
+            %% reactive injections
+            v_ = ad.vm .* exp(1j * ad.va);
+            z_ = ad.zr + 1j * ad.zi;
+            Qpv = nm.C(ad.pv, :) * imag( nm.port_inj_power([v_; z_], 1) );
+            Qg_pv = Qpv + ad.zi(ad.zi_idx);
+            mmx_i1 = obj.var.N + 1;
+            obj.add_var('Qg_pv', ad.npv, Qg_pv);
+            mmx_iN = obj.var.N;
+            if ad.npv
+                obj.aux_data.var_map{end+1} = ...
+                    {'zi', [], [], ad.zi_idx, mmx_i1, mmx_iN, []};
+            end
+
             %% voltage magnitudes
             st = nm.(vvars{2});
             d = st.data;
@@ -126,7 +128,7 @@ classdef mm_pf_shared_acps < mm_pf_shared_acp
             end
         end
 
-        function [f, J] = node_balance_equations(obj, x, nm, fdpf)
+        function [f, J] = node_balance_equations(obj, x, nm)
             %% index vector
             ad = obj.aux_data;
             pvq = [ad.pv; ad.pq];
@@ -139,21 +141,12 @@ classdef mm_pf_shared_acps < mm_pf_shared_acp
 
             %% Jacobian
             if nargout > 1
-                %% get port power injections with derivatives
-                var_names = cellfun(@(x)x{1}, ad.var_map, 'UniformOutput', false);
-                dz = any(strcmp(var_names, 'zr')) || ...
-                     any(strcmp(var_names, 'zi'));
-                if dz
-                    [S, dS.va, dS.vm, dS.zr, dS.zi] = nm.port_inj_power([v_; z_], 1);
-                else
-                    [S, dS.va, dS.vm] = nm.port_inj_power([v_; z_], 1);
-                end
-                dS.va = C * dS.va;
-                dS.vm = C * dS.vm;
-                if dz
-                    dS.zr = C * dS.zr;
-                    dS.zi = C * dS.zi;
-                end
+                %% get port current injections with derivatives
+                [I, dI.va, dI.vm, dI.zr, dI.zi] = nm.port_inj_current([v_; z_], 1);
+                dI.va = C * dI.va;
+                dI.vm = C * dI.vm;
+                dI.zr = C * dI.zr;
+                dI.zi = C * dI.zi;
                 JJ = cell(2, length(ad.var_map));
 
                 for k = 1:length(ad.var_map)
@@ -162,31 +155,27 @@ classdef mm_pf_shared_acps < mm_pf_shared_acp
                     if ~isempty(m{2})       %% i1:iN
                         i1 = m{2};
                         iN = m{3};
-                        JJ{1, k} = real(dS.(name)(pvq,   i1:iN));
-                        JJ{2, k} = imag(dS.(name)(ad.pq, i1:iN));
+                        JJ{1, k} = real(dI.(name)(pvq, i1:iN));
+                        JJ{2, k} = imag(dI.(name)(pvq, i1:iN));
                     elseif isempty(m{4})    %% :
-                        JJ{1, k} = real(dS.(name)(pvq,   :));
-                        JJ{2, k} = imag(dS.(name)(ad.pq, :));
+                        JJ{1, k} = real(dI.(name)(pvq, :));
+                        JJ{2, k} = imag(dI.(name)(pvq, :));
                     else                    %% idx
                         idx = m{4};
-                        JJ{1, k} = real(dS.(name)(pvq,   idx));
-                        JJ{2, k} = imag(dS.(name)(ad.pq, idx));
+                        JJ{1, k} = real(dI.(name)(pvq, idx));
+                        JJ{2, k} = imag(dI.(name)(pvq, idx));
                     end
                 end
                 J = vertcat( horzcat(JJ{1, :}), ...
                              horzcat(JJ{2, :})  );
             else
-                %% get port power injections (w/o derivatives)
-                S = nm.port_inj_power([v_; z_], 1);
+                %% get port current injections (w/o derivatives)
+                I = nm.port_inj_current([v_; z_], 1);
             end
 
             %% nodal power balance
-            if nargin > 3 && fdpf
-                SS = C * S ./ abs(v_);  %% for fast-decoupled formulation
-            else
-                SS = C * S;
-            end
-            f = [real(SS(pvq)); imag(SS(ad.pq))];
+            II = C * I;
+            f = [real(II(pvq)); imag(II(pvq))];
         end
     end     %% methods
 end         %% classdef
