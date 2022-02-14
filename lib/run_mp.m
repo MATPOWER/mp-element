@@ -1,7 +1,7 @@
-function task = run_mp(tag, m, mpopt, fname, solvedcase)
+function tsk = run_mp(tag, m, mpopt, fname, solvedcase)
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -38,4 +38,8 @@ task.print_soln(fname, mpopt);
 %% save solved case
 if ~isempty(solvedcase) && task.success
     task.save_soln(solvedcase);
+end
+
+if nargout
+    tsk = task;
 end
