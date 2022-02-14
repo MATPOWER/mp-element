@@ -34,14 +34,20 @@ classdef mm_shared_pfcpf_dc < mm_shared_pfcpf
 
             %% voltage angles
             st = nm.(vvars{1});
+            d = st.data;
+            mmx_i1 = obj.var.N + 1;
             for k = 1:st.NS
                 name = st.order(k).name;
                 if isempty(st.order(k).idx)
-                    d = st.data;
                     obj.add_var(name, ad.npv+ad.npq, d.v0.(name)(pvq), d.vl.(name)(pvq), d.vu.(name)(pvq));
                 else
                     error('mm_shared_pfcpf_dc/add_system_vars_pf: handling of indexed sets not implmented here (yet)');
                 end
+            end
+            mmx_iN = obj.var.N;
+            if ad.npv || ad.npq
+                obj.aux_data.var_map{end+1} = ...
+                    {vvars{1}, [], [], pvq, mmx_i1, mmx_iN, []};
             end
         end
 
@@ -52,14 +58,13 @@ classdef mm_shared_pfcpf_dc < mm_shared_pfcpf
             %% ... = obj.pf_convert(mmx, nm, only_v)
 
             %% update v_, z_ from mmx
-            ad = obj.aux_data;
-            vx = ad.va;
-            vx([ad.pv; ad.pq]) = mmx(1:ad.npv+ad.npq);      %% va
-            z = ad.z;
+            nm_vars = obj.update_nm_vars(mmx, nm);
+            vx = nm_vars.va;
+            z  = nm_vars.z;
 
             %% update z, if requested
             if nargin < 4 || ~only_v
-                z = obj.update_z(nm, vx, z, ad);
+                z = obj.update_z(nm, vx, z, obj.aux_data);
             end
 
             %% prepare return values
