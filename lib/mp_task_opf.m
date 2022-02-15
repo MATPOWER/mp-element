@@ -60,6 +60,10 @@ classdef mp_task_opf < mp_task
         end
 
         %%-----  data model methods  -----
+        function dm_class = data_model_class_default(obj)
+            dm_class = @mp_data_opf;
+        end
+
         function dm = data_model_build_post(obj, dm, dmc, mpopt)
             %% call parent
             dm = data_model_build_post@mp_task(obj, dm, dmc, mpopt);

@@ -2,7 +2,7 @@ classdef dme_bus < dm_element
 %DME_BUS  MATPOWER data model class for bus data
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -27,21 +27,11 @@ classdef dme_bus < dm_element
         function var_names = table_var_names(obj)
             var_names = horzcat( table_var_names@dm_element(obj), ...
                 {'base_kv', 'type', 'area', 'zone', 'vm_lb', 'vm_ub', ...
-                'va', 'vm', 'lam_p', 'lam_q', 'mu_vm_lb', 'mu_vm_ub'});
+                 'va', 'vm'});
         end
 
         function vars = export_vars(obj, task)
-            switch task
-                case 'PF'
-                    vars = {'type', 'vm', 'va'};
-                case 'CPF'
-                    vars = {'type', 'vm', 'va'};
-                case 'OPF'
-                    vars = {'vm', 'va', 'vm_lb', 'vm_ub', 'lam_p', 'lam_q', ...
-                        'mu_vm_lb', 'mu_vm_ub'};
-                otherwise
-                    vars = 'all';
-            end
+            vars = {'type', 'vm', 'va'};
         end
 
         function status = get_status(obj, dm)

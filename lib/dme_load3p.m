@@ -2,7 +2,7 @@ classdef dme_load3p < dm_element
 %DME_LOAD3P  MATPOWER data model class for load data
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -60,7 +60,7 @@ classdef dme_load3p < dm_element
             %% get bus status info
             bs = dm.elements.bus3p.status;  %% bus status
 
-            %% update status of gens at isolated/offline buses
+            %% update status of loads at isolated/offline buses
             obj.status = obj.status & bs(obj.bus);
 
             %% call parent to fill in on/off

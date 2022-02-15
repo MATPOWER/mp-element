@@ -29,7 +29,7 @@ mpopt = mpoption(opt);
 mpopt = mpoption(mpopt, 'out.all', 0);
 
 dmc_class = @mp_dm_converter_mpc2;
-dm_class = @mp_data;
+dm_class = @mp_data_opf;
 nm_class = @mp_network_acp;
 mm_classes = {
     @mp_math_pf_acps,

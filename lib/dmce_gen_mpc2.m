@@ -2,7 +2,7 @@ classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
 %DMCE_GEN_MPC2  Data model converter for gen elements for MATPOWER case v2.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -139,7 +139,7 @@ classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
             nr = size(dme.tab, 1);
 
             %% import gencost
-            if isfield(mpc, 'gencost') && nr
+            if dme.have_cost() && isfield(mpc, 'gencost') && nr
                 %% define named indices into data matrices
                 [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
 

@@ -2,7 +2,7 @@ classdef dme_branch < dm_element
 %DME_BRANCH  MATPOWER data model class for branch data
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -38,27 +38,11 @@ classdef dme_branch < dm_element
                 'g_to', 'b_to', 'sm_ub_a', 'sm_ub_b', 'sm_ub_c', ...
                 'cm_ub_a', 'cm_ub_b', 'cm_ub_c', 'vad_lb', 'vad_ub', ...
                 'tm', 'ta', ... %% remove these when we separate out xformers
-                'pl_fr', 'ql_fr', 'pl_to', 'ql_to', ...
-                'mu_flow_fr_ub', 'mu_flow_to_ub', ...
-                'mu_vad_lb', 'mu_vad_ub'});
-%                 'mu_sm_fr_ub', 'mu_sm_to_ub', ...
-%                 'mu_pl_fr_ub', 'mu_pl_to_ub', ...
-%                 'mu_cm_fr_ub', 'mu_cm_to_ub', ...
+                'pl_fr', 'ql_fr', 'pl_to', 'ql_to'} );
         end
 
         function vars = export_vars(obj, task)
-            switch task
-                case 'PF'
-                    vars = {'ql_to', 'pl_to', 'ql_fr', 'pl_fr'};
-                case 'CPF'
-                    vars = {'ql_to', 'pl_to', 'ql_fr', 'pl_fr'};
-                case 'OPF'
-                    vars = {'ql_to', 'pl_to', 'ql_fr', 'pl_fr', ...
-                        'mu_flow_fr_ub', 'mu_flow_to_ub', ...
-                        'mu_vad_lb', 'mu_vad_ub'};
-                otherwise
-                    vars = 'all';
-            end
+            vars = {'ql_to', 'pl_to', 'ql_fr', 'pl_fr'};
         end
 
         function obj = initialize(obj, dm)

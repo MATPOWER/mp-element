@@ -1,8 +1,8 @@
-classdef dme_gen_node_test < dme_gen
+classdef dme_gen_node_test < dme_gen_opf
 %DME_GEN_NODE_TEST  MATPOWER data model class for gen data for T_NODE_TEST
 
 %   MATPOWER
-%   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -11,7 +11,7 @@ classdef dme_gen_node_test < dme_gen
 
     properties
         nbet        %% number of bus element types
-        bus_etv    %% bus element type vector (all gens), 1 = nld, 2 = ld
+        bus_etv     %% bus element type vector (all gens), 1 = nld, 2 = ld
     end     %% properties
 
     methods

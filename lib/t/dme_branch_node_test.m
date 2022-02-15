@@ -1,8 +1,8 @@
-classdef dme_branch_node_test < dme_branch
+classdef dme_branch_node_test < dme_branch_opf
 %DME_BRANCH_NODE_TEST  MATPOWER data model class for branch data for T_NODE_TEST
 
 %   MATPOWER
-%   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.

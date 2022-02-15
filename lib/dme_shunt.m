@@ -2,7 +2,7 @@ classdef dme_shunt < dm_element
 %DME_SHUNT  MATPOWER data model class for shunt data
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -55,7 +55,7 @@ classdef dme_shunt < dm_element
             %% get bus status info
             bs = dm.elements.bus.status;    %% bus status
 
-            %% update status of gens at isolated/offline buses
+            %% update status of shunts at isolated/offline buses
             obj.status = obj.status & bs(obj.bus);
 
             %% call parent to fill in on/off

@@ -25,7 +25,7 @@ classdef mp_task < handle
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -220,8 +220,12 @@ classdef mp_task < handle
                     ~isempty(mpopt.exp.data_model_class)
                 dm_class = mpopt.exp.data_model_class;
             else
-                dm_class = @mp_data;
+                dm_class = obj.data_model_class_default();
             end
+        end
+
+        function dm_class = data_model_class_default(obj)
+            dm_class = @mp_data;
         end
 
         function dm = data_model_create(obj, d, mpopt)
