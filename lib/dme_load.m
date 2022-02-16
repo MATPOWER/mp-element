@@ -35,16 +35,7 @@ classdef dme_load < dm_element
         end
 
         function vars = export_vars(obj, task)
-            switch task
-                case 'PF'
-                    vars = {};
-                case 'CPF'
-                    vars = {'pd', 'qd', 'pd_i', 'qd_i', 'pd_z', 'qd_z'};
-                case 'OPF'
-                    vars = {};
-                otherwise
-                    vars = 'all';
-            end
+            vars = {};
         end
 
         function nr = count(obj, dm)
@@ -72,19 +63,6 @@ classdef dme_load < dm_element
             obj.qd_i = obj.tab.qd_i(obj.on) / dm.base_mva;
             obj.pd_z = obj.tab.pd_z(obj.on) / dm.base_mva;
             obj.qd_z = obj.tab.qd_z(obj.on) / dm.base_mva;
-        end
-
-        function dm = parameterized(obj, dm, dmb, dmt, lam)
-            load = dm.elements.load;
-            b = dmb.elements.load.tab;      %% base load table
-            t = dmt.elements.load.tab;      %% target load table
-
-            load.tab.pd = b.pd + lam * (t.pd - b.pd);
-            load.tab.qd = b.qd + lam * (t.qd - b.qd);
-            load.tab.pd_i = b.pd_i + lam * (t.pd_i - b.pd_i);
-            load.tab.qd_i = b.qd_i + lam * (t.qd_i - b.qd_i);
-            load.tab.pd_z = b.pd_z + lam * (t.pd_z - b.pd_z);
-            load.tab.qd_z = b.qd_z + lam * (t.qd_z - b.qd_z);
         end
     end     %% methods
 end         %% classdef

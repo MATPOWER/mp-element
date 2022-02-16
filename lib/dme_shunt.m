@@ -32,16 +32,7 @@ classdef dme_shunt < dm_element
         end
 
         function vars = export_vars(obj, task)
-            switch task
-                case 'PF'
-                    vars = {};
-                case 'CPF'
-                    vars = {'gs', 'bs'};
-                case 'OPF'
-                    vars = {};
-                otherwise
-                    vars = 'all';
-            end
+            vars = {};
         end
 
         function nr = count(obj, dm)
@@ -65,15 +56,6 @@ classdef dme_shunt < dm_element
         function obj = build_params(obj, dm)
             obj.gs = obj.tab.gs(obj.on) / dm.base_mva;
             obj.bs = obj.tab.bs(obj.on) / dm.base_mva;
-        end
-
-        function dm = parameterized(obj, dm, dmb, dmt, lam)
-            shunt = dm.elements.shunt;
-            b = dmb.elements.shunt.tab;     %% base shunt table
-            t = dmt.elements.shunt.tab;     %% target shunt table
-
-            shunt.tab.gs = b.gs + lam * (t.gs - b.gs);
-            shunt.tab.bs = b.bs + lam * (t.bs - b.bs);
         end
     end     %% methods
 end         %% classdef

@@ -96,6 +96,10 @@ classdef mp_task_cpf < mp_task_pf
         end
 
         %%-----  data model methods  -----
+        function dm_class = data_model_class_default(obj)
+            dm_class = @mp_data_cpf;
+        end
+
         function dm = data_model_build(obj, d, dmc, mpopt)
             if iscell(d) && length(d) == 2
                 dm  = data_model_build@mp_task_pf(obj, d{1}, dmc, mpopt);
