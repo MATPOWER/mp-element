@@ -20,6 +20,7 @@ classdef mp_task < handle
 %       i_mm - iteration counter for math model loop
 %       success - success flag, 1 - math model solved, 0 - didn't solve
 %       message - output message
+%       et - elapsed time (seconds) for run() method
 %
 %   Methods
 %       ?
@@ -45,11 +46,14 @@ classdef mp_task < handle
         i_mm    %% iteration counter for math model loop
         success %% success flag, 1 - math model solved, 0 - didn't solve
         message %% output message
+        et      %% elapsed time (seconds) for run() method
     end
 
     methods
         %%-----  task methods  -----
         function obj = run(obj, d, mpopt)
+            t0 = tic;       %% start timer
+
             [d, mpopt] = obj.run_pre(d, mpopt);
 
             dmc = obj.dm_converter_create(d, mpopt);
@@ -142,6 +146,7 @@ classdef mp_task < handle
                 end
             end                 %% end data model loop
             obj.run_post(mm, nm, obj.dm, mpopt);
+            obj.et = toc(t0);   %% stop timer
         end
 
         function [mm, nm, dm] = next_mm(obj, mm, nm, dm, mpopt)
