@@ -11,9 +11,9 @@ classdef dme_gen_opf < dme_gen
 %   See https://matpower.org for more info.
 
     properties
-        cost_pg     %% table for cost parameters for active power generation
-        cost_qg     %% table for cost parameters for reactive power generation
-        pwl1        %% indices of single-block piecewise linear costs
+        cost_pg     %% cost parameter table for active power generation, all gens
+        cost_qg     %% cost parameter table for reactive power generation, all gens
+        pwl1        %% indices of single-block piecewise linear costs, all gens
                     %% (automatically converted to linear cost)
     end     %% properties
 
@@ -35,12 +35,12 @@ classdef dme_gen_opf < dme_gen
         function cost = build_cost_params(obj, dm, dc)
             base_mva = dm.base_mva;
 
-            poly_p = obj.gen_cost_poly_params(base_mva, obj.cost_pg);
+            poly_p = obj.gen_cost_poly_params(base_mva, obj.cost_pg(obj.on, :));
             if dc || isempty(obj.cost_qg)
-                pwl = obj.gen_cost_pwl_params(base_mva, obj.cost_pg, obj.n, dc);
+                pwl = obj.gen_cost_pwl_params(base_mva, obj.cost_pg(obj.on, :), obj.n, dc);
                 poly_q = [];
             else
-                poly_q = obj.gen_cost_poly_params(base_mva, obj.cost_qg);
+                poly_q = obj.gen_cost_poly_params(base_mva, obj.cost_qg(obj.on, :));
 
                 %% expand cost params as needed
                 polyNp = max(obj.cost_pg.poly_n);
