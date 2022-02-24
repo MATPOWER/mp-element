@@ -15,9 +15,12 @@ classdef nme_gen < nm_element
         %% constructor
         function obj = nme_gen()
             obj@nm_element();
-            obj.name = 'gen';
             obj.np = 1;             %% this is a 1 port element
             obj.nz = 1;
+        end
+
+        function name = name(obj)
+            name = 'gen';
         end
     end     %% methods
 end         %% classdef

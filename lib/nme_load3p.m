@@ -1,7 +1,7 @@
 classdef nme_load3p < nm_element & mp_form_acp
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -15,8 +15,11 @@ classdef nme_load3p < nm_element & mp_form_acp
         %% constructor
         function obj = nme_load3p()
             obj@nm_element();
-            obj.name = 'load3p';
             obj.np = 3;             %% this is a 3 port element
+        end
+
+        function name = name(obj)
+            name = 'load3p';
         end
 
         function obj = build_params(obj, nm, dm)

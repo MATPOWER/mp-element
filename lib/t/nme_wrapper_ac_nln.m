@@ -1,7 +1,7 @@
 classdef nme_wrapper_ac_nln < handle
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -15,13 +15,12 @@ classdef nme_wrapper_ac_nln < handle
     methods
         function obj = nme_wrapper_ac_nln_init(obj)
             obj.nme = obj.nme_class();      %% construct wrapped class
-            
+
             %% copy base field values from wrapped object
-            obj.name = obj.nme.name;
             obj.np = obj.nme.np;
             obj.nz = obj.nme.nz;
         end
-        
+
         function build_nln_params(obj, nm, dm)
             %% build params for wrapped object
             obj.nme.build_params(nm, dm);

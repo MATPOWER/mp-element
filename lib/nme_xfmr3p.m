@@ -1,7 +1,7 @@
 classdef nme_xfmr3p < nm_element & mp_form_acp
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -9,15 +9,17 @@ classdef nme_xfmr3p < nm_element & mp_form_acp
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'branch';
 %     end
     
     methods
         %% constructor
         function obj = nme_xfmr3p()
             obj@nm_element();
-            obj.name = 'xfmr3p';
             obj.np = 6;             %% this is a 6 port element
+        end
+
+        function name = name(obj)
+            name = 'xfmr3p';
         end
 
         function obj = build_params(obj, nm, dm)

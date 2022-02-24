@@ -1,7 +1,7 @@
 classdef nme_buslink < nm_element %& mp_form_ac
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -15,9 +15,12 @@ classdef nme_buslink < nm_element %& mp_form_ac
         %% constructor
         function obj = nme_buslink()
             obj@nm_element();
-            obj.name = 'buslink';
             obj.np = 4;             %% this is a 4 port element
             obj.nz = 3;
+        end
+
+        function name = name(obj)
+            name = 'buslink';
         end
 
         function obj = add_zvars(obj, nm, dm, idx)

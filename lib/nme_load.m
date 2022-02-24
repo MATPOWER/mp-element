@@ -1,7 +1,7 @@
 classdef nme_load < nm_element
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -15,8 +15,11 @@ classdef nme_load < nm_element
         %% constructor
         function obj = nme_load()
             obj@nm_element();
-            obj.name = 'load';
             obj.np = 1;             %% this is a 1 port element
+        end
+
+        function name = name(obj)
+            name = 'load';
         end
     end     %% methods
 end         %% classdef

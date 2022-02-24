@@ -1,7 +1,7 @@
 classdef nme_branch < nm_element
 
 %   MATPOWER
-%   Copyright (c) 2019, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -9,15 +9,17 @@ classdef nme_branch < nm_element
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'branch';
 %     end
     
     methods
         %% constructor
         function obj = nme_branch()
             obj@nm_element();
-            obj.name = 'branch';
             obj.np = 2;             %% this is a 2 port element
+        end
+
+        function name = name(obj)
+            name = 'branch';
         end
     end     %% methods
 end         %% classdef

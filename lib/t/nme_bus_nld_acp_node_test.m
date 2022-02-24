@@ -9,14 +9,11 @@ classdef nme_bus_nld_acp_node_test < nme_bus_acp
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'bus';
 %     end
     
     methods
-        %% constructor
-        function obj = nme_bus_nld_acp_node_test()
-            obj@nme_bus_acp();
-            obj.name = 'bus_nld';
+        function name = name(obj)
+            name = 'bus_nld';
         end
 
         function obj = add_vvars(obj, nm, dm, idx)

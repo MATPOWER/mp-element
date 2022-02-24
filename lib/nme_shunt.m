@@ -1,7 +1,7 @@
 classdef nme_shunt < nm_element
 
 %   MATPOWER
-%   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -15,8 +15,11 @@ classdef nme_shunt < nm_element
         %% constructor
         function obj = nme_shunt()
             obj@nm_element();
-            obj.name = 'shunt';
             obj.np = 1;             %% this is a 1 port element
+        end
+
+        function name = name(obj)
+            name = 'shunt';
         end
     end     %% methods
 end         %% classdef

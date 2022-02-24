@@ -5,7 +5,6 @@ classdef nm_element < handle
 %   Each concrete sub-class must also inherit from a sub-class of MP_FORM.
 %
 %   Properties
-%       name : name of element type (constant across forumations)
 %       np : number of ports per element
 %       nn : number of nodes per element (created by this element type)
 %       nz : number of non-voltage state variables per element
@@ -17,6 +16,7 @@ classdef nm_element < handle
 %           to element i of system Z
 %
 %   Methods
+%       name() - name of element type (constant across formations)
 %       count() - returns the number of elements of this type in dm, sets nme.nk
 %       get_nv_()
 %       x2vz()
@@ -39,7 +39,6 @@ classdef nm_element < handle
 %   See https://matpower.org for more info.
 
     properties
-        name = 'nm_element';
         np = 0;     %% number of ports per element
         nn = 0;     %% number of nodes per element (created by element)
         nz = 0;     %% number of non-voltage states per element (possibly complex)
@@ -55,6 +54,10 @@ classdef nm_element < handle
     end
     
     methods
+        function name = name(obj)
+            name = '';      %% e.g. 'bus', 'gen'
+        end
+
         function dme = data_model_element(obj, dm, name)
             if nargin < 3
                 name = obj.name;

@@ -4,7 +4,7 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
 %   and implicitly assumed to be a subclass of MP_FORM as well.
 
 %   MATPOWER
-%   Copyright (c) 2019-2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -22,7 +22,6 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
         %% constructor
         function obj = mp_network()
             obj@nm_element();
-            obj.name = 'network';
             obj.np = 0;     %% unknown number of ports at this point, init to 0
             obj.nk = 1;
             obj.nz = 0;     %% unknown number of z_ vars at this point, init to 0
@@ -35,6 +34,10 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
             %% WORKAROUND:  INIT_SET_TYPES() is called explicitly as needed
             %%              (if obj.node is empty) in BUILD() and DISPLAY(),
             %%              after object construction, but before object use.
+        end
+
+        function name = name(obj)
+            name = 'network';
         end
 
         function obj = build(obj, dm)

@@ -1,7 +1,7 @@
 classdef nme_bus3p < nm_element
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -9,15 +9,17 @@ classdef nme_bus3p < nm_element
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'bus3p';
 %     end
 
     methods
         %% constructor
         function obj = nme_bus3p()
             obj@nm_element();
-            obj.name = 'bus3p';
             obj.nn = 3;         %% creates 3 nodes per element
+        end
+
+        function name = name(obj)
+            name = 'bus3p';
         end
 
         function [ref, pv, pq] = node_types(obj, nm, dm, idx)
