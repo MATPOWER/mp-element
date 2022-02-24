@@ -4,7 +4,7 @@ classdef dm_element < handle
 %   specific DM_FORMAT_* class as well.
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -12,7 +12,6 @@ classdef dm_element < handle
 %   See https://matpower.org for more info.
 
     properties
-        name = 'dm_element';
         tab             %% main data table
         cxn_type        %% char array or cell of char arrays with names
                         %% of types of junction elements, i.e. node-creating
@@ -37,6 +36,10 @@ classdef dm_element < handle
     end     %% properties
 
     methods
+        function name = name(obj)
+            name = '';      %% e.g. 'bus', 'gen'
+        end
+
         function var_names = table_var_names(obj)
             var_names = {'uid', 'name', 'status', 'source_uid'};
         end

@@ -2,7 +2,7 @@ classdef dme_bus_ld_node_test < dme_bus_nld_node_test
 %DME_BUS_LD_NODE_TEST  MATPOWER data model class for load bus data for T_NODE_TEST
 
 %   MATPOWER
-%   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -23,9 +23,12 @@ classdef dme_bus_ld_node_test < dme_bus_nld_node_test
         function obj = dme_bus_ld_node_test()
             obj@dme_bus_nld_node_test();   %% call parent constructor
             obj.bus_eti = 2;        %% bus element type index, 2 => bus_ld
-            obj.name = 'bus_ld';
             obj.cxn_type = 'bus_ld';
             obj.cxn_idx_prop = '';
+        end
+
+        function name = name(obj)
+            name = 'bus_ld';
         end
 
         function var_names = table_var_names(obj)

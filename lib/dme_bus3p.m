@@ -2,7 +2,7 @@ classdef dme_bus3p < dm_element
 %DME_BUS3P  MATPOWER data model class for 3-phase bus data
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -20,10 +20,8 @@ classdef dme_bus3p < dm_element
     end     %% properties
 
     methods
-        %% constructor
-        function obj = dme_bus3p()
-            obj@dm_element();   %% call parent constructor
-            obj.name = 'bus3p';
+        function name = name(obj)
+            name = 'bus3p';
         end
 
         function var_names = table_var_names(obj)

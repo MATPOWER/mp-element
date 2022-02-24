@@ -2,7 +2,7 @@ classdef dme_line3p < dm_element
 %DME_LINE3P  MATPOWER data model class for 3-phase line data
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -24,9 +24,12 @@ classdef dme_line3p < dm_element
         %% constructor
         function obj = dme_line3p()
             obj@dm_element();   %% call parent constructor
-            obj.name = 'line3p';
             obj.cxn_type = 'bus3p';
             obj.cxn_idx_prop = {'fbus', 'tbus'};
+        end
+
+        function name = name(obj)
+            name = 'line3p';
         end
 
         function var_names = table_var_names(obj)

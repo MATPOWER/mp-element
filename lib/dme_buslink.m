@@ -2,7 +2,7 @@ classdef dme_buslink < dm_element
 %DME_BUSLINK  MATPOWER data model class for 1-to-3-phase buslink data
 
 %   MATPOWER
-%   Copyright (c) 1996-2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 1996-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %   and Carlos E. Murillo-Sanchez, PSERC Cornell & Universidad Nacional de Colombia
 %
@@ -25,9 +25,12 @@ classdef dme_buslink < dm_element
         %% constructor
         function obj = dme_buslink()
             obj@dm_element();   %% call parent constructor
-            obj.name = 'buslink';
             obj.cxn_type = {'bus', 'bus3p'};
             obj.cxn_idx_prop = {'bus', 'bus3p'};
+        end
+
+        function name = name(obj)
+            name = 'buslink';
         end
 
         function var_names = table_var_names(obj)

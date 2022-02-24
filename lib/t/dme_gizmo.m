@@ -2,7 +2,7 @@ classdef dme_gizmo < dm_element
 %DME_GIZMO  MATPOWER data model class for gizmo data
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -19,9 +19,12 @@ classdef dme_gizmo < dm_element
         %% constructor
         function obj = dme_gizmo()
             obj@dm_element();   %% call parent constructor
-            obj.name = 'gizmo';
             obj.cxn_type = 'bus';
             obj.cxn_idx_prop = {'bus1', 'bus2', 'bus3'};
+        end
+
+        function name = name(obj)
+            name = 'gizmo';
         end
 
         function var_names = table_var_names(obj)

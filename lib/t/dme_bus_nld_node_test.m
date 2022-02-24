@@ -19,7 +19,10 @@ classdef dme_bus_nld_node_test < dme_bus_opf
         function obj = dme_bus_nld_node_test()
             obj@dme_bus_opf();      %% call parent constructor
             obj.bus_eti = 1;        %% bus element type index, 1 => bus_nld
-            obj.name = 'bus_nld';
+        end
+
+        function name = name(obj)
+            name = 'bus_nld';
         end
 
         function nr = count(obj, dm)

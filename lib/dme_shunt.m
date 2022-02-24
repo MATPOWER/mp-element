@@ -21,9 +21,12 @@ classdef dme_shunt < dm_element
         %% constructor
         function obj = dme_shunt()
             obj@dm_element();   %% call parent constructor
-            obj.name = 'shunt';
             obj.cxn_type = 'bus';
             obj.cxn_idx_prop = 'bus';
+        end
+
+        function name = name(obj)
+            name = 'shunt';
         end
 
         function var_names = table_var_names(obj)

@@ -23,9 +23,12 @@ classdef dme_load3p < dm_element
         %% constructor
         function obj = dme_load3p()
             obj@dm_element();   %% call parent constructor
-            obj.name = 'load3p';
             obj.cxn_type = 'bus3p';
             obj.cxn_idx_prop = 'bus';
+        end
+
+        function name = name(obj)
+            name = 'load3p';
         end
 
         function var_names = table_var_names(obj)

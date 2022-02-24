@@ -2,7 +2,7 @@ classdef dme_xfmr3p < dm_element
 %DME_XFMR3P  MATPOWER data model class for 3-phase transformer data
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -28,9 +28,12 @@ classdef dme_xfmr3p < dm_element
         %% constructor
         function obj = dme_xfmr3p()
             obj@dm_element();   %% call parent constructor
-            obj.name = 'xfmr3p';
             obj.cxn_type = 'bus3p';
             obj.cxn_idx_prop = {'fbus', 'tbus'};
+        end
+
+        function name = name(obj)
+            name = 'xfmr3p';
         end
 
         function var_names = table_var_names(obj)

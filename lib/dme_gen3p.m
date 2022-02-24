@@ -2,7 +2,7 @@ classdef dme_gen3p < dm_element
 %DME_GEN3P  MATPOWER data model class for 3-phase gen data
 
 %   MATPOWER
-%   Copyright (c) 1996-2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 1996-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %   and Carlos E. Murillo-Sanchez, PSERC Cornell & Universidad Nacional de Colombia
 %
@@ -27,9 +27,12 @@ classdef dme_gen3p < dm_element
         %% constructor
         function obj = dme_gen3p()
             obj@dm_element();   %% call parent constructor
-            obj.name = 'gen3p';
             obj.cxn_type = 'bus3p';
             obj.cxn_idx_prop = 'bus';
+        end
+
+        function name = name(obj)
+            name = 'gen3p';
         end
 
         function var_names = table_var_names(obj)

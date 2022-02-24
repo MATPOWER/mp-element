@@ -18,10 +18,8 @@ classdef dme_bus < dm_element
     end     %% properties
 
     methods
-        %% constructor
-        function obj = dme_bus()
-            obj@dm_element();   %% call parent constructor
-            obj.name = 'bus';
+        function name = name(obj)
+            name = 'bus';
         end
 
         function var_names = table_var_names(obj)

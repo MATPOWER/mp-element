@@ -27,9 +27,12 @@ classdef dme_branch < dm_element
         %% constructor
         function obj = dme_branch()
             obj@dm_element();   %% call parent constructor
-            obj.name = 'branch';
             obj.cxn_type = 'bus';
             obj.cxn_idx_prop = {'fbus', 'tbus'};
+        end
+
+        function name = name(obj)
+            name = 'branch';
         end
 
         function var_names = table_var_names(obj)
