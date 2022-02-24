@@ -147,7 +147,7 @@ classdef mp_table
                         c = ':';
                     end
                     var_names = obj.Properties.VariableNames(1,c);
-                    var_vals = cellfun(@(x)x(r,1), ...
+                    var_vals = cellfun(@(x)x(r,:), ...
                         obj.Properties.VariableValues(c), 'UniformOutput', 0);
                     dim_names = obj.Properties.DimensionNames;
                     if isempty(obj.Properties.RowNames)
@@ -231,17 +231,24 @@ classdef mp_table
                         error('mp_table/subasgn: sub-indexing following {}-indexing not supported');
                     end
                 case '{}'
-                    nv = size(b, 2);
                     idx = s(1).subs{2};
                     if ischar(idx)
                         if length(idx) == 1 && idx == ':'
-                            idx = [1:nv];
+                            idx = [1:size(obj, 2)];
                         else        %% for 'a:b' syntax as a char array
                             idx = eval(['[' idx ']'])
                         end
                     end
-                    for k = 1:nv
-                        obj.Properties.VariableValues{idx(k)}(s(1).subs{1}, :) = b(:, k);
+                    j = 1;  %% col index in b
+                    for k = 1:length(idx)
+                        %% get num cols for var k
+                        nc = size(obj.Properties.VariableValues{idx(k)}, 2);
+                        if nc > 1
+                            obj.Properties.VariableValues{idx(k)}(s(1).subs{1}, :) = b(:, j:j+nc-1);
+                        else
+                            obj.Properties.VariableValues{idx(k)}(s(1).subs{1}, :) = b(:, j);
+                        end
+                        j = j+nc;
                     end
                     if R
                         error('mp_table/subasgn: sub-indexing following ()-indexing not supported');
