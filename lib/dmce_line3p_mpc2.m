@@ -2,7 +2,7 @@ classdef dmce_line3p_mpc2 < dmc_element_mpc2 % & dmce_branch
 %DMCE_LINE3P_MPC2  Data model converter for 3-phase line elements for MATPOWER case v2.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -13,9 +13,12 @@ classdef dmce_line3p_mpc2 < dmc_element_mpc2 % & dmce_branch
 %     end     %% properties
 
     methods
-        function obj = dmce_line3p_mpc2()
-            obj.name = 'line3p';
-            obj.table = 'line3p';
+        function name = name(obj)
+            name = 'line3p';
+        end
+
+        function table = table(obj)
+            table = 'line3p';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

@@ -2,18 +2,21 @@ classdef dmc_element_mpc2 < dmc_element
 %DMC_ELEMENT_MPC2  Base class for MPC2 data model converter for indv elements
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-    properties
-        table   %% mpc field for default table, assigned in subclass constructor
-    end     %% properties
+%     properties
+%     end     %% properties
 
     methods
+        function table = table(obj)
+            table = '';     %% mpc field for default table
+        end
+
         function [nr, nc, r] = get_import_size(obj, mpc)
             if isfield(mpc, obj.table)
                 [nr, nc] = size(mpc.(obj.table));   %% use size of default table

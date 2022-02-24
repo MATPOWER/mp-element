@@ -2,7 +2,7 @@ classdef dmce_bus_ld_mpc2_node_test < dmce_bus_nld_mpc2_node_test % & dmce_bus
 %DMCE_BUS_LD_MPC2_NODE_TEST  Data model converter for bus elements for MATPOWER case v2.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -13,8 +13,8 @@ classdef dmce_bus_ld_mpc2_node_test < dmce_bus_nld_mpc2_node_test % & dmce_bus
 %     end     %% properties
 
     methods
-        function obj = dmce_bus_ld_mpc2_node_test()
-            obj.name = 'bus_ld';
+        function name = name(obj)
+            name = 'bus_ld';
         end
 
         function [nr, nc, r] = get_import_size(obj, mpc)

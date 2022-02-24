@@ -2,7 +2,7 @@ classdef dmce_shunt_mpc2 < dmc_element_mpc2 % & dmce_shunt
 %DMCE_SHUNT_MPC2  Data model converter for shunt elements for MATPOWER case v2.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -14,9 +14,12 @@ classdef dmce_shunt_mpc2 < dmc_element_mpc2 % & dmce_shunt
     end     %% properties
 
     methods
-        function obj = dmce_shunt_mpc2()
-            obj.name = 'shunt';
-            obj.table = 'bus';
+        function name = name(obj)
+            name = 'shunt';
+        end
+
+        function table = table(obj)
+            table = 'bus';
         end
 
         function [nr, nc, r] = get_import_size(obj, mpc)

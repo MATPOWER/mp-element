@@ -2,7 +2,7 @@ classdef dmce_buslink_mpc2 < dmc_element_mpc2 % & dmce_buslink
 %DMCE_BUSLINK_MPC2  Data model converter for 1-to-3-phase buslink elements for MATPOWER case v2.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -13,9 +13,12 @@ classdef dmce_buslink_mpc2 < dmc_element_mpc2 % & dmce_buslink
 %     end     %% properties
 
     methods
-        function obj = dmce_buslink_mpc2()
-            obj.name = 'buslink';
-            obj.table = 'buslink';
+        function name = name(obj)
+            name = 'buslink';
+        end
+
+        function table = table(obj)
+            table = 'buslink';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

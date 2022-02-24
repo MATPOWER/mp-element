@@ -13,9 +13,12 @@ classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
 %     end     %% properties
 
     methods
-        function obj = dmce_gen_mpc2()
-            obj.name = 'gen';
-            obj.table = 'gen';
+        function name = name(obj)
+            name = 'gen';
+        end
+
+        function table = table(obj)
+            table = 'gen';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

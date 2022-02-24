@@ -2,7 +2,7 @@ classdef dmce_gizmo_mpc2 < dmc_element_mpc2 % & dmce_gizmo
 %DMCE_GIZMO_MPC2  Data model converter for gizmo elements for MATPOWER case v2.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -13,9 +13,12 @@ classdef dmce_gizmo_mpc2 < dmc_element_mpc2 % & dmce_gizmo
 %     end     %% properties
 
     methods
-        function obj = dmce_gizmo_mpc2()
-            obj.name = 'gizmo';
-            obj.table = 'gizmo';
+        function name = name(obj)
+            name = 'gizmo';
+        end
+
+        function table = table(obj)
+            table = 'gizmo';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

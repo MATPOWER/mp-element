@@ -2,7 +2,7 @@ classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
 %DMCE_BUS_MPC2  Data model converter for bus elements for MATPOWER case v2.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -13,9 +13,12 @@ classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
 %     end     %% properties
 
     methods
-        function obj = dmce_bus_mpc2()
-            obj.name = 'bus';
-            obj.table = 'bus';
+        function name = name(obj)
+            name = 'bus';
+        end
+
+        function table = table(obj)
+            table = 'bus';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

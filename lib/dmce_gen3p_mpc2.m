@@ -2,7 +2,7 @@ classdef dmce_gen3p_mpc2 < dmc_element_mpc2 % & dmce_gen
 %DMCE_GEN3P_MPC2  Data model converter for 3-phase gen elements for MATPOWER case v2.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -13,9 +13,12 @@ classdef dmce_gen3p_mpc2 < dmc_element_mpc2 % & dmce_gen
 %     end     %% properties
 
     methods
-        function obj = dmce_gen3p_mpc2()
-            obj.name = 'gen3p';
-            obj.table = 'gen3p';
+        function name = name(obj)
+            name = 'gen3p';
+        end
+
+        function table = table(obj)
+            table = 'gen3p';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

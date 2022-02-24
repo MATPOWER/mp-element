@@ -2,7 +2,7 @@ classdef dmce_load_mpc2 < dmc_element_mpc2 % & dmce_load
 %DMCE_LOAD_MPC2  Data model converter for load elements for MATPOWER case v2.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -14,9 +14,12 @@ classdef dmce_load_mpc2 < dmc_element_mpc2 % & dmce_load
     end     %% properties
 
     methods
-        function obj = dmce_load_mpc2()
-            obj.name = 'load';
-            obj.table = 'bus';
+        function name = name(obj)
+            name = 'load';
+        end
+
+        function table = table(obj)
+            table = 'bus';
         end
 
         function [nr, nc, r] = get_import_size(obj, mpc)
