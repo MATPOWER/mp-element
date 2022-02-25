@@ -10,19 +10,16 @@ classdef dme_bus_nld_node_test < dme_bus_opf
 %   See https://matpower.org for more info.
 
     properties
-        bus_eti %% bus element type index, 1 = bus_nld, 2 = bus_ld
         bus    %% indices into bus matrix (all rows) for this type of bus
     end     %% properties
 
     methods
-        %% constructor
-        function obj = dme_bus_nld_node_test()
-            obj@dme_bus_opf();      %% call parent constructor
-            obj.bus_eti = 1;        %% bus element type index, 1 => bus_nld
-        end
-
         function name = name(obj)
             name = 'bus_nld';
+        end
+
+        function val = bus_eti(obj)
+            val = 1;    %% element type index, 1 => bus_nld, 2 => bus_ld
         end
 
         function nr = count(obj, dm)

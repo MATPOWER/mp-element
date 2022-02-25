@@ -15,17 +15,20 @@ classdef dme_gen_node_test < dme_gen_opf
     end     %% properties
 
     methods
-        %% constructor
-%         function obj = dme_gen_node_test()
-%             obj@dme_gen();     %% call parent constructor
-%         end
+        function name = cxn_type(obj)
+            name = {'bus_nld', 'bus_ld'};
+        end
+
+        function name = cxn_idx_prop(obj)
+            name = 'bus';
+        end
+
+        function name = cxn_type_prop(obj)
+            name = 'bus_etv';
+        end
 
         function obj = initialize(obj, dm)
             initialize@dm_element(obj, dm);     %% call parent
-
-            obj.cxn_type = {'bus_nld', 'bus_ld'};
-            obj.cxn_idx_prop = 'bus';
-            obj.cxn_type_prop = 'bus_etv';
 
             %% get bus mapping info
             obj.nbet = length(obj.cxn_type);

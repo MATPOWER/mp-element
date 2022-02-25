@@ -16,12 +16,20 @@ classdef dme_branch_node_test < dme_branch_opf
     end     %% properties
 
     methods
+        function name = cxn_type(obj)
+            name = {'bus_nld', 'bus_ld'};
+        end
+
+        function name = cxn_idx_prop(obj)
+            name = {'fbus', 'tbus'};
+        end
+
+        function name = cxn_type_prop(obj)
+            name = {'fbus_etv', 'tbus_etv'};
+        end
+
         function obj = initialize(obj, dm)
             initialize@dm_element(obj, dm);     %% call parent
-
-            obj.cxn_type = {'bus_nld', 'bus_ld'};
-            obj.cxn_idx_prop = {'fbus', 'tbus'};
-            obj.cxn_type_prop = {'fbus_etv', 'tbus_etv'};
 
             %% get bus mapping info
             obj.nbet = length(obj.cxn_type);

@@ -19,16 +19,16 @@ classdef dme_bus_ld_node_test < dme_bus_nld_node_test
     end     %% properties
 
     methods
-        %% constructor
-        function obj = dme_bus_ld_node_test()
-            obj@dme_bus_nld_node_test();   %% call parent constructor
-            obj.bus_eti = 2;        %% bus element type index, 2 => bus_ld
-            obj.cxn_type = 'bus_ld';
-            obj.cxn_idx_prop = '';
-        end
-
         function name = name(obj)
             name = 'bus_ld';
+        end
+
+        function name = cxn_type(obj)
+            name = 'bus_ld';
+        end
+
+        function val = bus_eti(obj)
+            val = 2;    %% element type index, 1 => bus_nld, 2 => bus_ld
         end
 
         function var_names = table_var_names(obj)

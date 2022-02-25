@@ -22,15 +22,16 @@ classdef dme_buslink < dm_element
     end     %% properties
 
     methods
-        %% constructor
-        function obj = dme_buslink()
-            obj@dm_element();   %% call parent constructor
-            obj.cxn_type = {'bus', 'bus3p'};
-            obj.cxn_idx_prop = {'bus', 'bus3p'};
-        end
-
         function name = name(obj)
             name = 'buslink';
+        end
+
+        function name = cxn_type(obj)
+            name = {'bus', 'bus3p'};
+        end
+
+        function name = cxn_idx_prop(obj)
+            name = {'bus', 'bus3p'};
         end
 
         function var_names = table_var_names(obj)

@@ -25,15 +25,16 @@ classdef dme_xfmr3p < dm_element
     end     %% properties
 
     methods
-        %% constructor
-        function obj = dme_xfmr3p()
-            obj@dm_element();   %% call parent constructor
-            obj.cxn_type = 'bus3p';
-            obj.cxn_idx_prop = {'fbus', 'tbus'};
-        end
-
         function name = name(obj)
             name = 'xfmr3p';
+        end
+
+        function name = cxn_type(obj)
+            name = 'bus3p';
+        end
+
+        function name = cxn_idx_prop(obj)
+            name = {'fbus', 'tbus'};
         end
 
         function var_names = table_var_names(obj)
