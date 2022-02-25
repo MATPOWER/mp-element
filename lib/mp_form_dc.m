@@ -44,15 +44,19 @@ classdef mp_form_dc < mp_form
         function name = form_name(obj)
             name = 'DC';
         end
+
         function tag = form_tag(obj)
             tag = 'dc';
         end
+
         function params = model_params(obj)
            params = {'B', 'K', 'p'};
         end
+
         function vtypes = model_vvars(obj)
             vtypes = {'va'};
         end
+
         function vtypes = model_zvars(obj)
             vtypes = {'z'};
         end

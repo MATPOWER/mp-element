@@ -53,12 +53,15 @@ classdef mp_form_ac < mp_form
         function name = form_name(obj)
             name = 'AC';
         end
+
         function tag = form_tag(obj)
             tag = 'ac';
         end
+
         function params = model_params(obj)
            params = {'Y', 'L', 'M', 'N', 'i', 's'};
         end
+
         function vtypes = model_zvars(obj)
             vtypes = {'zr', 'zi'};
         end

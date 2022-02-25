@@ -29,9 +29,11 @@ classdef mp_form_acp < mp_form_ac
         function name = form_name(obj)
             name = 'AC-polar';
         end
+
         function tag = form_tag(obj)
             tag = 'acp';
         end
+
         function vtypes = model_vvars(obj)
             vtypes = {'va', 'vm'};
         end

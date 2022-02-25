@@ -29,9 +29,11 @@ classdef mp_form_acc < mp_form_ac
         function name = form_name(obj)
             name = 'AC-cartesian';
         end
+
         function tag = form_tag(obj)
             tag = 'acc';
         end
+
         function vtypes = model_vvars(obj)
             vtypes = {'vr', 'vi'};
         end
