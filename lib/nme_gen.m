@@ -12,15 +12,16 @@ classdef nme_gen < nm_element
 %     end
     
     methods
-        %% constructor
-        function obj = nme_gen()
-            obj@nm_element();
-            obj.np = 1;             %% this is a 1 port element
-            obj.nz = 1;
-        end
-
         function name = name(obj)
             name = 'gen';
+        end
+
+        function np = np(obj)
+            np = 1;     %% this is a 1 port element
+        end
+
+        function nz = nz(obj)
+            nz = 1;     %% 1 (possibly complex) non-voltage state per element
         end
     end     %% methods
 end         %% classdef

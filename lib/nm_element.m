@@ -39,9 +39,6 @@ classdef nm_element < handle
 %   See https://matpower.org for more info.
 
     properties
-        np = 0;     %% number of ports per element
-        nn = 0;     %% number of nodes per element (created by element)
-        nz = 0;     %% number of non-voltage states per element (possibly complex)
         nk = 0;     %% number of elements of this type loaded
         C = [];     %% stacked element-node incidence matrices,
                     %% where C(i,kk) is 1 if port j of element k is
@@ -56,6 +53,18 @@ classdef nm_element < handle
     methods
         function name = name(obj)
             name = '';      %% e.g. 'bus', 'gen'
+        end
+
+        function np = np(obj)
+            np = 0;     %% number of ports per element
+        end
+
+        function nn = nn(obj)
+            nn = 0;     %% number of nodes per element (created by element)
+        end
+
+        function nz = nz(obj)
+            nz = 0;     %% number of (possibly complex) non-voltage states per element
         end
 
         function dme = data_model_element(obj, dm, name)

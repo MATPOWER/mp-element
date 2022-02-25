@@ -12,14 +12,12 @@ classdef nme_line3p < nm_element & mp_form_acp
 %     end
     
     methods
-        %% constructor
-        function obj = nme_line3p()
-            obj@nm_element();
-            obj.np = 6;             %% this is a 6 port element
-        end
-
         function name = name(obj)
             name = 'line3p';
+        end
+
+        function np = np(obj)
+            np = 6;     %% this is a 6 port element
         end
 
         function obj = build_params(obj, nm, dm)

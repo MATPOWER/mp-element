@@ -12,14 +12,12 @@ classdef nme_branch < nm_element
 %     end
     
     methods
-        %% constructor
-        function obj = nme_branch()
-            obj@nm_element();
-            obj.np = 2;             %% this is a 2 port element
-        end
-
         function name = name(obj)
             name = 'branch';
+        end
+
+        function np = np(obj)
+            np = 2;     %% this is a 2 port element
         end
     end     %% methods
 end         %% classdef

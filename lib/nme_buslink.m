@@ -12,15 +12,16 @@ classdef nme_buslink < nm_element %& mp_form_ac
 %     end
 
     methods
-        %% constructor
-        function obj = nme_buslink()
-            obj@nm_element();
-            obj.np = 4;             %% this is a 4 port element
-            obj.nz = 3;
-        end
-
         function name = name(obj)
             name = 'buslink';
+        end
+
+        function np = np(obj)
+            np = 4;     %% this is a 4 port element
+        end
+
+        function nz = nz(obj)
+            nz = 3;     %% 3 complex non-voltage states per element
         end
 
         function obj = add_zvars(obj, nm, dm, idx)

@@ -12,14 +12,12 @@ classdef nme_load < nm_element
 %     end     %% properties
 
     methods
-        %% constructor
-        function obj = nme_load()
-            obj@nm_element();
-            obj.np = 1;             %% this is a 1 port element
-        end
-
         function name = name(obj)
             name = 'load';
+        end
+
+        function np = np(obj)
+            np = 1;     %% this is a 1 port element
         end
     end     %% methods
 end         %% classdef

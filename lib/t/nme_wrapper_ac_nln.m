@@ -15,10 +15,6 @@ classdef nme_wrapper_ac_nln < handle
     methods
         function obj = nme_wrapper_ac_nln_init(obj)
             obj.nme = obj.nme_class();      %% construct wrapped class
-
-            %% copy base field values from wrapped object
-            obj.np = obj.nme.np;
-            obj.nz = obj.nme.nz;
         end
 
         function build_nln_params(obj, nm, dm)

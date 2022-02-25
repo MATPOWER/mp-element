@@ -12,14 +12,12 @@ classdef nme_load3p < nm_element & mp_form_acp
 %     end     %% properties
 
     methods
-        %% constructor
-        function obj = nme_load3p()
-            obj@nm_element();
-            obj.np = 3;             %% this is a 3 port element
-        end
-
         function name = name(obj)
             name = 'load3p';
+        end
+
+        function np = np(obj)
+            np = 3;     %% this is a 3 port element
         end
 
         function obj = build_params(obj, nm, dm)

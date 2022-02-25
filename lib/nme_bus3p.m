@@ -12,14 +12,12 @@ classdef nme_bus3p < nm_element
 %     end
 
     methods
-        %% constructor
-        function obj = nme_bus3p()
-            obj@nm_element();
-            obj.nn = 3;         %% creates 3 nodes per element
-        end
-
         function name = name(obj)
             name = 'bus3p';
+        end
+
+        function nn = nn(obj)
+            nn = 3;     %% creates 3 nodes per element
         end
 
         function [ref, pv, pq] = node_types(obj, nm, dm, idx)

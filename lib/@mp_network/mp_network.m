@@ -12,32 +12,25 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
 %   See https://matpower.org for more info.
 
     properties
-        nv = 0;                 %% total number of (real) v variables
+        the_np = 0;     %% number of ports
+        the_nz = 0;     %% number of non-voltage states
+        nv = 0;         %% total number of (real) v variables
         node = [];
         port = [];
         state = [];
     end
 
     methods
-        %% constructor
-        function obj = mp_network()
-            obj@nm_element();
-            obj.np = 0;     %% unknown number of ports at this point, init to 0
-            obj.nk = 1;
-            obj.nz = 0;     %% unknown number of z_ vars at this point, init to 0
-
-            %% Due to a bug related to inheritance in constructors in
-            %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
-            %% INIT_SET_TYPES() cannot be called directly in the
-            %% MP_IDX_MANAGER constructor, as desired.
-            %%
-            %% WORKAROUND:  INIT_SET_TYPES() is called explicitly as needed
-            %%              (if obj.node is empty) in BUILD() and DISPLAY(),
-            %%              after object construction, but before object use.
-        end
-
         function name = name(obj)
             name = 'network';
+        end
+
+        function np = np(obj)
+            np = obj.the_np;    %% number of ports
+        end
+
+        function nz = nz(obj)
+            nz = obj.the_nz;    %% number of (possibly complex) non-voltage states
         end
 
         function obj = build(obj, dm)
@@ -53,13 +46,14 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
             end
 
             %% create element objects for each class with data
+            obj.nk = 1;
             obj.elements = mp_mapped_array();
             for c = obj.element_classes
                 nme = c{1}();       %% element constructor
                 if nme.count(dm)
                     obj.elements.add_elements(nme, nme.name);
-                    obj.np = obj.np + nme.np * nme.nk;  %% number of ports
-                    obj.nz = obj.nz + nme.nz * nme.nk;  %% number of z_ vars
+                    obj.the_np = obj.the_np + nme.np * nme.nk;  %% number of ports
+                    obj.the_nz = obj.the_nz + nme.nz * nme.nk;  %% number of z_ vars
                 end
             end
 

@@ -12,15 +12,16 @@ classdef nme_gen3p < nm_element % & mp_form_ac
 %     end
 
     methods
-        %% constructor
-        function obj = nme_gen3p()
-            obj@nm_element();
-            obj.np = 3;             %% this is a 3 port element
-            obj.nz = 3;
-        end
-
         function name = name(obj)
             name = 'gen3p';
+        end
+
+        function np = np(obj)
+            np = 3;     %% this is a 3 port element
+        end
+
+        function nz = nz(obj)
+            nz = 3;     %% 3 (possibly complex) non-voltage states per element
         end
 
         function obj = add_zvars(obj, nm, dm, idx)

@@ -12,14 +12,12 @@ classdef nme_bus < nm_element
 %     end
 
     methods
-        %% constructor
-        function obj = nme_bus()
-            obj@nm_element();
-            obj.nn = 1;         %% creates 1 node per element
-        end
-
         function name = name(obj)
             name = 'bus';
+        end
+
+        function nn = nn(obj)
+            nn = 1;     %% creates 1 node per element
         end
 
         function [ref, pv, pq] = node_types(obj, nm, dm, idx)

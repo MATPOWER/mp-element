@@ -12,15 +12,16 @@ classdef nme_gizmo < nm_element
 %     end
     
     methods
-        %% constructor
-        function obj = nme_gizmo()
-            obj@nm_element();
-            obj.np = 3;             %% this is a 3 port element
-            obj.nz = 2;             %% each with 2 state variables
-        end
-
         function name = name(obj)
             name = 'gizmo';
+        end
+
+        function np = np(obj)
+            np = 3;     %% this is a 3 port element
+        end
+
+        function nz = nz(obj)
+            nz = 2;     %% 2 (possibly complex) non-voltage states per element
         end
     end     %% methods
 end         %% classdef
