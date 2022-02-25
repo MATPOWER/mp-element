@@ -9,14 +9,11 @@ classdef mme_bus3p < mm_element
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'bus';
 %     end
     
     methods
-        %% constructor
-        function obj = mme_bus3p()
-            obj@mm_element();
-            obj.name = 'bus3p';
+        function name = name(obj)
+            name = 'bus3p';
         end
 
         function obj = data_model_update(obj, mm, nm, dm, mpopt)

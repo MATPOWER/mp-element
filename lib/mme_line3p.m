@@ -9,14 +9,11 @@ classdef mme_line3p < mm_element
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'line3p';
 %     end
     
     methods
-        %% constructor
-        function obj = mme_line3p()
-            obj@mm_element();
-            obj.name = 'line3p';
+        function name = name(obj)
+            name = 'line3p';
         end
 
         function obj = data_model_update(obj, mm, nm, dm, mpopt)

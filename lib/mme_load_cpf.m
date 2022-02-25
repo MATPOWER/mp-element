@@ -9,14 +9,11 @@ classdef mme_load_cpf < mm_element
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'load';
 %     end
     
     methods
-        %% constructor
-        function obj = mme_load_cpf()
-            obj@mm_element();
-            obj.name = 'load';
+        function name = name(obj)
+            name = 'load';
         end
 
         function obj = data_model_update(obj, mm, nm, dm, mpopt)

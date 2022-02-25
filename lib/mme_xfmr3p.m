@@ -9,14 +9,11 @@ classdef mme_xfmr3p < mm_element
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'xfmr3p';
 %     end
     
     methods
-        %% constructor
-        function obj = mme_xfmr3p()
-            obj@mm_element();
-            obj.name = 'xfmr3p';
+        function name = name(obj)
+            name = 'xfmr3p';
         end
 
         function obj = data_model_update(obj, mm, nm, dm, mpopt)

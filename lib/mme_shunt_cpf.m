@@ -9,14 +9,11 @@ classdef mme_shunt_cpf < mm_element
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'shunt';
 %     end
     
     methods
-        %% constructor
-        function obj = mme_shunt_cpf()
-            obj@mm_element();
-            obj.name = 'shunt';
+        function name = name(obj)
+            name = 'shunt';
         end
 
         function obj = data_model_update(obj, mm, nm, dm, mpopt)

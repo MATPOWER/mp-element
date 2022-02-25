@@ -9,10 +9,8 @@ classdef mme_bus_nld_opf_acps_node_test < mme_bus_opf_acp
 %   See https://matpower.org for more info.
 
     methods
-        %% constructor
-        function obj = mme_bus_nld_opf_acps_node_test()
-            obj@mme_bus_opf_acp();
-            obj.name = 'bus_nld';
+        function name = name(obj)
+            name = 'bus_nld';
         end
 
         function x0 = interior_x0(obj, mm, nm, dm, x0)

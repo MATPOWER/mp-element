@@ -9,14 +9,11 @@ classdef mme_gen3p < mm_element
 %   See https://matpower.org for more info.
 
 %     properties
-%         name = 'gen3p';
 %     end
     
     methods
-        %% constructor
-        function obj = mme_gen3p()
-            obj@mm_element();
-            obj.name = 'gen3p';
+        function name = name(obj)
+            name = 'gen3p';
         end
 
         function obj = data_model_update(obj, mm, nm, dm, mpopt)

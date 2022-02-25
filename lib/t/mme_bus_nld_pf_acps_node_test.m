@@ -9,10 +9,8 @@ classdef mme_bus_nld_pf_acps_node_test < mme_bus_pf_acp
 %   See https://matpower.org for more info.
 
     methods
-        %% constructor
-        function obj = mme_bus_nld_pf_acps_node_test()
-            obj@mme_bus_pf_acp();
-            obj.name = 'bus_nld';
+        function name = name(obj)
+            name = 'bus_nld';
         end
 
         function obj = data_model_update(obj, mm, nm, dm, mpopt)
