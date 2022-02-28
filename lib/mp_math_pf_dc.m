@@ -26,7 +26,7 @@ classdef mp_math_pf_dc < mp_math_pf & mm_shared_pfcpf_dc
         function obj = mp_math_pf_dc()
             obj@mp_math_pf();
             obj.element_classes = { @mme_bus_pf_dc, @mme_gen_pf_dc, ...
-                @mme_branch_pf_dc };
+                @mme_load_pf_dc, @mme_branch_pf_dc, @mme_shunt_pf_dc };
         end
 
         function tag = form_tag(obj)

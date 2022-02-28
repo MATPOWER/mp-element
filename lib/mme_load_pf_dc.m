@@ -1,4 +1,4 @@
-classdef mme_load_cpf < mme_load_pf_ac
+classdef mme_load_pf_dc < mme_load
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)
@@ -13,12 +13,14 @@ classdef mme_load_cpf < mme_load_pf_ac
     
     methods
         function obj = data_model_update(obj, mm, nm, dm, mpopt)
-            %% call parent to compute injections
-            data_model_update@mme_load_pf_ac(obj, mm, nm, dm, mpopt);
+            %% load active power consumption
+            pp = nm.get_idx('port');
+            P = nm.soln.gp(pp.i1.load:pp.iN.load) * dm.base_mva;
 
-            ad = mm.aux_data;
+            %% update in the data model
             dme = obj.data_model_element(dm);
-            dm = dme.parameterized(dm, ad.dmb, ad.dmt, mm.soln.x(end));
+            dme.tab.p(dme.on) = P;
+            dme.tab.q(dme.on) = 0;
         end
     end     %% methods
 end         %% classdef

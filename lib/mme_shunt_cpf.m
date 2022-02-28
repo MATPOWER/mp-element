@@ -1,4 +1,4 @@
-classdef mme_shunt_cpf < mm_element
+classdef mme_shunt_cpf < mme_shunt_pf_ac
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)
@@ -12,11 +12,11 @@ classdef mme_shunt_cpf < mm_element
 %     end
     
     methods
-        function name = name(obj)
-            name = 'shunt';
-        end
-
         function obj = data_model_update(obj, mm, nm, dm, mpopt)
+            %% call parent to compute injections
+            data_model_update@mme_shunt_pf_ac(obj, mm, nm, dm, mpopt);
+
+            %% update load input values
             ad = mm.aux_data;
             dme = obj.data_model_element(dm);
             dm = dme.parameterized(dm, ad.dmb, ad.dmt, mm.soln.x(end));
