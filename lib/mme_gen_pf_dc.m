@@ -20,6 +20,7 @@ classdef mme_gen_pf_dc < mme_gen
             %% update in the data model
             dme = obj.data_model_element(dm);
             dme.tab.pg(dme.on) = pg;
+            dme.tab.qg(dme.on) = 0;
         end
     end     %% methods
 end         %% classdef
