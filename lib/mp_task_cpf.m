@@ -118,6 +118,27 @@ classdef mp_task_cpf < mp_task_pf
             nm.userdata.target = nmt;
         end
 
+        function nm = network_model_x_soln(obj, mm, nm)
+            %% call parent
+            nm = network_model_x_soln@mp_task_pf(obj, mm, nm);
+
+            %% update solution in target network model
+            nm.userdata.target = mm.network_model_x_soln(nm.userdata.target);
+        end
+
+        function nm = network_model_update(obj, mm, nm)
+            %% call parent
+            nm = network_model_update@mp_task_pf(obj, mm, nm);
+
+            %% update port injection solutin in target network model
+            nmt = nm.userdata.target;
+            nmt.port_inj_soln();
+
+            %% update port injection solution, by interpolation with lambda
+            lambda = mm.soln.x(mm.get_idx('var').i1.lambda);
+            nm.soln.gs_ = nm.soln.gs_ + (nmt.soln.gs_ - nm.soln.gs_) * lambda;
+        end
+
         %%-----  mathematical model methods  -----
         function mm_class = math_model_class_default(obj, nm, dm, mpopt)
             switch upper(mpopt.model)
