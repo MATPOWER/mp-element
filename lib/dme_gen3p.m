@@ -67,10 +67,10 @@ classdef dme_gen3p < dm_element
 
         function obj = update_status(obj, dm)
             %% get bus status info
-            bs = dm.elements.bus3p.status;  %% bus status
+            bs = dm.elements.bus3p.tab.status;  %% bus status
 
             %% update status of gens at isolated/offline buses
-            obj.status = obj.status & bs(obj.bus);
+            obj.tab.status = obj.tab.status & bs(obj.bus);
 
             %% call parent to fill in on/off
             update_status@dm_element(obj, dm);

@@ -69,11 +69,11 @@ classdef dme_gen_node_test < dme_gen_opf
             for k = 1:obj.nbet
                 if dm.elements.is_index_name(obj.cxn_type{k})
                     bus_dme = dm.elements.(obj.cxn_type{k});
-                    bs = bus_dme.status;    %% bus element status
+                    bs = bus_dme.tab.status;    %% bus element status
 
                     %% update status of gens at isolated/offline buses
                     gk = find(obj.bus_etv == bus_dme.bus_eti);
-                    obj.status(gk) = obj.status(gk) & bs(obj.bus(gk));
+                    obj.tab.status(gk) = obj.tab.status(gk) & bs(obj.bus(gk));
                 end
             end
 

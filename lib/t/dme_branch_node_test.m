@@ -74,13 +74,13 @@ classdef dme_branch_node_test < dme_branch_opf
             for k = 1:obj.nbet
                 if dm.elements.is_index_name(obj.cxn_type{k})
                     bus_dme = dm.elements.(obj.cxn_type{k});
-                    bs = bus_dme.status;    %% bus element status
+                    bs = bus_dme.tab.status;    %% bus element status
 
                     %% update status of branches connected to isolated/offline buses
                     fk = find(obj.fbus_etv == bus_dme.bus_eti);
                     tk = find(obj.tbus_etv == bus_dme.bus_eti);
-                    obj.status(fk) = obj.status(fk) & bs(obj.fbus(fk));
-                    obj.status(tk) = obj.status(tk) & bs(obj.tbus(tk));
+                    obj.tab.status(fk) = obj.tab.status(fk) & bs(obj.fbus(fk));
+                    obj.tab.status(tk) = obj.tab.status(tk) & bs(obj.tbus(tk));
                 end
             end
 

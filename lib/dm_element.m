@@ -17,7 +17,6 @@ classdef dm_element < handle
         n               %% number of online elements
         ID              %% nr x 1 vector of unique IDs, maps dmi to ID
         ID2i            %% max(ID) x 1 vector, maps IDs to row indices
-        status          %% nr x 1 vector of on/off status for elements
         on              %% n x 1 vector of row indices of online elements
         off             %% (nr-n) x 1 vector of row indices of offline elements
         i2on            %% nr x 1 vector mapping row index to index in on/off respectively
@@ -103,7 +102,7 @@ classdef dm_element < handle
             obj.ID2i = ID2i;
 
             %% initial on/off status
-            status = obj.get_status(dm);
+            obj.get_status(dm);
         end
 
         function ID = get_ID(obj, dm)
@@ -113,13 +112,13 @@ classdef dm_element < handle
 
         function status = get_status(obj, dm)
             status = obj.tab.status;
-            obj.status = status;
         end
 
         function obj = update_status(obj, dm)
-            if ~isempty(obj.status)
-                obj.on  = find(  obj.status );
-                obj.off = find( ~obj.status );
+            status = obj.tab.status;
+            if ~isempty(status)
+                obj.on  = find(  status );
+                obj.off = find( ~status );
                 obj.n   = length(obj.on);
                 obj.i2on = zeros(obj.nr, 1);
                 obj.i2on(obj.on ) = (1:obj.n);

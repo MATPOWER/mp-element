@@ -75,7 +75,7 @@ for k = 1:nt
     t_is(bus.n, 9, 12, [t 'bus.n']);
     t_is(bus.ID, mpc.bus(:, BUS_I), 12, [t 'bus.ID']);
     t_is(bus.ID2i, ID2i, 12, [t 'bus.ID2i']);
-    t_is(bus.status, [1;1;1;1;1;0;1;1;1;1], 12, [t 'bus.status']);
+    t_is(bus.tab.status, [1;1;1;1;1;0;1;1;1;1], 12, [t 'bus.tab.status']);
     t_is(bus.on, [1;2;3;4;5;7;8;9;10], 12, [t 'bus.on']);
     t_is(bus.off, 6, 12, [t 'bus.off']);
 
@@ -87,7 +87,7 @@ for k = 1:nt
     t_is(gen.n, 3, 12, [t 'gen.n']);
     t_is(gen.ID, [1:gen.nr]', 12, [t 'gen.ID']);
     t_is(gen.ID2i, [1:gen.nr]', 12, [t 'gen.ID2i']);
-    t_is(gen.status, [1;1;0;1], 12, [t 'gen.status']);
+    t_is(gen.tab.status, [1;1;0;1], 12, [t 'gen.tab.status']);
     t_is(gen.on, [1;2;4], 12, [t 'gen.on']);
     t_is(gen.off, 3, 12, [t 'gen.off']);
 
@@ -99,7 +99,7 @@ for k = 1:nt
     t_is(ld.n, 3, 12, [t 'ld.n']);
     t_is(ld.ID, [1:ld.nr]', 12, [t 'ld.ID']);
     t_is(ld.ID2i, [1:ld.nr]', 12, [t 'ld.ID2i']);
-    t_is(ld.status, [1;1;1], 12, [t 'ld.status']);
+    t_is(ld.tab.status, [1;1;1], 12, [t 'ld.tab.status']);
     t_is(ld.on, [1;2;3], 12, [t 'ld.on']);
     t_ok(isempty(ld.off), [t 'ld.off']);
 
@@ -111,7 +111,7 @@ for k = 1:nt
     t_is(branch.n, 9, 12, [t 'branch.n']);
     t_is(branch.ID, [1:branch.nr]', 12, [t 'branch.ID']);
     t_is(branch.ID2i, [1:branch.nr]', 12, [t 'branch.ID2i']);
-    t_is(branch.status, [1;1;1;1;1;1;0;1;1;1], 12, [t 'branch.status']);
+    t_is(branch.tab.status, [1;1;1;1;1;1;0;1;1;1], 12, [t 'branch.tab.status']);
     t_is(branch.on, [1;2;3;4;5;6;8;9;10], 12, [t 'branch.on']);
     t_is(branch.off, 7, 12, [t 'branch.off']);
 
@@ -123,7 +123,7 @@ for k = 1:nt
     t_is(shunt.n, 2, 12, [t 'shunt.n']);
     t_is(shunt.ID, [1:shunt.nr]', 12, [t 'shunt.ID']);
     t_is(shunt.ID2i, [1:shunt.nr]', 12, [t 'shunt.ID2i']);
-    t_is(shunt.status, [1;1], 12, [t 'shunt.status']);
+    t_is(shunt.tab.status, [1;1], 12, [t 'shunt.tab.status']);
     t_is(shunt.on, [1;2], 12, [t 'shunt.on']);
     t_ok(isempty(shunt.off), [t 'shunt.off']);
 end

@@ -56,8 +56,8 @@ classdef dme_bus3p < dm_element
             %% temporarily set bus type property with dimensions for all buses
             %% (reduced for online buses only in update_status())
             obj.type = bt;
-            status = (bt ~= NODE_TYPE.NONE);       %% bus status
-            obj.status = status;
+            status = (bt ~= NODE_TYPE.NONE);    %% bus status
+            obj.tab.status = status;
         end
 
         function obj = update_status(obj, dm)

@@ -49,12 +49,12 @@ classdef dme_gizmo < dm_element
 
         function obj = update_status(obj, dm)
             %% get bus status info
-            bs = dm.elements.bus.status;        %% bus status
+            bs = dm.elements.bus.tab.status;        %% bus status
 
             %% update status of gizmoes connected to isolated/offline buses
-            obj.status = obj.status & bs(obj.bus1) & ...
-                                      bs(obj.bus2) & ...
-                                      bs(obj.bus3);
+            obj.tab.status = obj.tab.status & bs(obj.bus1) & ...
+                                              bs(obj.bus2) & ...
+                                              bs(obj.bus3);
 
             %% call parent to fill in on/off
             update_status@dm_element(obj, dm);

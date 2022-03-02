@@ -66,11 +66,11 @@ classdef dme_buslink < dm_element
 
         function obj = update_status(obj, dm)
             %% get bus status info
-            bs  = dm.elements.bus.status;   %% bus status
-            bs3 = dm.elements.bus3p.status; %% bus3p status
+            bs  = dm.elements.bus.tab.status;   %% bus status
+            bs3 = dm.elements.bus3p.tab.status; %% bus3p status
 
             %% update status of buslinks at isolated/offline buses
-            obj.status = obj.status & bs(obj.bus) & bs3(obj.bus3p);
+            obj.tab.status = obj.tab.status & bs(obj.bus) & bs3(obj.bus3p);
 
             %% call parent to fill in on/off
             update_status@dm_element(obj, dm);
