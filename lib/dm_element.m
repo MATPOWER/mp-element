@@ -102,7 +102,7 @@ classdef dm_element < handle
             obj.ID2i = ID2i;
 
             %% initial on/off status
-            obj.get_status(dm);
+            obj.init_status(dm);
         end
 
         function ID = get_ID(obj, dm)
@@ -110,8 +110,7 @@ classdef dm_element < handle
             obj.ID = ID;
         end
 
-        function status = get_status(obj, dm)
-            status = obj.tab.status;
+        function obj = init_status(obj, dm)
         end
 
         function obj = update_status(obj, dm)
@@ -132,7 +131,7 @@ classdef dm_element < handle
         function obj = rebuild(obj, dm)
             obj.count(dm);
             obj.initialize(dm);
-            obj.get_status(dm);
+            obj.init_status(dm);
             obj.build_params(dm);
         end
 

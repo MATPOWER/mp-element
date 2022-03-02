@@ -32,14 +32,14 @@ classdef dme_bus < dm_element
             vars = {'type', 'vm', 'va'};
         end
 
-        function status = get_status(obj, dm)
-            %% overrides dm_element/get_status()
+        function obj = init_status(obj, dm)
+            %% overrides dm_element/init_status()
 
             %% check that all buses have a valid type
             bt = obj.tab.type;
             err = find(~NODE_TYPE.is_valid(bt));
             if ~isempty(err)
-                error('dme_bus/get_status: bus %d has an invalid type', err);
+                error('dme_bus/init_status: bus %d has an invalid type', err);
             end
 
             %% temporarily set bus type property with dimensions for all buses
