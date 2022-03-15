@@ -25,6 +25,14 @@ classdef dme_line3p < dm_element
             name = 'line3p';
         end
 
+        function label = label(obj)
+            label = 'Line (3-ph)';
+        end
+
+        function label = labels(obj)
+            label = 'Lines (3-ph)';
+        end
+
         function name = cxn_type(obj)
             name = 'bus3p';
         end

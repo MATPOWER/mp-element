@@ -26,6 +26,14 @@ classdef dme_buslink < dm_element
             name = 'buslink';
         end
 
+        function label = label(obj)
+            label = 'Bus Link';
+        end
+
+        function label = labels(obj)
+            label = 'Bus Links';
+        end
+
         function name = cxn_type(obj)
             name = {'bus', 'bus3p'};
         end

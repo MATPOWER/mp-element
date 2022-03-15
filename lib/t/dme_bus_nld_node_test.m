@@ -18,6 +18,14 @@ classdef dme_bus_nld_node_test < dme_bus_opf
             name = 'bus_nld';
         end
 
+        function label = label(obj)
+            label = 'Bus (w/o Load)';
+        end
+
+        function label = labels(obj)
+            label = 'Buses (w/o Loads)';
+        end
+
         function val = bus_eti(obj)
             val = 1;    %% element type index, 1 => bus_nld, 2 => bus_ld
         end

@@ -27,6 +27,14 @@ classdef dm_element < handle
             name = '';      %% e.g. 'bus', 'gen'
         end
 
+        function label = label(obj)
+            label = '';     %% e.g. 'Bus', 'Generator'
+        end
+
+        function label = labels(obj)
+            label = '';     %% e.g. 'Buses', 'Generators'
+        end
+
         function name = cxn_type(obj)
             %% char array or cell array of char arrays with names of types of
             %% junction elements, i.e. node-creating elements (e.g. 'bus'),

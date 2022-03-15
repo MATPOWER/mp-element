@@ -23,6 +23,14 @@ classdef dme_bus_ld_node_test < dme_bus_nld_node_test
             name = 'bus_ld';
         end
 
+        function label = label(obj)
+            label = 'Bus (w/Load)';
+        end
+
+        function label = labels(obj)
+            label = 'Buses (w/Loads)';
+        end
+
         function name = cxn_type(obj)
             name = 'bus_ld';
         end

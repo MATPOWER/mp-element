@@ -24,6 +24,14 @@ classdef dme_load < dm_element
             name = 'load';
         end
 
+        function label = label(obj)
+            label = 'Load';
+        end
+
+        function label = labels(obj)
+            label = 'Loads';
+        end
+
         function name = cxn_type(obj)
             name = 'bus';
         end

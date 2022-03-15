@@ -20,6 +20,14 @@ classdef dme_gizmo < dm_element
             name = 'gizmo';
         end
 
+        function label = label(obj)
+            label = 'Test Gizmo';
+        end
+
+        function label = labels(obj)
+            label = 'Test Gizmos';
+        end
+
         function name = cxn_type(obj)
             name = 'bus';
         end

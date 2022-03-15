@@ -26,6 +26,14 @@ classdef dme_gen < dm_element
             name = 'gen';
         end
 
+        function label = label(obj)
+            label = 'Generator';
+        end
+
+        function label = labels(obj)
+            label = 'Generators';
+        end
+
         function name = cxn_type(obj)
             name = 'bus';
         end

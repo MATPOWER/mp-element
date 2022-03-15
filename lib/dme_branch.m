@@ -28,6 +28,14 @@ classdef dme_branch < dm_element
             name = 'branch';
         end
 
+        function label = label(obj)
+            label = 'Branch';
+        end
+
+        function label = labels(obj)
+            label = 'Branches';
+        end
+
         function name = cxn_type(obj)
             name = 'bus';
         end

@@ -29,6 +29,14 @@ classdef dme_xfmr3p < dm_element
             name = 'xfmr3p';
         end
 
+        function label = label(obj)
+            label = 'Transformer (3-ph)';
+        end
+
+        function label = labels(obj)
+            label = 'Transformers (3-ph)';
+        end
+
         function name = cxn_type(obj)
             name = 'bus3p';
         end

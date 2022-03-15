@@ -22,6 +22,14 @@ classdef dme_shunt < dm_element
             name = 'shunt';
         end
 
+        function label = label(obj)
+            label = 'Fixed Shunt';
+        end
+
+        function label = labels(obj)
+            label = 'Fixed Shunts';
+        end
+
         function name = cxn_type(obj)
             name = 'bus';
         end

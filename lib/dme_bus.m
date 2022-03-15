@@ -22,6 +22,14 @@ classdef dme_bus < dm_element
             name = 'bus';
         end
 
+        function label = label(obj)
+            label = 'Bus';
+        end
+
+        function label = labels(obj)
+            label = 'Buses';
+        end
+
         function var_names = table_var_names(obj)
             var_names = horzcat( table_var_names@dm_element(obj), ...
                 {'base_kv', 'type', 'area', 'zone', 'vm_lb', 'vm_ub', ...
