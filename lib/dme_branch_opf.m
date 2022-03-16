@@ -1,4 +1,4 @@
-classdef dme_branch_opf < dme_branch
+classdef dme_branch_opf < dme_branch & dme_shared_opf
 %DME_BRANCH_OPF  MATPOWER data model class for branch data
 
 %   MATPOWER

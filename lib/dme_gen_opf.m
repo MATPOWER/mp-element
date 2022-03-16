@@ -1,4 +1,4 @@
-classdef dme_gen_opf < dme_gen
+classdef dme_gen_opf < dme_gen & dme_shared_opf
 %DME_GEN_OPF  MATPOWER data model class for gen data
 
 %   MATPOWER

@@ -1,4 +1,4 @@
-classdef dme_bus_opf < dme_bus
+classdef dme_bus_opf < dme_bus & dme_shared_opf
 %DME_BUS_OPF  MATPOWER data model class for bus data
 
 %   MATPOWER

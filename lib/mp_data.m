@@ -226,7 +226,7 @@ classdef mp_data < mp_element_container
             out = obj.pp_flags(mpopt);
 
             if out.any
-                sections = obj.pp_section_list(out);  %% e.g. cnt, sum, ext, det, lim
+                sections = obj.pp_section_list(out);  %% e.g. cnt, sum, ext, det, etc.
                 for s = 1:length(sections)
                     out_s = out.sec.(sections{s});
                     if out_s.any
@@ -295,8 +295,8 @@ classdef mp_data < mp_element_container
                     h = obj.pp_get_headers_ext(out_s, mpopt);
                 case 'det'
                     h = {};
-                case 'lim'
-                    h = {};
+                otherwise
+                    h = obj.pp_get_headers_other(section, out_s, mpopt);
             end
         end
 

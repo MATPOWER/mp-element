@@ -18,11 +18,11 @@ classdef mp_data_opf < mp_data
             %% call parent constructor
             obj@mp_data();
             obj.element_classes = ...
-                { @dme_bus_opf, @dme_gen_opf, @dme_load, ...
-                    @dme_branch_opf, @dme_shunt, ...
-                    @dme_bus3p, @dme_gen3p, @dme_load3p, ...
-                    @dme_line3p, @dme_xfmr3p, ...
-                    @dme_buslink };
+                { @dme_bus_opf, @dme_gen_opf, @dme_load_opf, ...
+                    @dme_branch_opf, @dme_shunt_opf, ...
+                    @dme_bus3p_opf, @dme_gen3p_opf, @dme_load3p_opf, ...
+                    @dme_line3p_opf, @dme_xfmr3p_opf, ...
+                    @dme_buslink_opf };
         end
 
         function [out, add] = pp_flags(obj, mpopt)
@@ -69,6 +69,15 @@ classdef mp_data_opf < mp_data
         function sections = pp_section_list(obj, out)
             sections = pp_section_list@mp_data(obj, out);
             sections{end+1} = 'lim';
+        end
+
+        function h = pp_get_headers_other(obj, section, out_s, mpopt)
+            switch section
+                case 'lim'
+                    h = {};
+                otherwise
+                    error('mp_data_opf:pp_get_headers_other: unknown section ''%s''', section);
+            end
         end
     end     %% methods
 end         %% classdef
