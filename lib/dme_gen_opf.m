@@ -176,5 +176,100 @@ classdef dme_gen_opf < dme_gen
                 maxgc = max(maxgc, max(max(obj.cost_qg.pwl_cost)));
             end
         end
+
+        function pretty_print(obj, dm, section, out_e, mpopt, fd, varargin)
+            switch section
+                case 'lim'
+                    pretty_print@dme_gen(obj, dm, section, out_e, mpopt, fd, 'P', varargin{:});
+                    pretty_print@dme_gen(obj, dm, section, out_e, mpopt, fd, 'Q', varargin{:});
+                otherwise
+                    %% call parent
+                    pretty_print@dme_gen(obj, dm, section, out_e, mpopt, fd, varargin{:});
+            end
+        end
+
+        function obj = pp_title(obj, dm, section, out_e, mpopt, fd, varargin)
+            if ~strcmp(section, 'lim') || strcmp(varargin{1}, 'P')
+                %% call parent
+                obj = pp_title@dme_gen(obj, dm, section, out_e, mpopt, fd, varargin{:});
+            end
+        end
+
+        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
+            ctol = mpopt.opf.violation; %% constraint violation tolerance
+            ptol = 1e-4;        %% tolerance for displaying shadow prices
+
+            switch varargin{1}
+                case 'P'
+                    rows = find( obj.tab.status & ( ...
+                                obj.tab.pg < obj.tab.pg_lb + ctol | ...
+                                obj.tab.pg > obj.tab.pg_ub - ctol | ...
+                                obj.tab.mu_pg_lb > ptol | ...
+                                obj.tab.mu_pg_ub > ptol ));
+                case 'Q'
+                    rows = find( obj.tab.status & ( ...
+                                obj.tab.qg < obj.tab.qg_lb + ctol | ...
+                                obj.tab.qg > obj.tab.qg_ub - ctol | ...
+                                obj.tab.mu_qg_lb > ptol | ...
+                                obj.tab.mu_qg_ub > ptol ));
+            end
+        end
+
+        function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
+            switch varargin{1}
+                case 'P'
+                    h0 = {'                                  Active Power Limits' };
+                case 'Q'
+                    h0 = {'', ...
+                        '                                 Reactive Power Limits' };
+            end
+
+            h = {   h0{:}, ...
+                    ' Gen ID    Bus ID     mu LB      LB       pg       UB       mu UB', ...
+                    '--------  --------  ---------  -------  -------  -------   --------' };
+            %%       1234567   1234567  12345.789 12345.78 12345.78 12345.78  12345.789
+        end
+
+        function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, varargin)
+            ctol = mpopt.opf.violation; %% constraint violation tolerance
+            ptol = 1e-4;        %% tolerance for displaying shadow prices
+
+            switch varargin{1}
+                case 'P'
+                    if obj.tab.pg(k) < obj.tab.pg_lb(k) + ctol || ...
+                            obj.tab.mu_pg_lb(k) > ptol
+                        mu_lb = sprintf('%10.3f', obj.tab.mu_pg_lb(k));
+                    else
+                        mu_lb = '      -   ';
+                    end
+                    if obj.tab.pg(k) > obj.tab.pg_ub(k) - ctol || ...
+                            obj.tab.mu_pg_ub(k) > ptol
+                        mu_ub = sprintf('%10.3f', obj.tab.mu_pg_ub(k));
+                    else
+                        mu_ub = '      -   ';
+                    end
+
+                    str = sprintf('%7d %9d %10s %8.2f %8.2f %8.2f %10s', ...
+                        obj.tab.uid(k), obj.tab.bus(k), mu_lb, obj.tab.pg_lb(k), ...
+                        obj.tab.pg(k), obj.tab.pg_ub(k), mu_ub);
+                case 'Q'
+                    if obj.tab.qg(k) < obj.tab.qg_lb(k) + ctol || ...
+                            obj.tab.mu_qg_lb(k) > ptol
+                        mu_lb = sprintf('%10.3f', obj.tab.mu_qg_lb(k));
+                    else
+                        mu_lb = '      -   ';
+                    end
+                    if obj.tab.qg(k) > obj.tab.qg_ub(k) - ctol || ...
+                            obj.tab.mu_qg_ub(k) > ptol
+                        mu_ub = sprintf('%10.3f', obj.tab.mu_qg_ub(k));
+                    else
+                        mu_ub = '      -   ';
+                    end
+
+                    str = sprintf('%7d %9d %10s %8.2f %8.2f %8.2f %10s', ...
+                        obj.tab.uid(k), obj.tab.bus(k), mu_lb, obj.tab.qg_lb(k), ...
+                        obj.tab.qg(k), obj.tab.qg_ub(k), mu_ub);
+            end
+        end
     end     %% methods
 end         %% classdef

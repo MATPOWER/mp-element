@@ -91,5 +91,60 @@ classdef dme_branch < dm_element
             obj.ta = obj.tab.ta(obj.on) * pi/180;
             obj.rate_a = obj.tab.sm_ub_a(obj.on) / dm.base_mva;
         end
+
+        function obj = pp_data_cnt(obj, dm, rows, out_e, mpopt, fd, varargin)
+            %% call parent
+            pp_data_cnt@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+
+            num_xf = length(find(obj.tab.tm));
+            num_xf_on = length(find(obj.tab.tm(obj.on)));
+            num_ln = obj.nr - num_xf;
+            num_ln_on = obj.n - num_xf_on;
+            ln = sprintf('%d', num_ln);
+            if num_ln == num_ln_on
+                ln_on = ln;
+                ln_off = '-';
+            else
+                ln_on = sprintf('%d', num_ln_on);;
+                ln_off = sprintf('%d', num_ln - num_ln_on);
+            end
+            xf = sprintf('%d', num_xf);
+            if num_xf == num_xf_on
+                xf_on = xf;
+                xf_off = '-';
+            else
+                xf_on = sprintf('%d', num_xf_on);;
+                xf_off = sprintf('%d', num_xf - num_xf_on);
+            end
+
+            %% print line, transformer counts
+            fprintf(fd, '  %-20s%7s %7s %7s\n', '  Lines', ln_on, ln_off, ln);
+            fprintf(fd, '  %-20s%7s %7s %7s\n', '  Transformers', xf_on, xf_off, xf);
+        end
+
+        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+            %% call parent
+            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+
+            %% print branch summary
+            fprintf(fd, '  %-29s  %12.2f MW %12.2f MVAr\n', 'Total branch losses', ...
+                sum(obj.tab.pl_fr(obj.on)) + sum(obj.tab.pl_to(obj.on)), ...
+                sum(obj.tab.ql_fr(obj.on)) + sum(obj.tab.ql_to(obj.on)) );
+        end
+
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
+            h = {   ' Branch     From       To             From Bus Injection   To Bus Injection', ...
+                    '   ID      Bus ID    Bus ID   Status   P (MW)   Q (MVAr)   P (MW)   Q (MVAr)', ...
+                    '--------  --------  --------  ------  --------  --------  --------  --------' };
+            %%       1234567 123456789 123456789 -----1 1234567.90 123456.89 123456.89 123456.89
+        end
+
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+            str = sprintf('%7d %9d %9d %6d %10.2f %9.2f %9.2f %9.2f', ...
+                obj.tab.uid(k), obj.tab.bus_fr(k), obj.tab.bus_to(k), ...
+                obj.tab.status(k), ...
+                obj.tab.pl_fr(k), obj.tab.ql_fr(k), ...
+                obj.tab.pl_to(k), obj.tab.ql_to(k) );
+        end
     end     %% methods
 end         %% classdef

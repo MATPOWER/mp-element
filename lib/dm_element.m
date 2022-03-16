@@ -155,5 +155,171 @@ classdef dm_element < handle
             fprintf('    # OF ONLINE ELEMENTS : %d\n', obj.n);
             disp(obj.tab);
         end
+
+        function pretty_print(obj, dm, section, out_e, mpopt, fd, varargin)
+            if out_e
+                %% get indices of relevant rows
+                rows = obj.pp_rows(dm, section, out_e, mpopt, varargin{:});
+
+                %% if there are rows to show
+                if ~isempty(rows) && rows(1) ~= 0
+                    %% title
+                    obj.pp_title(dm, section, out_e, mpopt, fd, varargin{:});
+                        %% calls s = obj.pp_title_str(section, mpopt, varargin{:})
+
+                    %% headers
+                    h = obj.pp_get_headers(dm, section, out_e, mpopt, varargin{:});
+                    for k = 1:length(h)
+                        fprintf(fd, '%s\n', h{k});
+                    end
+
+                    %% data
+                    obj.pp_data(dm, section, rows, out_e, mpopt, fd, varargin{:});
+                end
+            end
+        end
+
+        function obj = pp_title(obj, dm, section, out_e, mpopt, fd, varargin)
+            switch section
+                case {'det', 'lim'}
+                    str = obj.pp_title_str(section, mpopt, varargin{:});
+                    dm.pp_section_label(str, fd);
+%                 otherwise   %% 'cnt', 'sum', 'ext'
+%                     fprintf(fd, '\n');
+            end
+        end
+
+        function str = pp_title_str(obj, section, mpopt, varargin)
+            switch section
+                case 'det'
+                    str = obj.pp_title_str_det(mpopt, varargin{:});
+                case 'lim'
+                    str = obj.pp_title_str_lim(mpopt, varargin{:});
+                otherwise
+                    str = '';   %% 'sum', 'ext', etc.
+            end
+        end
+
+        function rows = pp_rows(obj, dm, section, out_e, mpopt, varargin)
+            switch section
+                case 'lim'
+                    rows = obj.pp_rows_lim(dm, out_e, mpopt, varargin{:});
+                otherwise
+                    rows = -1;  %% all rows
+            end
+        end
+
+        function h = pp_get_headers(obj, dm, section, out_e, mpopt, varargin)
+            switch section
+                case 'cnt'
+                    h = {};
+                case 'sum'
+                    h = {};
+                case 'ext'
+                    h = {};
+                case 'det'
+                    h = obj.pp_get_headers_det(dm, out_e, mpopt, varargin{:});
+                case 'lim'
+                    h = obj.pp_get_headers_lim(dm, out_e, mpopt, varargin{:});
+            end
+        end
+
+        function obj = pp_data(obj, dm, section, rows, out_e, mpopt, fd, varargin)
+            switch section
+                case 'cnt'
+                    obj.pp_data_cnt(dm, rows, out_e, mpopt, fd, varargin{:});
+                case 'sum'
+                    obj.pp_data_sum(dm, rows, out_e, mpopt, fd, varargin{:});
+                case 'ext'
+                    obj.pp_data_ext(dm, rows, out_e, mpopt, fd, varargin{:});
+                case 'det'
+                    obj.pp_data_det(dm, rows, out_e, mpopt, fd, varargin{:});
+                case 'lim'
+                    obj.pp_data_lim(dm, rows, out_e, mpopt, fd, varargin{:});
+            end
+        end
+
+        function obj = pp_data_cnt(obj, dm, rows, out_e, mpopt, fd, varargin)
+            if obj.n
+                on = sprintf('%d', obj.n);
+            else
+                on = '-';
+            end
+            if obj.nr - obj.n
+                off = sprintf('%d', obj.nr - obj.n);
+            else
+                off = '-';
+            end
+            fprintf(fd, '  %-20s%7s %7s %7d\n', obj.labels, on, off, obj.nr);
+        end
+
+        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+        end
+
+        function obj = pp_data_ext(obj, dm, rows, out_e, mpopt, fd, varargin)
+        end
+
+        function str = pp_title_str_det(obj, mpopt, varargin)
+            str = sprintf('%s Data', obj.label);
+        end
+
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
+            h = {};
+        end
+
+        function obj = pp_data_det(obj, dm, rows, out_e, mpopt, fd, varargin)
+            assert(rows == -1, 'dm_elemnt/pp_data_det: ''rows'' is expected to be -1, indicating all rows');
+            for k = 1:obj.nr
+                fprintf(fd, '%s\n', ...
+                    obj.pp_data_row_det(dm, k, out_e, mpopt, fd, varargin{:}));
+            end
+        end
+
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+            str = '';
+        end
+
+        %% Ideally all of the 'lim' methods should go in a dm_element_opf
+        %% mixin class inherited by all dme's in mp_data_opf, but that would
+        %% require an explicit dme_<element>_opf sub-class for each dme.
+        function str = pp_title_str_lim(obj, mpopt, varargin)
+            str = sprintf('%s Constraints', obj.label);
+        end
+
+        function rows = pp_rows_lim(obj, dm, out_e, mpopt, varargin)
+            if out_e == 2       %% all rows
+                rows = -1;
+            elseif out_e == 1   %% binding rows
+                rows = obj.pp_binding_rows_lim(dm, out_e, mpopt, varargin{:});
+            else                %% no rows
+                rows = 0;
+            end
+        end
+
+        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
+            rows = 0;           %% no rows
+        end
+
+        function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
+            h = {};
+        end
+
+        function obj = pp_data_lim(obj, dm, rows, out_e, mpopt, fd, varargin)
+            if ~isempty(rows) && rows(1) == -1  %% all rows
+                for k = 1:obj.nr
+                    fprintf(fd, '%s\n', ...
+                        obj.pp_data_row_lim(dm, k, out_e, mpopt, fd, varargin{:}));
+                end
+            else
+                for k = 1:length(rows)
+                    fprintf(fd, '%s\n', ...
+                        obj.pp_data_row_lim(dm, rows(k), out_e, mpopt, fd, varargin{:}));
+                end
+            end
+        end
+
+        function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, varargin)
+            str = '';
+        end
     end     %% methods
 end         %% classdef

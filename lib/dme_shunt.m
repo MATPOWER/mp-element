@@ -69,5 +69,30 @@ classdef dme_shunt < dm_element
             obj.gs = obj.tab.gs(obj.on) / dm.base_mva;
             obj.bs = obj.tab.bs(obj.on) / dm.base_mva;
         end
+
+        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+            %% call parent
+            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+
+            %% print shunt summary
+            fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', 'Total shunt', ...
+                sum(obj.tab.p), sum(obj.tab.q));
+            if obj.n ~= obj.nr
+                fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', '  online', ...
+                    sum(obj.tab.p(obj.on)), sum(obj.tab.q(obj.on)));
+            end
+        end
+
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
+            h = {   '                             Power Consumption', ...
+                    'Shunt ID   Bus ID   Status   P (MW)   Q (MVAr)', ...
+                    '--------  --------  ------  --------  --------' };
+        end
+
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+            str = sprintf('%7d %9d %6d %10.2f %9.2f', ...
+                obj.tab.uid(k), obj.tab.bus(k), obj.tab.status(k), ...
+                obj.tab.p(k), obj.tab.q(k));
+        end
     end     %% methods
 end         %% classdef

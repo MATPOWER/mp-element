@@ -146,5 +146,38 @@ classdef dme_gen < dm_element
                 TorF = obj.tab.pg_lb < 0 & obj.tab.pg_ub == 0;
             end
         end
+
+        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+            %% call parent
+            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+
+            %% print generation summary
+            fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', 'Total generation', ...
+                sum(obj.tab.pg(obj.on)), sum(obj.tab.qg(obj.on)));
+            fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', 'Total max generation capacity', ...
+                sum(obj.tab.pg_ub), sum(obj.tab.qg_ub));
+            if obj.n ~= obj.nr
+                fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', '  online', ...
+                    sum(obj.tab.pg_ub(obj.on)), sum(obj.tab.qg_ub(obj.on)));
+            end
+            fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', 'Total min generation capacity', ...
+                sum(obj.tab.pg_lb), sum(obj.tab.qg_lb));
+            if obj.n ~= obj.nr
+                fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', '  online', ...
+                    sum(obj.tab.pg_lb(obj.on)), sum(obj.tab.qg_lb(obj.on)));
+            end
+        end
+
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
+            h = {   '                             Power Generation', ...
+                    ' Gen ID    Bus ID   Status   P (MW)   Q (MVAr)', ...
+                    '--------  --------  ------  --------  --------' };
+        end
+
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+            str = sprintf('%7d %9d %6d %10.1f %9.1f', ...
+                obj.tab.uid(k), obj.tab.bus(k), obj.tab.status(k), ...
+                obj.tab.pg(k), obj.tab.qg(k));
+        end
     end     %% methods
 end         %% classdef

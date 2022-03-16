@@ -23,5 +23,86 @@ classdef dme_bus_opf < dme_bus
                 {'vm_lb', 'vm_ub', 'lam_p', 'lam_q', ...
                     'mu_vm_lb', 'mu_vm_ub'} );
         end
+
+        function obj = pp_data_ext(obj, dm, rows, out_e, mpopt, fd, varargin)
+            %% call parent
+            pp_data_ext@dme_bus(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+
+            %% print bus extremes
+            [min_lam_p, min_lam_p_i] = min(obj.tab.lam_p);
+            [max_lam_p, max_lam_p_i] = max(obj.tab.lam_p);
+
+            fprintf(fd, '  %-29s %15s @ %11s %15s @ %s\n', ...
+                'Lambda P (LMP active power)', ...
+                sprintf('%8.2f $/MWh', min_lam_p), ...
+                sprintf('bus %-7d', obj.tab.uid(min_lam_p_i)), ...
+                sprintf('%8.2f $/MWh', max_lam_p), ...
+                sprintf('bus %d', obj.tab.uid(max_lam_p_i)) );
+
+            if any(obj.tab.lam_q ~= 0)
+                [min_lam_q, min_lam_q_i] = min(obj.tab.lam_q);
+                [max_lam_q, max_lam_q_i] = max(obj.tab.lam_q);
+                fprintf(fd, '  %-29s %15s @ %11s %15s @ %s\n', ...
+                    'Lambda Q (LMP reactive power)', ...
+                    sprintf('%7.2f $/MVArh', min_lam_q), ...
+                    sprintf('bus %-7d', obj.tab.uid(min_lam_q_i)), ...
+                    sprintf('%7.2f $/MVArh', max_lam_q), ...
+                    sprintf('bus %d', obj.tab.uid(max_lam_q_i)) );
+            end
+        end
+
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
+            h0 = pp_get_headers_det@dme_bus(obj, dm, out_e, mpopt, varargin{:});
+            h = {   [h0{1} '            Lambda (LMP)'], ...
+                    [h0{2} '  P($/MWh)  Q($/MVAr-hr)'], ...
+                    [h0{3} '  --------  ------------'] };
+        end
+
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+            str = [ ...
+                pp_data_row_det@dme_bus(obj, dm, k, out_e, mpopt, fd, varargin{:}) ...
+                sprintf(' %9.3f %13.3f', ...
+                    obj.tab.lam_p(k), obj.tab.lam_q(k))];
+        end
+
+        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
+            ctol = mpopt.opf.violation; %% constraint violation tolerance
+            ptol = 1e-4;        %% tolerance for displaying shadow prices
+
+            rows = find( obj.tab.status & ( ...
+                        obj.tab.vm < obj.tab.vm_lb + ctol | ...
+                        obj.tab.vm > obj.tab.vm_ub - ctol | ...
+                        obj.tab.mu_vm_lb > ptol | ...
+                        obj.tab.mu_vm_ub > ptol ));
+        end
+
+        function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
+            h = {   '                     Voltage Magnitude Limits',
+                    ' Bus ID     mu LB      LB       vm       UB       mu UB',
+                    '--------  ---------  -------  -------  -------   --------' };
+            %%       1234567  12345.789    1.345    1.345    1.345  12345.789
+        end
+
+        function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, varargin)
+            ctol = mpopt.opf.violation; %% constraint violation tolerance
+            ptol = 1e-4;        %% tolerance for displaying shadow prices
+
+            if obj.tab.vm(k) < obj.tab.vm_lb(k) + ctol || ...
+                    obj.tab.mu_vm_lb(k) > ptol
+                mu_lb = sprintf('%10.3f', obj.tab.mu_vm_lb(k));
+            else
+                mu_lb = '      -   ';
+            end
+            if obj.tab.vm(k) > obj.tab.vm_ub(k) - ctol || ...
+                    obj.tab.mu_vm_ub(k) > ptol
+                mu_ub = sprintf('%10.3f', obj.tab.mu_vm_ub(k));
+            else
+                mu_ub = '      -   ';
+            end
+
+            str = sprintf('%7d %10s %8.3f %8.3f %8.3f %10s', ...
+                obj.tab.uid(k), mu_lb, obj.tab.vm_lb(k), ...
+                obj.tab.vm(k), obj.tab.vm_ub(k), mu_ub);
+        end
     end     %% methods
 end         %% classdef

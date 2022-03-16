@@ -115,6 +115,52 @@ classdef dme_bus < dm_element
             end
         end
 
+        function obj = pp_data_cnt(obj, dm, rows, out_e, mpopt, fd, varargin)
+            %% call parent
+            pp_data_cnt@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+
+            %% print area, zone counts
+            fprintf(fd, '  %-36s%7d\n', '  Areas', ...
+                length(unique(obj.tab.area)));
+            fprintf(fd, '  %-36s%7d\n', '  Zones', ...
+                length(unique(obj.tab.zone)));
+        end
+
+        function obj = pp_data_ext(obj, dm, rows, out_e, mpopt, fd, varargin)
+            %% call parent
+            pp_data_ext@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+
+            %% print bus extremes
+            [min_vm, min_vm_i] = min(obj.tab.vm);
+            [max_vm, max_vm_i] = max(obj.tab.vm);
+            [min_va, min_va_i] = min(obj.tab.va);
+            [max_va, max_va_i] = max(obj.tab.va);
+
+            fprintf(fd, '  %-29s %15s @ %11s %15s @ %s\n', ...
+                'Bus voltage magnitude', ...
+                sprintf('%7.3f p.u.', min_vm), ...
+                sprintf('bus %-7d', obj.tab.uid(min_vm_i)), ...
+                sprintf('%7.3f p.u.', max_vm), ...
+                sprintf('bus %d', obj.tab.uid(max_vm_i)) );
+            fprintf(fd, '  %-29s %15s @ %11s %15s @ %s\n', ...
+                'Bus voltage angle', ...
+                sprintf('%8.2f deg', min_va), ...
+                sprintf('bus %-7d', obj.tab.uid(min_va_i)), ...
+                sprintf('%8.2f deg', max_va), ...
+                sprintf('bus %d', obj.tab.uid(max_va_i)) );
+        end
+
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
+            h = {   '              Voltage', ...
+                    ' Bus ID   Mag(pu)  Ang(deg)', ...
+                    '--------  -------  --------' };
+        end
+
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+            str = sprintf('%7d %8.3f %9.3f', ...
+                    obj.tab.uid(k), obj.tab.vm(k), obj.tab.va(k));
+        end
+
         function obj = set_bus_type_ref(obj, dm, idx)
             obj.tab.type(obj.on(idx)) = NODE_TYPE.REF;
             obj.type(idx) = NODE_TYPE.REF;

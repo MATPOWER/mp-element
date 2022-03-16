@@ -76,5 +76,30 @@ classdef dme_load < dm_element
             obj.pd_z = obj.tab.pd_z(obj.on) / dm.base_mva;
             obj.qd_z = obj.tab.qd_z(obj.on) / dm.base_mva;
         end
+
+        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+            %% call parent
+            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+
+            %% print load summary
+            fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', 'Total load', ...
+                sum(obj.tab.p), sum(obj.tab.q));
+            if obj.n ~= obj.nr
+                fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', '  online', ...
+                    sum(obj.tab.p(obj.on)), sum(obj.tab.q(obj.on)));
+            end
+        end
+
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
+            h = {   '                             Power Consumption', ...
+                    'Load ID    Bus ID   Status   P (MW)   Q (MVAr)', ...
+                    '--------  --------  ------  --------  --------' };
+        end
+
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+            str = sprintf('%7d %9d %6d %10.1f %9.1f', ...
+                obj.tab.uid(k), obj.tab.bus(k), obj.tab.status(k), ...
+                obj.tab.p(k), obj.tab.q(k));
+        end
     end     %% methods
 end         %% classdef
