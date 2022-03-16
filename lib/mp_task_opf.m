@@ -59,6 +59,16 @@ classdef mp_task_opf < mp_task
             end
         end
 
+        function print_soln_header(obj, mpopt, fd)
+            if nargin < 3
+                fd = 1;     %% print to stdio by default
+            end
+
+            print_soln_header@mp_task(obj, mpopt, fd);
+            fprintf(fd, ...
+                'Objective Function Value = %.2f $/hr\n', obj.mm.soln.f);
+        end
+
         %%-----  data model methods  -----
         function dm_class = data_model_class_default(obj)
             dm_class = @mp_data_opf;

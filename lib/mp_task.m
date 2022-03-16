@@ -170,14 +170,51 @@ classdef mp_task < handle
         function obj = run_post(obj, mm, nm, dm, mpopt);
         end
 
-        function print_soln(obj, fname, mpopt)
-            if mpopt.out.all
-                if isempty(fname)
-                    fprintf('-- %s print_soln()\n', obj.tag);
+        function print_soln(obj, mpopt, fname)
+            if nargin < 3
+                fname = '';
+            end
+
+            %% print to a file, if requested
+            if fname
+                [fd, msg] = fopen(fname, 'at');
+                if fd == -1
+                    warning('mp_task/print_soln: could not open file ''%s'' for writing\n%s', fname, msg);
                 else
-                    fprintf('-- %s print_soln(''%s'')\n', obj.tag, fname);
+                    obj.print_soln_header(mpopt, fd);
+                    if mpopt.out.all == 0
+                        obj.dm.pretty_print(mpoption(mpopt, 'out.all', -1), fd);
+                    else
+                        obj.dm.pretty_print(mpopt, fd);
+                    end
+                    fclose(fd);
                 end
             end
+
+            %% print to stdio
+            if mpopt.out.all
+                obj.print_soln_header(mpopt);
+                if obj.success || mpopt.out.force
+                    obj.dm.pretty_print(mpopt);
+                end
+            end
+        end
+
+        function print_soln_header(obj, mpopt, fd)
+            if nargin < 3
+                fd = 1;     %% print to stdio by default
+            end
+
+            %% succeeded/failed line
+            if obj.success
+                succ_fail = 'succeeded';
+            else
+                succ_fail = 'failed';
+            end
+            fprintf(fd, ...
+                '\n%s %s in %.2f seconds (%.2f setup + %.2f solve)\n', ...
+                obj.tag, succ_fail, obj.et, obj.et - obj.mm.soln.output.et, ...
+                obj.mm.soln.output.et);
         end
 
         function save_soln(obj, fname)
