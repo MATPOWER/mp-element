@@ -91,6 +91,7 @@ classdef dme_shunt < dm_element
             h = {   '                             Power Consumption', ...
                     'Shunt ID   Bus ID   Status   P (MW)   Q (MVAr)', ...
                     '--------  --------  ------  --------  --------' };
+            %%       1234567 123456789 -----1 1234567.90 123456.89
         end
 
         function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)

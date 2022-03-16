@@ -176,6 +176,7 @@ classdef dme_gen < dm_element
             h = {   '                             Power Generation', ...
                     ' Gen ID    Bus ID   Status   P (MW)   Q (MVAr)', ...
                     '--------  --------  ------  --------  --------' };
+            %%       1234567 123456789 -----1 12345678.0 123456.89
         end
 
         function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)

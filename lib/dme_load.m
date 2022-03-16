@@ -98,6 +98,7 @@ classdef dme_load < dm_element
             h = {   '                             Power Consumption', ...
                     'Load ID    Bus ID   Status   P (MW)   Q (MVAr)', ...
                     '--------  --------  ------  --------  --------' };
+            %%       1234567 123456789 -----1 12345678.0 1234567.9
         end
 
         function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
