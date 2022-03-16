@@ -2,7 +2,7 @@ classdef mp_data < mp_element_container
 %MP_DATA  Base class for MATPOWER data model
 
 %   MATPOWER
-%   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 1996-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -137,6 +137,181 @@ classdef mp_data < mp_element_container
                     fprintf('  %-24s  %5dx%-5d   %s\n', fields{k}, m, n, class(f));
                 end
             end
+        end
+
+        function [out, add] = pp_flags(obj, mpopt)
+            %% output control flags
+            ne = length(obj.elements);
+            names = cellfun(@(k)obj.elements{k}.name, num2cell(1:ne), ...
+                            'UniformOutput', false );
+
+            %% suppress output detail (default for large systems)
+            suppress = mpopt.out.suppress_detail;
+            if suppress == -1
+                if obj.elements.is_index_name('bus') && ...
+                        obj.elements.bus.nr > 500
+                    suppress = 1;
+                else
+                    suppress = 0;
+                end
+            end
+
+            %% element struct with all fields == 0, names are dm element names
+            s0 = cell2struct(num2cell(zeros(1,ne)), names, 2);
+            s1 = cell2struct(num2cell(ones( 1,ne)), names, 2);
+            s2 = struct('all', 1, 'any', 1);
+
+            out = struct( ...
+                'all', mpopt.out.all, ...
+                'any', 0, ...
+                'sec', struct( ...
+                    'cnt', s2, ...
+                    'sum', s2, ...
+                    'ext', s2, ...
+                    'det', struct( ...
+                        'all', -1, ...
+                        'any', 0, ...
+                        'elm', s1 ) ) );
+            out.sec.cnt.all = out.all == 1 || (out.all == -1 && mpopt.out.sys_sum);
+            out.sec.sum.all = out.sec.cnt.all;
+            out.sec.ext.all = out.sec.cnt.all;
+%             out.area_sum = out.all == 1 || (out.all == -1 && ~suppress && mpopt.out.area_sum);
+
+            %% update detail options
+            for k = 1:ne
+                out.sec.det.elm.(names{k}) = out.all == 1 || ...
+                    ( out.all == -1 && ~suppress && ...
+                        (~isfield(mpopt.out, names{k}) || mpopt.out.(names{k})) );
+            end
+            out.sec.det.any = any(cell2mat( ...
+                    cellfun(@double, struct2cell(out.sec.det.elm), ...
+                            'UniformOutput', false) ));
+
+            %% update any field
+            out.any = out.all == 1 || ...
+                        (out.all == -1 && (out.sec.cnt.all || out.sec.det.any ));
+
+            %% return additional data
+            if nargout > 1
+                add = struct('s1', s1, 's0', s0, 'suppress', suppress, ...
+                    'names', names, 'ne', ne);
+            end
+        end
+
+        function obj = pp_section_label(obj, label, fd, blank_line)
+            if nargin < 4
+                blank_line = 1; %% print a blank line before the section label
+            end
+            
+            if blank_line
+                fprintf(fd, '\n');
+            end
+            width = 80;
+            line1 = [repmat('=', 1, width) '\n'];
+            line2 = ['|     ' label repmat(' ', 1, width-length(label)-7) '|\n'];
+            fprintf(fd, line1);
+            fprintf(fd, line2);
+            fprintf(fd, line1);
+        end
+
+        function [obj, out_] = pretty_print(obj, mpopt, fd)
+            if nargin < 3
+                fd = 1;     %% print to stdio by default
+                if nargin < 2
+                    mpopt = mpoption();
+                end
+            end
+
+            %% get output flags
+            out = obj.pp_flags(mpopt);
+
+            if out.any
+                sections = obj.pp_section_list(out);  %% e.g. cnt, sum, ext, det, lim
+                for s = 1:length(sections)
+                    out_s = out.sec.(sections{s});
+                    if out_s.any
+                        obj.pp_section(sections{s}, out_s, mpopt, fd);
+                    end
+                end
+            end
+
+            %% return output control flags
+            if nargout > 1
+                out_ = out;
+            end
+        end
+
+        function sections = pp_section_list(obj, out)
+            sections = {'cnt', 'sum', 'ext', 'det'};
+        end
+
+        function pp_section(obj, section, out_s, mpopt, fd)
+            %% section title
+            obj.pp_title(section, out_s, mpopt, fd);
+                %% calls s = obj.pp_title_str(section)
+
+            %% section system info
+            h = obj.pp_get_headers(section, out_s, mpopt);
+            for k = 1:length(h)
+                fprintf(fd, '%s\n', h{k});
+            end
+            obj.pp_data(section, out_s, mpopt, fd);
+
+            %% section per-element info
+            for k = 1:length(obj.elements)
+                dme = obj.elements{k};
+                if out_s.all == -1
+                    out_e = out_s.elm.(dme.name);
+                else
+                    out_e = out_s.all;
+                end
+                dme.pretty_print(obj, section, out_e, mpopt, fd);
+            end
+        end
+
+        function obj = pp_title(obj, section, out_s, mpopt, fd)
+            str = obj.pp_title_str(section);
+            if ~isempty(str)
+                obj.pp_section_label(str, fd, 0);
+            end
+        end
+
+        function str = pp_title_str(obj, section)
+            switch section
+                case 'cnt'
+                    str = 'System Summary';
+                otherwise
+                    str = '';   %% 'sum', 'ext', 'det', etc.
+            end
+        end
+
+        function h = pp_get_headers(obj, section, out_s, mpopt)
+            switch section
+                case 'cnt'
+                    h = obj.pp_get_headers_cnt(out_s, mpopt);
+                case 'sum'
+                    h = {''};
+                case 'ext'
+                    h = obj.pp_get_headers_ext(out_s, mpopt);
+                case 'det'
+                    h = {};
+                case 'lim'
+                    h = {};
+            end
+        end
+
+        function h = pp_get_headers_cnt(obj, out_s, mpopt)
+            h = {   '  elements                on     off    total', ...
+                    ' --------------------- ------- ------- -------' };
+        end
+
+        function h = pp_get_headers_ext(obj, out_s, mpopt)
+            h = {   '', ...
+                    '                                            minimum                       maximum', ...
+                    '                               ------------------------------ -----------------------------' };
+        end
+
+        function obj = pp_data(obj, section, out_s, mpopt, fd)
         end
 
         function obj = set_bus_v_lims_via_vg(obj, use_vg)
