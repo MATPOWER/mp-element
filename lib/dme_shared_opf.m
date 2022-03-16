@@ -49,8 +49,16 @@ classdef dme_shared_opf < handle
             end
         end
 
+        function TorF = pp_have_section_lim(obj, mpopt, varargin)
+            TorF = false;
+        end
+
         function str = pp_title_str_lim(obj, mpopt, varargin)
-            str = sprintf('%s Constraints', obj.label);
+            if obj.pp_have_section_lim(mpopt, varargin{:})
+                str = sprintf('%s Constraints', obj.label);
+            else
+                str = '';
+            end
         end
 
         function rows = pp_rows_lim(obj, dm, out_e, mpopt, varargin)
@@ -72,15 +80,17 @@ classdef dme_shared_opf < handle
         end
 
         function obj = pp_data_lim(obj, dm, rows, out_e, mpopt, fd, varargin)
-            if ~isempty(rows) && rows(1) == -1  %% all rows
-                for k = 1:obj.nr
-                    fprintf(fd, '%s\n', ...
-                        obj.pp_data_row_lim(dm, k, out_e, mpopt, fd, varargin{:}));
-                end
-            else
-                for k = 1:length(rows)
-                    fprintf(fd, '%s\n', ...
-                        obj.pp_data_row_lim(dm, rows(k), out_e, mpopt, fd, varargin{:}));
+            if obj.pp_have_section_lim(mpopt, varargin{:})
+                if ~isempty(rows) && rows(1) == -1  %% all rows
+                    for k = 1:obj.nr
+                        fprintf(fd, '%s\n', ...
+                            obj.pp_data_row_lim(dm, k, out_e, mpopt, fd, varargin{:}));
+                    end
+                else
+                    for k = 1:length(rows)
+                        fprintf(fd, '%s\n', ...
+                            obj.pp_data_row_lim(dm, rows(k), out_e, mpopt, fd, varargin{:}));
+                    end
                 end
             end
         end

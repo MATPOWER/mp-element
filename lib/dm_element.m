@@ -183,7 +183,9 @@ classdef dm_element < handle
 %                     fprintf(fd, '\n');
                 otherwise
                     str = obj.pp_title_str(section, mpopt, varargin{:});
-                    dm.pp_section_label(str, fd);
+                    if ~isempty(str)
+                        dm.pp_section_label(str, fd);
+                    end
             end
         end
 

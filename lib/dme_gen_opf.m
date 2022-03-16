@@ -188,6 +188,10 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
             end
         end
 
+        function TorF = pp_have_section_lim(obj, mpopt, varargin)
+            TorF = true;
+        end
+
         function obj = pp_title(obj, dm, section, out_e, mpopt, fd, varargin)
             if ~strcmp(section, 'lim') || strcmp(varargin{1}, 'P')
                 %% call parent

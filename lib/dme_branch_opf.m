@@ -59,6 +59,10 @@ classdef dme_branch_opf < dme_branch & dme_shared_opf
             end
         end
 
+        function TorF = pp_have_section_lim(obj, mpopt, varargin)
+            TorF = true;
+        end
+
         function str = pp_title_str_lim(obj, mpopt, varargin)
             switch upper(mpopt.opf.flow_lim(1))
                 case {'P', '2'}     %% active power

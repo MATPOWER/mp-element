@@ -65,6 +65,10 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
                     obj.tab.lam_p(k), obj.tab.lam_q(k))];
         end
 
+        function TorF = pp_have_section_lim(obj, mpopt, varargin)
+            TorF = true;
+        end
+
         function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
             ctol = mpopt.opf.violation; %% constraint violation tolerance
             ptol = 1e-4;        %% tolerance for displaying shadow prices
