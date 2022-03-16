@@ -255,8 +255,16 @@ classdef dm_element < handle
         function obj = pp_data_ext(obj, dm, rows, out_e, mpopt, fd, varargin)
         end
 
+        function TorF = pp_have_section_det(obj, mpopt, varargin)
+            TorF = false;
+        end
+
         function str = pp_title_str_det(obj, mpopt, varargin)
-            str = sprintf('%s Data', obj.label);
+            if obj.pp_have_section_det(mpopt, varargin{:})
+                str = sprintf('%s Data', obj.label);
+            else
+                str = '';
+            end
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
@@ -264,10 +272,12 @@ classdef dm_element < handle
         end
 
         function obj = pp_data_det(obj, dm, rows, out_e, mpopt, fd, varargin)
-            assert(rows == -1, 'dm_elemnt/pp_data_det: ''rows'' is expected to be -1, indicating all rows');
-            for k = 1:obj.nr
-                fprintf(fd, '%s\n', ...
-                    obj.pp_data_row_det(dm, k, out_e, mpopt, fd, varargin{:}));
+            if obj.pp_have_section_det(mpopt, varargin{:})
+                assert(rows == -1, 'dm_elemnt/pp_data_det: ''rows'' is expected to be -1, indicating all rows');
+                for k = 1:obj.nr
+                    fprintf(fd, '%s\n', ...
+                        obj.pp_data_row_det(dm, k, out_e, mpopt, fd, varargin{:}));
+                end
             end
         end
 

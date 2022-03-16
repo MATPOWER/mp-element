@@ -150,6 +150,10 @@ classdef dme_bus < dm_element
                 sprintf('bus %d', obj.tab.uid(max_va_i)) );
         end
 
+        function TorF = pp_have_section_det(obj, mpopt, varargin)
+            TorF = true;
+        end
+
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
             h = {   '              Voltage', ...
                     ' Bus ID   Mag(pu)  Ang(deg)', ...

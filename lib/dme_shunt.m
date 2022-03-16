@@ -83,6 +83,10 @@ classdef dme_shunt < dm_element
             end
         end
 
+        function TorF = pp_have_section_det(obj, mpopt, varargin)
+            TorF = true;
+        end
+
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
             h = {   '                             Power Consumption', ...
                     'Shunt ID   Bus ID   Status   P (MW)   Q (MVAr)', ...

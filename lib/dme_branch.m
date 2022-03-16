@@ -139,6 +139,10 @@ classdef dme_branch < dm_element
             %%       1234567 123456789 123456789 -----1 1234567.90 123456.89 123456.89 123456.89
         end
 
+        function TorF = pp_have_section_det(obj, mpopt, varargin)
+            TorF = true;
+        end
+
         function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
             str = sprintf('%7d %9d %9d %6d %10.2f %9.2f %9.2f %9.2f', ...
                 obj.tab.uid(k), obj.tab.bus_fr(k), obj.tab.bus_to(k), ...
