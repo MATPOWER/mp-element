@@ -28,17 +28,17 @@ classdef dmce_line3p_mpc2 < dmc_element_mpc2 % & dmce_branch
             vmap.name.type          = 2;    %% empty char
             vmap.source_uid.type    = 2;    %% empty char
             vmap.pl1_fr.type        = 0;    %% zeros
-            vmap.pf1_fr.type        = 1;    %% ones
+            vmap.ql1_fr.type        = 0;    %% zeros
             vmap.pl2_fr.type        = 0;    %% zeros
-            vmap.pf2_fr.type        = 1;    %% ones
+            vmap.ql2_fr.type        = 0;    %% zeros
             vmap.pl3_fr.type        = 0;    %% zeros
-            vmap.pf3_fr.type        = 1;    %% ones
+            vmap.ql3_fr.type        = 0;    %% zeros
             vmap.pl1_to.type        = 0;    %% zeros
-            vmap.pf1_to.type        = 1;    %% ones
+            vmap.ql1_to.type        = 0;    %% zeros
             vmap.pl2_to.type        = 0;    %% zeros
-            vmap.pf2_to.type        = 1;    %% ones
+            vmap.ql2_to.type        = 0;    %% zeros
             vmap.pl3_to.type        = 0;    %% zeros
-            vmap.pf3_to.type        = 1;    %% ones
+            vmap.ql3_to.type        = 0;    %% zeros
 
             %% map arguments for each name
             vmap.uid.args           = 1;

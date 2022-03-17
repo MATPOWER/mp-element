@@ -30,9 +30,9 @@ classdef mme_xfmr3p < mm_element
 
                 %% update in the data model
                 dme.tab.(sprintf('pl%d_fr', p))(dme.on) = real(s_fr);
-                dme.tab.(sprintf('pf%d_fr', p))(dme.on) = cos(angle(s_fr));
+                dme.tab.(sprintf('ql%d_fr', p))(dme.on) = imag(s_fr);
                 dme.tab.(sprintf('pl%d_to', p))(dme.on) = real(s_to);
-                dme.tab.(sprintf('pf%d_to', p))(dme.on) = cos(angle(s_to));
+                dme.tab.(sprintf('ql%d_to', p))(dme.on) = imag(s_to);
             end
         end
     end     %% methods

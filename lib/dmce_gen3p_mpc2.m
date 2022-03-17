@@ -40,9 +40,9 @@ classdef dmce_gen3p_mpc2 < dmc_element_mpc2 % & dmce_gen
             vmap.pg1.args           = 7;
             vmap.pg2.args           = 8;
             vmap.pg3.args           = 9;
-            vmap.pf1.args           = 10;
-            vmap.pf2.args           = 11;
-            vmap.pf3.args           = 12;
+            vmap.qg1.args           = 10;
+            vmap.qg2.args           = 11;
+            vmap.qg3.args           = 12;
         end
     end     %% methods
 end         %% classdef

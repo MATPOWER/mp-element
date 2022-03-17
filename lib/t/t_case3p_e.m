@@ -98,9 +98,9 @@ mpc.load3p = [
 ];
 
 %% gen
-%	genid	gbus	status	Vg1	Vg2	Vg3	Pg1	Pg2	Pg3	gpf1	gpf2	gpf3
+%	genid	gbus	status	Vg1	Vg2	Vg3	Pg1	Pg2	Pg3	Qg1	Qg2	Qg3
 mpc.gen3p = [
-% 	1	1	1	1	1	1	2000	2000	2000	1	1	1;
+% 	1	1	1	1	1	1	2000	2000	2000	0	0	0;
 ];
 
 %% line construction

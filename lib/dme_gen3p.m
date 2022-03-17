@@ -47,7 +47,7 @@ classdef dme_gen3p < dm_element
         function var_names = table_var_names(obj)
             var_names = horzcat( table_var_names@dm_element(obj), ...
                 {'bus', 'vm1_setpoint', 'vm2_setpoint', 'vm3_setpoint', ...
-                'pg1', 'pg2', 'pg3', 'pf1', 'pf2', 'pf3'});
+                'pg1', 'pg2', 'pg3', 'qg1', 'qg2', 'qg3'});
         end
 
 %         function vars = export_vars(obj, task)
@@ -93,9 +93,9 @@ classdef dme_gen3p < dm_element
             obj.pg1_start = gen.pg1(obj.on) / base_kva;
             obj.pg2_start = gen.pg2(obj.on) / base_kva;
             obj.pg3_start = gen.pg3(obj.on) / base_kva;
-            obj.qg1_start = obj.pg1_start .* tan(acos(gen.pf1(obj.on)));
-            obj.qg2_start = obj.pg2_start .* tan(acos(gen.pf2(obj.on)));
-            obj.qg3_start = obj.pg3_start .* tan(acos(gen.pf3(obj.on)));
+            obj.qg1_start = gen.qg1(obj.on) / base_kva;
+            obj.qg2_start = gen.qg2(obj.on) / base_kva;
+            obj.qg3_start = gen.qg3(obj.on) / base_kva;
             obj.vm1_setpoint = gen.vm1_setpoint(obj.on);
             obj.vm2_setpoint = gen.vm2_setpoint(obj.on);
             obj.vm3_setpoint = gen.vm3_setpoint(obj.on);
