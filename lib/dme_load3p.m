@@ -25,11 +25,11 @@ classdef dme_load3p < dm_element
         end
 
         function label = label(obj)
-            label = 'Load (3-ph)';
+            label = '3-ph Load';
         end
 
         function label = labels(obj)
-            label = 'Loads (3-ph)';
+            label = '3-ph Loads';
         end
 
         function name = cxn_type(obj)
@@ -46,16 +46,7 @@ classdef dme_load3p < dm_element
         end
 
 %         function vars = export_vars(obj, task)
-%             switch task
-%                 case 'PF'
-%                     vars = {};
-%                 case 'CPF'
-%                     vars = {'pd', 'qd', 'pd_i', 'qd_i', 'pd_z', 'qd_z'};
-%                 case 'OPF'
-%                     vars = {};
-%                 otherwise
-%                     vars = 'all';
-%             end
+%             vars = {};
 %         end
 
         function obj = initialize(obj, dm)
@@ -86,6 +77,36 @@ classdef dme_load3p < dm_element
             obj.pf1 = obj.tab.pf1(obj.on);
             obj.pf2 = obj.tab.pf2(obj.on);
             obj.pf3 = obj.tab.pf3(obj.on);
+        end
+
+        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+            %% call parent
+            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+
+            %% print generation summary
+            fprintf(fd, '  %-29s %12.1f kW\n', 'Total 3-ph load', ...
+                sum(obj.tab.pd1(obj.on)) + ...
+                sum(obj.tab.pd2(obj.on)) + ...
+                sum(obj.tab.pd3(obj.on)));
+        end
+
+        function TorF = pp_have_section_det(obj, mpopt, varargin)
+            TorF = true;
+        end
+
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
+            h = {   '  3-ph      3-ph             Phase A Power     Phase B Power     Phase C Power', ...
+                    'Load ID    Bus ID   Status   (kW)     (PF)     (kW)     (PF)     (kW)     (PF)', ...
+                    '--------  --------  ------  -------  ------   -------  ------   -------  ------' };
+            %%       1234567 123456789 -----1 1234567.90 12.4567 123456.89 12.4567 123456.89 12.4567
+        end
+
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+            str = sprintf('%7d %9d %6d %10.2f %7.4f %9.2f %7.4f %9.2f %7.4f', ...
+                obj.tab.uid(k), obj.tab.bus(k), obj.tab.status(k), ...
+                obj.tab.pd1(k), obj.tab.pf1(k), ...
+                obj.tab.pd2(k), obj.tab.pf2(k), ...
+                obj.tab.pd3(k), obj.tab.pf3(k) );
         end
     end     %% methods
 end         %% classdef

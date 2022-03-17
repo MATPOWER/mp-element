@@ -25,11 +25,11 @@ classdef dme_bus3p < dm_element
         end
 
         function label = label(obj)
-            label = 'Bus (3-ph)';
+            label = '3-ph Bus';
         end
 
         function label = labels(obj)
-            label = 'Buses (3-ph)';
+            label = '3-ph Buses';
         end
 
         function var_names = table_var_names(obj)
@@ -38,17 +38,7 @@ classdef dme_bus3p < dm_element
         end
 
 %         function vars = export_vars(obj, task)
-%             switch task
-%                 case 'PF'
-%                     vars = {'type', 'vm', 'va'};
-%                 case 'CPF'
-%                     vars = {'type', 'vm', 'va'};
-%                 case 'OPF'
-%                     vars = {'vm', 'va', 'vm_lb', 'vm_ub', 'lam_p', 'lam_q', ...
-%                         'mu_vm_lb', 'mu_vm_ub'};
-%                 otherwise
-%                     vars = 'all';
-%             end
+%             vars = {'vm1', 'vm2', 'vm3', 'va1', 'va2', 'va3'};
 %         end
 
         function obj = init_status(obj, dm)
@@ -130,6 +120,26 @@ classdef dme_bus3p < dm_element
                 obj.vm2_start = obj.set_vm_start(2, gen_dme, gbus, ig);
                 obj.vm3_start = obj.set_vm_start(3, gen_dme, gbus, ig);
             end
+        end
+
+        function TorF = pp_have_section_det(obj, mpopt, varargin)
+            TorF = true;
+        end
+
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
+            h = {   '  3-ph            Phase A Voltage    Phase B Voltage    Phase C Voltage', ...
+                    ' Bus ID   Status   (kV)     (deg)     (kV)     (deg)     (kV)     (deg)', ...
+                    '--------  ------  -------  -------   -------  -------   -------  -------' };
+            %%       1234567 -----1 12345.7890 12345.78 1234.6789 12345.78 1234.6789 12345.78
+        end
+
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+            base_kv = obj.tab.base_kv(k) / sqrt(3);
+            str = sprintf('%7d %6d %10.4f %8.2f %9.4f %8.2f %9.4f %8.2f', ...
+                    obj.tab.uid(k), obj.tab.status(k), ...
+                    obj.tab.vm1(k) * base_kv, obj.tab.va1(k), ...
+                    obj.tab.vm2(k) * base_kv, obj.tab.va2(k), ...
+                    obj.tab.vm3(k) * base_kv, obj.tab.va3(k) );
         end
 
 %         function obj = set_bus_type_ref(obj, dm, idx)

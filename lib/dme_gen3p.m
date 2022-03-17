@@ -29,11 +29,11 @@ classdef dme_gen3p < dm_element
         end
 
         function label = label(obj)
-            label = 'Generator (3-ph)';
+            label = '3-ph Generator';
         end
 
         function label = labels(obj)
-            label = 'Generators (3-ph)';
+            label = '3-ph Generators';
         end
 
         function name = cxn_type(obj)
@@ -51,16 +51,7 @@ classdef dme_gen3p < dm_element
         end
 
 %         function vars = export_vars(obj, task)
-%             switch task
-%                 case 'PF'
-%                     vars = {'pg', 'qg'};
-%                 case 'CPF'
-%                     vars = {'pg', 'qg'};
-%                 case 'OPF'
-%                     vars = {'vm_setpoint', 'pg', 'qg', 'mu_pg_lb', 'mu_pg_ub', 'mu_qg_lb', 'mu_qg_ub'};
-%                 otherwise
-%                     vars = 'all';
-%             end
+%             vars = {'pg1', 'pg2', 'pg3', 'qg1', 'qg2', 'qg3'};
 %         end
 
         function obj = initialize(obj, dm)
@@ -99,6 +90,36 @@ classdef dme_gen3p < dm_element
             obj.vm1_setpoint = gen.vm1_setpoint(obj.on);
             obj.vm2_setpoint = gen.vm2_setpoint(obj.on);
             obj.vm3_setpoint = gen.vm3_setpoint(obj.on);
+        end
+
+        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+            %% call parent
+            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+
+            %% print generation summary
+            fprintf(fd, '  %-29s %12.1f kW\n', 'Total 3-ph generation', ...
+                sum(obj.tab.pg1(obj.on)) + ...
+                sum(obj.tab.pg2(obj.on)) + ...
+                sum(obj.tab.pg3(obj.on)));
+        end
+
+        function TorF = pp_have_section_det(obj, mpopt, varargin)
+            TorF = true;
+        end
+
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
+            h = {   '  3-ph      3-ph             Phase A Power     Phase B Power     Phase C Power', ...
+                    ' Gen ID    Bus ID   Status   (kW)    (KVAr)    (kW)    (kVAr)    (kW)    (kVAr)', ...
+                    '--------  --------  ------  -------  ------   -------  ------   -------  ------' };
+            %%       1234567 123456789 -----1 1234567.90 1234.67 123456.89 1234.67 123456.89 1234.67
+        end
+
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+            str = sprintf('%7d %9d %6d %10.2f %7.2f %9.2f %7.2f %9.2f %7.2f', ...
+                obj.tab.uid(k), obj.tab.bus(k), obj.tab.status(k), ...
+                obj.tab.pg1(k), obj.tab.qg1(k), ...
+                obj.tab.pg2(k), obj.tab.qg2(k), ...
+                obj.tab.pg3(k), obj.tab.qg3(k) );
         end
     end     %% methods
 end         %% classdef

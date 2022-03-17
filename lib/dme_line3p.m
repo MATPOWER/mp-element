@@ -26,11 +26,11 @@ classdef dme_line3p < dm_element
         end
 
         function label = label(obj)
-            label = 'Line (3-ph)';
+            label = '3-ph Line';
         end
 
         function label = labels(obj)
-            label = 'Lines (3-ph)';
+            label = '3-ph Lines';
         end
 
         function name = cxn_type(obj)
@@ -50,18 +50,12 @@ classdef dme_line3p < dm_element
         end
 
 %         function vars = export_vars(obj, task)
-%             switch task
-%                 case 'PF'
-%                     vars = {'ql_to', 'pl_to', 'ql_fr', 'pl_fr'};
-%                 case 'CPF'
-%                     vars = {'ql_to', 'pl_to', 'ql_fr', 'pl_fr'};
-%                 case 'OPF'
-%                     vars = {'ql_to', 'pl_to', 'ql_fr', 'pl_fr', ...
-%                         'mu_flow_fr_ub', 'mu_flow_to_ub', ...
-%                         'mu_vad_lb', 'mu_vad_ub'};
-%                 otherwise
-%                     vars = 'all';
-%             end
+%             vars = {'pl1_fr', 'ql1_fr', ...
+%                     'pl2_fr', 'ql2_fr', ...
+%                     'pl3_fr', 'ql3_fr', ...
+%                     'pl1_to', 'ql1_to', ...
+%                     'pl2_to', 'ql2_to', ...
+%                     'pl3_to', 'ql3_to' };
 %         end
 
         function obj = initialize(obj, dm)
@@ -123,6 +117,98 @@ classdef dme_line3p < dm_element
         function v = symmat2vec(obj, M)
             % extracts a vector of 6 values from a matrix assumed to be symmetric
             v = [M(1, :) M(2,2:3) M(3,3)];
+        end
+
+        function pretty_print(obj, dm, section, out_e, mpopt, fd, varargin)
+            switch section
+                case 'det'
+                    %% compute currents
+                    s_fr = [  obj.tab.pl1_fr + 1j * obj.tab.ql1_fr ...
+                            obj.tab.pl2_fr + 1j * obj.tab.ql2_fr ...
+                            obj.tab.pl3_fr + 1j * obj.tab.ql3_fr    ];
+                    s_to = [  obj.tab.pl1_to + 1j * obj.tab.ql1_to ...
+                            obj.tab.pl2_to + 1j * obj.tab.ql2_to ...
+                            obj.tab.pl3_to + 1j * obj.tab.ql3_to    ];
+                    t = dm.elements.bus3p.tab;    %% bus3p table
+                    vm = [ t.vm1 t.vm2 t.vm3 ] .* (t.base_kv/sqrt(3) * [1 1 1]);
+                    va = [ t.va1 t.va2 t.va3 ];
+                    v_ = vm .* exp(1j * va * pi/180);
+                    i_fr = conj( s_fr ./ v_(obj.fbus, :));
+                    i_to = conj( s_to ./ v_(obj.tbus, :));
+                    c_fr = struct('cm', abs(i_fr), 'ca', angle(i_fr) * 180/pi);
+                    c_to = struct('cm', abs(i_to), 'ca', angle(i_to) * 180/pi);
+
+                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, 'c_fr', c_fr, varargin{:});
+                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, 'c_to', c_to, varargin{:});
+                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, 's_fr', s_fr, varargin{:});
+                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, 's_to', s_to, varargin{:});
+                otherwise
+                    %% call parent
+                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, varargin{:});
+            end
+        end
+
+        function obj = pp_title(obj, dm, section, out_e, mpopt, fd, varargin)
+            if ~strcmp(section, 'det') || strcmp(varargin{1}, 'c_fr')
+                %% call parent
+                obj = pp_title@dm_element(obj, dm, section, out_e, mpopt, fd, varargin{:});
+            end
+        end
+
+        function TorF = pp_have_section_det(obj, mpopt, varargin)
+            TorF = true;
+        end
+
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
+            switch varargin{1}
+                case 'c_fr'
+                    h0 = {'-->  Current Injections at "From" Bus' };
+                case 'c_to'
+                    h0 = {'', ...
+                        '<--  Current Injections at "To" Bus' };
+                case 's_fr'
+                    h0 = {'', ...
+                        '-->  Power Injections at "From" Bus' };
+                case 's_to'
+                    h0 = {'', ...
+                        '<--  Power Injections at "To" Bus' };
+            end
+            switch varargin{1}(1)
+                case 'c'
+                    h = {   h0{:}, ...
+                            '  3-ph    3-ph Bus  3-ph Bus          Phase A Current  Phase B Current  Phase C Current', ...
+                            'Line ID    From ID   To ID    Status   (A)    (deg)     (A)    (deg)     (A)    (deg)', ...
+                            '--------  --------  --------  ------  ------  ------   ------  ------   ------  ------' };
+                    %%       1234567 123456789 123456789 -----1 123456.89 12345.7 12345.78 12345.7 12345.78 12345.7
+                case 's'
+                    h = {   h0{:}, ...
+                            '  3-ph    3-ph Bus  3-ph Bus          Phase A Power    Phase B Power    Phase C Power', ...
+                            'Line ID    From ID   To ID    Status   (kW)   (kVAr)    (kW)   (kVAr)    (kW)   (kVAr)', ...
+                            '--------  --------  --------  ------  ------  ------   ------  ------   ------  ------' };
+                    %%       1234567 123456789 123456789 -----1 1234567.9 12345.7 123456.8 12345.7 123456.8 12345.7
+            end
+        end
+
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+            switch varargin{1}(1)
+                case 'c'
+                    cm = varargin{2}.cm(k, :);
+                    ca = varargin{2}.ca(k, :);
+                    str = sprintf('%7d %9d %9d %6d %9.2f %7.1f %8.2f %7.1f %8.2f %7.1f', ...
+                        obj.tab.uid(k), obj.tab.bus_fr(k), obj.tab.bus_to(k), ...
+                        obj.tab.status(k), ...
+                        cm(:, 1), ca(:, 1), ...
+                        cm(:, 2), ca(:, 2), ...
+                        cm(:, 3), ca(:, 3) );
+                case 's'
+                    sk = varargin{2}(k, :);
+                    str = sprintf('%7d %9d %9d %6d %9.1f %7.1f %8.1f %7.1f %8.1f %7.1f', ...
+                        obj.tab.uid(k), obj.tab.bus_fr(k), obj.tab.bus_to(k), ...
+                        obj.tab.status(k), ...
+                        real(sk(:, 1)), imag(sk(:, 1)), ...
+                        real(sk(:, 2)), imag(sk(:, 2)), ...
+                        real(sk(:, 3)), imag(sk(:, 3)) );
+            end
         end
     end     %% methods
 end         %% classdef

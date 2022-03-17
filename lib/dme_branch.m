@@ -54,7 +54,7 @@ classdef dme_branch < dm_element
         end
 
         function vars = export_vars(obj, task)
-            vars = {'ql_to', 'pl_to', 'ql_fr', 'pl_fr'};
+            vars = {'pl_fr', 'ql_fr', 'pl_to', 'ql_to'};
         end
 
         function obj = initialize(obj, dm)

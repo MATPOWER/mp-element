@@ -48,16 +48,7 @@ classdef dme_buslink < dm_element
         end
 
 %         function vars = export_vars(obj, task)
-%             switch task
-%                 case 'PF'
-%                     vars = {'pg', 'qg'};
-%                 case 'CPF'
-%                     vars = {'pg', 'qg'};
-%                 case 'OPF'
-%                     vars = {'vm_setpoint', 'pg', 'qg', 'mu_pg_lb', 'mu_pg_ub', 'mu_qg_lb', 'mu_qg_ub'};
-%                 otherwise
-%                     vars = 'all';
-%             end
+%             vars = {};
 %         end
 
         function obj = initialize(obj, dm)
