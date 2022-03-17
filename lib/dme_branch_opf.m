@@ -63,6 +63,15 @@ classdef dme_branch_opf < dme_branch & dme_shared_opf
             TorF = true;
         end
 
+        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
+            fm = varargin{1};
+            rows = find( obj.tab.status & fm.ub ~= 0 & ( ...
+                        fm.fr > fm.ub - obj.ctol | ...
+                        fm.to > fm.ub - obj.ctol | ...
+                        obj.tab.mu_flow_fr_ub > obj.ptol | ...
+                        obj.tab.mu_flow_to_ub > obj.ptol ));
+        end
+
         function str = pp_title_str_lim(obj, mpopt, varargin)
             switch upper(mpopt.opf.flow_lim(1))
                 case {'P', '2'}     %% active power
@@ -73,18 +82,6 @@ classdef dme_branch_opf < dme_branch & dme_shared_opf
                     str = 'S in MVA';
             end
             str = sprintf('%s Constraints            (%s)', obj.label, str);
-        end
-
-        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
-            ctol = mpopt.opf.violation; %% constraint violation tolerance
-            ptol = 1e-4;        %% tolerance for displaying shadow prices
-
-            fm = varargin{1};
-            rows = find( obj.tab.status & fm.ub ~= 0 & ( ...
-                        fm.fr > fm.ub - ctol | ...
-                        fm.to > fm.ub - ctol | ...
-                        obj.tab.mu_flow_fr_ub > ptol | ...
-                        obj.tab.mu_flow_to_ub > ptol ));
         end
 
         function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
@@ -103,19 +100,16 @@ classdef dme_branch_opf < dme_branch & dme_shared_opf
         end
 
         function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, varargin)
-            ctol = mpopt.opf.violation; %% constraint violation tolerance
-            ptol = 1e-4;        %% tolerance for displaying shadow prices
-
             fm = varargin{1};
 
-            if fm.ub(k) ~= 0 & (fm.fr(k) > fm.ub(k) - ctol || ...
-                    obj.tab.mu_flow_fr_ub(k) > ptol)
+            if fm.ub(k) ~= 0 & (fm.fr(k) > fm.ub(k) - obj.ctol || ...
+                    obj.tab.mu_flow_fr_ub(k) > obj.ptol)
                 mu_fr = sprintf('%10.3f', obj.tab.mu_flow_fr_ub(k));
             else
                 mu_fr = '      -   ';
             end
-            if fm.ub(k) ~= 0 & (fm.to(k) > fm.ub(k) - ctol || ...
-                    obj.tab.mu_flow_to_ub(k) > ptol)
+            if fm.ub(k) ~= 0 & (fm.to(k) > fm.ub(k) - obj.ctol || ...
+                    obj.tab.mu_flow_to_ub(k) > obj.ptol)
                 mu_to = sprintf('%10.3f', obj.tab.mu_flow_to_ub(k));
             else
                 mu_to = '      -   ';

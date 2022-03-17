@@ -177,6 +177,15 @@ classdef dm_element < handle
             end
         end
 
+        function rows = pp_rows(obj, dm, section, out_e, mpopt, varargin)
+            switch section
+                case {'cnt', 'sum', 'ext', 'det'}
+                    rows = -1;  %% all rows
+                otherwise
+                    rows = obj.pp_rows_other(dm, section, out_e, mpopt, varargin{:});
+            end
+        end
+
         function obj = pp_title(obj, dm, section, out_e, mpopt, fd, varargin)
             switch section
                 case {'cnt', 'sum', 'ext'}
@@ -197,15 +206,6 @@ classdef dm_element < handle
                     str = obj.pp_title_str_det(mpopt, varargin{:});
                 otherwise
                     str = obj.pp_title_str_other(section, mpopt, varargin{:});
-            end
-        end
-
-        function rows = pp_rows(obj, dm, section, out_e, mpopt, varargin)
-            switch section
-                case {'cnt', 'sum', 'ext', 'det'}
-                    rows = -1;  %% all rows
-                otherwise
-                    rows = obj.pp_rows_other(dm, section, out_e, mpopt, varargin{:});
             end
         end
 

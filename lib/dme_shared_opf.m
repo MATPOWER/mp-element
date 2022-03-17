@@ -10,24 +10,34 @@ classdef dme_shared_opf < handle
 %   See https://matpower.org for more info.
 
     properties
+        ctol    %% constraint violation tolerance
+        ptol    %% shadow price tolerance
     end     %% properties
 
     methods
+        function obj = pp_set_tols_lim(obj, mpopt)
+            obj.ctol = mpopt.opf.violation;
+            obj.ptol = 1e-4;
+        end
+
+        function rows = pp_rows_other(obj, dm, section, out_e, mpopt, varargin)
+            switch section
+                case 'lim'
+                    if isempty(obj.ptol)
+                        obj.pp_set_tols_lim(mpopt);
+                    end
+                    rows = obj.pp_rows_lim(dm, out_e, mpopt, varargin{:});
+                otherwise
+                    error('dme_shared_opf:pp_rows_other: unknown section ''%s''', section);
+            end
+        end
+
         function str = pp_title_str_other(obj, section, mpopt, varargin)
             switch section
                 case 'lim'
                     str = obj.pp_title_str_lim(mpopt, varargin{:});
                 otherwise
                     error('dme_shared_opf:pp_title_str_other: unknown section ''%s''', section);
-            end
-        end
-
-        function rows = pp_rows_other(obj, dm, section, out_e, mpopt, varargin)
-            switch section
-                case 'lim'
-                    rows = obj.pp_rows_lim(dm, out_e, mpopt, varargin{:});
-                otherwise
-                    error('dme_shared_opf:pp_rows_other: unknown section ''%s''', section);
             end
         end
 
@@ -53,14 +63,6 @@ classdef dme_shared_opf < handle
             TorF = false;
         end
 
-        function str = pp_title_str_lim(obj, mpopt, varargin)
-            if obj.pp_have_section_lim(mpopt, varargin{:})
-                str = sprintf('%s Constraints', obj.label);
-            else
-                str = '';
-            end
-        end
-
         function rows = pp_rows_lim(obj, dm, out_e, mpopt, varargin)
             if out_e == 2       %% all rows
                 rows = -1;
@@ -73,6 +75,14 @@ classdef dme_shared_opf < handle
 
         function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
             rows = 0;           %% no rows
+        end
+
+        function str = pp_title_str_lim(obj, mpopt, varargin)
+            if obj.pp_have_section_lim(mpopt, varargin{:})
+                str = sprintf('%s Constraints', obj.label);
+            else
+                str = '';
+            end
         end
 
         function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)

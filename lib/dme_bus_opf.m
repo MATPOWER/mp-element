@@ -70,14 +70,11 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
         end
 
         function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
-            ctol = mpopt.opf.violation; %% constraint violation tolerance
-            ptol = 1e-4;        %% tolerance for displaying shadow prices
-
             rows = find( obj.tab.status & ( ...
-                        obj.tab.vm < obj.tab.vm_lb + ctol | ...
-                        obj.tab.vm > obj.tab.vm_ub - ctol | ...
-                        obj.tab.mu_vm_lb > ptol | ...
-                        obj.tab.mu_vm_ub > ptol ));
+                        obj.tab.vm < obj.tab.vm_lb + obj.ctol | ...
+                        obj.tab.vm > obj.tab.vm_ub - obj.ctol | ...
+                        obj.tab.mu_vm_lb > obj.ptol | ...
+                        obj.tab.mu_vm_ub > obj.ptol ));
         end
 
         function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
@@ -88,17 +85,14 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
         end
 
         function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, varargin)
-            ctol = mpopt.opf.violation; %% constraint violation tolerance
-            ptol = 1e-4;        %% tolerance for displaying shadow prices
-
-            if obj.tab.vm(k) < obj.tab.vm_lb(k) + ctol || ...
-                    obj.tab.mu_vm_lb(k) > ptol
+            if obj.tab.vm(k) < obj.tab.vm_lb(k) + obj.ctol || ...
+                    obj.tab.mu_vm_lb(k) > obj.ptol
                 mu_lb = sprintf('%10.3f', obj.tab.mu_vm_lb(k));
             else
                 mu_lb = '      -   ';
             end
-            if obj.tab.vm(k) > obj.tab.vm_ub(k) - ctol || ...
-                    obj.tab.mu_vm_ub(k) > ptol
+            if obj.tab.vm(k) > obj.tab.vm_ub(k) - obj.ctol || ...
+                    obj.tab.mu_vm_ub(k) > obj.ptol
                 mu_ub = sprintf('%10.3f', obj.tab.mu_vm_ub(k));
             else
                 mu_ub = '      -   ';
