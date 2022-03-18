@@ -155,6 +155,20 @@ classdef dme_line3p < dm_element
             end
         end
 
+        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+            %% call parent
+            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+
+            %% print generation summary
+            t = obj.tab;
+            ploss = [ t.pl1_fr t.pl2_fr t.pl3_fr ] + ...
+                    [ t.pl1_to t.pl2_to t.pl3_to ];
+            qloss = [ t.ql1_fr t.ql2_fr t.ql3_fr ] + ...
+                    [ t.ql1_to t.ql2_to t.ql3_to ];
+            fprintf(fd, '  %-29s %12.1f kW %12.1f kVAr\n', 'Total 3-ph line loss', ...
+                sum(sum(ploss(obj.on, :))), sum(sum(qloss(obj.on, :))) );
+        end
+
         function TorF = pp_have_section_det(obj, mpopt, varargin)
             TorF = true;
         end

@@ -84,10 +84,11 @@ classdef dme_load3p < dm_element
             pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
 
             %% print generation summary
-            fprintf(fd, '  %-29s %12.1f kW\n', 'Total 3-ph load', ...
-                sum(obj.tab.pd1(obj.on)) + ...
-                sum(obj.tab.pd2(obj.on)) + ...
-                sum(obj.tab.pd3(obj.on)));
+            pd = [ obj.tab.pd1 obj.tab.pd2 obj.tab.pd3 ];
+            pf = [ obj.tab.pf1 obj.tab.pf2 obj.tab.pf3 ];
+            qd = pd .* tan(acos(pf));
+            fprintf(fd, '  %-29s %12.1f kW %12.1f kVAr\n', 'Total 3-ph load', ...
+                sum(sum(pd(obj.on, :))), sum(sum(qd(obj.on, :))) );
         end
 
         function TorF = pp_have_section_det(obj, mpopt, varargin)
