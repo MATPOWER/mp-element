@@ -42,6 +42,7 @@ tests{end+1} = 't_port_inj_power_acp';
 tests{end+1} = 't_node_test';
 tests{end+1} = 't_run_mp';
 tests{end+1} = 't_run_mp_3p';
+tests{end+1} = 't_pretty_print';
 
 %% run the tests
 all_ok = t_run_tests( tests, verbose );
