@@ -229,7 +229,7 @@ classdef mp_data < mp_element_container
                 sections = obj.pp_section_list(out);  %% e.g. cnt, sum, ext, det, etc.
                 for s = 1:length(sections)
                     out_s = out.sec.(sections{s});
-                    if out_s.any
+                    if out_s.any && obj.pp_have_section(sections{s}, mpopt)
                         obj.pp_section(sections{s}, out_s, mpopt, fd);
                     end
                 end
@@ -243,6 +243,17 @@ classdef mp_data < mp_element_container
 
         function sections = pp_section_list(obj, out)
             sections = {'cnt', 'sum', 'ext', 'det'};
+        end
+
+        function TorF = pp_have_section(obj, section, mpopt)
+            %% section per-element info
+            for k = 1:length(obj.elements)
+                dme = obj.elements{k};
+                TorF = dme.pp_have_section(section, mpopt);
+                if TorF
+                    break;
+                end
+            end
         end
 
         function pp_section(obj, section, out_s, mpopt, fd)
@@ -307,8 +318,8 @@ classdef mp_data < mp_element_container
 
         function h = pp_get_headers_ext(obj, out_s, mpopt)
             h = {   '', ...
-                    '                                            minimum                       maximum', ...
-                    '                               ------------------------------ -----------------------------' };
+                    '                                           minimum                        maximum', ...
+                    '                               -----------------------------  -----------------------------' };
         end
 
         function obj = pp_data(obj, section, out_s, mpopt, fd)

@@ -92,6 +92,10 @@ classdef dme_gen3p < dm_element
             obj.vm3_setpoint = gen.vm3_setpoint(obj.on);
         end
 
+        function TorF = pp_have_section_sum(obj, mpopt, varargin)
+            TorF = true;
+        end
+
         function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
             %% call parent
             pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});

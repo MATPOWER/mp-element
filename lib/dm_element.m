@@ -155,7 +155,7 @@ classdef dm_element < handle
         end
 
         function pretty_print(obj, dm, section, out_e, mpopt, fd, varargin)
-            if out_e
+            if out_e && obj.pp_have_section(section, mpopt, varargin{:});
                 %% get indices of relevant rows
                 rows = obj.pp_rows(dm, section, out_e, mpopt, varargin{:});
 
@@ -174,6 +174,21 @@ classdef dm_element < handle
                     %% data
                     obj.pp_data(dm, section, rows, out_e, mpopt, fd, varargin{:});
                 end
+            end
+        end
+
+        function TorF = pp_have_section(obj, section, mpopt, varargin)
+            switch section
+                case 'cnt'
+                    TorF = obj.pp_have_section_cnt(mpopt, varargin{:});
+                case 'sum'
+                    TorF = obj.pp_have_section_sum(mpopt, varargin{:});
+                case 'ext'
+                    TorF = obj.pp_have_section_ext(mpopt, varargin{:});
+                case 'det'
+                    TorF = obj.pp_have_section_det(mpopt, varargin{:});
+                otherwise
+                    TorF = obj.pp_have_section_other(section, mpopt, varargin{:});
             end
         end
 
@@ -235,6 +250,10 @@ classdef dm_element < handle
             end
         end
 
+        function TorF = pp_have_section_cnt(obj, mpopt, varargin)
+            TorF = true;    %% all elements have count section by default
+        end
+
         function obj = pp_data_cnt(obj, dm, rows, out_e, mpopt, fd, varargin)
             if obj.n
                 on = sprintf('%d', obj.n);
@@ -249,14 +268,22 @@ classdef dm_element < handle
             fprintf(fd, '  %-20s%7s %7s %7d\n', obj.labels, on, off, obj.nr);
         end
 
+        function TorF = pp_have_section_sum(obj, mpopt, varargin)
+            TorF = false;   %% no summary section for elements by default
+        end
+
         function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+        end
+
+        function TorF = pp_have_section_ext(obj, mpopt, varargin)
+            TorF = false;   %% no ext section for elements by default
         end
 
         function obj = pp_data_ext(obj, dm, rows, out_e, mpopt, fd, varargin)
         end
 
         function TorF = pp_have_section_det(obj, mpopt, varargin)
-            TorF = false;
+            TorF = false;   %% no ext section for elements by default
         end
 
         function str = pp_title_str_det(obj, mpopt, varargin)

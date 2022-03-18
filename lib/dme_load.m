@@ -77,6 +77,10 @@ classdef dme_load < dm_element
             obj.qd_z = obj.tab.qd_z(obj.on) / dm.base_mva;
         end
 
+        function TorF = pp_have_section_sum(obj, mpopt, varargin)
+            TorF = true;
+        end
+
         function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
             %% call parent
             pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
