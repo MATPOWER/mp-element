@@ -197,17 +197,6 @@ classdef dm_element < handle
             end
         end
 
-        function str = pp_title_str(obj, section, mpopt, varargin)
-            switch section
-                case {'cnt', 'sum', 'ext'}
-                    str = '';
-                case 'det'
-                    str = obj.pp_title_str_det(mpopt, varargin{:});
-                otherwise
-                    str = obj.pp_title_str_other(section, mpopt, varargin{:});
-            end
-        end
-
         function h = pp_get_headers(obj, dm, section, out_e, mpopt, varargin)
             switch section
                 case {'cnt', 'sum', 'ext'}
@@ -270,7 +259,7 @@ classdef dm_element < handle
             TorF = false;   %% no ext section for elements by default
         end
 
-        function str = pp_title_str_det(obj, mpopt, varargin)
+        function str = pp_get_title_det(obj, mpopt, varargin)
             if obj.pp_have_section_det(mpopt, varargin{:})
                 str = sprintf('%s Data', obj.label);
             else
@@ -279,7 +268,7 @@ classdef dm_element < handle
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
-            str = obj.pp_title_str_det(mpopt, varargin{:});
+            str = obj.pp_get_title_det(mpopt, varargin{:});
             if isempty(str)
                 h = {};
             else

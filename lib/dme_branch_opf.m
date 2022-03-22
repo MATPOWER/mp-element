@@ -72,7 +72,7 @@ classdef dme_branch_opf < dme_branch & dme_shared_opf
                         obj.tab.mu_flow_to_ub > obj.ptol ));
         end
 
-        function str = pp_title_str_lim(obj, mpopt, varargin)
+        function str = pp_get_title_lim(obj, mpopt, varargin)
             switch upper(mpopt.opf.flow_lim(1))
                 case {'P', '2'}     %% active power
                     str = 'P in MW';

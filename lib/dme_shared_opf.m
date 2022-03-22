@@ -41,15 +41,6 @@ classdef dme_shared_opf < handle
             end
         end
 
-        function str = pp_title_str_other(obj, section, mpopt, varargin)
-            switch section
-                case 'lim'
-                    str = obj.pp_title_str_lim(mpopt, varargin{:});
-                otherwise
-                    error('dme_shared_opf:pp_title_str_other: unknown section ''%s''', section);
-            end
-        end
-
         function h = pp_get_headers_other(obj, dm, section, out_e, mpopt, varargin)
             switch section
                 case 'lim'
@@ -86,12 +77,12 @@ classdef dme_shared_opf < handle
             rows = 0;           %% no rows
         end
 
-        function str = pp_title_str_lim(obj, mpopt, varargin)
+        function str = pp_get_title_lim(obj, mpopt, varargin)
             str = sprintf('%s Constraints', obj.label);
         end
 
         function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
-            str = obj.pp_title_str_lim(mpopt, varargin{:});
+            str = obj.pp_get_title_lim(mpopt, varargin{:});
             if isempty(str)
                 h = {};
             else
