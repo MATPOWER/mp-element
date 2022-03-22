@@ -192,15 +192,6 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
             TorF = true;
         end
 
-        function h = pp_title(obj, dm, section, out_e, mpopt, varargin)
-            if ~strcmp(section, 'lim') || strcmp(varargin{1}, 'P')
-                %% call parent
-                h = pp_title@dme_gen(obj, dm, section, out_e, mpopt, varargin{:});
-            else
-                h = {};
-            end
-        end
-
         function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
             switch varargin{1}
                 case 'P'
@@ -219,17 +210,21 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
         end
 
         function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
+            if strcmp(varargin{1}, 'P')
+                h1 = pp_get_headers_lim@dme_shared_opf(obj, dm, out_e, mpopt, varargin{:});
+            else
+                h1 = {};
+            end
             switch varargin{1}
                 case 'P'
-                    h0 = {'                                  Active Power Limits' };
+                    h2 = {'                                  Active Power Limits' };
                 case 'Q'
-                    h0 = {'', ...
+                    h2 = {'', ...
                         '                                 Reactive Power Limits' };
             end
-
-            h = {   h0{:}, ...
-                    ' Gen ID    Bus ID     mu LB      LB       pg       UB       mu UB', ...
-                    '--------  --------  ---------  -------  -------  -------   --------' };
+            h = [ h1 h2 ...
+                {   ' Gen ID    Bus ID     mu LB      LB       pg       UB       mu UB', ...
+                    '--------  --------  ---------  -------  -------  -------   --------' } ];
             %%       1234567   1234567  12345.789 12345.78 12345.78 12345.78  12345.789
         end
 

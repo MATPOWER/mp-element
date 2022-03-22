@@ -162,8 +162,7 @@ classdef dm_element < handle
                 %% if there are rows to show
                 if ~isempty(rows) && rows(1) ~= 0
                     %% title & headers
-                    h = [   obj.pp_title(dm, section, out_e, mpopt, varargin{:}) ...
-                            obj.pp_get_headers(dm, section, out_e, mpopt, varargin{:})  ];
+                    h = obj.pp_get_headers(dm, section, out_e, mpopt, varargin{:});
                     for k = 1:length(h)
                         fprintf(fd, '%s\n', h{k});
                     end
@@ -195,21 +194,6 @@ classdef dm_element < handle
                     rows = -1;  %% all rows
                 otherwise
                     rows = obj.pp_rows_other(dm, section, out_e, mpopt, varargin{:});
-            end
-        end
-
-        function h = pp_title(obj, dm, section, out_e, mpopt, varargin)
-            switch section
-                case {'cnt', 'sum', 'ext'}
-                    h = {};
-%                     fprintf(fd, '\n');
-                otherwise
-                    str = obj.pp_title_str(section, mpopt, varargin{:});
-                    if isempty(str)
-                        h = {};
-                    else
-                        h = dm.pp_section_label(str);
-                    end
             end
         end
 
@@ -295,7 +279,12 @@ classdef dm_element < handle
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
-            h = {};
+            str = obj.pp_title_str_det(mpopt, varargin{:});
+            if isempty(str)
+                h = {};
+            else
+                h = dm.pp_section_label(str);
+            end
         end
 
         function obj = pp_data_det(obj, dm, rows, out_e, mpopt, fd, varargin)

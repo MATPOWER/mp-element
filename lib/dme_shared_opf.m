@@ -91,7 +91,12 @@ classdef dme_shared_opf < handle
         end
 
         function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
-            h = {};
+            str = obj.pp_title_str_lim(mpopt, varargin{:});
+            if isempty(str)
+                h = {};
+            else
+                h = dm.pp_section_label(str);
+            end
         end
 
         function obj = pp_data_lim(obj, dm, rows, out_e, mpopt, fd, varargin)

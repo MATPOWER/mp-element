@@ -121,15 +121,6 @@ classdef dme_xfmr3p < dm_element
             end
         end
 
-        function h = pp_title(obj, dm, section, out_e, mpopt, varargin)
-            if ~strcmp(section, 'det') || strcmp(varargin{1}, 'c_fr')
-                %% call parent
-                h = pp_title@dm_element(obj, dm, section, out_e, mpopt, varargin{:});
-            else
-                h = {};
-            end
-        end
-
         function TorF = pp_have_section_sum(obj, mpopt, varargin)
             TorF = true;
         end
@@ -153,31 +144,36 @@ classdef dme_xfmr3p < dm_element
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
+            if strcmp(varargin{1}, 'c_fr')
+                h1 = pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, varargin{:});
+            else
+                h1 = {};
+            end
             switch varargin{1}
                 case 'c_fr'
-                    h0 = {'-->  Current Injections at "From" Bus' };
+                    h2 = {'-->  Current Injections at "From" Bus' };
                 case 'c_to'
-                    h0 = {'', ...
+                    h2 = {'', ...
                         '<--  Current Injections at "To" Bus' };
                 case 's_fr'
-                    h0 = {'', ...
+                    h2 = {'', ...
                         '-->  Power Injections at "From" Bus' };
                 case 's_to'
-                    h0 = {'', ...
+                    h2 = {'', ...
                         '<--  Power Injections at "To" Bus' };
             end
             switch varargin{1}(1)
                 case 'c'
-                    h = {   h0{:}, ...
-                            '  3-ph    3-ph Bus  3-ph Bus          Phase A Current  Phase B Current  Phase C Current', ...
+                    h = [ h1 h2 ...
+                        {   '  3-ph    3-ph Bus  3-ph Bus          Phase A Current  Phase B Current  Phase C Current', ...
                             'Line ID    From ID   To ID    Status   (A)    (deg)     (A)    (deg)     (A)    (deg)', ...
-                            '--------  --------  --------  ------  ------  ------   ------  ------   ------  ------' };
+                            '--------  --------  --------  ------  ------  ------   ------  ------   ------  ------' } ];
                     %%       1234567 123456789 123456789 -----1 123456.89 12345.7 12345.78 12345.7 12345.78 12345.7
                 case 's'
-                    h = {   h0{:}, ...
-                            '  3-ph    3-ph Bus  3-ph Bus          Phase A Power    Phase B Power    Phase C Power', ...
+                    h = [ h1 h2 ...
+                        {   '  3-ph    3-ph Bus  3-ph Bus          Phase A Power    Phase B Power    Phase C Power', ...
                             'Line ID    From ID   To ID    Status   (kW)   (kVAr)    (kW)   (kVAr)    (kW)   (kVAr)', ...
-                            '--------  --------  --------  ------  ------  ------   ------  ------   ------  ------' };
+                            '--------  --------  --------  ------  ------  ------   ------  ------   ------  ------' } ];
                     %%       1234567 123456789 123456789 -----1 1234567.9 12345.7 123456.8 12345.7 123456.8 12345.7
             end
         end

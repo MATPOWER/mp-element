@@ -52,10 +52,10 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
-            h0 = pp_get_headers_det@dme_bus(obj, dm, out_e, mpopt, varargin{:});
-            h = {   [h0{1} '            Lambda (LMP)'], ...
-                    [h0{2} '  P($/MWh)  Q($/MVAr-hr)'], ...
-                    [h0{3} '  --------  ------------'] };
+            h = pp_get_headers_det@dme_bus(obj, dm, out_e, mpopt, varargin{:});
+            h{end-2} = [ h{end-2} '            Lambda (LMP)'];
+            h{end-1} = [ h{end-1} '  P($/MWh)  Q($/MVAr-hr)'];
+            h{end}   = [ h{end}   '  --------  ------------'];
         end
 
         function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
@@ -78,9 +78,10 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
         end
 
         function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
-            h = {   '                     Voltage Magnitude Limits', ...
+            h = [ pp_get_headers_lim@dme_shared_opf(obj, dm, out_e, mpopt, varargin{:}) ...
+                {   '                     Voltage Magnitude Limits', ...
                     ' Bus ID     mu LB      LB       vm       UB       mu UB', ...
-                    '--------  ---------  -------  -------  -------   --------' };
+                    '--------  ---------  -------  -------  -------   --------' } ];
             %%       1234567  12345.789    1.345    1.345    1.345  12345.789
         end
 

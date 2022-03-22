@@ -257,8 +257,7 @@ classdef mp_data < mp_element_container
 
         function pp_section(obj, section, out_s, mpopt, fd)
             %% section title & headers
-            h = [   obj.pp_title(section, out_s, mpopt) ...
-                    obj.pp_get_headers(section, out_s, mpopt)   ];
+            h = obj.pp_get_headers(section, out_s, mpopt);
             for k = 1:length(h)
                 fprintf(fd, '%s\n', h{k});
             end
@@ -278,24 +277,6 @@ classdef mp_data < mp_element_container
             end
         end
 
-        function h = pp_title(obj, section, out_s, mpopt)
-            str = obj.pp_title_str(section);
-            if isempty(str)
-                h = {};
-            else
-                h = obj.pp_section_label(str, 0);
-            end
-        end
-
-        function str = pp_title_str(obj, section)
-            switch section
-                case 'cnt'
-                    str = 'System Summary';
-                otherwise
-                    str = '';   %% 'sum', 'ext', 'det', etc.
-            end
-        end
-
         function h = pp_get_headers(obj, section, out_s, mpopt)
             switch section
                 case 'cnt'
@@ -312,8 +293,9 @@ classdef mp_data < mp_element_container
         end
 
         function h = pp_get_headers_cnt(obj, out_s, mpopt)
-            h = {   '  elements                on     off    total', ...
-                    ' --------------------- ------- ------- -------' };
+            h = [ obj.pp_section_label('System Summary', 0) ...
+                 {  '  elements                on     off    total', ...
+                    ' --------------------- ------- ------- -------' } ];
         end
 
         function h = pp_get_headers_ext(obj, out_s, mpopt)

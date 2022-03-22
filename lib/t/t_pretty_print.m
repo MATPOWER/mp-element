@@ -74,6 +74,7 @@ else
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
         [status, result] = system(cmd);
+        keyboard
     end
 end
 
@@ -97,6 +98,7 @@ else
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
         [status, result] = system(cmd);
+        keyboard
     end
 end
 
@@ -120,6 +122,7 @@ else
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
         [status, result] = system(cmd);
+        keyboard
     end
 end
 
@@ -149,6 +152,7 @@ else
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
         [status, result] = system(cmd);
+        keyboard
     end
 end
 
@@ -174,6 +178,7 @@ else
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
         [status, result] = system(cmd);
+        keyboard
     end
 end
 
@@ -199,6 +204,7 @@ else
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
         [status, result] = system(cmd);
+        keyboard
     end
 end
 
@@ -224,6 +230,7 @@ else
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
         [status, result] = system(cmd);
+        keyboard
     end
 end
 
