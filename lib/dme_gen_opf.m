@@ -192,10 +192,12 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
             TorF = true;
         end
 
-        function obj = pp_title(obj, dm, section, out_e, mpopt, fd, varargin)
+        function h = pp_title(obj, dm, section, out_e, mpopt, varargin)
             if ~strcmp(section, 'lim') || strcmp(varargin{1}, 'P')
                 %% call parent
-                obj = pp_title@dme_gen(obj, dm, section, out_e, mpopt, fd, varargin{:});
+                h = pp_title@dme_gen(obj, dm, section, out_e, mpopt, varargin{:});
+            else
+                h = {};
             end
         end
 

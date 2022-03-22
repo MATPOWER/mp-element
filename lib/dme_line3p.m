@@ -148,10 +148,12 @@ classdef dme_line3p < dm_element
             end
         end
 
-        function obj = pp_title(obj, dm, section, out_e, mpopt, fd, varargin)
+        function h = pp_title(obj, dm, section, out_e, mpopt, varargin)
             if ~strcmp(section, 'det') || strcmp(varargin{1}, 'c_fr')
                 %% call parent
-                obj = pp_title@dm_element(obj, dm, section, out_e, mpopt, fd, varargin{:});
+                h = pp_title@dm_element(obj, dm, section, out_e, mpopt, varargin{:});
+            else
+                h = {};
             end
         end
 

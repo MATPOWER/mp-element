@@ -198,20 +198,19 @@ classdef mp_data < mp_element_container
             end
         end
 
-        function obj = pp_section_label(obj, label, fd, blank_line)
-            if nargin < 4
-                blank_line = 1; %% print a blank line before the section label
+        function h = pp_section_label(obj, label, blank_line)
+            if nargin < 3
+                blank_line = 1; %% include a blank line before the section label
             end
-            
-            if blank_line
-                fprintf(fd, '\n');
-            end
+
             width = 80;
-            line1 = [repmat('=', 1, width) '\n'];
-            line2 = ['|     ' label repmat(' ', 1, width-length(label)-7) '|\n'];
-            fprintf(fd, line1);
-            fprintf(fd, line2);
-            fprintf(fd, line1);
+            line1 = repmat('=', 1, width);
+            line2 = ['|     ' label repmat(' ', 1, width-length(label)-7) '|'];
+            if blank_line
+                h = {'', line1, line2, line1};
+            else
+                h = {line1, line2, line1};
+            end
         end
 
         function [obj, out_] = pretty_print(obj, mpopt, fd)
@@ -257,15 +256,14 @@ classdef mp_data < mp_element_container
         end
 
         function pp_section(obj, section, out_s, mpopt, fd)
-            %% section title
-            obj.pp_title(section, out_s, mpopt, fd);
-                %% calls s = obj.pp_title_str(section)
-
-            %% section system info
-            h = obj.pp_get_headers(section, out_s, mpopt);
+            %% section title & headers
+            h = [   obj.pp_title(section, out_s, mpopt) ...
+                    obj.pp_get_headers(section, out_s, mpopt)   ];
             for k = 1:length(h)
                 fprintf(fd, '%s\n', h{k});
             end
+
+            %% section system info
             obj.pp_data(section, out_s, mpopt, fd);
 
             %% section per-element info
@@ -280,10 +278,12 @@ classdef mp_data < mp_element_container
             end
         end
 
-        function obj = pp_title(obj, section, out_s, mpopt, fd)
+        function h = pp_title(obj, section, out_s, mpopt)
             str = obj.pp_title_str(section);
-            if ~isempty(str)
-                obj.pp_section_label(str, fd, 0);
+            if isempty(str)
+                h = {};
+            else
+                h = obj.pp_section_label(str, 0);
             end
         end
 

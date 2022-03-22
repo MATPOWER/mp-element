@@ -78,8 +78,8 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
         end
 
         function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
-            h = {   '                     Voltage Magnitude Limits',
-                    ' Bus ID     mu LB      LB       vm       UB       mu UB',
+            h = {   '                     Voltage Magnitude Limits', ...
+                    ' Bus ID     mu LB      LB       vm       UB       mu UB', ...
                     '--------  ---------  -------  -------  -------   --------' };
             %%       1234567  12345.789    1.345    1.345    1.345  12345.789
         end
