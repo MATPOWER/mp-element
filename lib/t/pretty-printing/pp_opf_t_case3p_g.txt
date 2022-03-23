@@ -169,7 +169,7 @@ Line ID    From ID   To ID    Status   (kW)   (kVAr)    (kW)   (kVAr)    (kW)   
 ================================================================================
 -->  Current Injections at "From" Bus
   3-ph    3-ph Bus  3-ph Bus          Phase A Current  Phase B Current  Phase C Current
-Line ID    From ID   To ID    Status   (A)    (deg)     (A)    (deg)     (A)    (deg)
+Xfrm ID    From ID   To ID    Status   (A)    (deg)     (A)    (deg)     (A)    (deg)
 --------  --------  --------  ------  ------  ------   ------  ------   ------  ------
       1         2         3      1    230.06   -35.9   345.72  -152.6   455.06    84.7
       2         6         7      1    230.06   -32.3   345.72  -149.0   455.06    88.3
@@ -177,7 +177,7 @@ Line ID    From ID   To ID    Status   (A)    (deg)     (A)    (deg)     (A)    
 
 <--  Current Injections at "To" Bus
   3-ph    3-ph Bus  3-ph Bus          Phase A Current  Phase B Current  Phase C Current
-Line ID    From ID   To ID    Status   (A)    (deg)     (A)    (deg)     (A)    (deg)
+Xfrm ID    From ID   To ID    Status   (A)    (deg)     (A)    (deg)     (A)    (deg)
 --------  --------  --------  ------  ------  ------   ------  ------   ------  ------
       1         2         3      1    689.64   144.1  1036.34    27.4  1364.10   -95.3
       2         6         7      1    689.64   147.7  1036.34    31.0  1364.10   -91.7
@@ -185,7 +185,7 @@ Line ID    From ID   To ID    Status   (A)    (deg)     (A)    (deg)     (A)    
 
 -->  Power Injections at "From" Bus
   3-ph    3-ph Bus  3-ph Bus          Phase A Power    Phase B Power    Phase C Power
-Line ID    From ID   To ID    Status   (kW)   (kVAr)    (kW)   (kVAr)    (kW)   (kVAr)
+Xfmr ID    From ID   To ID    Status   (kW)   (kVAr)    (kW)   (kVAr)    (kW)   (kVAr)
 --------  --------  --------  ------  ------  ------   ------  ------   ------  ------
       1         2         3      1    1337.2   963.4   2074.4  1319.1   2652.4  1830.6
       2         6         7      1    1337.2   963.4   2074.4  1319.1   2652.4  1830.6
@@ -193,7 +193,7 @@ Line ID    From ID   To ID    Status   (kW)   (kVAr)    (kW)   (kVAr)    (kW)   
 
 <--  Power Injections at "To" Bus
   3-ph    3-ph Bus  3-ph Bus          Phase A Power    Phase B Power    Phase C Power
-Line ID    From ID   To ID    Status   (kW)   (kVAr)    (kW)   (kVAr)    (kW)   (kVAr)
+Xfmr ID    From ID   To ID    Status   (kW)   (kVAr)    (kW)   (kVAr)    (kW)   (kVAr)
 --------  --------  --------  ------  ------  ------   ------  ------   ------  ------
       1         2         3      1   -1323.5  -881.1  -2043.4 -1133.3  -2598.7 -1508.6
       2         6         7      1   -1323.5  -881.1  -2043.4 -1133.3  -2598.7 -1508.6
