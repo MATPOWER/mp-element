@@ -86,11 +86,19 @@ classdef dme_load < dm_element
             pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print load summary
-            fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', 'Total load', ...
-                sum(obj.tab.p), sum(obj.tab.q));
+            fprintf(fd, '  %-29s %12.1f MW', 'Total load', ...
+                                            sum(obj.tab.p));
+            if mpopt.model(1) ~= 'D'    %% AC model
+                fprintf(fd, ' %12.1f MVAr', sum(obj.tab.q));
+            end
+            fprintf(fd, '\n');
             if obj.n ~= obj.nr
-                fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', '  online', ...
-                    sum(obj.tab.p(obj.on)), sum(obj.tab.q(obj.on)));
+                fprintf(fd, '  %-29s %12.1f MW', '  online', ...
+                                                sum(obj.tab.p(obj.on)));
+                if mpopt.model(1) ~= 'D'    %% AC model
+                    fprintf(fd, ' %12.1f MVAr', sum(obj.tab.q(obj.on)));
+                end
+                fprintf(fd, '\n');
             end
         end
 

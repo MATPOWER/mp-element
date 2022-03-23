@@ -155,20 +155,42 @@ classdef dme_gen < dm_element
             %% call parent
             pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
+            ac = mpopt.model(1) ~= 'D';     %% AC model?
+
             %% print generation summary
-            fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', 'Total generation', ...
-                sum(obj.tab.pg(obj.on)), sum(obj.tab.qg(obj.on)));
-            fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', 'Total max generation capacity', ...
-                sum(obj.tab.pg_ub), sum(obj.tab.qg_ub));
-            if obj.n ~= obj.nr
-                fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', '  online', ...
-                    sum(obj.tab.pg_ub(obj.on)), sum(obj.tab.qg_ub(obj.on)));
+            fprintf(fd, '  %-29s %12.1f MW', 'Total generation', ...
+                                            sum(obj.tab.pg(obj.on)));
+            if ac
+                fprintf(fd, ' %12.1f MVAr', sum(obj.tab.qg(obj.on)));
             end
-            fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', 'Total min generation capacity', ...
-                sum(obj.tab.pg_lb), sum(obj.tab.qg_lb));
+            fprintf(fd, '\n');
+            fprintf(fd, '  %-29s %12.1f MW', 'Total max generation capacity', ...
+                                            sum(obj.tab.pg_ub));
+            if ac
+                fprintf(fd, ' %12.1f MVAr', sum(obj.tab.qg_ub));
+            end
+            fprintf(fd, '\n');
             if obj.n ~= obj.nr
-                fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', '  online', ...
-                    sum(obj.tab.pg_lb(obj.on)), sum(obj.tab.qg_lb(obj.on)));
+                fprintf(fd, '  %-29s %12.1f MW', '  online', ...
+                                                sum(obj.tab.pg_ub(obj.on)));
+                if ac
+                    fprintf(fd, ' %12.1f MVAr', sum(obj.tab.qg_ub(obj.on)));
+                end
+                fprintf(fd, '\n');
+            end
+            fprintf(fd, '  %-29s %12.1f MW', 'Total min generation capacity', ...
+                                                sum(obj.tab.pg_lb));
+            if ac
+                fprintf(fd, ' %12.1f MVAr', sum(obj.tab.qg_lb));
+            end
+            fprintf(fd, '\n');
+            if obj.n ~= obj.nr
+                fprintf(fd, '  %-29s %12.1f MW', '  online', ...
+                                                sum(obj.tab.pg_lb(obj.on)));
+                if ac
+                    fprintf(fd, ' %12.1f MVAr', sum(obj.tab.qg_lb(obj.on)));
+                end
+                fprintf(fd, '\n');
             end
         end
 

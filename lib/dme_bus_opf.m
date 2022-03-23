@@ -39,7 +39,7 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
                 sprintf('%8.2f $/MWh', max_lam_p), ...
                 sprintf('bus %d', obj.tab.uid(max_lam_p_i)) );
 
-            if any(obj.tab.lam_q ~= 0)
+            if mpopt.model(1) ~= 'D'    %% AC model
                 [min_lam_q, min_lam_q_i] = min(obj.tab.lam_q);
                 [max_lam_q, max_lam_q_i] = max(obj.tab.lam_q);
                 fprintf(fd, '  %-29s %15s @ %11s %16s @ %s\n', ...
@@ -52,17 +52,30 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
-            h = pp_get_headers_det@dme_bus(obj, dm, out_e, mpopt, pp_args);
-            h{end-2} = [ h{end-2} '            Lambda (LMP)'];
-            h{end-1} = [ h{end-1} '  P($/MWh)  Q($/MVAr-hr)'];
-            h{end}   = [ h{end}   '  --------  ------------'];
+            if mpopt.model(1) ~= 'D'    %% AC model
+                h = pp_get_headers_det@dme_bus(obj, dm, out_e, mpopt, pp_args);
+                h{end-2} = [ h{end-2} '            Lambda (LMP)'];
+                h{end-1} = [ h{end-1} '  P($/MWh)  Q($/MVAr-hr)'];
+                h{end}   = [ h{end}   '  --------  ------------'];
+            else                        %% DC model
+                h = pp_get_headers_det@dme_bus(obj, dm, out_e, mpopt, pp_args);
+                h{end-2} = [ h{end-2} '       Lambda (LMP)'];
+                h{end-1} = [ h{end-1} '  P($/MWh)'];
+                h{end}   = [ h{end}   '  --------'];
+            end
         end
 
         function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
-            str = [ ...
-                pp_data_row_det@dme_bus(obj, dm, k, out_e, mpopt, fd, pp_args) ...
-                sprintf(' %9.3f %13.3f', ...
-                    obj.tab.lam_p(k), obj.tab.lam_q(k))];
+            if mpopt.model(1) ~= 'D'    %% AC model
+                str = [ ...
+                    pp_data_row_det@dme_bus(obj, dm, k, out_e, mpopt, fd, pp_args) ...
+                    sprintf(' %9.3f %13.3f', ...
+                        obj.tab.lam_p(k), obj.tab.lam_q(k))];
+            else                        %% DC model
+                str = [ ...
+                    pp_data_row_det@dme_bus(obj, dm, k, out_e, mpopt, fd, pp_args) ...
+                    sprintf(' %9.3f', obj.tab.lam_p(k))];
+            end
         end
 
         function TorF = pp_have_section_lim(obj, mpopt, pp_args)

@@ -131,9 +131,13 @@ classdef dme_branch < dm_element
             pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print branch summary
-            fprintf(fd, '  %-29s  %12.2f MW %12.2f MVAr\n', 'Total branch losses', ...
-                sum(obj.tab.pl_fr(obj.on)) + sum(obj.tab.pl_to(obj.on)), ...
-                sum(obj.tab.ql_fr(obj.on)) + sum(obj.tab.ql_to(obj.on)) );
+            fprintf(fd, '  %-29s  %12.2f MW', 'Total branch losses', ...
+                sum(obj.tab.pl_fr(obj.on)) + sum(obj.tab.pl_to(obj.on)) );
+            if mpopt.model(1) ~= 'D'    %% AC model
+                fprintf(fd, ' %12.2f MVAr', ...
+                    sum(obj.tab.ql_fr(obj.on)) + sum(obj.tab.ql_to(obj.on)) );
+            end
+            fprintf(fd, '\n');
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
