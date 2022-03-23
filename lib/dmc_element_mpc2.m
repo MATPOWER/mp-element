@@ -110,6 +110,15 @@ classdef dmc_element_mpc2 < dmc_element
                             error('dmc_element_mpc2/table_var_values: %d is an unknown var map type', vm.type);
                     end
                 end
+
+                %% check for unique uid's if not generated
+                if vmap.uid.type ~= 3
+                    assert(strcmp(var_names{1}, 'uid'), 'expected var_names{1} to be ''uid''');
+                    if length(unique(vals{1})) ~= nr
+                        error('dmc_element_mpc2/table_var_values: ''uid'' values must be unique\ndata contains only %d unique ''uid'' value(s) for %d ''%s'' elements\n', ...
+                            length(unique(vals{1})), nr, obj.name);
+                    end
+                end
             else            %% table does not exist or is empty
                 vals = [];
             end
