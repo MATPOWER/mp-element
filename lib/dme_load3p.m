@@ -79,13 +79,13 @@ classdef dme_load3p < dm_element
             obj.pf3 = obj.tab.pf3(obj.on);
         end
 
-        function TorF = pp_have_section_sum(obj, mpopt, varargin)
+        function TorF = pp_have_section_sum(obj, mpopt, pp_args)
             TorF = true;
         end
 
-        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print generation summary
             pd = [ obj.tab.pd1 obj.tab.pd2 obj.tab.pd3 ];
@@ -95,19 +95,19 @@ classdef dme_load3p < dm_element
                 sum(sum(pd(obj.on, :))), sum(sum(qd(obj.on, :))) );
         end
 
-        function TorF = pp_have_section_det(obj, mpopt, varargin)
+        function TorF = pp_have_section_det(obj, mpopt, pp_args)
             TorF = true;
         end
 
-        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, varargin{:}) ...
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
+            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   '  3-ph      3-ph             Phase A Power     Phase B Power     Phase C Power', ...
                     'Load ID    Bus ID   Status   (kW)     (PF)     (kW)     (PF)     (kW)     (PF)', ...
                     '--------  --------  ------  -------  ------   -------  ------   -------  ------' } ];
             %%       1234567 123456789 -----1 1234567.90 12.4567 123456.89 12.4567 123456.89 12.4567
         end
 
-        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
             str = sprintf('%7d %9d %6d %10.2f %7.4f %9.2f %7.4f %9.2f %7.4f', ...
                 obj.tab.uid(k), obj.tab.bus(k), obj.tab.status(k), ...
                 obj.tab.pd1(k), obj.tab.pf1(k), ...

@@ -20,69 +20,69 @@ classdef dme_shared_opf < handle
             obj.ptol = 1e-4;
         end
 
-        function TorF = pp_have_section_other(obj, section, mpopt, varargin)
+        function TorF = pp_have_section_other(obj, section, mpopt, pp_args)
             switch section
                 case 'lim'
-                    TorF = obj.pp_have_section_lim(section, mpopt, varargin{:});
+                    TorF = obj.pp_have_section_lim(mpopt, pp_args);
                 otherwise
                     error('dme_shared_opf:pp_have_section_other: unknown section ''%s''', section);
             end
         end
 
-        function rows = pp_rows_other(obj, dm, section, out_e, mpopt, varargin)
+        function rows = pp_rows_other(obj, dm, section, out_e, mpopt, pp_args)
             switch section
                 case 'lim'
                     if isempty(obj.ptol)
                         obj.pp_set_tols_lim(mpopt);
                     end
-                    rows = obj.pp_rows_lim(dm, out_e, mpopt, varargin{:});
+                    rows = obj.pp_rows_lim(dm, out_e, mpopt, pp_args);
                 otherwise
                     error('dme_shared_opf:pp_rows_other: unknown section ''%s''', section);
             end
         end
 
-        function h = pp_get_headers_other(obj, dm, section, out_e, mpopt, varargin)
+        function h = pp_get_headers_other(obj, dm, section, out_e, mpopt, pp_args)
             switch section
                 case 'lim'
-                    h = obj.pp_get_headers_lim(dm, out_e, mpopt, varargin{:});
+                    h = obj.pp_get_headers_lim(dm, out_e, mpopt, pp_args);
                 otherwise
                     error('dme_shared_opf:pp_get_headers_other: unknown section ''%s''', section);
             end
         end
 
-        function obj = pp_data_other(obj, dm, section, rows, out_e, mpopt, fd, varargin)
+        function obj = pp_data_other(obj, dm, section, rows, out_e, mpopt, fd, pp_args)
             switch section
                 case 'lim'
-                    obj.pp_data_lim(dm, rows, out_e, mpopt, fd, varargin{:});
+                    obj.pp_data_lim(dm, rows, out_e, mpopt, fd, pp_args);
                 otherwise
                     error('dme_shared_opf:pp_data_other: unknown section ''%s''', section);
             end
         end
 
-        function TorF = pp_have_section_lim(obj, mpopt, varargin)
+        function TorF = pp_have_section_lim(obj, mpopt, pp_args)
             TorF = false;
         end
 
-        function rows = pp_rows_lim(obj, dm, out_e, mpopt, varargin)
+        function rows = pp_rows_lim(obj, dm, out_e, mpopt, pp_args)
             if out_e == 2       %% all rows
                 rows = -1;
             elseif out_e == 1   %% binding rows
-                rows = obj.pp_binding_rows_lim(dm, out_e, mpopt, varargin{:});
+                rows = obj.pp_binding_rows_lim(dm, out_e, mpopt, pp_args);
             else                %% no rows
                 rows = 0;
             end
         end
 
-        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
+        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, pp_args)
             rows = 0;           %% no rows
         end
 
-        function str = pp_get_title_lim(obj, mpopt, varargin)
+        function str = pp_get_title_lim(obj, mpopt, pp_args)
             str = sprintf('%s Constraints', obj.label);
         end
 
-        function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
-            str = obj.pp_get_title_lim(mpopt, varargin{:});
+        function h = pp_get_headers_lim(obj, dm, out_e, mpopt, pp_args)
+            str = obj.pp_get_title_lim(mpopt, pp_args);
             if isempty(str)
                 h = {};
             else
@@ -90,21 +90,21 @@ classdef dme_shared_opf < handle
             end
         end
 
-        function obj = pp_data_lim(obj, dm, rows, out_e, mpopt, fd, varargin)
+        function obj = pp_data_lim(obj, dm, rows, out_e, mpopt, fd, pp_args)
             if ~isempty(rows) && rows(1) == -1  %% all rows
                 for k = 1:obj.nr
                     fprintf(fd, '%s\n', ...
-                        obj.pp_data_row_lim(dm, k, out_e, mpopt, fd, varargin{:}));
+                        obj.pp_data_row_lim(dm, k, out_e, mpopt, fd, pp_args));
                 end
             else
                 for k = 1:length(rows)
                     fprintf(fd, '%s\n', ...
-                        obj.pp_data_row_lim(dm, rows(k), out_e, mpopt, fd, varargin{:}));
+                        obj.pp_data_row_lim(dm, rows(k), out_e, mpopt, fd, pp_args));
                 end
             end
         end
 
-        function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, varargin)
+        function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, pp_args)
             str = '';
         end
     end     %% methods

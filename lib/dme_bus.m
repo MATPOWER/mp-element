@@ -115,9 +115,9 @@ classdef dme_bus < dm_element
             end
         end
 
-        function obj = pp_data_cnt(obj, dm, rows, out_e, mpopt, fd, varargin)
+        function obj = pp_data_cnt(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_cnt@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+            pp_data_cnt@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print area, zone counts
             fprintf(fd, '  %-36s%7d\n', '  Areas', ...
@@ -126,13 +126,13 @@ classdef dme_bus < dm_element
                 length(unique(obj.tab.zone)));
         end
 
-        function TorF = pp_have_section_ext(obj, mpopt, varargin)
+        function TorF = pp_have_section_ext(obj, mpopt, pp_args)
             TorF = true;
         end
 
-        function obj = pp_data_ext(obj, dm, rows, out_e, mpopt, fd, varargin)
+        function obj = pp_data_ext(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_ext@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+            pp_data_ext@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print bus extremes
             [min_vm, min_vm_i] = min(obj.tab.vm);
@@ -154,19 +154,19 @@ classdef dme_bus < dm_element
                 sprintf('bus %d', obj.tab.uid(max_va_i)) );
         end
 
-        function TorF = pp_have_section_det(obj, mpopt, varargin)
+        function TorF = pp_have_section_det(obj, mpopt, pp_args)
             TorF = true;
         end
 
-        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, varargin{:}) ...
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
+            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   '                      Voltage', ...
                     ' Bus ID   Status  Mag(pu)  Ang(deg)', ...
                     '--------  ------  -------  --------' } ];
             %%       1234567 -----1 12345.789 12345.789
         end
 
-        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
             str = sprintf('%7d %6d %9.3f %9.3f', ...
                     obj.tab.uid(k), obj.tab.status(k), ...
                     obj.tab.vm(k), obj.tab.va(k));

@@ -122,19 +122,19 @@ classdef dme_bus3p < dm_element
             end
         end
 
-        function TorF = pp_have_section_det(obj, mpopt, varargin)
+        function TorF = pp_have_section_det(obj, mpopt, pp_args)
             TorF = true;
         end
 
-        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, varargin{:}) ...
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
+            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   '  3-ph            Phase A Voltage    Phase B Voltage    Phase C Voltage', ...
                     ' Bus ID   Status   (kV)     (deg)     (kV)     (deg)     (kV)     (deg)', ...
                     '--------  ------  -------  -------   -------  -------   -------  -------' } ];
             %%       1234567 -----1 12345.7890 12345.78 1234.6789 12345.78 1234.6789 12345.78
         end
 
-        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
             base_kv = obj.tab.base_kv(k) / sqrt(3);
             str = sprintf('%7d %6d %10.4f %8.2f %9.4f %8.2f %9.4f %8.2f', ...
                     obj.tab.uid(k), obj.tab.status(k), ...

@@ -248,7 +248,7 @@ classdef mp_data < mp_element_container
             %% section per-element info
             for k = 1:length(obj.elements)
                 dme = obj.elements{k};
-                TorF = dme.pp_have_section(section, mpopt);
+                TorF = dme.pp_have_section(section, mpopt, struct());
                 if TorF
                     break;
                 end
@@ -273,7 +273,7 @@ classdef mp_data < mp_element_container
                 else
                     out_e = out_s.all;
                 end
-                dme.pretty_print(obj, section, out_e, mpopt, fd);
+                dme.pretty_print(obj, section, out_e, mpopt, fd, struct());
             end
         end
 

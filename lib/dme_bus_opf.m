@@ -24,9 +24,9 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
                     'mu_vm_lb', 'mu_vm_ub'} );
         end
 
-        function obj = pp_data_ext(obj, dm, rows, out_e, mpopt, fd, varargin)
+        function obj = pp_data_ext(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_ext@dme_bus(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+            pp_data_ext@dme_bus(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print bus extremes
             [min_lam_p, min_lam_p_i] = min(obj.tab.lam_p);
@@ -51,25 +51,25 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
             end
         end
 
-        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
-            h = pp_get_headers_det@dme_bus(obj, dm, out_e, mpopt, varargin{:});
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
+            h = pp_get_headers_det@dme_bus(obj, dm, out_e, mpopt, pp_args);
             h{end-2} = [ h{end-2} '            Lambda (LMP)'];
             h{end-1} = [ h{end-1} '  P($/MWh)  Q($/MVAr-hr)'];
             h{end}   = [ h{end}   '  --------  ------------'];
         end
 
-        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
             str = [ ...
-                pp_data_row_det@dme_bus(obj, dm, k, out_e, mpopt, fd, varargin{:}) ...
+                pp_data_row_det@dme_bus(obj, dm, k, out_e, mpopt, fd, pp_args) ...
                 sprintf(' %9.3f %13.3f', ...
                     obj.tab.lam_p(k), obj.tab.lam_q(k))];
         end
 
-        function TorF = pp_have_section_lim(obj, mpopt, varargin)
+        function TorF = pp_have_section_lim(obj, mpopt, pp_args)
             TorF = true;
         end
 
-        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
+        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, pp_args)
             rows = find( obj.tab.status & ( ...
                         obj.tab.vm < obj.tab.vm_lb + obj.ctol | ...
                         obj.tab.vm > obj.tab.vm_ub - obj.ctol | ...
@@ -77,15 +77,15 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
                         obj.tab.mu_vm_ub > obj.ptol ));
         end
 
-        function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
-            h = [ pp_get_headers_lim@dme_shared_opf(obj, dm, out_e, mpopt, varargin{:}) ...
+        function h = pp_get_headers_lim(obj, dm, out_e, mpopt, pp_args)
+            h = [ pp_get_headers_lim@dme_shared_opf(obj, dm, out_e, mpopt, pp_args) ...
                 {   '                     Voltage Magnitude Limits', ...
                     ' Bus ID     mu LB      LB       vm       UB       mu UB', ...
                     '--------  ---------  -------  -------  -------   --------' } ];
             %%       1234567  12345.789    1.345    1.345    1.345  12345.789
         end
 
-        function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, varargin)
+        function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, pp_args)
             if obj.tab.vm(k) < obj.tab.vm_lb(k) + obj.ctol || ...
                     obj.tab.mu_vm_lb(k) > obj.ptol
                 mu_lb = sprintf('%10.3f', obj.tab.mu_vm_lb(k));

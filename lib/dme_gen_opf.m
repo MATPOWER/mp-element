@@ -177,93 +177,88 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
             end
         end
 
-        function pretty_print(obj, dm, section, out_e, mpopt, fd, varargin)
+        function pretty_print(obj, dm, section, out_e, mpopt, fd, pp_args)
             switch section
                 case 'lim'
-                    pretty_print@dme_gen(obj, dm, section, out_e, mpopt, fd, 'P', varargin{:});
-                    pretty_print@dme_gen(obj, dm, section, out_e, mpopt, fd, 'Q', varargin{:});
+                    pp_args.gen.pq = 'P';
+                    pretty_print@dme_gen(obj, dm, section, out_e, mpopt, fd, pp_args);
+
+                    pp_args.gen.pq = 'Q';
+                    pretty_print@dme_gen(obj, dm, section, out_e, mpopt, fd, pp_args);
                 otherwise
-                    %% call parent
-                    pretty_print@dme_gen(obj, dm, section, out_e, mpopt, fd, varargin{:});
+                    pretty_print@dme_gen(obj, dm, section, out_e, mpopt, fd, pp_args);
             end
         end
 
-        function TorF = pp_have_section_lim(obj, mpopt, varargin)
+        function TorF = pp_have_section_lim(obj, mpopt, pp_args)
             TorF = true;
         end
 
-        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
-            switch varargin{1}
-                case 'P'
-                    rows = find( obj.tab.status & ( ...
-                                obj.tab.pg < obj.tab.pg_lb + obj.ctol | ...
-                                obj.tab.pg > obj.tab.pg_ub - obj.ctol | ...
-                                obj.tab.mu_pg_lb > obj.ptol | ...
-                                obj.tab.mu_pg_ub > obj.ptol ));
-                case 'Q'
-                    rows = find( obj.tab.status & ( ...
-                                obj.tab.qg < obj.tab.qg_lb + obj.ctol | ...
-                                obj.tab.qg > obj.tab.qg_ub - obj.ctol | ...
-                                obj.tab.mu_qg_lb > obj.ptol | ...
-                                obj.tab.mu_qg_ub > obj.ptol ));
+        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, pp_args)
+            if pp_args.gen.pq == 'P'
+                rows = find( obj.tab.status & ( ...
+                            obj.tab.pg < obj.tab.pg_lb + obj.ctol | ...
+                            obj.tab.pg > obj.tab.pg_ub - obj.ctol | ...
+                            obj.tab.mu_pg_lb > obj.ptol | ...
+                            obj.tab.mu_pg_ub > obj.ptol ));
+            else    % pp_args.gen.pq == 'Q'
+                rows = find( obj.tab.status & ( ...
+                            obj.tab.qg < obj.tab.qg_lb + obj.ctol | ...
+                            obj.tab.qg > obj.tab.qg_ub - obj.ctol | ...
+                            obj.tab.mu_qg_lb > obj.ptol | ...
+                            obj.tab.mu_qg_ub > obj.ptol ));
             end
         end
 
-        function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
-            if strcmp(varargin{1}, 'P')
-                h1 = pp_get_headers_lim@dme_shared_opf(obj, dm, out_e, mpopt, varargin{:});
-            else
-                h1 = {};
+        function h = pp_get_headers_lim(obj, dm, out_e, mpopt, pp_args)
+            if pp_args.gen.pq == 'P'
+                h1 = [pp_get_headers_lim@dme_shared_opf(obj, dm, out_e, mpopt, pp_args) ...
+                      {'                                  Active Power Limits'} ];
+            else    % pp_args.gen.pq == 'Q'
+                h1 = {'', ...
+                      '                                 Reactive Power Limits' };
             end
-            switch varargin{1}
-                case 'P'
-                    h2 = {'                                  Active Power Limits' };
-                case 'Q'
-                    h2 = {'', ...
-                        '                                 Reactive Power Limits' };
-            end
-            h = [ h1 h2 ...
+            h = [ h1 ...
                 {   ' Gen ID    Bus ID     mu LB      LB       pg       UB       mu UB', ...
                     '--------  --------  ---------  -------  -------  -------   --------' } ];
             %%       1234567   1234567  12345.789 12345.78 12345.78 12345.78  12345.789
         end
 
-        function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, varargin)
-            switch varargin{1}
-                case 'P'
-                    if obj.tab.pg(k) < obj.tab.pg_lb(k) + obj.ctol || ...
-                            obj.tab.mu_pg_lb(k) > obj.ptol
-                        mu_lb = sprintf('%10.3f', obj.tab.mu_pg_lb(k));
-                    else
-                        mu_lb = '      -   ';
-                    end
-                    if obj.tab.pg(k) > obj.tab.pg_ub(k) - obj.ctol || ...
-                            obj.tab.mu_pg_ub(k) > obj.ptol
-                        mu_ub = sprintf('%10.3f', obj.tab.mu_pg_ub(k));
-                    else
-                        mu_ub = '      -   ';
-                    end
+        function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, pp_args)
+            if pp_args.gen.pq == 'P'
+                if obj.tab.pg(k) < obj.tab.pg_lb(k) + obj.ctol || ...
+                        obj.tab.mu_pg_lb(k) > obj.ptol
+                    mu_lb = sprintf('%10.3f', obj.tab.mu_pg_lb(k));
+                else
+                    mu_lb = '      -   ';
+                end
+                if obj.tab.pg(k) > obj.tab.pg_ub(k) - obj.ctol || ...
+                        obj.tab.mu_pg_ub(k) > obj.ptol
+                    mu_ub = sprintf('%10.3f', obj.tab.mu_pg_ub(k));
+                else
+                    mu_ub = '      -   ';
+                end
 
-                    str = sprintf('%7d %9d %10s %8.2f %8.2f %8.2f %10s', ...
-                        obj.tab.uid(k), obj.tab.bus(k), mu_lb, obj.tab.pg_lb(k), ...
-                        obj.tab.pg(k), obj.tab.pg_ub(k), mu_ub);
-                case 'Q'
-                    if obj.tab.qg(k) < obj.tab.qg_lb(k) + obj.ctol || ...
-                            obj.tab.mu_qg_lb(k) > obj.ptol
-                        mu_lb = sprintf('%10.3f', obj.tab.mu_qg_lb(k));
-                    else
-                        mu_lb = '      -   ';
-                    end
-                    if obj.tab.qg(k) > obj.tab.qg_ub(k) - obj.ctol || ...
-                            obj.tab.mu_qg_ub(k) > obj.ptol
-                        mu_ub = sprintf('%10.3f', obj.tab.mu_qg_ub(k));
-                    else
-                        mu_ub = '      -   ';
-                    end
+                str = sprintf('%7d %9d %10s %8.2f %8.2f %8.2f %10s', ...
+                    obj.tab.uid(k), obj.tab.bus(k), mu_lb, obj.tab.pg_lb(k), ...
+                    obj.tab.pg(k), obj.tab.pg_ub(k), mu_ub);
+            else    % pp_args.gen.pq == 'Q'
+                if obj.tab.qg(k) < obj.tab.qg_lb(k) + obj.ctol || ...
+                        obj.tab.mu_qg_lb(k) > obj.ptol
+                    mu_lb = sprintf('%10.3f', obj.tab.mu_qg_lb(k));
+                else
+                    mu_lb = '      -   ';
+                end
+                if obj.tab.qg(k) > obj.tab.qg_ub(k) - obj.ctol || ...
+                        obj.tab.mu_qg_ub(k) > obj.ptol
+                    mu_ub = sprintf('%10.3f', obj.tab.mu_qg_ub(k));
+                else
+                    mu_ub = '      -   ';
+                end
 
-                    str = sprintf('%7d %9d %10s %8.2f %8.2f %8.2f %10s', ...
-                        obj.tab.uid(k), obj.tab.bus(k), mu_lb, obj.tab.qg_lb(k), ...
-                        obj.tab.qg(k), obj.tab.qg_ub(k), mu_ub);
+                str = sprintf('%7d %9d %10s %8.2f %8.2f %8.2f %10s', ...
+                    obj.tab.uid(k), obj.tab.bus(k), mu_lb, obj.tab.qg_lb(k), ...
+                    obj.tab.qg(k), obj.tab.qg_ub(k), mu_ub);
             end
         end
     end     %% methods

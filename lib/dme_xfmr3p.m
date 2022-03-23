@@ -92,10 +92,10 @@ classdef dme_xfmr3p < dm_element
             obj.base_kv  = obj.tab.base_kv(obj.on);
         end
 
-        function pretty_print(obj, dm, section, out_e, mpopt, fd, varargin)
+        function pretty_print(obj, dm, section, out_e, mpopt, fd, pp_args)
             switch section
                 case 'det'
-                    %% compute currents
+                    %% compute currents/powers for pp_args
                     s_fr = [  obj.tab.pl1_fr + 1j * obj.tab.ql1_fr ...
                             obj.tab.pl2_fr + 1j * obj.tab.ql2_fr ...
                             obj.tab.pl3_fr + 1j * obj.tab.ql3_fr    ];
@@ -111,23 +111,29 @@ classdef dme_xfmr3p < dm_element
                     c_fr = struct('cm', abs(i_fr), 'ca', angle(i_fr) * 180/pi);
                     c_to = struct('cm', abs(i_to), 'ca', angle(i_to) * 180/pi);
 
-                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, 'c_fr', c_fr, varargin{:});
-                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, 'c_to', c_to, varargin{:});
-                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, 's_fr', s_fr, varargin{:});
-                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, 's_to', s_to, varargin{:});
+                    pp_args.xfmr3p = {'c', 'f', abs(i_fr), angle(i_fr) * 180/pi};
+                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
+
+                    pp_args.xfmr3p = {'c', 't', abs(i_to), angle(i_to) * 180/pi};
+                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
+
+                    pp_args.xfmr3p = {'s', 'f', real(s_fr), imag(s_fr)};
+                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
+
+                    pp_args.xfmr3p = {'s', 't', real(s_to), imag(s_to)};
+                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
                 otherwise
-                    %% call parent
-                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, varargin{:});
+                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
             end
         end
 
-        function TorF = pp_have_section_sum(obj, mpopt, varargin)
+        function TorF = pp_have_section_sum(obj, mpopt, pp_args)
             TorF = true;
         end
 
-        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print generation summary
             t = obj.tab;
@@ -139,30 +145,35 @@ classdef dme_xfmr3p < dm_element
                 sum(sum(ploss(obj.on, :))), sum(sum(qloss(obj.on, :))) );
         end
 
-        function TorF = pp_have_section_det(obj, mpopt, varargin)
+        function TorF = pp_have_section_det(obj, mpopt, pp_args)
             TorF = true;
         end
 
-        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
-            if strcmp(varargin{1}, 'c_fr')
-                h1 = pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, varargin{:});
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
+            cs = pp_args.xfmr3p{1};
+            ft = pp_args.xfmr3p{2};
+            if cs == 'c' && ft == 'f'
+                h1 = pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args);
             else
                 h1 = {};
             end
-            switch varargin{1}
-                case 'c_fr'
+            if cs == 'c'
+                if ft == 'f'
                     h2 = {'-->  Current Injections at "From" Bus' };
-                case 'c_to'
+                else    %% ft == 't'
                     h2 = {'', ...
                         '<--  Current Injections at "To" Bus' };
-                case 's_fr'
+                end
+            else    %% cs == 's'
+                if ft == 'f'
                     h2 = {'', ...
                         '-->  Power Injections at "From" Bus' };
-                case 's_to'
+                else    %% ft == 't'
                     h2 = {'', ...
                         '<--  Power Injections at "To" Bus' };
+                end
             end
-            switch varargin{1}(1)
+            switch cs
                 case 'c'
                     h = [ h1 h2 ...
                         {   '  3-ph    3-ph Bus  3-ph Bus          Phase A Current  Phase B Current  Phase C Current', ...
@@ -178,11 +189,11 @@ classdef dme_xfmr3p < dm_element
             end
         end
 
-        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
-            switch varargin{1}(1)
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
+            switch pp_args.xfmr3p{1}    %% cs
                 case 'c'
-                    cm = varargin{2}.cm(k, :);
-                    ca = varargin{2}.ca(k, :);
+                    cm = pp_args.xfmr3p{3}(k, :);
+                    ca = pp_args.xfmr3p{4}(k, :);
                     str = sprintf('%7d %9d %9d %6d %9.2f %7.1f %8.2f %7.1f %8.2f %7.1f', ...
                         obj.tab.uid(k), obj.tab.bus_fr(k), obj.tab.bus_to(k), ...
                         obj.tab.status(k), ...
@@ -190,13 +201,14 @@ classdef dme_xfmr3p < dm_element
                         cm(:, 2), ca(:, 2), ...
                         cm(:, 3), ca(:, 3) );
                 case 's'
-                    sk = varargin{2}(k, :);
+                    p = pp_args.xfmr3p{3}(k, :);
+                    q = pp_args.xfmr3p{4}(k, :);
                     str = sprintf('%7d %9d %9d %6d %9.1f %7.1f %8.1f %7.1f %8.1f %7.1f', ...
                         obj.tab.uid(k), obj.tab.bus_fr(k), obj.tab.bus_to(k), ...
                         obj.tab.status(k), ...
-                        real(sk(:, 1)), imag(sk(:, 1)), ...
-                        real(sk(:, 2)), imag(sk(:, 2)), ...
-                        real(sk(:, 3)), imag(sk(:, 3)) );
+                        p(:, 1), q(:, 1), ...
+                        p(:, 2), q(:, 2), ...
+                        p(:, 3), q(:, 3) );
             end
         end
     end     %% methods

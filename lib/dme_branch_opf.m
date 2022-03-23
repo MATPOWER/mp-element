@@ -28,7 +28,7 @@ classdef dme_branch_opf < dme_branch & dme_shared_opf
                  'mu_vad_lb', 'mu_vad_ub'} );
         end
 
-        function pretty_print(obj, dm, section, out_e, mpopt, fd, varargin)
+        function pretty_print(obj, dm, section, out_e, mpopt, fd, pp_args)
             switch section
                 case 'lim'
                     %% compute flows and limits to pass to parent
@@ -49,22 +49,20 @@ classdef dme_branch_opf < dme_branch & dme_shared_opf
                             fm_to = sqrt(obj.tab.pl_to.^2 + obj.tab.ql_to.^2);
                             fm_ub = obj.tab.sm_ub_a;
                     end
-                    fm = struct('fr', fm_fr, ...
-                                'to', fm_to, ...
-                                'ub', fm_ub );
-                    pretty_print@dme_branch(obj, dm, section, out_e, mpopt, fd, fm, varargin{:});
-                otherwise
-                    %% call parent
-                    pretty_print@dme_branch(obj, dm, section, out_e, mpopt, fd, varargin{:});
+                    pp_args.branch.flow_magnitude = struct( 'fr', fm_fr, ...
+                                                            'to', fm_to, ...
+                                                            'ub', fm_ub );
             end
+
+            pretty_print@dme_branch(obj, dm, section, out_e, mpopt, fd, pp_args);
         end
 
-        function TorF = pp_have_section_lim(obj, mpopt, varargin)
+        function TorF = pp_have_section_lim(obj, mpopt, pp_args)
             TorF = true;
         end
 
-        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, varargin)
-            fm = varargin{1};
+        function rows = pp_binding_rows_lim(obj, dm, out_e, mpopt, pp_args)
+            fm = pp_args.branch.flow_magnitude;
             rows = find( obj.tab.status & fm.ub ~= 0 & ( ...
                         fm.fr > fm.ub - obj.ctol | ...
                         fm.to > fm.ub - obj.ctol | ...
@@ -72,7 +70,7 @@ classdef dme_branch_opf < dme_branch & dme_shared_opf
                         obj.tab.mu_flow_to_ub > obj.ptol ));
         end
 
-        function str = pp_get_title_lim(obj, mpopt, varargin)
+        function str = pp_get_title_lim(obj, mpopt, pp_args)
             switch upper(mpopt.opf.flow_lim(1))
                 case {'P', '2'}     %% active power
                     str = 'P in MW';
@@ -84,7 +82,7 @@ classdef dme_branch_opf < dme_branch & dme_shared_opf
             str = sprintf('%s Constraints            (%s)', obj.label, str);
         end
 
-        function h = pp_get_headers_lim(obj, dm, out_e, mpopt, varargin)
+        function h = pp_get_headers_lim(obj, dm, out_e, mpopt, pp_args)
             switch upper(mpopt.opf.flow_lim(1))
                 case {'P', '2'}     %% active power
                     h2 = '   ID      Bus ID    mu_pl_fr   pl_fr    pl_ub    pl_to    mu_pl_to  Bus ID';
@@ -93,15 +91,15 @@ classdef dme_branch_opf < dme_branch & dme_shared_opf
                 otherwise           %% apparent power
                     h2 = '   ID      Bus ID    mu_sm_fr   sm_fr    sm_ub    sm_to    mu_sm_to  Bus ID';
             end
-            h = [ pp_get_headers_lim@dme_shared_opf(obj, dm, out_e, mpopt, varargin{:}) ...
+            h = [ pp_get_headers_lim@dme_shared_opf(obj, dm, out_e, mpopt, pp_args) ...
                 {   ' Branch     From        "From" End       Limit       "To" End         To', ...
                     h2, ...
                     '--------  --------  ---------  -------  -------  -------  ---------  --------' } ];
             %%       1234567 123456789 123456.890 12345.78 12345.78 12345.78 123456.890 123456789
         end
 
-        function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, varargin)
-            fm = varargin{1};
+        function str = pp_data_row_lim(obj, dm, k, out_e, mpopt, fd, pp_args)
+            fm = pp_args.branch.flow_magnitude;
 
             if fm.ub(k) ~= 0 & (fm.fr(k) > fm.ub(k) - obj.ctol || ...
                     obj.tab.mu_flow_fr_ub(k) > obj.ptol)

@@ -147,13 +147,13 @@ classdef dme_gen < dm_element
             end
         end
 
-        function TorF = pp_have_section_sum(obj, mpopt, varargin)
+        function TorF = pp_have_section_sum(obj, mpopt, pp_args)
             TorF = true;
         end
 
-        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, varargin{:});
+            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print generation summary
             fprintf(fd, '  %-29s %12.1f MW %12.1f MVAr\n', 'Total generation', ...
@@ -172,19 +172,19 @@ classdef dme_gen < dm_element
             end
         end
 
-        function TorF = pp_have_section_det(obj, mpopt, varargin)
+        function TorF = pp_have_section_det(obj, mpopt, pp_args)
             TorF = true;
         end
 
-        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, varargin{:}) ...
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
+            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   '                             Power Generation', ...
                     ' Gen ID    Bus ID   Status   P (MW)   Q (MVAr)', ...
                     '--------  --------  ------  --------  --------' } ];
             %%       1234567 123456789 -----1 12345678.0 123456.89
         end
 
-        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
             str = sprintf('%7d %9d %6d %10.1f %9.1f', ...
                 obj.tab.uid(k), obj.tab.bus(k), obj.tab.status(k), ...
                 obj.tab.pg(k), obj.tab.qg(k));

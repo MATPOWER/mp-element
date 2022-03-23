@@ -154,80 +154,80 @@ classdef dm_element < handle
             disp(obj.tab);
         end
 
-        function pretty_print(obj, dm, section, out_e, mpopt, fd, varargin)
-            if out_e && obj.pp_have_section(section, mpopt, varargin{:});
+        function pretty_print(obj, dm, section, out_e, mpopt, fd, pp_args)
+            if out_e && obj.pp_have_section(section, mpopt, pp_args);
                 %% get indices of relevant rows
-                rows = obj.pp_rows(dm, section, out_e, mpopt, varargin{:});
+                rows = obj.pp_rows(dm, section, out_e, mpopt, pp_args);
 
                 %% if there are rows to show
                 if ~isempty(rows) && rows(1) ~= 0
                     %% title & headers
-                    h = obj.pp_get_headers(dm, section, out_e, mpopt, varargin{:});
+                    h = obj.pp_get_headers(dm, section, out_e, mpopt, pp_args);
                     for k = 1:length(h)
                         fprintf(fd, '%s\n', h{k});
                     end
 
                     %% data
-                    obj.pp_data(dm, section, rows, out_e, mpopt, fd, varargin{:});
+                    obj.pp_data(dm, section, rows, out_e, mpopt, fd, pp_args);
                 end
             end
         end
 
-        function TorF = pp_have_section(obj, section, mpopt, varargin)
+        function TorF = pp_have_section(obj, section, mpopt, pp_args)
             switch section
                 case 'cnt'
-                    TorF = obj.pp_have_section_cnt(mpopt, varargin{:});
+                    TorF = obj.pp_have_section_cnt(mpopt, pp_args);
                 case 'sum'
-                    TorF = obj.pp_have_section_sum(mpopt, varargin{:});
+                    TorF = obj.pp_have_section_sum(mpopt, pp_args);
                 case 'ext'
-                    TorF = obj.pp_have_section_ext(mpopt, varargin{:});
+                    TorF = obj.pp_have_section_ext(mpopt, pp_args);
                 case 'det'
-                    TorF = obj.pp_have_section_det(mpopt, varargin{:});
+                    TorF = obj.pp_have_section_det(mpopt, pp_args);
                 otherwise
-                    TorF = obj.pp_have_section_other(section, mpopt, varargin{:});
+                    TorF = obj.pp_have_section_other(section, mpopt, pp_args);
             end
         end
 
-        function rows = pp_rows(obj, dm, section, out_e, mpopt, varargin)
+        function rows = pp_rows(obj, dm, section, out_e, mpopt, pp_args)
             switch section
                 case {'cnt', 'sum', 'ext', 'det'}
                     rows = -1;  %% all rows
                 otherwise
-                    rows = obj.pp_rows_other(dm, section, out_e, mpopt, varargin{:});
+                    rows = obj.pp_rows_other(dm, section, out_e, mpopt, pp_args);
             end
         end
 
-        function h = pp_get_headers(obj, dm, section, out_e, mpopt, varargin)
+        function h = pp_get_headers(obj, dm, section, out_e, mpopt, pp_args)
             switch section
                 case {'cnt', 'sum', 'ext'}
                     h = {};
                 case 'det'
-                    h = obj.pp_get_headers_det(dm, out_e, mpopt, varargin{:});
+                    h = obj.pp_get_headers_det(dm, out_e, mpopt, pp_args);
                 otherwise
-                    h = obj.pp_get_headers_other(dm, section, out_e, mpopt, varargin{:});
+                    h = obj.pp_get_headers_other(dm, section, out_e, mpopt, pp_args);
             end
         end
 
-        function obj = pp_data(obj, dm, section, rows, out_e, mpopt, fd, varargin)
+        function obj = pp_data(obj, dm, section, rows, out_e, mpopt, fd, pp_args)
             switch section
                 case 'cnt'
-                    obj.pp_data_cnt(dm, rows, out_e, mpopt, fd, varargin{:});
+                    obj.pp_data_cnt(dm, rows, out_e, mpopt, fd, pp_args);
                 case 'sum'
-                    obj.pp_data_sum(dm, rows, out_e, mpopt, fd, varargin{:});
+                    obj.pp_data_sum(dm, rows, out_e, mpopt, fd, pp_args);
                 case 'ext'
-                    obj.pp_data_ext(dm, rows, out_e, mpopt, fd, varargin{:});
+                    obj.pp_data_ext(dm, rows, out_e, mpopt, fd, pp_args);
                 case 'det'
-                    obj.pp_data_det(dm, rows, out_e, mpopt, fd, varargin{:});
+                    obj.pp_data_det(dm, rows, out_e, mpopt, fd, pp_args);
                 otherwise
-                    obj.pp_data_other(dm, section, rows, out_e, mpopt, fd, varargin{:});
+                    obj.pp_data_other(dm, section, rows, out_e, mpopt, fd, pp_args);
             end
         end
 
-        function TorF = pp_have_section_cnt(obj, mpopt, varargin)
+        function TorF = pp_have_section_cnt(obj, mpopt, pp_args)
             TorF = true;    %% all elements have count section by default
         end
 
-        function obj = pp_data_cnt(obj, dm, rows, out_e, mpopt, fd, varargin)
+        function obj = pp_data_cnt(obj, dm, rows, out_e, mpopt, fd, pp_args)
             if obj.n
                 on = sprintf('%d', obj.n);
             else
@@ -241,34 +241,34 @@ classdef dm_element < handle
             fprintf(fd, '  %-20s%7s %7s %7d\n', obj.labels, on, off, obj.nr);
         end
 
-        function TorF = pp_have_section_sum(obj, mpopt, varargin)
+        function TorF = pp_have_section_sum(obj, mpopt, pp_args)
             TorF = false;   %% no summary section for elements by default
         end
 
-        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, varargin)
+        function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, pp_args)
         end
 
-        function TorF = pp_have_section_ext(obj, mpopt, varargin)
+        function TorF = pp_have_section_ext(obj, mpopt, pp_args)
             TorF = false;   %% no ext section for elements by default
         end
 
-        function obj = pp_data_ext(obj, dm, rows, out_e, mpopt, fd, varargin)
+        function obj = pp_data_ext(obj, dm, rows, out_e, mpopt, fd, pp_args)
         end
 
-        function TorF = pp_have_section_det(obj, mpopt, varargin)
+        function TorF = pp_have_section_det(obj, mpopt, pp_args)
             TorF = false;   %% no ext section for elements by default
         end
 
-        function str = pp_get_title_det(obj, mpopt, varargin)
-            if obj.pp_have_section_det(mpopt, varargin{:})
+        function str = pp_get_title_det(obj, mpopt, pp_args)
+            if obj.pp_have_section_det(mpopt, pp_args)
                 str = sprintf('%s Data', obj.label);
             else
                 str = '';
             end
         end
 
-        function h = pp_get_headers_det(obj, dm, out_e, mpopt, varargin)
-            str = obj.pp_get_title_det(mpopt, varargin{:});
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
+            str = obj.pp_get_title_det(mpopt, pp_args);
             if isempty(str)
                 h = {};
             else
@@ -276,17 +276,17 @@ classdef dm_element < handle
             end
         end
 
-        function obj = pp_data_det(obj, dm, rows, out_e, mpopt, fd, varargin)
-            if obj.pp_have_section_det(mpopt, varargin{:})
+        function obj = pp_data_det(obj, dm, rows, out_e, mpopt, fd, pp_args)
+            if obj.pp_have_section_det(mpopt, pp_args)
                 assert(rows == -1, 'dm_elemnt/pp_data_det: ''rows'' is expected to be -1, indicating all rows');
                 for k = 1:obj.nr
                     fprintf(fd, '%s\n', ...
-                        obj.pp_data_row_det(dm, k, out_e, mpopt, fd, varargin{:}));
+                        obj.pp_data_row_det(dm, k, out_e, mpopt, fd, pp_args));
                 end
             end
         end
 
-        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, varargin)
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
             str = '';
         end
     end     %% methods
