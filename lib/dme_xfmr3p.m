@@ -92,7 +92,7 @@ classdef dme_xfmr3p < dm_element
             obj.base_kv  = obj.tab.base_kv(obj.on);
         end
 
-        function pretty_print(obj, dm, section, out_e, mpopt, fd, pp_args)
+        function obj = pretty_print(obj, dm, section, out_e, mpopt, fd, pp_args)
             switch section
                 case 'det'
                     %% compute currents/powers for pp_args

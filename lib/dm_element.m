@@ -154,7 +154,7 @@ classdef dm_element < handle
             disp(obj.tab);
         end
 
-        function pretty_print(obj, dm, section, out_e, mpopt, fd, pp_args)
+        function obj = pretty_print(obj, dm, section, out_e, mpopt, fd, pp_args)
             if out_e && obj.pp_have_section(section, mpopt, pp_args);
                 %% get indices of relevant rows
                 rows = obj.pp_rows(dm, section, out_e, mpopt, pp_args);

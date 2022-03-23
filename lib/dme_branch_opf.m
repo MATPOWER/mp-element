@@ -28,7 +28,7 @@ classdef dme_branch_opf < dme_branch & dme_shared_opf
                  'mu_vad_lb', 'mu_vad_ub'} );
         end
 
-        function pretty_print(obj, dm, section, out_e, mpopt, fd, pp_args)
+        function obj = pretty_print(obj, dm, section, out_e, mpopt, fd, pp_args)
             switch section
                 case 'lim'
                     %% compute flows and limits to pass to parent

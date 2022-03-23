@@ -255,7 +255,7 @@ classdef mp_data < mp_element_container
             end
         end
 
-        function pp_section(obj, section, out_s, mpopt, fd)
+        function obj = pp_section(obj, section, out_s, mpopt, fd)
             %% section title & headers
             h = obj.pp_get_headers(section, out_s, mpopt);
             for k = 1:length(h)
@@ -273,7 +273,8 @@ classdef mp_data < mp_element_container
                 else
                     out_e = out_s.all;
                 end
-                dme.pretty_print(obj, section, out_e, mpopt, fd, struct());
+                pp_args = struct('model', mpopt.model);
+                dme.pretty_print(obj, section, out_e, mpopt, fd, pp_args);
             end
         end
 

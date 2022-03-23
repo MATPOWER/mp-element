@@ -177,7 +177,7 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
             end
         end
 
-        function pretty_print(obj, dm, section, out_e, mpopt, fd, pp_args)
+        function obj = pretty_print(obj, dm, section, out_e, mpopt, fd, pp_args)
             switch section
                 case 'lim'
                     pp_args.gen.pq = 'P';
