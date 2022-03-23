@@ -100,5 +100,22 @@ classdef dme_buslink < dm_element
                 error('dme_buslink/build_params: buslink objects can only link to REF or PV buses with balanced voltage magnitudes');
             end
         end
+
+        function TorF = pp_have_section_det(obj, mpopt, pp_args)
+            TorF = true;
+        end
+
+        function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
+            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
+                {   '                      3-ph', ...
+                    'Link ID    Bus ID    Bus ID   Status', ...
+                    '--------  --------  --------  ------' } ];
+            %%       1234567 123456789 123456789 -----1
+        end
+
+        function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
+            str = sprintf('%7d %9d %9d %6d', ...
+                obj.tab.uid(k), obj.tab.bus(k), obj.tab.bus3p(k), obj.tab.status(k) );
+        end
     end     %% methods
 end         %% classdef
