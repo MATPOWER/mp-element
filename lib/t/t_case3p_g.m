@@ -84,8 +84,8 @@ mpc.bus3p = [
 %	linkid	busid	bus3pid	status
 mpc.buslink = [
 	1	1	1	1;
-	1	3	5	1;
-	1	8	9	1;
+	2	3	5	1;
+	3	8	9	1;
 ];
 
 %% branch data
@@ -111,8 +111,8 @@ mpc.xfmr3p = [
 %	ldid	ldbus	status	Pd1	Pd2	Pd3	ldpf1	ldpf2	ldpf3
 mpc.load3p = [
 	1	4	1	1275	1800	2375	0.85	0.9	0.95;
-	1	8	1	1275	1800	2375	0.85	0.9	0.95;
-	1	12	1	1275	1800	2375	0.85	0.9	0.95;
+	2	8	1	1275	1800	2375	0.85	0.9	0.95;
+	3	12	1	1275	1800	2375	0.85	0.9	0.95;
 ];
 
 %% gen
