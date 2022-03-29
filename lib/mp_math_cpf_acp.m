@@ -26,9 +26,7 @@ classdef mp_math_cpf_acp < mp_math_cpf
         function obj = mp_math_cpf_acp()
             obj@mp_math_cpf();
             obj.element_classes = { @mme_bus_pf_acp, @mme_gen_pf_ac, ...
-                @mme_branch_pf_ac, @mme_load_cpf, @mme_shunt_cpf, ...
-                @mme_bus3p, @mme_gen3p, @mme_line3p, @mme_xfmr3p, ...
-                @mme_buslink_pf_acp };
+                @mme_branch_pf_ac, @mme_load_cpf, @mme_shunt_cpf };
         end
 
         function efv = event_vlim(obj, cx, opt, nm, dm, mpopt)

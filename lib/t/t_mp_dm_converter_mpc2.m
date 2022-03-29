@@ -42,12 +42,12 @@ t_begin(21, quiet);
 t = 'dmc constructor : ';
 dmc = mp_dm_converter_mpc2();
 t_ok(isa(dmc, 'mp_dm_converter'), [t 'class']);
-t_is(length(dmc.element_classes), 11, 12, [t '# of element_classes']);
+t_is(length(dmc.element_classes), 5, 12, [t '# of element_classes']);
 t_ok(isempty(dmc.elements), [t 'elements empty']);
 
 t = 'dmc.build() : ';
 dmc.build();
-t_is(length(dmc.elements), 11, 12, [t '# of elements']);
+t_is(length(dmc.elements), 5, 12, [t '# of elements']);
 t_ok(strcmp(dmc.elements{1}.name, 'bus'), [t 'element{1} is bus']);
 t_ok(strcmp(dmc.elements{2}.name, 'gen'), [t 'element{2} is gen']);
 t_ok(strcmp(dmc.elements{3}.name, 'load'), [t 'element{3} is load']);
@@ -57,7 +57,7 @@ t_ok(strcmp(dmc.elements{5}.name, 'shunt'), [t 'element{5} is shunt']);
 t = 'dm constructor : ';
 dm = mp_data_cpf();
 t_ok(isa(dm, 'mp_data'), [t 'class']);
-t_is(length(dm.element_classes), 11, 12, [t '# of element_classes']);
+t_is(length(dm.element_classes), 5, 12, [t '# of element_classes']);
 t_ok(isempty(dm.elements), [t 'elements empty']);
 
 t = 'dm.build(mpc, dmc) : ';

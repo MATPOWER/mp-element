@@ -26,9 +26,7 @@ classdef mp_math_pf_acci < mp_math_pf & mm_shared_pfcpf_acci
         function obj = mp_math_pf_acci()
             obj@mp_math_pf();
             obj.element_classes = { @mme_bus_pf_acc, @mme_gen_pf_ac, ...
-                @mme_load_pf_ac, @mme_branch_pf_ac, @mme_shunt_pf_ac, ...
-                @mme_bus3p, @mme_gen3p, @mme_line3p, @mme_xfmr3p, ...
-                @mme_buslink_pf_acc };
+                @mme_load_pf_ac, @mme_branch_pf_ac, @mme_shunt_pf_ac };
         end
 
         function tag = form_tag(obj)

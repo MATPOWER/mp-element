@@ -52,7 +52,7 @@ for k = 1:nt
         dm = mp_data().build(tests{k}{2}, dmc);
     end
     t_ok(iscell(dm.element_classes), [t 'iscell(dm.element_classes)']);
-    t_is(length(dm.element_classes), 11, 12, [t 'length(dm.element_classes)']);
+    t_is(length(dm.element_classes), 5, 12, [t 'length(dm.element_classes)']);
     t_ok(isa(dm.elements, 'mp_mapped_array'), [t 'isa(dm.elements, ''mp_mapped_array'')']);
     t_is(length(dm.elements), 5, 12, [t 'length(dm.elements)']);
     t_ok(isa(dm.elements, 'mp_mapped_array'), [t 'isa(dm.elements, ''mp_mapped_array'')']);
@@ -130,15 +130,10 @@ end
 
 t = 'modify_element_classes : ';
 dm = mp_data;
-e = {@dme_bus, @dme_gen, @dme_load, @dme_branch, @dme_shunt, ...
-    @dme_bus3p, @dme_gen3p, @dme_load3p, @dme_line3p, @dme_xfmr3p, ...
-    @dme_buslink};
+e = {@dme_bus, @dme_gen, @dme_load, @dme_branch, @dme_shunt};
 t_ok(isequal(dm.element_classes, e), [t 'before']);
 dm.modify_element_classes({'dme_shunt', @dme_gizmo, {@dme_gen, 'dme_gen'}});
-e = {@dme_bus, @dme_gen, @dme_load, @dme_branch, ...
-    @dme_bus3p, @dme_gen3p, @dme_load3p, @dme_line3p, @dme_xfmr3p, ...
-    @dme_buslink, @dme_gizmo};
+e = {@dme_bus, @dme_gen, @dme_load, @dme_branch, @dme_gizmo};
 t_ok(isequal(dm.element_classes, e), [t 'after']);
-
 
 t_end;
