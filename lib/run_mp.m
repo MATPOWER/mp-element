@@ -8,6 +8,8 @@ function tsk = run_mp(tag, d, mpopt, varargin)
 %       additional <name>, <value> pairs, where <name> can be:
 %           'print_fname' - name for file to save pretty-printed output to
 %           'soln_fname' - name for file to save solved case to
+%           'mpx' - MATPOWER extension or cell array of MATPOWER extensions
+%               to apply
 %   Output:
 %       TSK - task object
 
@@ -25,6 +27,7 @@ if nargin < 3
 end
 print_fname = '';
 soln_fname = '';
+mpx = {};
 if rem(length(varargin), 2)
     error('run_mp: arguments following MPOPT must appear in name/value pairs');
 end
@@ -37,6 +40,12 @@ for k = 1:2:length(varargin)
             print_fname = val;
         case 'solved_case'
             soln_fname = val;
+        case 'mpx'
+            if iscell(val)
+                mpx = val;
+            else
+                mpx = { val };
+            end
     end
 end
 
@@ -49,6 +58,14 @@ switch upper(tag)
     case 'OPF'
         mp_task_class = @mp_task_opf;
 end
+%% apply extensions
+for k = 1:length(mpx)
+    if strcmp(class(mpx{k}), 'function_handle')
+        mpx{k} = mpx{k}();      %% instantiate extension
+    end
+    mp_task_class = mpx{k}.task_class(mp_task_class, mpopt);
+end
+
 %% create task object
 task = mp_task_class();
 if ~strcmp(tag, task.tag)
@@ -56,7 +73,7 @@ if ~strcmp(tag, task.tag)
 end
 
 %% run task
-task.run(d, mpopt);
+task.run(d, mpopt, mpx);
 
 %% pretty-print results to console & possibly to file
 task.print_soln(mpopt, print_fname);

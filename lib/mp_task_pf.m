@@ -50,7 +50,7 @@ classdef mp_task_pf < mp_task
             obj.dc = strcmp(upper(mpopt.model), 'DC');
         end
 
-        function dm = next_dm(obj, mm, nm, dm, mpopt)
+        function dm = next_dm(obj, mm, nm, dm, mpopt, mpx)
             if ~obj.dc && mpopt.pf.enforce_q_lims
                 %% adjust iteration count for previous runs
                 obj.iterations = obj.iterations + mm.soln.output.iterations;

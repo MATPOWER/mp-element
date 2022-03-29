@@ -41,7 +41,7 @@ classdef mp_task_cpf < mp_task_pf
             end
         end
 
-        function [mm, nm, dm] = next_mm(obj, mm, nm, dm, mpopt)
+        function [mm, nm, dm] = next_mm(obj, mm, nm, dm, mpopt, mpx)
             %% return new math model, or empty matrix if finished
             if isfield(mm.soln.output, 'warmstart')
                 %% get warmstart info
@@ -80,16 +80,16 @@ classdef mp_task_cpf < mp_task_pf
                 obj.nm.userdata.var_map = {};
 
                 %% create new math model
-                mm = obj.math_model_build(nm, dm, mpopt);
+                mm = obj.math_model_build(nm, dm, mpopt, mpx);
             else
                 mm = [];
             end
         end
 
         %%-----  data model converter methods  -----
-        function dmc_class = dm_converter_class(obj, d, mpopt)
+        function dmc_class = dm_converter_class(obj, d, mpopt, mpx)
             if iscell(d) && length(d) == 2
-                dmc_class = dm_converter_class@mp_task_pf(obj, d{1}, mpopt);
+                dmc_class = dm_converter_class@mp_task_pf(obj, d{1}, mpopt, mpx);
             else
                 error('mp_task_cpf/dm_converter_class: d must be 2-element cell array');
             end
@@ -100,10 +100,10 @@ classdef mp_task_cpf < mp_task_pf
             dm_class = @mp_data_cpf;
         end
 
-        function dm = data_model_build(obj, d, dmc, mpopt)
+        function dm = data_model_build(obj, d, dmc, mpopt, mpx)
             if iscell(d) && length(d) == 2
-                dm  = data_model_build@mp_task_pf(obj, d{1}, dmc, mpopt);
-                dmt = data_model_build@mp_task_pf(obj, d{2}, dmc, mpopt);
+                dm  = data_model_build@mp_task_pf(obj, d{1}, dmc, mpopt, mpx);
+                dmt = data_model_build@mp_task_pf(obj, d{2}, dmc, mpopt, mpx);
                 dm.userdata.target = dmt;
             else
                 error('mp_task_cpf/data_model_build: d must be 2-element cell array');
@@ -111,10 +111,10 @@ classdef mp_task_cpf < mp_task_pf
         end
 
         %%-----  network model methods  -----
-        function nm = network_model_build(obj, dm, mpopt)
+        function nm = network_model_build(obj, dm, mpopt, mpx)
             dmt = dm.userdata.target;
-            nm  = network_model_build@mp_task_pf(obj, dm,  mpopt);
-            nmt = network_model_build@mp_task_pf(obj, dmt, mpopt);
+            nm  = network_model_build@mp_task_pf(obj, dm,  mpopt, mpx);
+            nmt = network_model_build@mp_task_pf(obj, dmt, mpopt, mpx);
             nm.userdata.target = nmt;
         end
 

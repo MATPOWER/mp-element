@@ -51,12 +51,15 @@ classdef mp_task < handle
 
     methods
         %%-----  task methods  -----
-        function obj = run(obj, d, mpopt)
+        function obj = run(obj, d, mpopt, mpx)
             t0 = tic;       %% start timer
+            if nargin < 4
+                mpx = {};   %% no MATPOWER extensions by default
+            end
 
             [d, mpopt] = obj.run_pre(d, mpopt);
 
-            dmc = obj.dm_converter_create(d, mpopt);
+            dmc = obj.dm_converter_create(d, mpopt, mpx);
             obj.dmc = dmc;
 
             %% initialize
@@ -66,19 +69,19 @@ classdef mp_task < handle
 
             %% build data model
             obj.i_dm = obj.i_dm + 1;
-            dm = obj.data_model_build(d, dmc, mpopt);
+            dm = obj.data_model_build(d, dmc, mpopt, mpx);
             obj.dm = dm;    %% stash current data model in task object
 
             while ~isempty(dm)  %% begin data model loop
                 %% build network model
                 obj.i_nm = obj.i_nm + 1;
-                nm = obj.network_model_build(dm, mpopt);
+                nm = obj.network_model_build(dm, mpopt, mpx);
                 obj.nm = nm;    %% stash current network model in task object
 
                 while ~isempty(nm)  %% begin network model loop
                     %% build math model
                     obj.i_mm = obj.i_mm + 1;
-                    mm = obj.math_model_build(nm, dm, mpopt);
+                    mm = obj.math_model_build(nm, dm, mpopt, mpx);
                     obj.mm = mm;    %% stash current math model in task object
 
                     %% print initial output
@@ -110,7 +113,7 @@ classdef mp_task < handle
                             end
                         end
 
-                        [mm, nm, dm] = obj.next_mm(mm, nm, dm, mpopt);
+                        [mm, nm, dm] = obj.next_mm(mm, nm, dm, mpopt, mpx);
                         if ~isempty(mm)
                             obj.mm = mm;
                             obj.i_mm = obj.i_mm + 1;
@@ -124,7 +127,7 @@ classdef mp_task < handle
                     else
                         nm = obj.network_model_update(mm, nm);
 
-                        [nm, dm] = obj.next_nm(mm, nm, dm, mpopt);
+                        [nm, dm] = obj.next_nm(mm, nm, dm, mpopt, mpx);
                         if ~isempty(nm)
                             obj.nm = nm;
                             obj.i_nm = obj.i_nm + 1;
@@ -139,7 +142,7 @@ classdef mp_task < handle
                     fprintf('%s\n', obj.message);
                 end
 
-                dm = obj.next_dm(mm, nm, dm, mpopt);
+                dm = obj.next_dm(mm, nm, dm, mpopt, mpx);
                 if ~isempty(dm)
                     obj.dm = dm;
                     obj.i_dm = obj.i_dm + 1;
@@ -149,17 +152,17 @@ classdef mp_task < handle
             obj.et = toc(t0);   %% stop timer
         end
 
-        function [mm, nm, dm] = next_mm(obj, mm, nm, dm, mpopt)
+        function [mm, nm, dm] = next_mm(obj, mm, nm, dm, mpopt, mpx)
             %% return new math model, or empty matrix if finished
             mm = [];
         end
 
-        function [nm, dm] = next_nm(obj, mm, nm, dm, mpopt)
+        function [nm, dm] = next_nm(obj, mm, nm, dm, mpopt, mpx)
             %% return new network model, or empty matrix if finished
             nm = [];
         end
 
-        function dm = next_dm(obj, mm, nm, dm, mpopt)
+        function dm = next_dm(obj, mm, nm, dm, mpopt, mpx)
             %% return new data model, or empty matrix if finished
             dm = [];
         end
@@ -218,11 +221,16 @@ classdef mp_task < handle
         end
 
         function save_soln(obj, fname)
+%             %% exported mpc2 format is available in obj.dm.source for legacy
+%             %% tasks, which have the following in run_post():
+%             if obj.nm.np ~= 0
+%                 obj.dm.source = obj.dmc.export(obj.dm, obj.dm.source, obj.tag);
+%             end
             fprintf('-- %s save_soln(''%s'')\n', obj.tag, fname);
         end
 
         %%-----  data model converter methods  -----
-        function dmc_class = dm_converter_class(obj, d, mpopt)
+        function dmc_class = dm_converter_class(obj, d, mpopt, mpx)
             %% manual override
             if isfield(mpopt.exp, 'dm_converter_class') && ...
                     ~isempty(mpopt.exp.dm_converter_class)
@@ -242,6 +250,11 @@ classdef mp_task < handle
                     otherwise
                         error('mp_task: input data format not recognized');
                 end
+
+                %% apply extensions
+                for k = 1:length(mpx)
+                    dmc_class = mpx{k}.dm_converter_class(dmc_class, d_fmt, mpopt);
+                end
             end
         end
 
@@ -249,12 +262,21 @@ classdef mp_task < handle
             dmc_class = @mp_dm_converter_mpc2;
         end
 
-        function dmc = dm_converter_create(obj, d, mpopt)
+        function dmc = dm_converter_create(obj, d, mpopt, mpx)
             if isa(d, 'mp_data')
                 dmc = [];
             else
-                dmc_class = obj.dm_converter_class(d, mpopt);
+                dmc_class = obj.dm_converter_class(d, mpopt, mpx);
                 dmc = dmc_class();
+
+                %% apply extensions
+                for k = 1:length(mpx)
+                    dmc_elements = mpx{k}.dmc_element_classes(dmc_class, ...
+                                                    dmc.format_tag, mpopt);
+                    if ~isempty(dmc_elements)
+                        dmc.modify_element_classes(dmc_elements);
+                    end
+                end
 
                 %% apply user-supplied dmc.element_classes overrides
                 if isfield(mpopt.exp, 'dmc_element_classes') && ...
@@ -267,7 +289,7 @@ classdef mp_task < handle
         end
 
         %%-----  data model methods  -----
-        function dm_class = data_model_class(obj, d, mpopt)
+        function dm_class = data_model_class(obj, d, mpopt, mpx)
             %% manual override
             if isfield(mpopt.exp, 'data_model_class') && ...
                     ~isempty(mpopt.exp.data_model_class)
@@ -275,6 +297,11 @@ classdef mp_task < handle
             else    %% use default
                 %% get default class
                 dm_class = obj.data_model_class_default();
+
+                %% apply extensions
+                for k = 1:length(mpx)
+                    dm_class = mpx{k}.data_model_class(dm_class, obj.tag, mpopt);
+                end
             end
         end
 
@@ -282,9 +309,17 @@ classdef mp_task < handle
             dm_class = @mp_data;
         end
 
-        function dm = data_model_create(obj, d, mpopt)
-            dm_class = obj.data_model_class(d, mpopt);
+        function dm = data_model_create(obj, d, mpopt, mpx)
+            dm_class = obj.data_model_class(d, mpopt, mpx);
             dm = dm_class();
+
+            %% apply extensions
+            for k = 1:length(mpx)
+                dm_elements = mpx{k}.dm_element_classes(dm_class, obj.tag, mpopt);
+                if ~isempty(dm_elements)
+                    dm.modify_element_classes(dm_elements);
+                end
+            end
 
             %% apply user-supplied dm.element_classes overrides
             if isfield(mpopt.exp, 'dm_element_classes') && ...
@@ -293,11 +328,11 @@ classdef mp_task < handle
             end
         end
 
-        function dm = data_model_build(obj, d, dmc, mpopt)
+        function dm = data_model_build(obj, d, dmc, mpopt, mpx)
             if isa(d, 'mp_data')
                 dm = d;
             else
-                dm = obj.data_model_create(d, mpopt);
+                dm = obj.data_model_create(d, mpopt, mpx);
                 [dm, d] = obj.data_model_build_pre(dm, d, dmc, mpopt);
                 dm.build(d, dmc);
                 dm = obj.data_model_build_post(dm, dmc, mpopt);
@@ -311,7 +346,7 @@ classdef mp_task < handle
         end
 
         %%-----  network model methods  -----
-        function nm_class = network_model_class(obj, dm, mpopt)
+        function nm_class = network_model_class(obj, dm, mpopt, mpx)
             %% manual override
             if isfield(mpopt.exp, 'network_model_class') && ...
                     ~isempty(mpopt.exp.network_model_class)
@@ -319,6 +354,11 @@ classdef mp_task < handle
             else    %% use default
                 %% get default class
                 nm_class = obj.network_model_class_default(dm, mpopt);
+
+                %% apply extensions
+                for k = 1:length(mpx)
+                    nm_class = mpx{k}.network_model_class(nm_class, obj.tag, mpopt);
+                end
             end
         end
 
@@ -326,9 +366,17 @@ classdef mp_task < handle
             error('mp_task/network_model_class_default: must be implemented in sub-class');
         end
 
-        function nm = network_model_create(obj, dm, mpopt)
-            nm_class = obj.network_model_class(dm, mpopt);
+        function nm = network_model_create(obj, dm, mpopt, mpx)
+            nm_class = obj.network_model_class(dm, mpopt, mpx);
             nm = nm_class().init_set_types();
+
+            %% apply extensions
+            for k = 1:length(mpx)
+                nm_elements = mpx{k}.nm_element_classes(nm_class, obj.tag, mpopt);
+                if ~isempty(nm_elements)
+                    nm.modify_element_classes(nm_elements);
+                end
+            end
 
             %% apply user-supplied nm.element_classes overrides
             if isfield(mpopt.exp, 'nm_element_classes') && ...
@@ -337,8 +385,8 @@ classdef mp_task < handle
             end
         end
 
-        function nm = network_model_build(obj, dm, mpopt)
-            nm = obj.network_model_create(dm, mpopt);
+        function nm = network_model_build(obj, dm, mpopt, mpx)
+            nm = obj.network_model_create(dm, mpopt, mpx);
             nm = obj.network_model_build_pre(nm, dm, mpopt);
             nm.build(dm);
             nm = obj.network_model_build_post(nm, dm, mpopt);
@@ -363,7 +411,7 @@ classdef mp_task < handle
         end
 
         %%-----  mathematical model methods  -----
-        function mm_class = math_model_class(obj, nm, dm, mpopt)
+        function mm_class = math_model_class(obj, nm, dm, mpopt, mpx)
             %% manual override
             if isfield(mpopt.exp, 'math_model_class') && ...
                     ~isempty(mpopt.exp.math_model_class)
@@ -371,6 +419,11 @@ classdef mp_task < handle
             else    %% use default
                 %% get default class
                 mm_class = obj.math_model_class_default(nm, dm, mpopt);
+
+                %% apply extensions
+                for k = 1:length(mpx)
+                    mm_class = mpx{k}.math_model_class(mm_class, obj.tag, mpopt);
+                end
             end
         end
 
@@ -378,9 +431,17 @@ classdef mp_task < handle
             error('mp_task/math_model_class_default: must be implemented in sub-class');
         end
 
-        function mm = math_model_create(obj, nm, dm, mpopt)
-            mm_class = obj.math_model_class(nm, dm, mpopt);
+        function mm = math_model_create(obj, nm, dm, mpopt, mpx)
+            mm_class = obj.math_model_class(nm, dm, mpopt, mpx);
             mm = mm_class().init_set_types();
+
+            %% apply extensions
+            for k = 1:length(mpx)
+                mm_elements = mpx{k}.mm_element_classes(mm_class, obj.tag, mpopt);
+                if ~isempty(mm_elements)
+                    mm.modify_element_classes(mm_elements);
+                end
+            end
 
             %% apply user-supplied mm.element_classes overrides
             if isfield(mpopt.exp, 'mm_element_classes') && ...
@@ -389,8 +450,8 @@ classdef mp_task < handle
             end
         end
 
-        function mm = math_model_build(obj, nm, dm, mpopt)
-            mm = obj.math_model_create(nm, dm, mpopt);
+        function mm = math_model_build(obj, nm, dm, mpopt, mpx)
+            mm = obj.math_model_create(nm, dm, mpopt, mpx);
 
             if nm.np ~= 0       %% skip for empty model
 %                 mm = obj.math_model_build_pre(mm, nm, dm, mpopt);
