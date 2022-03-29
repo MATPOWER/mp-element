@@ -1,4 +1,15 @@
-function tsk = run_mp(tag, m, mpopt, fname, solvedcase)
+function tsk = run_mp(tag, d, mpopt, varargin)
+%RUN_MP
+%
+%   Inputs:
+%       TAG - type of task to be run, e.g. one of 'PF', 'CPF', 'OPF'
+%       D - input data specification, e.g. MATPOWER case name, case struct, etc.
+%       MPOPT - MATPOWER options struct
+%       additional <name>, <value> pairs, where <name> can be:
+%           'print_fname' - name for file to save pretty-printed output to
+%           'soln_fname' - name for file to save solved case to
+%   Output:
+%       TSK - task object
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
@@ -8,17 +19,28 @@ function tsk = run_mp(tag, m, mpopt, fname, solvedcase)
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-if nargin < 5
-    solvedcase =  '';
-    if nargin < 4
-        fname = '';
-        if nargin < 3
-            mpopt = mpoption;
-        end
+%% assign default inputs
+if nargin < 3
+    mpopt = mpoption
+end
+print_fname = '';
+soln_fname = '';
+if rem(length(varargin), 2)
+    error('run_mp: arguments following MPOPT must appear in name/value pairs');
+end
+
+%% assign overridden inputs
+for k = 1:2:length(varargin)
+    val  = varargin{k+1};
+    switch varargin{k}      %% arg name
+        case 'print_fname'
+            print_fname = val;
+        case 'solved_case'
+            soln_fname = val;
     end
 end
 
-%% create task object
+%% get default task class
 switch upper(tag)
     case 'PF'
         mp_task_class = @mp_task_pf;
@@ -27,17 +49,21 @@ switch upper(tag)
     case 'OPF'
         mp_task_class = @mp_task_opf;
 end
+%% create task object
 task = mp_task_class();
+if ~strcmp(tag, task.tag)
+    error('run_mp: TAG = ''%s'' does not match TASK.tag() = ''%s''', tag, task.tag)
+end
 
 %% run task
-task.run(m, mpopt);
+task.run(d, mpopt);
 
 %% pretty-print results to console & possibly to file
-task.print_soln(mpopt, fname);
+task.print_soln(mpopt, print_fname);
 
 %% save solved case
-if ~isempty(solvedcase) && task.success
-    task.save_soln(solvedcase);
+if ~isempty(soln_fname) && task.success
+    task.save_soln(soln_fname);
 end
 
 if nargout
