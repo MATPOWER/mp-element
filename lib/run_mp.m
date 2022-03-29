@@ -49,6 +49,15 @@ for k = 1:2:length(varargin)
     end
 end
 
+%% extract extensions from mpopt, if specified
+if isfield(mpopt.exp, 'mpx') && ~isempty(mpopt.exp.mpx)
+    if iscell(mpopt.exp.mpx)
+        mpx = [mpx mpopt.exp.mpx];
+    else
+        mpx = { mpx{:}, mpopt.exp.mpx };
+    end
+end
+
 %% get default task class
 switch upper(tag)
     case 'PF'
