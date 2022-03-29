@@ -13,6 +13,10 @@ classdef mp_dm_converter < mp_element_container
 %     end     %% properties
 
     methods
+        function tag = format_tag(obj)
+            error('mp_dm_converter/format_tag: must be implemented by sub-class');
+        end
+
         function obj = build(obj)
             %% create element objects for each class
             obj.elements = mp_mapped_array();

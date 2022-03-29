@@ -25,6 +25,10 @@ classdef mp_dm_converter_mpc2 < mp_dm_converter
                     @dmce_buslink_mpc2 };
         end
 
+        function tag = format_tag(obj)
+            tag = 'mpc2';
+        end
+
         function dm = import(obj, dm, d)
             if ~isstruct(d)
                 d = loadcase(d);
