@@ -223,14 +223,24 @@ classdef mp_task < handle
 
         %%-----  data model converter methods  -----
         function dmc_class = dm_converter_class(obj, d, mpopt)
+            %% manual override
             if isfield(mpopt.exp, 'dm_converter_class') && ...
                     ~isempty(mpopt.exp.dm_converter_class)
                 dmc_class = mpopt.exp.dm_converter_class;
-            else
+            else    %% use default
+                %% detect input data type
                 if ismpc2(d)
-                    dmc_class = obj.dm_converter_class_mpc2_default();
+                    d_fmt = 'mpc2';
                 else
                     error('mp_task: input data format not recognized');
+                end
+
+                %% get default class
+                switch d_fmt
+                    case 'mpc2'
+                        dmc_class = obj.dm_converter_class_mpc2_default();
+                    otherwise
+                        error('mp_task: input data format not recognized');
                 end
             end
         end
@@ -246,7 +256,7 @@ classdef mp_task < handle
                 dmc_class = obj.dm_converter_class(d, mpopt);
                 dmc = dmc_class();
 
-                %% add user-supplied elements to dm.element_classes
+                %% apply user-supplied dmc.element_classes overrides
                 if isfield(mpopt.exp, 'dmc_element_classes') && ...
                         ~isempty(mpopt.exp.dmc_element_classes)
                     dmc.modify_element_classes(mpopt.exp.dmc_element_classes);
@@ -258,10 +268,12 @@ classdef mp_task < handle
 
         %%-----  data model methods  -----
         function dm_class = data_model_class(obj, d, mpopt)
+            %% manual override
             if isfield(mpopt.exp, 'data_model_class') && ...
                     ~isempty(mpopt.exp.data_model_class)
                 dm_class = mpopt.exp.data_model_class;
-            else
+            else    %% use default
+                %% get default class
                 dm_class = obj.data_model_class_default();
             end
         end
@@ -273,6 +285,12 @@ classdef mp_task < handle
         function dm = data_model_create(obj, d, mpopt)
             dm_class = obj.data_model_class(d, mpopt);
             dm = dm_class();
+
+            %% apply user-supplied dm.element_classes overrides
+            if isfield(mpopt.exp, 'dm_element_classes') && ...
+                    ~isempty(mpopt.exp.dm_element_classes)
+                dm.modify_element_classes(mpopt.exp.dm_element_classes);
+            end
         end
 
         function dm = data_model_build(obj, d, dmc, mpopt)
@@ -287,11 +305,6 @@ classdef mp_task < handle
         end
 
         function [dm, d] = data_model_build_pre(obj, dm, d, dmc, mpopt)
-            %% add user-supplied elements to dm.element_classes
-            if isfield(mpopt.exp, 'dm_element_classes') && ...
-                    ~isempty(mpopt.exp.dm_element_classes)
-                dm.modify_element_classes(mpopt.exp.dm_element_classes);
-            end
         end
 
         function dm = data_model_build_post(obj, dm, dmc, mpopt)
@@ -299,10 +312,12 @@ classdef mp_task < handle
 
         %%-----  network model methods  -----
         function nm_class = network_model_class(obj, dm, mpopt)
+            %% manual override
             if isfield(mpopt.exp, 'network_model_class') && ...
                     ~isempty(mpopt.exp.network_model_class)
                 nm_class = mpopt.exp.network_model_class;
-            else
+            else    %% use default
+                %% get default class
                 nm_class = obj.network_model_class_default(dm, mpopt);
             end
         end
@@ -314,6 +329,12 @@ classdef mp_task < handle
         function nm = network_model_create(obj, dm, mpopt)
             nm_class = obj.network_model_class(dm, mpopt);
             nm = nm_class().init_set_types();
+
+            %% apply user-supplied nm.element_classes overrides
+            if isfield(mpopt.exp, 'nm_element_classes') && ...
+                    ~isempty(mpopt.exp.nm_element_classes)
+                nm.modify_element_classes(mpopt.exp.nm_element_classes);
+            end
         end
 
         function nm = network_model_build(obj, dm, mpopt)
@@ -324,11 +345,6 @@ classdef mp_task < handle
         end
         
         function nm = network_model_build_pre(obj, nm, dm, mpopt)
-            %% add user-supplied elements to nm.element_classes
-            if isfield(mpopt.exp, 'nm_element_classes') && ...
-                    ~isempty(mpopt.exp.nm_element_classes)
-                nm.modify_element_classes(mpopt.exp.nm_element_classes);
-            end
         end
 
         function nm = network_model_build_post(obj, nm, dm, mpopt)
@@ -348,17 +364,29 @@ classdef mp_task < handle
 
         %%-----  mathematical model methods  -----
         function mm_class = math_model_class(obj, nm, dm, mpopt)
+            %% manual override
             if isfield(mpopt.exp, 'math_model_class') && ...
                     ~isempty(mpopt.exp.math_model_class)
                 mm_class = mpopt.exp.math_model_class;
-            else
+            else    %% use default
+                %% get default class
                 mm_class = obj.math_model_class_default(nm, dm, mpopt);
             end
+        end
+
+        function mm_class = math_model_class_default(obj, nm, dm, mpopt)
+            error('mp_task/math_model_class_default: must be implemented in sub-class');
         end
 
         function mm = math_model_create(obj, nm, dm, mpopt)
             mm_class = obj.math_model_class(nm, dm, mpopt);
             mm = mm_class().init_set_types();
+
+            %% apply user-supplied mm.element_classes overrides
+            if isfield(mpopt.exp, 'mm_element_classes') && ...
+                    ~isempty(mpopt.exp.mm_element_classes)
+                mm.modify_element_classes(mpopt.exp.mm_element_classes);
+            end
         end
 
         function mm = math_model_build(obj, nm, dm, mpopt)
