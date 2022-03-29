@@ -69,9 +69,6 @@ switch upper(tag)
 end
 %% apply extensions
 for k = 1:length(mpx)
-    if strcmp(class(mpx{k}), 'function_handle')
-        mpx{k} = mpx{k}();      %% instantiate extension
-    end
     mp_task_class = mpx{k}.task_class(mp_task_class, mpopt);
 end
 

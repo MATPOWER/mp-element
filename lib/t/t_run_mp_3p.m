@@ -132,7 +132,7 @@ name = 'Z-Gauss (polar-power)';
 opts = {};
 t = sprintf('PF - %s : %s : ', casefile, name);
 mpopt = mpoption(mpopt0, 'pf.alg', alg, opts{:});
-pf = run_pf(casefile, mpopt, 'mpx', @mpx_3p);
+pf = run_pf(casefile, mpopt, 'mpx', mpx_3p());
 
 t_is(pf.success, 1, 12, [t 'success']);
 
@@ -152,7 +152,7 @@ for k = 1:length(cfg)
         [alg, name, check, opts] = deal(cfg{k}{:});
         t = sprintf('PF - %s : %s : ', casefile, name);
         mpopt = mpoption(mpopt0, 'pf.alg', alg, opts{:});
-        pf = run_pf(casefile, mpopt, 'mpx', @mpx_3p);
+        pf = run_pf(casefile, mpopt, 'mpx', mpx_3p());
 
         t_is(pf.success, 1, 12, [t 'success']);
 
@@ -194,7 +194,7 @@ for k = 1:length(cfg_cpf)
         mpc = loadcase(casefile);
         mpct = mpc;
         mpct.load3p(:, 4:6) = mpct.load3p(:, 4:6) * 1.2;
-        cpf = run_cpf({mpc, mpct}, mpopt, 'mpx', @mpx_3p);
+        cpf = run_cpf({mpc, mpct}, mpopt, 'mpx', mpx_3p());
         t_is(cpf.success, 1, 12, [t 'success']);
         t_is(cpf.mm.soln.output.max_lam, lam(c), 8, [t 'max_lam']);
         t_is(abs(cpf.mm.soln.output.V(1, end)), vm1(c), 8, [t '|v(1)|']);
@@ -208,7 +208,7 @@ for k = 1:length(cfg_opf)
     [alg, name, check, opts] = deal(cfg_opf{k}{:});
     t = sprintf('OPF - %s : %s : ', casefile, name);
     mpopt = mpoption(mpopt0, 'opf.ac.solver', alg, opts{:});
-    opf = run_opf(casefile, mpopt, 'mpx', @mpx_3p);
+    opf = run_opf(casefile, mpopt, 'mpx', {mpx_3p()});
 
     t_is(opf.success, 1, 12, [t 'success']);
 
