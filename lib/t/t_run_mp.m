@@ -29,6 +29,7 @@ mpopt = mpoption(opt);
 mpopt = mpoption(mpopt, 'out.all', 0);
 
 tasks = {'PF', 'CPF', 'OPF'};
+task_classes = {@mp_task_pf, @mp_task_cpf, @mp_task_opf};
 d = {casefile, {casefile, casefilet}, casefile};
 dmc_class = @mp_dm_converter_mpc2;
 dm_classes = {
@@ -85,7 +86,7 @@ for k = 1:length(tasks)
     t_ok(all(dm.elements.branch.tab.pl_fr ~= 0), [t 'data model update']);
 
     %% run_mp
-    tsk = run_mp(tasks{k}, d{k}, mpopt);
+    tsk = run_mp(task_classes{k}, d{k}, mpopt);
     t_is(tsk.success, 1, 12, [t 'run_mp : success']);
 end
 

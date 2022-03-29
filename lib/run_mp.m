@@ -1,8 +1,10 @@
-function tsk = run_mp(tag, d, mpopt, varargin)
+function tsk = run_mp(task_class, d, mpopt, varargin)
 %RUN_MP
 %
 %   Inputs:
-%       TAG - type of task to be run, e.g. one of 'PF', 'CPF', 'OPF'
+%       TASK_CLASS - function handle to constructor of default task class for
+%           type of task to be run, e.g. @mp_task_pf for power flow,
+%           @mp_task_cpf for CPF, and @mp_task_opf for OPF
 %       D - input data specification, e.g. MATPOWER case name, case struct, etc.
 %       MPOPT - MATPOWER options struct
 %       additional <name>, <value> pairs, where <name> can be:
@@ -58,25 +60,13 @@ if isfield(mpopt.exp, 'mpx') && ~isempty(mpopt.exp.mpx)
     end
 end
 
-%% get default task class
-switch upper(tag)
-    case 'PF'
-        mp_task_class = @mp_task_pf;
-    case 'CPF'
-        mp_task_class = @mp_task_cpf;
-    case 'OPF'
-        mp_task_class = @mp_task_opf;
-end
 %% apply extensions
 for k = 1:length(mpx)
-    mp_task_class = mpx{k}.task_class(mp_task_class, mpopt);
+    task_class = mpx{k}.task_class(task_class, mpopt);
 end
 
 %% create task object
-task = mp_task_class();
-if ~strcmp(tag, task.tag)
-    error('run_mp: TAG = ''%s'' does not match TASK.tag() = ''%s''', tag, task.tag)
-end
+task = task_class();
 
 %% run task
 task.run(d, mpopt, mpx);
