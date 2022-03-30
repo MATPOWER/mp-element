@@ -285,6 +285,19 @@ classdef mp_task < handle
                 end
 
                 dmc.build();
+
+                %% remove excluded elements (results in corresponding elements
+                %% being excluded from data, network and math models as well)
+                if isfield(mpopt.exp, 'exclude_elements') && ...
+                        ~isempty(mpopt.exp.exclude_elements)
+                    ex = mpopt.exp.exclude_elements;
+                    for k = length(ex):-1:1
+                        if ~dmc.elements.is_index_name(ex{k})
+                            ex(k) = [];     %% skip missing exclusions
+                        end
+                    end
+                    dmc.elements.delete_elements(ex);
+                end
             end
         end
 
