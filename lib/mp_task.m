@@ -221,12 +221,13 @@ classdef mp_task < handle
         end
 
         function save_soln(obj, fname)
-%             %% exported mpc2 format is available in obj.dm.source for legacy
-%             %% tasks, which have the following in run_post():
-%             if obj.nm.np ~= 0
-%                 obj.dm.source = obj.dmc.export(obj.dm, obj.dm.source, obj.tag);
-%             end
-            fprintf('-- %s save_soln(''%s'')\n', obj.tag, fname);
+            %% export solution
+            if obj.nm.np ~= 0
+                obj.dm.source = obj.dmc.export(obj.dm, obj.dm.source, obj.tag);
+            end
+
+            %% save exported solution
+            obj.dmc.save(fname, obj.dm.source);
         end
 
         %%-----  data model converter methods  -----

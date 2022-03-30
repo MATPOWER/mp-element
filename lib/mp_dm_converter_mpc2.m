@@ -43,5 +43,9 @@ classdef mp_dm_converter_mpc2 < mp_dm_converter
             dm.source = d;
             dm = import@mp_dm_converter(obj, dm, d);
         end
+
+        function fname_out = save(obj, fname, d)
+            fname_out = savecase(fname, d);
+        end
     end     %% methods
 end         %% classdef

@@ -67,6 +67,10 @@ classdef mp_dm_converter < mp_element_container
             end
         end
 
+        function fname_out = save(obj, fname, d)
+            error('mp_dm_converter/save: must be implemented by sub-class');
+        end
+
         function display(obj)
 %             if have_feature('octave')
 %                 struct(obj)
