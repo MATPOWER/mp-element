@@ -1,4 +1,4 @@
-classdef dmce_bus3p_mpc2 < dmc_element_mpc2 % & dmce_bus
+classdef dmce_bus3p_mpc2 < dmc_element_mpc2 % & dmce_bus3p
 %DMCE_BUS3P_MPC2  Data model converter for 3-phase bus elements for MATPOWER case v2.
 
 %   MATPOWER

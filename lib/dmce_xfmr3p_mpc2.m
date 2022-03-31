@@ -1,4 +1,4 @@
-classdef dmce_xfmr3p_mpc2 < dmc_element_mpc2 % & dmce_branch
+classdef dmce_xfmr3p_mpc2 < dmc_element_mpc2 % & dmce_xfmr3p
 %DMCE_XFMR3P_MPC2  Data model converter for 3-phase transformer elements for MATPOWER case v2.
 
 %   MATPOWER

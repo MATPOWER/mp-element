@@ -1,4 +1,4 @@
-classdef dmce_load3p_mpc2 < dmc_element_mpc2 % & dmce_load
+classdef dmce_load3p_mpc2 < dmc_element_mpc2 % & dmce_load3p
 %DMCE_LOAD3P_MPC2  Data model converter for 3-phase load elements for MATPOWER case v2.
 
 %   MATPOWER
