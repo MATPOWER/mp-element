@@ -172,6 +172,9 @@ classdef mp_data < mp_element_container
             out.sec.cnt.all = out.all == 1 || (out.all == -1 && mpopt.out.sys_sum);
             out.sec.sum.all = out.sec.cnt.all;
             out.sec.ext.all = out.sec.cnt.all;
+            out.sec.cnt.any = out.sec.cnt.all;
+            out.sec.sum.any = out.sec.cnt.all;
+            out.sec.ext.any = out.sec.cnt.all;
 %             out.area_sum = out.all == 1 || (out.all == -1 && ~suppress && mpopt.out.area_sum);
 
             %% update detail options
