@@ -129,11 +129,8 @@ classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
                 end
             end
             var_names = {'poly_n', 'poly_coef', 'pwl_n', 'pwl_qty', 'pwl_cost'};
-            if have_feature('table')
-                tab = table(npoly, p, npwl, qty, cst, 'VariableNames', var_names);
-            else
-                tab = mp_table(npoly, p, npwl, qty, cst, 'VariableNames', var_names);
-            end
+            table_class = mp_table_class();
+            tab = table_class(npoly, p, npwl, qty, cst, 'VariableNames', var_names);
         end
 
         function dme = import(obj, dme, mpc)

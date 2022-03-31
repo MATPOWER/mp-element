@@ -28,11 +28,8 @@ classdef dmc_element < handle
             var_names = dme.table_var_names();
             var_vals  = obj.table_var_values(var_names, d);
             if ~isempty(var_vals)
-                if have_feature('table')
-                    dme.tab = table(var_vals{:}, 'VariableNames', var_names);
-                else
-                    dme.tab = mp_table(var_vals{:}, 'VariableNames', var_names);
-                end
+                table_class = mp_table_class();
+                dme.tab = table_class(var_vals{:}, 'VariableNames', var_names);
             end
         end
     end     %% methods
