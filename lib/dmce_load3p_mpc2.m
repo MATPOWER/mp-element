@@ -18,8 +18,8 @@ classdef dmce_load3p_mpc2 < dmc_element_mpc2 % & dmce_load3p
             name = 'load3p';
         end
 
-        function table = table(obj)
-            table = 'load3p';
+        function df = data_field(obj)
+            df = 'load3p';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

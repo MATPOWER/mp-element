@@ -18,8 +18,8 @@ classdef dmce_load_mpc2 < dmc_element_mpc2 % & dmce_load
             name = 'load';
         end
 
-        function table = table(obj)
-            table = 'bus';
+        function df = data_field(obj)
+            df = 'bus';
         end
 
         function [nr, nc, r] = get_import_size(obj, mpc)
@@ -27,8 +27,8 @@ classdef dmce_load_mpc2 < dmc_element_mpc2 % & dmce_load
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-            if isfield(mpc, obj.table)
-                tab = mpc.(obj.table);
+            if isfield(mpc, obj.data_field())
+                tab = mpc.(obj.data_field());
             else
                 tab = [];
             end

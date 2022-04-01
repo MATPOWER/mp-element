@@ -17,8 +17,8 @@ classdef dmce_bus3p_mpc2 < dmc_element_mpc2 % & dmce_bus3p
             name = 'bus3p';
         end
 
-        function table = table(obj)
-            table = 'bus3p';
+        function df = data_field(obj)
+            df = 'bus3p';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

@@ -17,8 +17,8 @@ classdef dmce_line3p_mpc2 < dmc_element_mpc2 % & dmce_line3p
             name = 'line3p';
         end
 
-        function table = table(obj)
-            table = 'line3p';
+        function df = data_field(obj)
+            df = 'line3p';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

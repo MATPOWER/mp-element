@@ -13,13 +13,17 @@ classdef dmc_element_mpc2 < dmc_element
 %     end     %% properties
 
     methods
-        function table = table(obj)
-            table = '';     %% mpc field for default table
+        function df = data_field(obj)
+            df = '';     %% mpc field for default data table
+        end
+
+        function s = data_subs(obj)
+            s = struct('type', '.', 'subs', obj.data_field());
         end
 
         function [nr, nc, r] = get_import_size(obj, mpc)
-            if isfield(mpc, obj.table)
-                [nr, nc] = size(mpc.(obj.table));   %% use size of default table
+            if isfield(mpc, obj.data_field())
+                [nr, nc] = size(subsref(mpc, obj.data_subs));   %% use size of default table
             else
                 nr = 0; nc = 0;
             end
@@ -45,7 +49,7 @@ classdef dmc_element_mpc2 < dmc_element
         function vals = table_var_values(obj, var_names, mpc)
             nv = length(var_names);                 %% number of variables
             [nr, nc, r] = obj.get_import_size(mpc); %% rows in data table and
-                                                    %% cols in mpc.(obj.table)
+                                        %% cols in subsref(mpc, obj.data_subs)
 
             if nr
                 %% get variable map
@@ -79,10 +83,11 @@ classdef dmc_element_mpc2 < dmc_element
                                         %% have this many columns
                                 vals{k} = zeros(nr, 1);
                             else
+                                data = subsref(mpc, obj.data_subs);
                                 if nr && isempty(r)
-                                    vals{k} = sf * mpc.(obj.table)(:, c);
+                                    vals{k} = sf * data(:, c);
                                 else
-                                    vals{k} = sf * mpc.(obj.table)(r, c);
+                                    vals{k} = sf * data(r, c);
                                 end
                             end
                         case 0      %% zeros
@@ -138,7 +143,7 @@ classdef dmc_element_mpc2 < dmc_element
 
             nv = length(var_names);     %% number of variables
             if nv
-                %% rows in data table, cols in mpc.(obj.table)
+                %% rows in data table, cols in subsref(mpc, obj.data_subs)
                 [nr, nc, r] = obj.get_export_size(dme); 
 
                 %% get variable map
@@ -166,11 +171,14 @@ classdef dmc_element_mpc2 < dmc_element
                             sf = 1;
                         end
                         if sf
+                            ss = obj.data_subs;
+                            ss(end+1).type = '()';
                             if nr && isempty(r)
-                                mpc.(obj.table)(:, c) = dme.tab.(vn) / sf;
+                                ss(end).subs = {':', c};
                             else
-                                mpc.(obj.table)(r, c) = dme.tab.(vn) / sf;
+                                ss(end).subs = {r, c};
                             end
+                            mpc = subsasgn(mpc, ss, dme.tab.(vn) / sf);
                         end
                     case 5      %% general function
                         if iscell(vm.args) && length(vm.args) > 1

@@ -17,8 +17,8 @@ classdef dmce_branch_mpc2 < dmc_element_mpc2 % & dmce_branch
             name = 'branch';
         end
 
-        function table = table(obj)
-            table = 'branch';
+        function df = data_field(obj)
+            df = 'branch';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

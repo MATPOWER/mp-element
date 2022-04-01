@@ -17,8 +17,8 @@ classdef dmce_xfmr3p_mpc2 < dmc_element_mpc2 % & dmce_xfmr3p
             name = 'xfmr3p';
         end
 
-        function table = table(obj)
-            table = 'xfmr3p';
+        function df = data_field(obj)
+            df = 'xfmr3p';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

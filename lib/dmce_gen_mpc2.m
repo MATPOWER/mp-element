@@ -17,8 +17,8 @@ classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
             name = 'gen';
         end
 
-        function table = table(obj)
-            table = 'gen';
+        function df = data_field(obj)
+            df = 'gen';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)

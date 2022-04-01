@@ -17,8 +17,8 @@ classdef dmce_gizmo_mpc2 < dmc_element_mpc2 % & dmce_gizmo
             name = 'gizmo';
         end
 
-        function table = table(obj)
-            table = 'gizmo';
+        function df = data_field(obj)
+            df = 'gizmo';
         end
 
         function vmap = table_var_map(obj, var_names, mpc)
