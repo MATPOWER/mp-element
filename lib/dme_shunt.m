@@ -43,7 +43,7 @@ classdef dme_shunt < dm_element
                 {'bus', 'gs', 'bs', 'p', 'q'});
         end
 
-        function vars = export_vars(obj, task)
+        function vars = export_vars(obj)
             vars = {};
         end
 

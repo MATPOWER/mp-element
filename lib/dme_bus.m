@@ -36,7 +36,7 @@ classdef dme_bus < dm_element
                  'va', 'vm'});
         end
 
-        function vars = export_vars(obj, task)
+        function vars = export_vars(obj)
             vars = {'type', 'vm', 'va'};
         end
 

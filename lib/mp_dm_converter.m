@@ -53,15 +53,12 @@ classdef mp_dm_converter < mp_element_container
             end
         end
 
-        function d = export(obj, dm, d, task)
-            if nargin < 4
-                task = '';
-            end
+        function d = export(obj, dm, d)
             for k = 1:length(dm.elements)
                 dme = dm.elements{k};
                 if obj.elements.is_index_name(dme.name)
                     dmce = dme.dm_converter_element(obj);
-                    vars = dme.export_vars(task);
+                    vars = dme.export_vars();
                     d = dmce.export(dme, d, vars);
                 end
             end

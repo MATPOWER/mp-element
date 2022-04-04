@@ -45,7 +45,7 @@ classdef dme_load3p < dm_element
                 {'bus', 'pd1', 'pd2', 'pd3', 'pf1', 'pf2', 'pf3'});
         end
 
-%         function vars = export_vars(obj, task)
+%         function vars = export_vars(obj)
 %             vars = {};
 %         end
 

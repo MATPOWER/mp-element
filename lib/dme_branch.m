@@ -53,7 +53,7 @@ classdef dme_branch < dm_element
                 'pl_fr', 'ql_fr', 'pl_to', 'ql_to'} );
         end
 
-        function vars = export_vars(obj, task)
+        function vars = export_vars(obj)
             vars = {'pl_fr', 'ql_fr', 'pl_to', 'ql_to'};
         end
 

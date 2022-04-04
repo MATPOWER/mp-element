@@ -60,7 +60,7 @@ classdef dm_element < handle
             var_names = {'uid', 'name', 'status', 'source_uid'};
         end
 
-        function vars = export_vars(obj, task)
+        function vars = export_vars(obj)
             vars = {};
         end
 

@@ -13,7 +13,7 @@ classdef dme_shunt_cpf < dme_shunt
     end     %% properties
 
     methods
-        function vars = export_vars(obj, task)
+        function vars = export_vars(obj)
             vars = horzcat( export_vars@dme_shunt(obj), {'gs', 'bs'} );
         end
 

@@ -13,7 +13,7 @@ classdef dme_load_cpf < dme_load
     end     %% properties
 
     methods
-        function vars = export_vars(obj, task)
+        function vars = export_vars(obj)
             vars = horzcat( export_vars@dme_load(obj), ...
                 {'pd', 'qd', 'pd_i', 'qd_i', 'pd_z', 'qd_z'} );
         end

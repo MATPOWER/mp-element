@@ -18,7 +18,7 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
                 {'lam_p', 'lam_q', 'mu_vm_lb', 'mu_vm_ub'});
         end
 
-        function vars = export_vars(obj, task)
+        function vars = export_vars(obj)
             vars = horzcat( export_vars@dme_bus(obj), ...
                 {'vm_lb', 'vm_ub', 'lam_p', 'lam_q', ...
                     'mu_vm_lb', 'mu_vm_ub'} );

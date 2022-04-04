@@ -30,7 +30,7 @@ classdef mp_task_pf_legacy < mp_task_pf & tsk_shared_legacy
 
         function obj = run_post(obj, mm, nm, dm, mpopt);
             if obj.nm.np ~= 0
-                obj.dm.source = obj.dmc.export(obj.dm, obj.dm.source, obj.tag);
+                obj.dm.source = obj.dmc.export(obj.dm, obj.dm.source);
             end
         end
 

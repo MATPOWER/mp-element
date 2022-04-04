@@ -46,7 +46,7 @@ classdef dme_load < dm_element
                 'p', 'q'});
         end
 
-        function vars = export_vars(obj, task)
+        function vars = export_vars(obj)
             vars = {};
         end
 

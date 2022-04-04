@@ -47,7 +47,7 @@ classdef dme_buslink < dm_element
                 {'bus', 'bus3p'});
         end
 
-%         function vars = export_vars(obj, task)
+%         function vars = export_vars(obj)
 %             vars = {};
 %         end
 

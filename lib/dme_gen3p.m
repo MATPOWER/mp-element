@@ -50,7 +50,7 @@ classdef dme_gen3p < dm_element
                 'pg1', 'pg2', 'pg3', 'qg1', 'qg2', 'qg3'});
         end
 
-%         function vars = export_vars(obj, task)
+%         function vars = export_vars(obj)
 %             vars = {'pg1', 'pg2', 'pg3', 'qg1', 'qg2', 'qg3'};
 %         end
 

@@ -37,7 +37,7 @@ classdef dme_bus3p < dm_element
                 {'type', 'base_kv', 'vm1', 'vm2', 'vm3', 'va1', 'va2', 'va3'});
         end
 
-%         function vars = export_vars(obj, task)
+%         function vars = export_vars(obj)
 %             vars = {'vm1', 'vm2', 'vm3', 'va1', 'va2', 'va3'};
 %         end
 

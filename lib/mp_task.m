@@ -223,7 +223,7 @@ classdef mp_task < handle
         function save_soln(obj, fname)
             %% export solution
             if obj.nm.np ~= 0
-                obj.dm.source = obj.dmc.export(obj.dm, obj.dm.source, obj.tag);
+                obj.dm.source = obj.dmc.export(obj.dm, obj.dm.source);
             end
 
             %% save exported solution

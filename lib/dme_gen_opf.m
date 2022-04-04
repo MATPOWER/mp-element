@@ -23,7 +23,7 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
                 {'mu_pg_lb', 'mu_pg_ub', 'mu_qg_lb', 'mu_qg_ub'});
         end
 
-        function vars = export_vars(obj, task)
+        function vars = export_vars(obj)
             vars = horzcat( export_vars@dme_gen(obj), ...
                 {'vm_setpoint', 'mu_pg_lb', 'mu_pg_ub', 'mu_qg_lb', 'mu_qg_ub'} );
         end
