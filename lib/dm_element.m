@@ -64,6 +64,13 @@ classdef dm_element < handle
             vars = {};
         end
 
+        function dmce = dm_converter_element(obj, dmc, name)
+            if nargin < 3
+                name = obj.name;
+            end
+            dmce = dmc.elements.(name);
+        end
+
         function new_obj = copy(obj)
             %% make shallow copy of object
             new_obj = eval(class(obj));  %% create new object
