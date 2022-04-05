@@ -13,8 +13,8 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
     end     %% properties
 
     methods
-        function var_names = table_var_names(obj)
-            var_names = horzcat( table_var_names@dme_bus(obj), ...
+        function names = main_table_var_names(obj)
+            names = horzcat( main_table_var_names@dme_bus(obj), ...
                 {'lam_p', 'lam_q', 'mu_vm_lb', 'mu_vm_ub'});
         end
 

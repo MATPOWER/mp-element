@@ -1,4 +1,4 @@
-classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
+classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
 %DMCE_GEN_MPC2  Data model converter for gen elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -21,47 +21,43 @@ classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
             df = 'gen';
         end
 
-        function vmap = table_var_map(obj, var_names, mpc)
-            vmap = table_var_map@dmc_element_mpc2(obj, var_names, mpc);
+        function vmap = table_var_map(obj, dme, mpc, tidx)
+            vmap = table_var_map@dmc_element(obj, dme, mpc, tidx);
 
             %% define named indices into data matrices
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
-            %% map type for each name (default mapping is -1)
-            vmap.uid.type           = 3;    %% consecutive IDs, starting at 1
-            vmap.name.type          = 2;    %% empty char
-            vmap.source_uid.type    = 2;    %% empty char
-            vmap.startup_cost_cold.type = 5;%% function call
-
             sci_fcn = @(ob, vn, nr, r, d)start_cost_import(ob, vn, nr, r, d);
 
-            %% map arguments for each name
-           %vmap.uid.args           = [];
-           %vmap.name.args          = [];
-            vmap.status.args        = GEN_STATUS;
-           %vmap.source_uid.args    = [];
-            vmap.bus.args           = GEN_BUS;
-            vmap.vm_setpoint.args   = VG;
-            vmap.pg_lb.args         = PMIN;
-            vmap.pg_ub.args         = PMAX;
-            vmap.qg_lb.args         = QMIN;
-            vmap.qg_ub.args         = QMAX;
-            vmap.pc1.args           = PC1;
-            vmap.pc2.args           = PC2;
-            vmap.qc1_lb.args        = QC1MIN;
-            vmap.qc1_ub.args        = QC1MAX;
-            vmap.qc2_lb.args        = QC2MIN;
-            vmap.qc2_ub.args        = QC2MAX;
-            vmap.pg.args            = PG;
-            vmap.qg.args            = QG;
-            vmap.in_service.args    = GEN_STATUS;
-            vmap.startup_cost_cold.args = {sci_fcn};
-            vmap.mu_pg_lb.args      = MU_PMIN;
-            vmap.mu_pg_ub.args      = MU_PMAX;
-            vmap.mu_qg_lb.args      = MU_QMIN;
-            vmap.mu_qg_ub.args      = MU_QMAX;
+            %% mapping for each name, default is {'col', []}
+            vmap.uid                = {'IDs'};      %% consecutive IDs, starting at 1
+            vmap.name               = {'cell', ''};     %% empty char
+            vmap.status{2}          = GEN_STATUS;
+            vmap.source_uid         = {'cell', ''};     %% empty char
+            vmap.bus{2}             = GEN_BUS;
+            vmap.vm_setpoint{2}     = VG;
+            vmap.pg_lb{2}           = PMIN;
+            vmap.pg_ub{2}           = PMAX;
+            vmap.qg_lb{2}           = QMIN;
+            vmap.qg_ub{2}           = QMAX;
+            vmap.pc1{2}             = PC1;
+            vmap.pc2{2}             = PC2;
+            vmap.qc1_lb{2}          = QC1MIN;
+            vmap.qc1_ub{2}          = QC1MAX;
+            vmap.qc2_lb{2}          = QC2MIN;
+            vmap.qc2_ub{2}          = QC2MAX;
+            vmap.pg{2}              = PG;
+            vmap.qg{2}              = QG;
+            vmap.in_service{2}      = GEN_STATUS;
+            vmap.startup_cost_cold  = {'fcn', sci_fcn};
+            if isfield(vmap, 'mu_pg_lb')
+                vmap.mu_pg_lb{2}        = MU_PMIN;
+                vmap.mu_pg_ub{2}        = MU_PMAX;
+                vmap.mu_qg_lb{2}        = MU_QMIN;
+                vmap.mu_qg_ub{2}        = MU_QMAX;
+            end
         end
 
         function vals = start_cost_import(obj, vn, nr, r, mpc)
@@ -135,7 +131,7 @@ classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
 
         function dme = import(obj, dme, mpc)
             %% call parent
-            dme = import@dmc_element_mpc2(obj, dme, mpc);
+            dme = import@dmc_element(obj, dme, mpc);
             nr = size(dme.tab, 1);
 
             %% import gencost
@@ -167,7 +163,7 @@ classdef dmce_gen_mpc2 < dmc_element_mpc2 % & dmce_gen
 
         function mpc = export(obj, dme, mpc, varargin)
             %% call parent
-            mpc = export@dmc_element_mpc2(obj, dme, mpc, varargin{:});
+            mpc = export@dmc_element(obj, dme, mpc, varargin{:});
 
             %% export gencost
             

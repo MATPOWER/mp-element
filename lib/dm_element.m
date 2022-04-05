@@ -56,8 +56,16 @@ classdef dm_element < handle
             name = '';
         end
 
-        function var_names = table_var_names(obj)
-            var_names = {'uid', 'name', 'status', 'source_uid'};
+        function names = table_var_names(obj, tidx)
+            if nargin < 2 || tidx == 1
+                names = obj.main_table_var_names();
+            else
+                names = {};
+            end
+        end
+
+        function names = main_table_var_names(obj)
+            names = {'uid', 'name', 'status', 'source_uid'};
         end
 
         function vars = export_vars(obj)

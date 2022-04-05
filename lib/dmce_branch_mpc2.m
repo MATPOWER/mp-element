@@ -1,4 +1,4 @@
-classdef dmce_branch_mpc2 < dmc_element_mpc2 % & dmce_branch
+classdef dmce_branch_mpc2 < dmc_element % & dmce_branch
 %DMCE_BRANCH_MPC2  Data model converter for branch elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -21,52 +21,45 @@ classdef dmce_branch_mpc2 < dmc_element_mpc2 % & dmce_branch
             df = 'branch';
         end
 
-        function vmap = table_var_map(obj, var_names, mpc)
-            vmap = table_var_map@dmc_element_mpc2(obj, var_names, mpc);
+        function vmap = table_var_map(obj, dme, mpc, tidx)
+            vmap = table_var_map@dmc_element(obj, dme, mpc, tidx);
 
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
                 TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
                 ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
 
-            %% map type for each name (default mapping is -1)
-            vmap.uid.type           = 3;    %% consecutive IDs, starting at 1
-            vmap.name.type          = 2;    %% empty char
-            vmap.source_uid.type    = 2;    %% empty char
-            vmap.g_fr.type          = 0;    %% zeros
-            vmap.g_to.type          = 0;    %% zeros
-
-            %% map arguments for each name
-           %vmap.uid.args           = [];
-           %vmap.name.args          = [];
-            vmap.status.args        = BR_STATUS;
-           %vmap.source_uid.args    = [];
-            vmap.bus_fr.args        = F_BUS;
-            vmap.bus_to.args        = T_BUS;
-            vmap.r.args             = BR_R;
-            vmap.x.args             = BR_X;
-           %vmap.g_fr.args          = [];
-            vmap.b_fr.args          = {BR_B, 0.5};
-           %vmap.g_to.args          = [];
-            vmap.b_to.args          = {BR_B, 0.5};
-            vmap.sm_ub_a.args       = RATE_A;
-            vmap.sm_ub_b.args       = RATE_B;
-            vmap.sm_ub_c.args       = RATE_C;
-            vmap.cm_ub_a.args       = RATE_A;
-            vmap.cm_ub_b.args       = RATE_B;
-            vmap.cm_ub_c.args       = RATE_C;
-            vmap.vad_lb.args        = ANGMIN;
-            vmap.vad_ub.args        = ANGMAX;
-            vmap.tm.args            = TAP;
-            vmap.ta.args            = SHIFT;
-            vmap.pl_fr.args         = PF;
-            vmap.ql_fr.args         = QF;
-            vmap.pl_to.args         = PT;
-            vmap.ql_to.args         = QT;
-            vmap.mu_flow_fr_ub.args = MU_SF;
-            vmap.mu_flow_to_ub.args = MU_ST;
-            vmap.mu_vad_lb.args     = MU_ANGMIN;
-            vmap.mu_vad_ub.args     = MU_ANGMAX;
+            %% mapping for each name, default is {'col', []}
+            vmap.uid        = {'IDs'};      %% consecutive IDs, starting at 1
+            vmap.name       = {'cell', ''}; %% empty char
+            vmap.status{2}  = BR_STATUS;
+            vmap.source_uid = {'cell', ''}; %% empty char
+            vmap.bus_fr{2}  = F_BUS;
+            vmap.bus_to{2}  = T_BUS;
+            vmap.r{2}       = BR_R;
+            vmap.x{2}       = BR_X;
+            vmap.g_fr       = {'num', 0};   %% zeros
+            vmap.b_fr       = {'col', BR_B, 0.5};
+            vmap.g_to       = {'num', 0};   %% zeros
+            vmap.b_to       = {'col', BR_B, 0.5};
+            vmap.sm_ub_a{2} = RATE_A;
+            vmap.sm_ub_b{2} = RATE_B;
+            vmap.sm_ub_c{2} = RATE_C;
+            vmap.cm_ub_a{2} = RATE_A;
+            vmap.cm_ub_b{2} = RATE_B;
+            vmap.cm_ub_c{2} = RATE_C;
+            vmap.vad_lb{2}  = ANGMIN;
+            vmap.vad_ub{2}  = ANGMAX;
+            vmap.tm{2}      = TAP;
+            vmap.ta{2}      = SHIFT;
+            vmap.pl_fr{2}   = PF;
+            vmap.ql_fr{2}   = QF;
+            vmap.pl_to{2}   = PT;
+            vmap.ql_to{2}   = QT;
+            vmap.mu_flow_fr_ub{2} = MU_SF;
+            vmap.mu_flow_to_ub{2} = MU_ST;
+            vmap.mu_vad_lb{2}     = MU_ANGMIN;
+            vmap.mu_vad_ub{2}     = MU_ANGMAX;
         end
     end     %% methods
 end         %% classdef

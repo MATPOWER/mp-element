@@ -1,4 +1,4 @@
-classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
+classdef dmce_bus_mpc2 < dmc_element % & dmce_bus
 %DMCE_BUS_MPC2  Data model converter for bus elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -21,39 +21,36 @@ classdef dmce_bus_mpc2 < dmc_element_mpc2 % & dmce_bus
             df = 'bus';
         end
 
-        function vmap = table_var_map(obj, var_names, mpc)
-            vmap = table_var_map@dmc_element_mpc2(obj, var_names, mpc);
+        function vmap = table_var_map(obj, dme, mpc, tidx)
+            vmap = table_var_map@dmc_element(obj, dme, mpc, tidx);
 
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-            %% map type for each name (default mapping is -1)
-            vmap.name.type          = 5;    %% fcn to import from mpc.bus_name
-            vmap.status.type        = 5;    %% fcn w/logic for mpc.bus_types
-            vmap.source_uid.type    = 2;    %% empty char
-
             bni_fcn = @(ob, vn, nr, r, mpc)bus_name_import(ob, vn, nr, r, mpc, 1);
             bne_fcn = @(ob, vn, nr, r, mpc, dme)bus_name_export(ob, vn, nr, r, mpc, dme, 1);
             bsi_fcn = @(ob, vn, nr, r, mpc)bus_status_import(ob, vn, nr, r, mpc, BUS_TYPE);
 
-            %% map arguments for each name
-            vmap.uid.args           = BUS_I;
-            vmap.name.args          = {bni_fcn, bne_fcn};
-            vmap.status.args        = bsi_fcn;
-           %vmap.source_uid.args    = [];
-            vmap.base_kv.args       = BASE_KV;
-            vmap.type.args          = BUS_TYPE;
-            vmap.area.args          = BUS_AREA;
-            vmap.zone.args          = ZONE;
-            vmap.vm_lb.args         = VMIN;
-            vmap.vm_ub.args         = VMAX;
-            vmap.va.args            = VA;
-            vmap.vm.args            = VM;
-            vmap.lam_p.args         = LAM_P;
-            vmap.lam_q.args         = LAM_Q;
-            vmap.mu_vm_lb.args      = MU_VMIN;
-            vmap.mu_vm_ub.args      = MU_VMAX;
+            %% mapping for each name, default is {'col', []}
+            vmap.uid{2}         = BUS_I;
+            vmap.name           = {'fcn', bni_fcn, bne_fcn};    %% fcns to import/export from/to mpc.bus_name
+            vmap.status         = {'fcn', bsi_fcn}; %% fcn w/logic for mpc.bus_types
+            vmap.source_uid     = {'cell', ''};     %% empty char
+            vmap.base_kv{2}     = BASE_KV;
+            vmap.type{2}        = BUS_TYPE;
+            vmap.area{2}        = BUS_AREA;
+            vmap.zone{2}        = ZONE;
+            vmap.vm_lb{2}       = VMIN;
+            vmap.vm_ub{2}       = VMAX;
+            vmap.va{2}          = VA;
+            vmap.vm{2}          = VM;
+            if isfield(vmap, 'lam_p')
+                vmap.lam_p{2}       = LAM_P;
+                vmap.lam_q{2}       = LAM_Q;
+                vmap.mu_vm_lb{2}    = MU_VMIN;
+                vmap.mu_vm_ub{2}    = MU_VMAX;
+            end
         end
 
         function vals = bus_name_import(obj, vn, nr, r, mpc, c)

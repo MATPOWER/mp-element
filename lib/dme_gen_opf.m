@@ -18,8 +18,8 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
     end     %% properties
 
     methods
-        function var_names = table_var_names(obj)
-            var_names = horzcat( table_var_names@dme_gen(obj), ...
+        function names = main_table_var_names(obj)
+            names = horzcat( main_table_var_names@dme_gen(obj), ...
                 {'mu_pg_lb', 'mu_pg_ub', 'mu_qg_lb', 'mu_qg_ub'});
         end
 

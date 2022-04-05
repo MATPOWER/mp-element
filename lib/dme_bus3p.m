@@ -32,8 +32,8 @@ classdef dme_bus3p < dm_element
             label = '3-ph Buses';
         end
 
-        function var_names = table_var_names(obj)
-            var_names = horzcat( table_var_names@dm_element(obj), ...
+        function names = main_table_var_names(obj)
+            names = horzcat( main_table_var_names@dm_element(obj), ...
                 {'type', 'base_kv', 'vm1', 'vm2', 'vm3', 'va1', 'va2', 'va3'});
         end
 

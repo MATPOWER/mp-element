@@ -42,8 +42,8 @@ classdef dme_buslink < dm_element
             name = {'bus', 'bus3p'};
         end
 
-        function var_names = table_var_names(obj)
-            var_names = horzcat( table_var_names@dm_element(obj), ...
+        function names = main_table_var_names(obj)
+            names = horzcat( main_table_var_names@dm_element(obj), ...
                 {'bus', 'bus3p'});
         end
 

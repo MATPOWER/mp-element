@@ -40,8 +40,8 @@ classdef dme_load < dm_element
             name = 'bus';
         end
 
-        function var_names = table_var_names(obj)
-            var_names = horzcat( table_var_names@dm_element(obj), ...
+        function names = main_table_var_names(obj)
+            names = horzcat( main_table_var_names@dm_element(obj), ...
                 {'bus', 'pd', 'qd', 'pd_i', 'qd_i', 'pd_z', 'qd_z', ...
                 'p', 'q'});
         end

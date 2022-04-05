@@ -1,4 +1,4 @@
-classdef dmce_line3p_mpc2 < dmc_element_mpc2 % & dmce_line3p
+classdef dmce_line3p_mpc2 < dmc_element % & dmce_line3p
 %DMCE_LINE3P_MPC2  Data model converter for 3-phase line elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -21,34 +21,30 @@ classdef dmce_line3p_mpc2 < dmc_element_mpc2 % & dmce_line3p
             df = 'line3p';
         end
 
-        function vmap = table_var_map(obj, var_names, mpc)
-            vmap = table_var_map@dmc_element_mpc2(obj, var_names, mpc);
+        function vmap = table_var_map(obj, dme, mpc, tidx)
+            vmap = table_var_map@dmc_element(obj, dme, mpc, tidx);
 
-            %% map type for each name (default mapping is -1)
-            vmap.name.type          = 2;    %% empty char
-            vmap.source_uid.type    = 2;    %% empty char
-            vmap.pl1_fr.type        = 0;    %% zeros
-            vmap.ql1_fr.type        = 0;    %% zeros
-            vmap.pl2_fr.type        = 0;    %% zeros
-            vmap.ql2_fr.type        = 0;    %% zeros
-            vmap.pl3_fr.type        = 0;    %% zeros
-            vmap.ql3_fr.type        = 0;    %% zeros
-            vmap.pl1_to.type        = 0;    %% zeros
-            vmap.ql1_to.type        = 0;    %% zeros
-            vmap.pl2_to.type        = 0;    %% zeros
-            vmap.ql2_to.type        = 0;    %% zeros
-            vmap.pl3_to.type        = 0;    %% zeros
-            vmap.ql3_to.type        = 0;    %% zeros
-
-            %% map arguments for each name
-            vmap.uid.args           = 1;
-           %vmap.name.args          = [];
-            vmap.status.args        = 4;
-           %vmap.source_uid.args    = [];
-            vmap.bus_fr.args        = 2;
-            vmap.bus_to.args        = 3;
-            vmap.lc.args            = 5;
-            vmap.len.args           = 6;
+            %% mapping for each name, default is {'col', []}
+            vmap.uid{2}     = 1;
+            vmap.name       = {'cell', ''}; %% empty char
+            vmap.status{2}  = 4;
+            vmap.source_uid = {'cell', ''}; %% empty char
+            vmap.bus_fr{2}  = 2;
+            vmap.bus_to{2}  = 3;
+            vmap.lc{2}      = 5;
+            vmap.len{2}     = 6;
+            vmap.pl1_fr     = {'num', 0};   %% zeros
+            vmap.ql1_fr     = {'num', 0};   %% zeros
+            vmap.pl2_fr     = {'num', 0};   %% zeros
+            vmap.ql2_fr     = {'num', 0};   %% zeros
+            vmap.pl3_fr     = {'num', 0};   %% zeros
+            vmap.ql3_fr     = {'num', 0};   %% zeros
+            vmap.pl1_to     = {'num', 0};   %% zeros
+            vmap.ql1_to     = {'num', 0};   %% zeros
+            vmap.pl2_to     = {'num', 0};   %% zeros
+            vmap.ql2_to     = {'num', 0};   %% zeros
+            vmap.pl3_to     = {'num', 0};   %% zeros
+            vmap.ql3_to     = {'num', 0};   %% zeros
         end
 
         function tab = create_line_construction_table(obj, lc);
@@ -89,7 +85,7 @@ classdef dmce_line3p_mpc2 < dmc_element_mpc2 % & dmce_line3p
 
         function dme = import(obj, dme, mpc)
             %% call parent
-            dme = import@dmc_element_mpc2(obj, dme, mpc);
+            dme = import@dmc_element(obj, dme, mpc);
 
             if ~isempty(dme.tab)
                 %% system frequency

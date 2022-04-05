@@ -44,8 +44,8 @@ classdef dme_gen3p < dm_element
             name = 'bus';
         end
 
-        function var_names = table_var_names(obj)
-            var_names = horzcat( table_var_names@dm_element(obj), ...
+        function names = main_table_var_names(obj)
+            names = horzcat( main_table_var_names@dm_element(obj), ...
                 {'bus', 'vm1_setpoint', 'vm2_setpoint', 'vm3_setpoint', ...
                 'pg1', 'pg2', 'pg3', 'qg1', 'qg2', 'qg3'});
         end
