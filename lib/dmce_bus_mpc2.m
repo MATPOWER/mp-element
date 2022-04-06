@@ -21,8 +21,8 @@ classdef dmce_bus_mpc2 < dmc_element % & dmce_bus
             df = 'bus';
         end
 
-        function vmap = table_var_map(obj, dme, mpc, tidx)
-            vmap = table_var_map@dmc_element(obj, dme, mpc, tidx);
+        function vmap = table_var_map(obj, dme, mpc)
+            vmap = table_var_map@dmc_element(obj, dme, mpc);
 
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...

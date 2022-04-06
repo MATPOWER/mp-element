@@ -21,8 +21,8 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
             df = 'gen';
         end
 
-        function vmap = table_var_map(obj, dme, mpc, tidx)
-            vmap = table_var_map@dmc_element(obj, dme, mpc, tidx);
+        function vmap = table_var_map(obj, dme, mpc)
+            vmap = table_var_map@dmc_element(obj, dme, mpc);
 
             %% define named indices into data matrices
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
@@ -156,8 +156,8 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
                     dme.pwl1 = pwl1;
                 end
                 [pcost, qcost] = pqcost(gencost, nr);
-                dme.cost_pg = create_cost_table(obj, pcost);
-                dme.cost_qg = create_cost_table(obj, qcost);
+                dme.cost_pg = obj.create_cost_table(pcost);
+                dme.cost_qg = obj.create_cost_table(qcost);
             end
         end
 

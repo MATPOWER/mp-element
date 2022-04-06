@@ -28,47 +28,32 @@ classdef dmc_element < handle
             df = '';        %% name of field in d for default data table
         end
 
-        function s = data_subs(obj, tidx)
-            if nargin < 2 || tidx == 1
-                s = struct('type', '.', 'subs', obj.data_field());
-            else
-                error('dmc_element/data_subs: not defined for table %d for elements of type ''%s''', tidx, obj.name);
-            end
+        function s = data_subs(obj)
+            s = struct('type', '.', 'subs', obj.data_field());
         end
 
-        function TorF = data_exists(obj, d, tidx)
-            if nargin < 2 || tidx == 1
-                TorF = isfield(d, obj.data_field());
-            else
-                error('dmc_element/data_subs: not defined for table %d for elements of type ''%s''', tidx, obj.name);
-            end
+        function TorF = data_exists(obj, d)
+            TorF = isfield(d, obj.data_field());
         end
 
-        function [nr, nc, r] = get_import_size(obj, d, tidx)
-            if nargin < 3
-                tidx = 1;
-            end
-            if obj.data_exists(d, tidx)
+        function [nr, nc, r] = get_import_size(obj, d)
+            if obj.data_exists(d)
                 %% use size of default table
-                [nr, nc] = size(subsref(d, obj.data_subs(tidx)));
+                [nr, nc] = size(subsref(d, obj.data_subs()));
             else
                 [nr, nc] = deal(0);
             end
             r = [];                         %% all rows
         end
 
-        function [nr, nc, r] = get_export_size(obj, dme, tidx)
-            if nargin < 3 || tidx == 1
-                [nr, nc] = size(dme.tab);   %% use size of default table
-            else
-                [nr, nc] = deal(0);
-            end
-                r = [];                     %% all rows
+        function [nr, nc, r] = get_export_size(obj, dme)
+            [nr, nc] = size(dme.tab);   %% use size of default table
+            r = [];                     %% all rows
         end
 
-        function vmap = table_var_map(obj, dme, d, tidx)
+        function vmap = table_var_map(obj, dme, d)
             %% initialize with vmap.(<name>) = {'col', []}, for all <name>
-            names = dme.table_var_names(tidx);
+            names = dme.table_var_names();
             vals = cell(size(names));
             [vals{:}] = deal({'col', []});
             vmap = cell2struct(vals, names, 2);
@@ -77,25 +62,20 @@ classdef dmc_element < handle
         function dme = import(obj, dme, d)
             %% main table
             names = dme.main_table_var_names();
-            vmap = obj.table_var_map(dme, d, 1);
+            vmap = obj.table_var_map(dme, d);
             vals = obj.import_table_values(names, vmap, d);
             if ~isempty(vals)
                 table_class = mp_table_class();
                 dme.tab = table_class(vals{:}, 'VariableNames', names);
             end
-
         end
 
-        function vals = import_table_values(obj, var_names, vmap, d, tidx)
-            if nargin < 5 || isempty(tidx)
-                tidx = 1;               %% default to main table
-            end
-
-            ss = obj.data_subs(tidx);   %% subscripts for data in d
+        function vals = import_table_values(obj, var_names, vmap, d)
+            ss = obj.data_subs();       %% subscripts for data in d
             nv = length(var_names);     %% number of variables
 
             %% rows in data table and cols in subsref(d, obj.data_subs)
-            [nr, nc, r] = obj.get_import_size(d, tidx);
+            [nr, nc, r] = obj.get_import_size(d);
 
             if nr
                 %% initialize variable values
@@ -160,26 +140,25 @@ classdef dmc_element < handle
         end
 
         function d = export(obj, dme, d, var_names, idx)
-tidx = 1;
             if nargin < 4
                 var_names = 'all';
             end
             if ischar(var_names)
                 if strcmp(var_names, 'all')
-                    var_names = dme.table_var_names(tidx);
+                    var_names = dme.table_var_names();
                 else
                     var_names = {var_names};
                 end
             end
 
-            ss = obj.data_subs(tidx);   %% subscripts for data in d
+            ss = obj.data_subs();       %% subscripts for data in d
             nv = length(var_names);     %% number of variables
             if nv
                 %% rows in data table, cols in subsref(d, obj.data_subs)
-                [nr, nc, r] = obj.get_export_size(dme, tidx);
+                [nr, nc, r] = obj.get_export_size(dme);
 
                 %% get variable map
-                vmap = obj.table_var_map(dme, d, tidx);
+                vmap = obj.table_var_map(dme, d);
             end
 
             for k = 1:nv
@@ -216,7 +195,6 @@ tidx = 1;
                 else
                     ss(end).subs = {r, c};
                 end
-%% this needs to be updated for tidx ~= 1
                 d = subsasgn(d, ss, dme.tab.(vn) / sf);
             end
         end

@@ -56,12 +56,8 @@ classdef dm_element < handle
             name = '';
         end
 
-        function names = table_var_names(obj, tidx)
-            if nargin < 2 || tidx == 1
-                names = obj.main_table_var_names();
-            else
-                names = {};
-            end
+        function names = table_var_names(obj)
+            names = obj.main_table_var_names();
         end
 
         function names = main_table_var_names(obj)

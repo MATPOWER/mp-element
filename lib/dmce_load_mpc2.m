@@ -22,47 +22,35 @@ classdef dmce_load_mpc2 < dmc_element % & dmce_load
             df = 'bus';
         end
 
-        function [nr, nc, r] = get_import_size(obj, mpc, tidx)
-            if nargin == 3 && tidx > 1
+        function [nr, nc, r] = get_import_size(obj, mpc)
+            %% define named indices into data matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+               VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+
+            if isfield(mpc, obj.data_field())
+                tab = mpc.(obj.data_field());
+            else
+                tab = [];
+            end
+            if isempty(tab)
                 nr = 0;
                 nc = 0;
                 r = [];
             else
-                %% define named indices into data matrices
-                [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                   VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
-
-                if isfield(mpc, obj.data_field())
-                    tab = mpc.(obj.data_field());
-                else
-                    tab = [];
-                end
-                if isempty(tab)
-                    nr = 0;
-                    nc = 0;
-                    r = [];
-                else
-                    r = find(tab(:, PD) | tab(:, QD));
-                    obj.bus = r;
-                    nr = size(r, 1);
-                    nc = size(tab, 2);          %% use nc of default table
-                end
+                r = find(tab(:, PD) | tab(:, QD));
+                obj.bus = r;
+                nr = size(r, 1);
+                nc = size(tab, 2);          %% use nc of default table
             end
         end
 
-        function [nr, nc, r] = get_export_size(obj, dme, tidx)
-            if nargin == 3 && tidx > 1
-                nr = 0;
-                nc = 0;
-                r = [];
-            else
-                [nr, nc] = size(dme.tab);   %% use size of default table
-                r = dme.tab.source_uid;     %% rows in bus matrix
-            end
+        function [nr, nc, r] = get_export_size(obj, dme)
+            [nr, nc] = size(dme.tab);   %% use size of default table
+            r = dme.tab.source_uid;     %% rows in bus matrix
         end
 
-        function vmap = table_var_map(obj, dme, mpc, tidx)
-            vmap = table_var_map@dmc_element(obj, dme, mpc, tidx);
+        function vmap = table_var_map(obj, dme, mpc)
+            vmap = table_var_map@dmc_element(obj, dme, mpc);
 
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...

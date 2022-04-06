@@ -22,8 +22,8 @@ classdef dmce_load3p_mpc2 < dmc_element % & dmce_load3p
             df = 'load3p';
         end
 
-        function vmap = table_var_map(obj, dme, mpc, tidx)
-            vmap = table_var_map@dmc_element(obj, dme, mpc, tidx);
+        function vmap = table_var_map(obj, dme, mpc)
+            vmap = table_var_map@dmc_element(obj, dme, mpc);
 
             %% mapping for each name, default is {'col', []}
             vmap.uid{2}     = 1;

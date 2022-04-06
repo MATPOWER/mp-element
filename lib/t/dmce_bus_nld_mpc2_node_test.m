@@ -18,37 +18,25 @@ classdef dmce_bus_nld_mpc2_node_test < dmce_bus_mpc2 % & dmce_bus
             name = 'bus_nld';
         end
 
-        function [nr, nc, r] = get_import_size(obj, mpc, tidx)
-            if nargin == 3 && tidx > 1
-                nr = 0;
-                nc = 0;
-                r = [];
-            else
-                %% define named indices into data matrices
-                [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
-                   VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+        function [nr, nc, r] = get_import_size(obj, mpc)
+            %% define named indices into data matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+               VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-                tab = mpc.(obj.data_field());
-                r = find(~tab(:, PD) & ~tab(:, QD) & ~tab(:, GS) & ~tab(:, BS));
-                obj.bus = r;
-                nr = size(r, 1);
-                nc = size(tab, 2);          %% use nc of default table
-            end
+            tab = mpc.(obj.data_field());
+            r = find(~tab(:, PD) & ~tab(:, QD) & ~tab(:, GS) & ~tab(:, BS));
+            obj.bus = r;
+            nr = size(r, 1);
+            nc = size(tab, 2);          %% use nc of default table
         end
 
-        function [nr, nc, r] = get_export_size(obj, dme, tidx)
-            if nargin == 3 && tidx > 1
-                nr = 0;
-                nc = 0;
-                r = [];
-            else
-                [nr, nc] = size(dme.tab);   %% use size of default table
-                r = dme.tab.source_uid;     %% rows in bus matrix
-            end
+        function [nr, nc, r] = get_export_size(obj, dme)
+            [nr, nc] = size(dme.tab);   %% use size of default table
+            r = dme.tab.source_uid;     %% rows in bus matrix
         end
 
-        function vmap = table_var_map(obj, dme, mpc, tidx)
-            vmap = table_var_map@dmce_bus_mpc2(obj, dme, mpc, tidx);
+        function vmap = table_var_map(obj, dme, mpc)
+            vmap = table_var_map@dmce_bus_mpc2(obj, dme, mpc);
 
             %% mapping for each name, default is {'col', []}
             vmap.source_uid = {'r'};        %% row index in mpc.bus

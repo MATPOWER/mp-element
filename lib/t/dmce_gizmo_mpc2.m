@@ -21,8 +21,8 @@ classdef dmce_gizmo_mpc2 < dmc_element % & dmce_gizmo
             df = 'gizmo';
         end
 
-        function vmap = table_var_map(obj, dme, mpc, tidx)
-            vmap = table_var_map@dmc_element(obj, dme, mpc, tidx);
+        function vmap = table_var_map(obj, dme, mpc)
+            vmap = table_var_map@dmc_element(obj, dme, mpc);
 
             %% mapping for each name, default is {'col', []}
             vmap.uid        = {'IDs'};      %% consecutive IDs, starting at 1
