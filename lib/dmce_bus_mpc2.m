@@ -28,9 +28,9 @@ classdef dmce_bus_mpc2 < dmc_element % & dmce_bus
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
                VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
 
-            bni_fcn = @(ob, vn, nr, r, mpc)bus_name_import(ob, vn, nr, r, mpc, 1);
-            bne_fcn = @(ob, vn, nr, r, mpc, dme)bus_name_export(ob, vn, nr, r, mpc, dme, 1);
-            bsi_fcn = @(ob, vn, nr, r, mpc)bus_status_import(ob, vn, nr, r, mpc, BUS_TYPE);
+            bni_fcn = @(ob, mpc, spec, vn)bus_name_import(ob, mpc, spec, vn, 1);
+            bne_fcn = @(ob, dme, mpc, spec, vn, ridx)bus_name_export(ob, dme, mpc, spec, vn, ridx, 1);
+            bsi_fcn = @(ob, mpc, spec, vn)bus_status_import(ob, mpc, spec, vn, BUS_TYPE);
 
             %% mapping for each name, default is {'col', []}
             vmap.uid{2}         = BUS_I;
@@ -53,38 +53,50 @@ classdef dmce_bus_mpc2 < dmc_element % & dmce_bus
             end
         end
 
-        function vals = bus_name_import(obj, vn, nr, r, mpc, c)
+        function vals = bus_name_import(obj, mpc, spec, vn, c)
             if isfield(mpc, 'bus_name')
-                if nr && isempty(r)
+                if spec.nr && isempty(spec.r)
                     vals = mpc.bus_name(:, c);
                 else
-                    vals = mpc.bus_name(r, c);
+                    vals = mpc.bus_name(spec.r, c);
                 end
             else
-                vals = cell(nr, 1);
+                vals = cell(spec.nr, 1);
                 [vals{:}] = deal('');
             end
         end
 
-        function mpc = bus_name_export(obj, vn, nr, r, mpc, dme, c)
-            bus_names = dme.tab.name;
+        function mpc = bus_name_export(obj, dme, mpc, spec, vn, ridx, c)
+            if isempty(ridx)
+                bus_names = dme.tab.name;
+            else
+                bus_names = dme.tab.name(ridx, :);
+            end
             if ~all(cellfun(@isempty, bus_names))
-                if nr && isempty(r)
-                    mpc.bus_name(:, c) = bus_names;
+                if spec.nr && isempty(spec.r)
+                    if isempty(ridx)
+                        mpc.bus_name(:, c) = bus_names;
+                    else
+                        mpc.bus_name(ridx, c) = bus_names;
+                    end
                 else
-                    mpc.bus_name(r, c) = bus_names;
+                    if isempty(ridx)
+                        mpc.bus_name(spec.r, c) = bus_names;
+                    else
+                        mpc.bus_name(spec.r(ridx), c) = bus_names;
+                    end
                 end
             end
         end
 
-        function vals = bus_status_import(obj, vn, nr, r, mpc, c)
+        function vals = bus_status_import(obj, mpc, spec, vn, c)
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE] = idx_bus;
 
-            if nr && isempty(r)
+            if spec.nr && isempty(spec.r)
                 vals = mpc.bus(:, BUS_TYPE) ~= NONE;
             else
-                vals = mpc.bus(r, BUS_TYPE) ~= NONE;
+                vals = mpc.bus(spec.r, BUS_TYPE) ~= NONE;
             end
         end
     end     %% methods

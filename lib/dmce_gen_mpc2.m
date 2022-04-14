@@ -29,7 +29,7 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
-            sci_fcn = @(ob, vn, nr, r, d)start_cost_import(ob, vn, nr, r, d);
+            sci_fcn = @(ob, d, spec, vn)start_cost_import(ob, d, spec, vn);
 
             %% mapping for each name, default is {'col', []}
             vmap.uid                = {'IDs'};      %% consecutive IDs, starting at 1
@@ -60,17 +60,17 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
             end
         end
 
-        function vals = start_cost_import(obj, vn, nr, r, mpc)
+        function vals = start_cost_import(obj, mpc, spec, vn)
             %% define named indices into data matrices
             [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
             if isfield(mpc, 'gencost')
-                if nr && isempty(r)
-                    vals = mpc.gencost(1:nr, STARTUP);
+                if spec.nr && isempty(spec.r)
+                    vals = mpc.gencost(1:spec.nr, STARTUP);
                 else
-                    vals = mpc.gencost(r, STARTUP);
+                    vals = mpc.gencost(spec.r, STARTUP);
                 end
             else
-                vals = zeros(nr, 1);
+                vals = zeros(spec.nr, 1);
             end
         end
 
@@ -129,9 +129,9 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
             tab = table_class(npoly, p, npwl, qty, cst, 'VariableNames', var_names);
         end
 
-        function dme = import(obj, dme, mpc)
+        function dme = import(obj, dme, mpc, varargin)
             %% call parent
-            dme = import@dmc_element(obj, dme, mpc);
+            dme = import@dmc_element(obj, dme, mpc, varargin{:});
             nr = size(dme.tab, 1);
 
             %% import gencost

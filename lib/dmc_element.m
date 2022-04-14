@@ -36,6 +36,30 @@ classdef dmc_element < handle
             TorF = isfield(d, obj.data_field());
         end
 
+        function spec = get_import_spec(obj, dme, d)
+            spec = obj.get_spec(dme, d, 1);
+        end
+
+        function spec = get_export_spec(obj, dme, d)
+            spec = obj.get_spec(dme, d, 0);
+        end
+
+        function spec = get_spec(obj, dme, d, import)
+            if import == 1
+                [nr, nc, r] = obj.get_import_size(d);
+            else
+                [nr, nc, r] = obj.get_export_size(dme);
+            end
+            spec = struct( ...
+                'subs', obj.data_subs(), ...
+                'nr', nr, ...
+                'nc', nc, ...
+                'r',  r, ...
+                'vmap', obj.table_var_map(dme, d), ...
+                'tab_name', 'tab' ...
+            );
+        end
+
         function [nr, nc, r] = get_import_size(obj, d)
             if obj.data_exists(d)
                 %% use size of default table
@@ -59,57 +83,105 @@ classdef dmc_element < handle
             vmap = cell2struct(vals, names, 2);
         end
 
-        function dme = import(obj, dme, d)
-            %% main table
-            names = dme.main_table_var_names();
-            vmap = obj.table_var_map(dme, d);
-            vals = obj.import_table_values(names, vmap, d);
+        function dme = import(obj, dme, d, var_names, ridx)
+            if nargin < 5
+                ridx = [];
+                if nargin < 4
+                    var_names = {};
+                end
+            end
+
+            %% get conversion spec
+            spec = obj.get_import_spec(dme, d);
+
+            %% import main table
+            dme = obj.import_table_values(dme, d, spec, var_names, ridx);
+        end
+
+        function dme = import_table_values(obj, dme, d, spec, var_names, ridx)
+            if nargin < 6
+                ridx = [];
+                if nargin < 5
+                    var_names = {};
+                end
+            end
+
+            if isempty(var_names)
+                update = 0;     %% use values to create dme table
+                var_names = dme.main_table_var_names();
+            else
+                update = 1;     %% update values in existing dme table
+            end
+
+            %% get values from input data structure
+            vals = obj.get_input_table_values(d, spec, var_names, ridx);
+
             if ~isempty(vals)
-                table_class = mp_table_class();
-                dme.tab = table_class(vals{:}, 'VariableNames', names);
+                if update       %% update existing dme table w/values
+                    if isempty(ridx)    %% all rows
+                        for k = 1:length(var_names)
+                            dme.tab.(var_names{k}) = vals{k};
+                        end
+                    else                %% indexed rows
+                        for k = 1:length(var_names)
+                            dme.tab.(var_names{k})(ridx, :) = vals{k};
+                        end
+                    end
+                else            %% create dme table from values
+                    if ~isempty(vals)
+                        table_class = mp_table_class();
+                        dme.tab = table_class(vals{:}, 'VariableNames', var_names);
+                    end
+
+                    %% check for unique uid's if not generated
+                    if strcmp(var_names{1}, 'uid') && ~strcmp(spec.vmap.uid{1}, 'IDs')
+                        if length(unique(vals{1})) ~= spec.nr
+                            error('dmc_element/import_table_values: ''uid'' values must be unique\ndata contains only %d unique ''uid'' value(s) for %d ''%s'' elements\n', ...
+                                length(unique(vals{1})), spec.nr, obj.name);
+                        end
+                    end
+                end
             end
         end
 
-        function vals = import_table_values(obj, var_names, vmap, d)
-            ss = obj.data_subs();       %% subscripts for data in d
-            nv = length(var_names);     %% number of variables
-
-            %% rows in data table and cols in subsref(d, obj.data_subs)
-            [nr, nc, r] = obj.get_import_size(d);
+        function vals = get_input_table_values(obj, d, spec, var_names, ridx)
+            if nargin < 5
+                ridx = [];
+            end
+            nr = spec.nr;
 
             if nr
                 %% initialize variable values
                 vals = cell(size(var_names));
 
                 %% assign variable values
-                for k = 1:nv
+                for k = 1:length(var_names)
                     vn = var_names{k};
-                    vm = vmap.(vn);
+                    vm = spec.vmap.(vn);
                     switch vm{1}    %% switch on type of mapping
                         case {'col'}     %% column of default table
-                            vals{k} = obj.import_col(d, ss, vn, nr, nc, r, vm{2:end});
+                            val = obj.import_col(d, spec, vn, vm{2:end});
                         case 'num'      %% scalar numerical value
-                            vals{k} = vm{2} * ones(nr, 1);
+                            val = vm{2} * ones(nr, 1);
                         case {'cell'}   %% cell array of values
-                            vals{k} = cell(nr, 1);
-                            [vals{k}{:}] = deal(vm{2});
+                            val = cell(nr, 1);
+                            [val{:}] = deal(vm{2});
                         case 'IDs'      %% [1:nr]', consecutive IDs
-                            vals{k} = [1:nr]';
+                            val = [1:nr]';
                         case 'r'        %% r
-                            vals{k} = r;
+                            val = spec.r;
                         case 'fcn'      %% general function
-                            import_fcn = vm{2};
-                            vals{k} = import_fcn(obj, vn, nr, r, d);
+                            if length(vm) > 1 && isa(vm{2}, 'function_handle')
+                                import_fcn = vm{2};
+                                val = import_fcn(obj, d, spec, vn);
+                            end
                         otherwise
-                            error('dmc_element/import_table_values: %d is an unknown var map type', vm{1});
+                            error('dmc_element/get_input_table_values: %d is an unknown var map type', vm{1});
                     end
-                end
-
-                %% check for unique uid's if not generated
-                if ~strcmp(vmap.uid{1}, 'IDs') && strcmp(var_names{1}, 'uid')
-                    if length(unique(vals{1})) ~= nr
-                        error('dmc_element/import_table_values: ''uid'' values must be unique\ndata contains only %d unique ''uid'' value(s) for %d ''%s'' elements\n', ...
-                            length(unique(vals{1})), nr, obj.name);
+                    if ~isempty(ridx)
+                        vals{k} = val(ridx, :);
+                    else
+                        vals{k} = val;
                     end
                 end
             else            %% table does not exist or is empty
@@ -117,8 +189,8 @@ classdef dmc_element < handle
             end
         end
 
-        function vals = import_col(obj, d, ss, vn, nr, nc, r, c, sf)
-            if nargin > 8
+        function vals = import_col(obj, d, spec, vn, c, sf)
+            if nargin > 5
                 if isa(sf, 'function_handle')
                     sf = sf(obj, vn);
                 end
@@ -127,59 +199,74 @@ classdef dmc_element < handle
             end
 
             %% default to zeros if mpc table does not have this many columns
-            if c > nc
-                vals = zeros(nr, 1);
+            if c > spec.nc
+                vals = zeros(spec.nr, 1);
             else
-                data = subsref(d, ss);
-                if nr && isempty(r)
+                data = subsref(d, spec.subs);
+                if spec.nr && isempty(spec.r)
                     vals = sf * data(:, c);
                 else
-                    vals = sf * data(r, c);
+                    vals = sf * data(spec.r, c);
                 end
             end
         end
 
-        function d = export(obj, dme, d, var_names, idx)
-            if nargin < 4
-                var_names = 'all';
-            end
-            if ischar(var_names)
-                if strcmp(var_names, 'all')
-                    var_names = dme.table_var_names();
-                else
-                    var_names = {var_names};
+        function d = export(obj, dme, d, var_names, ridx)
+            if nargin < 5
+                ridx = [];
+                if nargin < 4
+                    var_names = {};
                 end
             end
 
-            ss = obj.data_subs();       %% subscripts for data in d
-            nv = length(var_names);     %% number of variables
-            if nv
-                %% rows in data table, cols in subsref(d, obj.data_subs)
-                [nr, nc, r] = obj.get_export_size(dme);
+            %% get conversion spec
+            spec = obj.get_export_spec(dme, d);
 
-                %% get variable map
-                vmap = obj.table_var_map(dme, d);
+            %% import main table
+            d = obj.export_table_values(dme, d, spec, var_names, ridx);
+        end
+
+        function d = export_table_values(obj, dme, d, spec, var_names, ridx)
+            if nargin < 6
+                ridx = [];
+                if nargin < 5
+                    var_names = {};
+                end
             end
 
-            for k = 1:nv
+            if isempty(var_names)
+                update = 0;     %% use values to create data field in d
+                var_names = dme.main_table_var_names();
+            else
+                update = 1;     %% update values in existing data field in d
+            end
+
+            if ~update
+%% TO DO
+                %% initialize data field in d
+            end
+
+            for k = 1:length(var_names)
                 vn = var_names{k};
-                vm = vmap.(vn);
+                vm = spec.vmap.(vn);
                 switch vm{1}    %% switch on type of mapping
                     case {'col'}     %% column of default table
-                        d = obj.export_col(dme, d, ss, vn, nr, nc, r, vm{2:end});
+                        d = obj.export_col(dme, d, spec, vn, ridx, vm{2:end});
                     case {'num', 'cell', 'IDs', 'r'}
                         %% do nothing
                     case 'fcn'      %% general function
-                        export_fcn = vm{2};
-                        d = export_fcn(obj, vn, nr, r, d, dme);
+                        if length(vm) > 2 && isa(vm{3}, 'function_handle')
+                            export_fcn = vm{3};
+                            d = export_fcn(obj, dme, d, spec, vn, ridx);
+                        end
                     otherwise
-                        error('dmc_element/import_table_values: %d is an unknown var map type', vm{1});
+                        error('dmc_element/export: %d is an unknown var map type', vm{1});
                 end
             end
         end
 
-        function d = export_col(obj, dme, d, ss, vn, nr, nc, r, c, sf)
-            if nargin > 9
+        function d = export_col(obj, dme, d, spec, vn, ridx, c, sf)
+            if nargin > 7
                 if isa(sf, 'function_handle')
                     sf = sf(obj, vn);
                 end
@@ -188,14 +275,28 @@ classdef dmc_element < handle
             end
 
             %% default to zeros if mpc table does not have this many columns
+            ss = spec.subs;
             if sf
                 ss(end+1).type = '()';
-                if nr && isempty(r)
-                    ss(end).subs = {':', c};
+                if spec.nr && isempty(spec.r)
+                    if isempty(ridx)
+                        ss(end).subs = {':', c};
+                    else
+                        ss(end).subs = {ridx, c};
+                    end
                 else
-                    ss(end).subs = {r, c};
+                    if isempty(ridx)
+                        ss(end).subs = {spec.r, c};
+                    else
+                        ss(end).subs = {spec.r(ridx), c};
+                    end
                 end
-                d = subsasgn(d, ss, dme.tab.(vn) / sf);
+                if isempty(ridx)
+                    val = dme.tab.(vn) / sf;
+                else
+                    val = dme.tab.(vn)(ridx, :) / sf;
+                end
+                d = subsasgn(d, ss, val);
             end
         end
     end     %% methods

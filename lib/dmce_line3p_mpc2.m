@@ -83,9 +83,9 @@ classdef dmce_line3p_mpc2 < dmc_element % & dmce_line3p
 %             end
         end
 
-        function dme = import(obj, dme, mpc)
+        function dme = import(obj, dme, mpc, varargin)
             %% call parent
-            dme = import@dmc_element(obj, dme, mpc);
+            dme = import@dmc_element(obj, dme, mpc, varargin{:});
 
             if ~isempty(dme.tab)
                 %% system frequency

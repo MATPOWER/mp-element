@@ -24,7 +24,7 @@ classdef dmce_bus3p_mpc2 < dmc_element % & dmce_bus3p
         function vmap = table_var_map(obj, dme, mpc)
             vmap = table_var_map@dmc_element(obj, dme, mpc);
 
-            bsi_fcn = @(ob, vn, nr, r, mpc)bus_status_import(ob, vn, nr, r, mpc, 2);
+            bsi_fcn = @(ob, mpc, spec, vn)bus_status_import(ob, mpc, spec, vn, 2);
 
             %% mapping for each name, default is {'col', []}
             vmap.uid{2}     = 1;
@@ -41,12 +41,12 @@ classdef dmce_bus3p_mpc2 < dmc_element % & dmce_bus3p
             vmap.va3{2}     = 9;
         end
 
-        function vals = bus_status_import(obj, vn, nr, r, mpc, c)
-            if nr
-                if isempty(r)
+        function vals = bus_status_import(obj, mpc, spec, vn, c)
+            if spec.nr
+                if isempty(spec.r)
                     vals = mpc.bus3p(:, 2) ~= 4;
                 else
-                    vals = mpc.bus3p(r, 2) ~= 4;
+                    vals = mpc.bus3p(spec.r, 2) ~= 4;
                 end
             else
                 vals = [];
