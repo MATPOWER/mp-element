@@ -53,6 +53,23 @@ classdef dmce_bus_mpc2 < dmc_element % & dmce_bus
             end
         end
 
+        function d = init_export_data(obj, dme, d, spec)
+            d = init_export_data@dmc_element(obj, dme, d, spec);    %% call parent
+            if ~all(cellfun(@isempty, dme.tab.name))
+                d.bus_name = cell(spec.nr, 1);
+                [d.bus_name{:}] = deal('');
+            end
+        end
+
+        function dt = default_export_data_table(obj, spec)
+            %% define named indices into data matrices
+            [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
+               VA, BASE_KV, ZONE, VMAX, VMIN, LAM_P, LAM_Q, MU_VMAX, MU_VMIN] = idx_bus;
+
+            nr = obj.default_export_data_nrows(spec);
+            dt = zeros(nr, MU_VMIN);
+        end
+
         function vals = bus_name_import(obj, mpc, spec, vn, c)
             if isfield(mpc, 'bus_name')
                 if spec.nr && isempty(spec.r)

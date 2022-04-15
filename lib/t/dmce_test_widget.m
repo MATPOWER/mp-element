@@ -64,6 +64,19 @@ classdef dmce_test_widget < dmc_element
             vmap.epsilon{2}     = 6;
         end
 
+        function d = init_export_data(obj, dme, d, spec)
+            d = init_export_data@dmc_element(obj, dme, d, spec);
+            if ~isfield(d, 'bar') || ~isfield(d.bar, 'baz')
+                nr = obj.default_export_data_nrows(spec);
+                d.bar.baz = cell(nr, 2);
+            end
+        end
+
+        function dt = default_export_data_table(obj, spec)
+            nr = obj.default_export_data_nrows(spec);
+            dt = zeros(nr, 6);
+        end
+
         function sf = scale_fcn(obj, vn)
             switch vn
                 case 'gamma'

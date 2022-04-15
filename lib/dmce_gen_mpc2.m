@@ -29,7 +29,8 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
                 MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
-            sci_fcn = @(ob, d, spec, vn)start_cost_import(ob, d, spec, vn);
+            sci_fcn = @(ob, mpc, spec, vn)start_cost_import(ob, mpc, spec, vn);
+            sce_fcn = @(ob, dme, mpc, spec, vn, ridx)start_cost_export(ob, dme, mpc, spec, vn, ridx);
 
             %% mapping for each name, default is {'col', []}
             vmap.uid                = {'IDs'};      %% consecutive IDs, starting at 1
@@ -51,7 +52,7 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
             vmap.pg{2}              = PG;
             vmap.qg{2}              = QG;
             vmap.in_service{2}      = GEN_STATUS;
-            vmap.startup_cost_cold  = {'fcn', sci_fcn};
+            vmap.startup_cost_cold  = {'fcn', sci_fcn, sce_fcn};
             if isfield(vmap, 'mu_pg_lb')
                 vmap.mu_pg_lb{2}        = MU_PMIN;
                 vmap.mu_pg_ub{2}        = MU_PMAX;
@@ -60,17 +61,36 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
             end
         end
 
+        function dt = default_export_data_table(obj, spec)
+            %% define named indices into data matrices
+            [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...
+                MU_PMAX, MU_PMIN, MU_QMAX, MU_QMIN, PC1, PC2, QC1MIN, QC1MAX, ...
+                QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
+
+            nr = obj.default_export_data_nrows(spec);
+            dt = zeros(nr, APF);
+        end
+
         function vals = start_cost_import(obj, mpc, spec, vn)
             %% define named indices into data matrices
             [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
-            if isfield(mpc, 'gencost')
-                if spec.nr && isempty(spec.r)
-                    vals = mpc.gencost(1:spec.nr, STARTUP);
-                else
-                    vals = mpc.gencost(spec.r, STARTUP);
-                end
+            if isfield(mpc, 'gencost') && spec.nr
+                vals = mpc.gencost(1:spec.nr, STARTUP);
             else
                 vals = zeros(spec.nr, 1);
+            end
+        end
+
+        function mpc = start_cost_export(obj, dme, mpc, spec, vn, ridx)
+            %% define named indices into data matrices
+            [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
+
+            if dme.have_cost()
+                if isempty(ridx)
+                    mpc.gencost(1:spec.nr, STARTUP) = dme.tab.startup_cost_cold;
+                else
+                    mpc.gencost(ridx, STARTUP) = dme.tab.startup_cost_cold(ridx);
+                end
             end
         end
 
@@ -166,7 +186,64 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
             mpc = export@dmc_element(obj, dme, mpc, varargin{:});
 
             %% export gencost
-            
+            if dme.have_cost()
+                if length(varargin) > 1
+                    ridx = varargin{2};
+                else
+                    ridx = [];
+                end
+
+                [pc, qc] = pqcost(mpc.gencost, dme.nr);
+                pcost = obj.export_gencost(dme, pc, dme.cost_pg, ridx);
+                qcost = obj.export_gencost(dme, qc, dme.cost_qg, ridx);
+
+                if isempty(qcost)
+                    mpc.gencost = pcost;
+                else
+                    %% make sure sizes match
+                    ncp = size(pcost, 2);
+                    ncq = size(qcost, 2);
+                    if ncp > ncq
+                        qcost(end, ncp) = 0;
+                    elseif ncq > ncp
+                        pcost(end, ncq) = 0;
+                    end
+                    mpc.gencost = [pcost; qcost];
+                end
+            end
+        end
+
+        function gencost = export_gencost(obj, dme, gencost, cost, ridx)
+            %% define named indices into data matrices
+            [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
+
+            if isempty(cost)
+                gencost = [];
+            else
+                if isempty(ridx)
+                    gencost(:, MODEL) = 1*(cost.pwl_n ~= 0) + 2*(cost.poly_n~=0);
+                    gencost(:, NCOST) = cost.pwl_n + cost.poly_n;
+
+                    %% expand for polynomial or piecewise cost curve data
+                    n = max([cost.poly_n; 2*cost.pwl_n]);
+                    gencost(end, COST+n-1) = 0;
+
+                    ipwl = find(cost.pwl_n);
+                    if ~isempty(ipwl)
+                        nc = size(cost.pwl_qty, 2);
+                        gencost(ipwl, COST:2:COST+2*nc-1) = cost.pwl_qty(ipwl, :);
+                        gencost(ipwl, COST+1:2:COST+2*nc) = cost.pwl_cost(ipwl, :);
+                    end
+                    ipoly = find(cost.poly_n);
+                    for k = 1:length(ipoly)
+                        i = ipoly(k);
+                        n = cost.poly_n(i);
+                        gencost(i, COST:COST+n-1) = cost.poly_coef(i, n:-1:1);
+                    end
+                else
+                    error('dmce_gen_mpc2/export_gencost: not yet implemented for indexed rows of gencost');
+                end
+            end
         end
     end     %% methods
 end         %% classdef

@@ -54,14 +54,30 @@ classdef mp_dm_converter < mp_element_container
         end
 
         function d = export(obj, dm, d)
+            if nargin < 3 || isempty(d)
+                %% initialize empty data struct
+                d = obj.init_export(dm);
+                all_vars = 1;
+            else
+                all_vars = 0;
+            end
+
             for k = 1:length(dm.elements)
                 dme = dm.elements{k};
                 if obj.elements.is_index_name(dme.name)
                     dmce = dme.dm_converter_element(obj);
-                    vars = dme.export_vars();
+                    if all_vars
+                        vars = dme.main_table_var_names();
+                    else
+                        vars = dme.export_vars();
+                    end
                     d = dmce.export(dme, d, vars);
                 end
             end
+        end
+
+        function d = init_export(obj, dm)
+            d = struct();
         end
 
         function fname_out = save(obj, fname, d)

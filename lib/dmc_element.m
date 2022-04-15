@@ -106,11 +106,11 @@ classdef dmc_element < handle
                 end
             end
 
-            if isempty(var_names)
+            if dme.table_exists()
+                update = 1;     %% update values in existing dme table
+            else
                 update = 0;     %% use values to create dme table
                 var_names = dme.main_table_var_names();
-            else
-                update = 1;     %% update values in existing dme table
             end
 
             %% get values from input data structure
@@ -222,7 +222,7 @@ classdef dmc_element < handle
             %% get conversion spec
             spec = obj.get_export_spec(dme, d);
 
-            %% import main table
+            %% export main table
             d = obj.export_table_values(dme, d, spec, var_names, ridx);
         end
 
@@ -234,16 +234,12 @@ classdef dmc_element < handle
                 end
             end
 
-            if isempty(var_names)
-                update = 0;     %% use values to create data field in d
+            if isempty(var_names)       %% default to all variables
                 var_names = dme.main_table_var_names();
-            else
-                update = 1;     %% update values in existing data field in d
             end
 
-            if ~update
-%% TO DO
-                %% initialize data field in d
+            if ~obj.data_exists(d)      %% initialize data field in d
+                d = obj.init_export_data(dme, d, spec);
             end
 
             for k = 1:length(var_names)
@@ -262,6 +258,25 @@ classdef dmc_element < handle
                     otherwise
                         error('dmc_element/export: %d is an unknown var map type', vm{1});
                 end
+            end
+        end
+
+        function d = init_export_data(obj, dme, d, spec)
+            if ~obj.data_exists(d)
+                d = subsasgn(d, spec.subs, obj.default_export_data_table(spec));
+            end
+        end
+
+        function dt = default_export_data_table(obj, spec)
+            nr = obj.default_export_data_nrows(spec);
+            dt = zeros(nr, spec.nc);
+        end
+
+        function nr = default_export_data_nrows(obj, spec)
+            if ~isempty(spec.r)
+                nr = max(spec.nr, max(spec.r));
+            else
+                nr = spec.nr;
             end
         end
 

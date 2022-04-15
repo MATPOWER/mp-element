@@ -56,6 +56,10 @@ classdef dm_element < handle
             name = '';
         end
 
+        function TorF = table_exists(obj)
+            TorF = ~isempty(obj.tab);
+        end
+
         function names = table_var_names(obj)
             names = obj.main_table_var_names();
         end

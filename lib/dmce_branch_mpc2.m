@@ -61,5 +61,15 @@ classdef dmce_branch_mpc2 < dmc_element % & dmce_branch
             vmap.mu_vad_lb{2}     = MU_ANGMIN;
             vmap.mu_vad_ub{2}     = MU_ANGMAX;
         end
+
+        function dt = default_export_data_table(obj, spec)
+            %% define named indices into data matrices
+            [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...
+                TAP, SHIFT, BR_STATUS, PF, QF, PT, QT, MU_SF, MU_ST, ...
+                ANGMIN, ANGMAX, MU_ANGMIN, MU_ANGMAX] = idx_brch;
+
+            nr = obj.default_export_data_nrows(spec);
+            dt = zeros(nr, MU_ANGMAX);
+        end
     end     %% methods
 end         %% classdef

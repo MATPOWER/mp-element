@@ -34,10 +34,10 @@ casefile = 't_case_ext';
 mpc0 = loadcase(casefile);
 mpc0.bus(end, MU_VMIN) = 0;         %% add columns
 mpc0.gen(end, MU_QMIN) = 0;         %% add columns
-mpc0.branch(end, MU_ANGMAX) = 0;    %% add 4 columns for PF, QF, PT, QT
+mpc0.branch(end, MU_ANGMAX) = 0;    %% add columns
 dmc = mp_dm_converter_mpc2().build();
 
-t_begin(21, quiet);
+t_begin(22, quiet);
 
 t = 'dmc constructor : ';
 dmc = mp_dm_converter_mpc2();
@@ -93,22 +93,20 @@ mpc = dmc.export(dm, mpc0);
 t_ok(~isequal(mpc, mpc0), [t 'mpc ~= mpc0']);
 t_ok( isequal(mpc, mpc1), [t 'mpc == updated_mpc']);
 
-
-% vm = [mpc0.bus(:, 8) mpc1.bus(:, 8) mpc.bus(:, 8) dm.elements.bus.tab.vm]
-% Pd = [mpc0.bus(:, 3) mpc1.bus(:, 3) mpc.bus(:, 3)]
-% Pdm = dm.elements.load.tab.pd
-
-% dmc
-% dm
-
-% keyboard
-
-% -- -----------   ---------  --------  --------  --------------------
-%  1  bus           bus            10         9    dme_bus
-%  2  gen           gen             4         3    dme_gen
-%  3  load          bus             3         3    dme_load
-%  4  branch        branch         10         9    dme_branch
-%  5  shunt         bus             2         2    dme_shunt
-
+t = 'mpc = dmc.export(dm) : ';
+mpc1 = struct( ...
+    'version', mpc0.version, ...
+    'baseMVA', mpc0.baseMVA, ...
+    'bus', mpc0.bus, ...
+    'gen', mpc0.gen, ...
+    'branch', mpc0.branch, ...
+    'gencost', mpc0.gencost, ...
+    'bus_name', {mpc0.bus_name} );
+dmc = mp_dm_converter_mpc2().build();
+dm = mp_data_opf().build(mpc1, dmc);
+mpc = dmc.export(dm);
+mpc1.gen(:, MBASE) = 0;
+mpc1.branch(7, BR_STATUS) = 0;
+t_ok(isequal(mpc, mpc1), [t 'mpc == mpc0']);
 
 t_end;

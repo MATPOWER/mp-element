@@ -71,9 +71,9 @@ t_ok(~isempty(dme.tab), [t 'dme.tab not empty']);
 t_ok(isequal(dme.tab, tab0), [t 'dme.tab']);
 
 t = sprintf('%s : export(dme, d) : ', k);
-d = d0; d.foo = 0 * d.foo;
+d = struct();
 d = dmce.export(dme, d);
-ed = d0; ed.bar.baz(:,1) = ed.bar.baz(:,2);
+ed = d0; ed.bar.baz(:,1) = ed.bar.baz(:,2); [ed.bar.baz{:,2}] = deal([]);
 t_ok(isequal(d, ed), [t 'd']);
 
 t = sprintf('%s : import(dme, d, var_names) : ', k);

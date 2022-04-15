@@ -44,6 +44,10 @@ classdef mp_dm_converter_mpc2 < mp_dm_converter
             dm = import@mp_dm_converter(obj, dm, d);
         end
 
+        function d = init_export(obj, dm)
+            d = struct('version', '2', 'baseMVA', dm.base_mva);
+        end
+
         function fname_out = save(obj, fname, d)
             fname_out = savecase(fname, d);
         end
