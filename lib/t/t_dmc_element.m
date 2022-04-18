@@ -78,13 +78,13 @@ t_ok(isequal(d, ed), [t 'd']);
 
 t = sprintf('%s : import(dme, d, var_names) : ', k);
 d = d0; d.foo = d0.foo(:, end:-1:1);    %% reverse columns
-tab = tab0; tab(:, [7 11]) = tab(:, [11 7]);
+tab = tab0; tmp = tab.alpha; tab.alpha = tab.epsilon; tab.epsilon = tmp;
 dme = dmce.import(dme_test_widget(), d0);
 dme = dmce.import(dme, d, {'alpha', 'epsilon'});
 t_ok(isequal(dme.tab, tab), [t 'dme.tab']);
 
 t = sprintf('%s : export(dme, d, var_names) : ', k);
-dme.tab(:, [8 10]) = dme.tab(:, [10 8]);
+tmp = dme.tab.beta; dme.tab.beta = dme.tab.delta; dme.tab.delta = tmp;
 ed = d0; ed.foo(:, [2 5]) = ed.foo(:, [5 2]);
 ed.foo(:, 2) = ed.foo(:, 2)/2;
 ed.foo(:, 5) = ed.foo(:, 5)*2;
@@ -93,13 +93,13 @@ t_ok(isequal(d, ed), [t 'd']);
 
 t = sprintf('%s : import(dme, d, var_names, <scalar>) : ', k);
 d = d0; d.foo = d0.foo(:, end:-1:1);    %% reverse columns
-tab = tab0; tab(ridx1, [7 11]) = tab(ridx1, [11 7]);
+tab = tab0; tmp = tab.alpha(ridx1); tab.alpha(ridx1) = tab.epsilon(ridx1); tab.epsilon(ridx1) = tmp;
 dme = dmce.import(dme_test_widget(), d0);
 dme = dmce.import(dme, d, {'alpha', 'epsilon'}, ridx1);
 t_ok(isequal(dme.tab, tab), [t 'dme.tab']);
 
 t = sprintf('%s : export(dme, d, var_names, <scalar>) : ', k);
-dme.tab(:, [8 10]) = dme.tab(:, [10 8]);
+tmp = dme.tab.beta; dme.tab.beta = dme.tab.delta; dme.tab.delta = tmp;
 ed = d0; ed.foo(ridx1, [2 5]) = ed.foo(ridx1, [5 2]);
 ed.foo(ridx1, 2) = ed.foo(ridx1, 2)/2;
 ed.foo(ridx1, 5) = ed.foo(ridx1, 5)*2;
@@ -108,13 +108,13 @@ t_ok(isequal(d, ed), [t 'd']);
 
 t = sprintf('%s : import(dme, d, var_names, <vector>) : ', k);
 d = d0; d.foo = d0.foo(:, end:-1:1);    %% reverse columns
-tab = tab0; tab(ridx2, [7 11]) = tab(ridx2, [11 7]);
+tab = tab0; tmp = tab.alpha(ridx2); tab.alpha(ridx2) = tab.epsilon(ridx2); tab.epsilon(ridx2) = tmp;
 dme = dmce.import(dme_test_widget(), d0);
 dme = dmce.import(dme, d, {'alpha', 'epsilon'}, ridx2);
 t_ok(isequal(dme.tab, tab), [t 'dme.tab']);
 
 t = sprintf('%s : export(dme, d, var_names, <vector>) : ', k);
-dme.tab(:, [8 10]) = dme.tab(:, [10 8]);
+tmp = dme.tab.beta; dme.tab.beta = dme.tab.delta; dme.tab.delta = tmp;
 ed = d0; ed.foo(ridx2, [2 5]) = ed.foo(ridx2, [5 2]);
 ed.foo(ridx2, 2) = ed.foo(ridx2, 2)/2;
 ed.foo(ridx2, 5) = ed.foo(ridx2, 5)*2;
@@ -155,7 +155,7 @@ dme = dmce.import(dme, d, {'alpha', 'name', 'gamma'});
 t_ok(isequal(dme.tab, tab), [t 'dme.tab']);
 
 t = sprintf('%s : export(dme, d, var_names) : ', k);
-dme.tab(:, [8 10]) = dme.tab(:, [10 8]);
+tmp = dme.tab.beta; dme.tab.beta = dme.tab.delta; dme.tab.delta = tmp;
 d = d0; d.foo = 0 * d.foo;
 [d.bar.baz{:}] = deal('');
 ed = d;
@@ -177,7 +177,7 @@ dme = dmce.import(dme, d, {'alpha', 'name', 'gamma'}, ridx1);
 t_ok(isequal(dme.tab, tab), [t 'dme.tab']);
 
 t = sprintf('%s : export(dme, d, var_names, <scalar>) : ', k);
-dme.tab(:, [8 10]) = dme.tab(:, [10 8]);
+tmp = dme.tab.beta; dme.tab.beta = dme.tab.delta; dme.tab.delta = tmp;
 d = d0; d.foo = 0 * d.foo;
 [d.bar.baz{:}] = deal('');
 ed = d;
@@ -199,7 +199,7 @@ dme = dmce.import(dme, d, {'alpha', 'name', 'gamma'}, ridx2);
 t_ok(isequal(dme.tab, tab), [t 'dme.tab']);
 
 t = sprintf('%s : export(dme, d, var_names, <vector>) : ', k);
-dme.tab(:, [8 10]) = dme.tab(:, [10 8]);
+tmp = dme.tab.beta; dme.tab.beta = dme.tab.delta; dme.tab.delta = tmp;
 d = d0; d.foo = 0 * d.foo;
 [d.bar.baz{:}] = deal('');
 ed = d;
