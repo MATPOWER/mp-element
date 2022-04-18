@@ -87,6 +87,11 @@ classdef mp_table
             end
         end
 
+        %% not really useable until Octave implements istable()
+        function TorF = istable(obj)
+            TorF = true;
+        end
+
         function varargout = size(obj, dim)
             varargout = cell(1, nargout);
             w = length(obj.Properties.VariableValues);
@@ -437,28 +442,41 @@ classdef mp_table
                 cw(v) = length(vn{v});  %% actual column width
                 cwv(v) = 0;             %% column width for displayed values
                 vv = obj.Properties.VariableValues{v};
-                if iscell(vv)
-                    for r = 1:length(rr)
-                        s = sprintf('''%s''', vv{rr(r)});
-                        if length(s) > cw(v);
-                            cw(v) = length(s);
-                        end
-                        if length(s) > cwv(v);
-                            cwv(v) = length(s);
-                        end
+                if size(vv, 2) > 1 || isa(vv, 'mp_table') || isa(vv, 'table')
+                    s = sprintf('1x%d %s' , size(vv, 2), class(vv));
+                    len_s = length(s);
+                    if len_s > cw(v);
+                        cw(v) = len_s;
+                    end
+                    if len_s > cwv(v);
+                        cwv(v) = len_s;
                     end
                 else
-                    for r = 1:length(rr)
-                        if isempty(vv)
-                            s = '[]';
-                        else
-                            s = sprintf('%g', vv(rr(r), 1));
+                    if iscell(vv)
+                        for r = 1:length(rr)
+                            s = sprintf('''%s''', vv{rr(r)});
+                            len_s = length(s);
+                            if len_s > cw(v);
+                                cw(v) = len_s;
+                            end
+                            if len_s > cwv(v);
+                                cwv(v) = len_s;
+                            end
                         end
-                        if length(s) > cw(v);
-                            cw(v) = length(s);
-                        end
-                        if length(s) > cwv(v);
-                            cwv(v) = length(s);
+                    else
+                        for r = 1:length(rr)
+                            if isempty(vv)
+                                s = '[]';
+                            else
+                                s = sprintf('%g', vv(rr(r), 1));
+                            end
+                            len_s = length(s);
+                            if len_s > cw(v);
+                                cw(v) = len_s;
+                            end
+                            if len_s > cwv(v);
+                                cwv(v) = len_s;
+                            end
                         end
                     end
                 end
@@ -496,16 +514,21 @@ classdef mp_table
                 %% variable values
                 for v = 1:nv
                     vv = obj.Properties.VariableValues{v};
-                    if iscell(vv)
-                        val = sprintf('%s''%s''', spc{v}, vv{rr(r), 1});
+                    if size(vv, 2) > 1 || isa(vv, 'mp_table') || isa(vv, 'table')
+                        val = sprintf('%s1x%d %s', spc{v}, size(vv, 2), class(vv));
                         fmt = sprintf('  %%-%ds', cw(v));
                     else
-                        if isempty(vv)
-                            val = sprintf('[]%s', spc{v});
+                        if iscell(vv)
+                            val = sprintf('%s''%s''', spc{v}, vv{rr(r), 1});
+                            fmt = sprintf('  %%-%ds', cw(v));
                         else
-                            val = sprintf('%g%s', vv(rr(r), 1), spc{v});
+                            if isempty(vv)
+                                val = sprintf('[]%s', spc{v});
+                            else
+                                val = sprintf('%g%s', vv(rr(r), 1), spc{v});
+                            end
+                            fmt = sprintf('  %%%ds', cw(v));
                         end
-                        fmt = sprintf('  %%%ds', cw(v));
                     end
                     fprintf(fmt, val);
                 end
