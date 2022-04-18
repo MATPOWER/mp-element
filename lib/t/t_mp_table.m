@@ -20,7 +20,7 @@ else
     verbose = 1;
 end
 
-nt = 158;
+nt = 164;
 skip_tests_for_tablicious = 1;
 table_classes = {@mp_table};
 class_names = {'mp_table'};
@@ -529,6 +529,18 @@ for k = 1:nc
     T.igr(2) = 2;
     t_is(T.igr(2), 2, 12, t);
     t_is(T2.igr(2), 55, 12, t);
+
+    %% nested tables
+    t = sprintf('%s : nested tables', cls);
+    T1 = table_class([1;2;3],[4;5;6]);
+    T2 = table_class({'one';'two';'three'},{'four';'five';'six'});
+    T3 = table_class([10;20;30],{'uno';'dos';'tres'}, T1, T2);
+    t_ok(isequal(T3.T1, T1), [t 'T.T1 == T1']);
+    t_ok(isequal(T3.T2, T2), [t 'T.T2 == T2']);
+    t_ok(isequal(T3.T1([1;3], :), T1([1;3], :)), [t 'T.T1(ii, :) == T1(ii, :)']);
+    t_ok(isequal(T3.T2([1;3], :), T2([1;3], :)), [t 'T.T2(ii, :) == T2(ii, :)']);
+    t_ok(isequal(T3.T1.Var1, T1.Var1), [t 'T.T1.Var1 == T1.Var1']);
+    t_ok(isequal(T3.T2.Var2([1;3], :), T2.Var2([1;3], :)), [t 'T.T2.Var2(ii) == T.T2.Var2(ii)']);
 end
 
 if nargout
