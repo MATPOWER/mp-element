@@ -71,7 +71,8 @@ if mm.getN('var')
 
     [results.om, results.x, results.mu, results.f] = ...
         deal(mm, mm.soln.x, mu, mm.soln.f);
-    raw = struct('xr', mm.soln.x, 'pimul', pimul, 'info', mm.soln.eflag, 'output', mm.soln.output);
+    raw = struct('xr', mm.soln.x, 'pimul', pimul, 'info', mm.soln.eflag, ...
+                'output', mm.soln.output, 'task', obj);
 
     if ~isfield(raw, 'output') || ~isfield(raw.output, 'alg') || isempty(raw.output.alg)
         raw.output.alg = upper(mpopt.opf.ac.solver);

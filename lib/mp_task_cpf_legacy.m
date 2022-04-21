@@ -39,6 +39,7 @@ classdef mp_task_cpf_legacy < mp_task_cpf & tsk_shared_legacy
         function [results, success] = legacy_post_run(obj, mpopt)
             success = obj.success;
             results = obj.dm.source;
+            results.task = obj;
         end
     end     %% methods
 end         %% classdef
