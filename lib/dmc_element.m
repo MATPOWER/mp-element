@@ -117,6 +117,16 @@ classdef dmc_element < handle
             vals = obj.get_input_table_values(d, spec, var_names, ridx);
 
             if ~isempty(vals)
+                %% remove empty values
+                %% Octave 5.2 has issues with this ...
+                % k = find(cellfun(@isempty, vals));
+                %% ... so we use this instead ...
+                k = find(cellfun(@(x)prod(size(x)) == 0, vals));
+                if ~isempty(k)
+                    var_names(k) = [];
+                    vals(k) = [];
+                end
+
                 if update       %% update existing dme table w/values
                     if isempty(ridx)    %% all rows
                         for k = 1:length(var_names)
