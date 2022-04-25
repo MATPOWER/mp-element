@@ -37,7 +37,7 @@ mpc0.gen(end, MU_QMIN) = 0;         %% add columns
 mpc0.branch(end, MU_ANGMAX) = 0;    %% add columns
 dmc = mp_dm_converter_mpc2().build();
 
-t_begin(22, quiet);
+t_begin(27, quiet);
 
 t = 'dmc constructor : ';
 dmc = mp_dm_converter_mpc2();
@@ -108,5 +108,36 @@ mpc = dmc.export(dm);
 mpc1.gen(:, MBASE) = 0;
 mpc1.branch(7, BR_STATUS) = 0;
 t_ok(isequal(mpc, mpc1), [t 'mpc == mpc0']);
+
+t = 'mpc = dmce.export(dme, mpc, ''qcost'') : ';
+%% define named indices into data matrices
+[PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
+dme = dm.elements.gen;
+dmce = dmc.elements.gen;
+dme.tab.cost_qg = dme.tab.cost_pg;
+dme.tab.cost_qg.poly_coef = dme.tab.cost_qg.poly_coef ./ 5;
+ng = size(mpc.gen, 1);
+epc = mpc.gencost(1:ng, :);
+eqc = epc; eqc([1;3], COST) = eqc([1;3], COST) / 5;
+mpc = dmce.export(dme, mpc, {'cost_qg'});
+t_is(size(mpc.gencost, 1), 2*ng, 12, [t 'size(gencost, 1)']);
+t_is(mpc.gencost(1:ng,:), epc, 12, [t 'pcost']);
+t_is(mpc.gencost(ng+1:2*ng,:), eqc, 12, [t 'qcost']);
+
+t = 'mpc = dmce.export(dme, mpc, ''qcost'', ridx) : ';
+ridx = [2;3];
+dme.tab.cost_pg.poly_coef = dme.tab.cost_pg.poly_coef * 2;
+dme.tab.cost_pg.pwl_qty = dme.tab.cost_pg.pwl_qty + 10;
+dme.tab.cost_pg.pwl_cost = dme.tab.cost_pg.pwl_cost + 10;
+dme.tab.cost_qg.poly_coef = dme.tab.cost_qg.poly_coef * 3;
+dme.tab.cost_qg.pwl_qty = dme.tab.cost_qg.pwl_qty + 1;
+dme.tab.cost_qg.pwl_cost = dme.tab.cost_qg.pwl_cost + 1;
+epc(2, COST:end) = epc(2, COST:end) + 10;
+epc(3, COST:end) = epc(3, COST:end) * 2;
+eqc(2, COST:end) = eqc(2, COST:end) + 1;
+eqc(3, COST:end) = eqc(3, COST:end) * 3;
+mpc = dmce.export(dme, mpc, {'cost_pg', 'cost_qg'}, ridx);
+t_is(mpc.gencost(1:ng,:), epc, 12, [t 'pcost']);
+t_is(mpc.gencost(ng+1:2*ng,:), eqc, 12, [t 'qcost']);
 
 t_end;
