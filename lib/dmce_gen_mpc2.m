@@ -9,8 +9,10 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-%     properties
-%     end     %% properties
+    properties
+        pwl1        %% indices of single-block piecewise linear costs, all gens
+                    %% (automatically converted to linear cost)
+    end     %% properties
 
     methods
         function name = name(obj)
@@ -30,7 +32,11 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
                 QC2MIN, QC2MAX, RAMP_AGC, RAMP_10, RAMP_30, RAMP_Q, APF] = idx_gen;
 
             sci_fcn = @(ob, mpc, spec, vn)start_cost_import(ob, mpc, spec, vn);
+            gcip_fcn = @(ob, mpc, spec, vn)gen_cost_import(ob, mpc, spec, vn, 'P');
+            gciq_fcn = @(ob, mpc, spec, vn)gen_cost_import(ob, mpc, spec, vn, 'Q');
             sce_fcn = @(ob, dme, mpc, spec, vn, ridx)start_cost_export(ob, dme, mpc, spec, vn, ridx);
+            gcep_fcn = @(ob, dme, mpc, spec, vn, ridx)gen_cost_export(ob, dme, mpc, spec, vn, 'P', ridx);
+            gceq_fcn = @(ob, dme, mpc, spec, vn, ridx)gen_cost_export(ob, dme, mpc, spec, vn, 'Q', ridx);
 
             %% mapping for each name, default is {'col', []}
             vmap.uid                = {'IDs'};      %% consecutive IDs, starting at 1
@@ -53,11 +59,13 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
             vmap.qg{2}              = QG;
             vmap.in_service{2}      = GEN_STATUS;
             vmap.startup_cost_cold  = {'fcn', sci_fcn, sce_fcn};
-            if isfield(vmap, 'mu_pg_lb')
-                vmap.mu_pg_lb{2}        = MU_PMIN;
-                vmap.mu_pg_ub{2}        = MU_PMAX;
-                vmap.mu_qg_lb{2}        = MU_QMIN;
-                vmap.mu_qg_ub{2}        = MU_QMAX;
+            if isfield(vmap, 'cost_pg')
+                vmap.cost_pg        = {'fcn', gcip_fcn, gcep_fcn};
+                vmap.cost_qg        = {'fcn', gciq_fcn, gceq_fcn};
+                vmap.mu_pg_lb{2}    = MU_PMIN;
+                vmap.mu_pg_ub{2}    = MU_PMAX;
+                vmap.mu_qg_lb{2}    = MU_QMIN;
+                vmap.mu_qg_ub{2}    = MU_QMAX;
             end
         end
 
@@ -94,7 +102,66 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
             end
         end
 
-        function tab = create_cost_table(obj, gencost);
+        function val = gen_cost_import(obj, mpc, spec, vn, p_or_q)
+            if isfield(mpc, 'gencost') && spec.nr
+                %% define named indices into data matrices
+                [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
+
+                %% select costs for P or Q as specfied
+                [pcost, qcost] = pqcost(mpc.gencost, spec.nr);
+                if p_or_q == 'P'
+                    %% save indices of single-block piecewise-linear costs (P & Q)
+                    pwl1 = find(mpc.gencost(:, MODEL) == PW_LINEAR & mpc.gencost(:, NCOST) == 2);
+                    if ~isempty(pwl1)
+                        obj.pwl1 = pwl1;
+                    end
+
+                    gencost = pcost;
+                else    %% p_or_q = 'Q'
+                    gencost = qcost;
+                end
+
+                if ~isempty(gencost)
+                    %% convert single-block piecewise-linear costs into linear polynomial cost
+                    pwl1 = find(gencost(:, MODEL) == PW_LINEAR & gencost(:, NCOST) == 2);
+                    if ~isempty(pwl1)
+                        x0 = gencost(pwl1, COST);
+                        y0 = gencost(pwl1, COST+1);
+                        x1 = gencost(pwl1, COST+2);
+                        y1 = gencost(pwl1, COST+3);
+                        m = (y1 - y0) ./ (x1 - x0);
+                        b = y0 - m .* x0;
+                        gencost(pwl1, MODEL) = POLYNOMIAL;
+                        gencost(pwl1, NCOST) = 2;
+                        gencost(pwl1, COST:COST+1) = [m b];
+                    end
+
+                    val = obj.gencost2cost_table(gencost);
+                else
+                    val = [];
+                end
+            else
+                val = [];
+            end
+        end
+
+        function mpc = gen_cost_export(obj, dme, mpc, spec, vn, p_or_q, ridx)
+            %% define named indices into data matrices
+            [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
+
+            if dme.have_cost()
+                [pcost, qcost] = pqcost(mpc.gencost, spec.nr);
+                if p_or_q == 'P'
+                    pcost = obj.cost_table2gencost(dme, pcost, dme.tab.cost_pg, ridx);
+                    mpc.gencost(1:spec.nr, 1:size(pcost, 2)) = pcost;
+                elseif ismember('cost_qg', dme.tab.Properties.VariableNames)
+                    qcost = obj.cost_table2gencost(dme, qcost, dme.tab.cost_qg, ridx);
+                    mpc.gencost(spec.nr+1:2*spec.nr, 1:size(qcost, 2)) = qcost;
+                end
+            end
+        end
+
+        function tab = gencost2cost_table(obj, gencost);
             %% define named indices into data matrices
             [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
 
@@ -149,99 +216,39 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
             tab = table_class(npoly, p, npwl, qty, cst, 'VariableNames', var_names);
         end
 
-        function dme = import(obj, dme, mpc, varargin)
-            %% call parent
-            dme = import@dmc_element(obj, dme, mpc, varargin{:});
-            nr = size(dme.tab, 1);
-
-            %% import gencost
-            if dme.have_cost() && isfield(mpc, 'gencost') && nr
-                %% define named indices into data matrices
-                [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
-
-                %% convert single-block piecewise-linear costs into linear polynomial cost
-                gencost = mpc.gencost;
-                pwl1 = find(gencost(:, MODEL) == PW_LINEAR & gencost(:, NCOST) == 2);
-                % p1 = [];
-                if ~isempty(pwl1)
-                    x0 = gencost(pwl1, COST);
-                    y0 = gencost(pwl1, COST+1);
-                    x1 = gencost(pwl1, COST+2);
-                    y1 = gencost(pwl1, COST+3);
-                    m = (y1 - y0) ./ (x1 - x0);
-                    b = y0 - m .* x0;
-                    gencost(pwl1, MODEL) = POLYNOMIAL;
-                    gencost(pwl1, NCOST) = 2;
-                    gencost(pwl1, COST:COST+1) = [m b];
-                    dme.pwl1 = pwl1;
-                end
-                [pcost, qcost] = pqcost(gencost, nr);
-                dme.cost_pg = obj.create_cost_table(pcost);
-                dme.cost_qg = obj.create_cost_table(qcost);
-            end
-        end
-
-        function mpc = export(obj, dme, mpc, varargin)
-            %% call parent
-            mpc = export@dmc_element(obj, dme, mpc, varargin{:});
-
-            %% export gencost
-            if dme.have_cost()
-                if length(varargin) > 1
-                    ridx = varargin{2};
-                else
-                    ridx = [];
-                end
-
-                [pc, qc] = pqcost(mpc.gencost, dme.nr);
-                pcost = obj.export_gencost(dme, pc, dme.cost_pg, ridx);
-                qcost = obj.export_gencost(dme, qc, dme.cost_qg, ridx);
-
-                if isempty(qcost)
-                    mpc.gencost = pcost;
-                else
-                    %% make sure sizes match
-                    ncp = size(pcost, 2);
-                    ncq = size(qcost, 2);
-                    if ncp > ncq
-                        qcost(end, ncp) = 0;
-                    elseif ncq > ncp
-                        pcost(end, ncq) = 0;
-                    end
-                    mpc.gencost = [pcost; qcost];
-                end
-            end
-        end
-
-        function gencost = export_gencost(obj, dme, gencost, cost, ridx)
+        function gencost = cost_table2gencost(obj, dme, gencost0, cost, ridx)
             %% define named indices into data matrices
             [PW_LINEAR, POLYNOMIAL, MODEL, STARTUP, SHUTDOWN, NCOST, COST] = idx_cost;
 
             if isempty(cost)
                 gencost = [];
             else
+                gc = gencost0;
+                gc(:, MODEL) = 1*(cost.pwl_n ~= 0) + 2*(cost.poly_n~=0);
+                gc(:, NCOST) = cost.pwl_n + cost.poly_n;
+
+                %% expand for polynomial or piecewise cost curve data
+                n = max([cost.poly_n; 2*cost.pwl_n]);
+                gc(end, COST+n-1) = 0;
+
+                ipwl = find(cost.pwl_n);
+                if ~isempty(ipwl)
+                    nc = size(cost.pwl_qty, 2);
+                    gc(ipwl, COST:2:COST+2*nc-1) = cost.pwl_qty(ipwl, :);
+                    gc(ipwl, COST+1:2:COST+2*nc) = cost.pwl_cost(ipwl, :);
+                end
+                ipoly = find(cost.poly_n);
+                for k = 1:length(ipoly)
+                    i = ipoly(k);
+                    n = cost.poly_n(i);
+                    gc(i, COST:COST+n-1) = cost.poly_coef(i, n:-1:1);
+                end
+
                 if isempty(ridx)
-                    gencost(:, MODEL) = 1*(cost.pwl_n ~= 0) + 2*(cost.poly_n~=0);
-                    gencost(:, NCOST) = cost.pwl_n + cost.poly_n;
-
-                    %% expand for polynomial or piecewise cost curve data
-                    n = max([cost.poly_n; 2*cost.pwl_n]);
-                    gencost(end, COST+n-1) = 0;
-
-                    ipwl = find(cost.pwl_n);
-                    if ~isempty(ipwl)
-                        nc = size(cost.pwl_qty, 2);
-                        gencost(ipwl, COST:2:COST+2*nc-1) = cost.pwl_qty(ipwl, :);
-                        gencost(ipwl, COST+1:2:COST+2*nc) = cost.pwl_cost(ipwl, :);
-                    end
-                    ipoly = find(cost.poly_n);
-                    for k = 1:length(ipoly)
-                        i = ipoly(k);
-                        n = cost.poly_n(i);
-                        gencost(i, COST:COST+n-1) = cost.poly_coef(i, n:-1:1);
-                    end
+                    gencost = gc;
                 else
-                    error('dmce_gen_mpc2/export_gencost: not yet implemented for indexed rows of gencost');
+                    gencost = gencost0;
+                    gencost(ridx, :) = gc(ridx, :);
                 end
             end
         end

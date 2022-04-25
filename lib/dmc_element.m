@@ -272,9 +272,7 @@ classdef dmc_element < handle
         end
 
         function d = init_export_data(obj, dme, d, spec)
-            if ~obj.data_exists(d)
-                d = subsasgn(d, spec.subs, obj.default_export_data_table(spec));
-            end
+            d = subsasgn(d, spec.subs, obj.default_export_data_table(spec));
         end
 
         function dt = default_export_data_table(obj, spec)

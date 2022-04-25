@@ -10,17 +10,13 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-    properties
-        cost_pg     %% cost parameter table for active power generation, all gens
-        cost_qg     %% cost parameter table for reactive power generation, all gens
-        pwl1        %% indices of single-block piecewise linear costs, all gens
-                    %% (automatically converted to linear cost)
-    end     %% properties
+%     properties
+%     end     %% properties
 
     methods
         function names = main_table_var_names(obj)
             names = horzcat( main_table_var_names@dme_gen(obj), ...
-                {'mu_pg_lb', 'mu_pg_ub', 'mu_qg_lb', 'mu_qg_ub'});
+                {'cost_pg', 'cost_qg', 'mu_pg_lb', 'mu_pg_ub', 'mu_qg_lb', 'mu_qg_ub'});
         end
 
         function vars = export_vars(obj)
@@ -35,37 +31,37 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
         function cost = build_cost_params(obj, dm, dc)
             base_mva = dm.base_mva;
 
-            poly_p = obj.gen_cost_poly_params(base_mva, obj.cost_pg(obj.on, :));
-            if dc || isempty(obj.cost_qg)
-                pwl = obj.gen_cost_pwl_params(base_mva, obj.cost_pg(obj.on, :), obj.n, dc);
+            poly_p = obj.gen_cost_poly_params(base_mva, obj.tab.cost_pg(obj.on, :));
+            if dc || ~ismember('cost_qg', obj.tab.Properties.VariableNames)
+                pwl = obj.gen_cost_pwl_params(base_mva, obj.tab.cost_pg(obj.on, :), obj.n, dc);
                 poly_q = [];
             else
-                poly_q = obj.gen_cost_poly_params(base_mva, obj.cost_qg(obj.on, :));
+                poly_q = obj.gen_cost_poly_params(base_mva, obj.tab.cost_qg(obj.on, :));
 
                 %% expand cost params as needed
-                polyNp = max(obj.cost_pg.poly_n);
-                polyNq = max(obj.cost_qg.poly_n);
-                pwlNp  = max(obj.cost_pg.pwl_n);
-                pwlNq  = max(obj.cost_qg.pwl_n);
+                polyNp = max(obj.tab.cost_pg.poly_n);
+                polyNq = max(obj.tab.cost_qg.poly_n);
+                pwlNp  = max(obj.tab.cost_pg.pwl_n);
+                pwlNq  = max(obj.tab.cost_qg.pwl_n);
                 polyN = max(polyNp, polyNq);
                 pwlN = max(pwlNp, pwlNq);
-                if size(obj.cost_pg.poly_coef, 2) < polyN
-                    obj.cost_pg.poly_coef(end, polyN) = 0;
+                if size(obj.tab.cost_pg.poly_coef, 2) < polyN
+                    obj.tab.cost_pg.poly_coef(end, polyN) = 0;
                 end
-                if size(obj.cost_qg.poly_coef, 2) < polyN
-                    obj.cost_qg.poly_coef(end, polyN) = 0;
+                if size(obj.tab.cost_qg.poly_coef, 2) < polyN
+                    obj.tab.cost_qg.poly_coef(end, polyN) = 0;
                 end
-                if size(obj.cost_pg.pwl_cost, 2) < pwlN
-                    obj.cost_pg.pwl_qty(end, pwlN) = 0;
-                    obj.cost_pg.pwl_cost(end, pwlN) = 0;
+                if size(obj.tab.cost_pg.pwl_cost, 2) < pwlN
+                    obj.tab.cost_pg.pwl_qty(end, pwlN) = 0;
+                    obj.tab.cost_pg.pwl_cost(end, pwlN) = 0;
                 end
-                if size(obj.cost_qg.pwl_cost, 2) < pwlN
-                    obj.cost_qg.pwl_qty(end, pwlN) = 0;
-                    obj.cost_qg.pwl_cost(end, pwlN) = 0;
+                if size(obj.tab.cost_qg.pwl_cost, 2) < pwlN
+                    obj.tab.cost_qg.pwl_qty(end, pwlN) = 0;
+                    obj.tab.cost_qg.pwl_cost(end, pwlN) = 0;
                 end
 
                 %% stack pg & qg cost params first
-                cost = [obj.cost_pg; obj.cost_qg];
+                cost = [obj.tab.cost_pg; obj.tab.cost_qg];
                 pwl = obj.gen_cost_pwl_params(base_mva, cost, obj.n, dc);
             end
 
@@ -171,9 +167,10 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
         end
 
         function maxgc = max_pwl_gencost(obj)
-            maxgc = max(max(obj.cost_pg.pwl_cost));
-            if ~isempty(obj.cost_qg) && ~isempty(obj.cost_qg.pwl_cost)
-                maxgc = max(maxgc, max(max(obj.cost_qg.pwl_cost)));
+            maxgc = max(max(obj.tab.cost_pg.pwl_cost));
+            if ismember('cost_qg', obj.tab.Properties.VariableNames) && ...
+                    ~isempty(obj.tab.cost_qg.pwl_cost)
+                maxgc = max(maxgc, max(max(obj.tab.cost_qg.pwl_cost)));
             end
         end
 
