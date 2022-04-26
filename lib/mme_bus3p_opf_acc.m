@@ -11,7 +11,7 @@ classdef mme_bus3p_opf_acc < mme_bus3p
 %     properties
 %         name = 'bus';
 %     end
-    
+
     methods
         function x0 = interior_x0(obj, mm, nm, dm, x0)
             vv = mm.get_idx();

@@ -28,7 +28,7 @@ classdef mp_form < handle
 %     properties
 %         mp_form_field = '';
 %     end
-    
+
     methods
         function name = form_name(obj)
             error('mp_form/form_name: must be implemented in sub-class');

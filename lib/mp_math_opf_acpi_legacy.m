@@ -45,7 +45,7 @@ classdef mp_math_opf_acpi_legacy < mp_math_opf_acpi & mm_shared_opf_legacy
             add_named_set@mp_math_opf_acpi(obj, varargin{:});
             obj.add_named_set_legacy(varargin{:});
         end
- 
+
         function obj = def_set_types(obj)
             obj.def_set_types_legacy();
         end

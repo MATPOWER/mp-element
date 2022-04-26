@@ -11,7 +11,7 @@ classdef mme_buslink_opf < mme_buslink
 %     properties
 %         name = 'buslink';
 %     end
-    
+
     methods
         function x0 = interior_x0(obj, mm, nm, dm, x0)
         end

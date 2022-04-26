@@ -10,7 +10,7 @@ classdef mme_gen_pf_dc < mme_gen
 
 %     properties
 %     end
-    
+
     methods
         function obj = data_model_update(obj, mm, nm, dm, mpopt)
             %% generator active power

@@ -21,7 +21,7 @@ classdef mme_gen_opf < mme_gen
                     %%         struct with fields:
                     %%      .n, .i, .A, .b
     end
-    
+
     methods
         function obj = add_vars(obj, mm, nm, dm, mpopt)
             %% collect/construct all generator cost parameters

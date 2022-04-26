@@ -14,7 +14,7 @@ function [v0, vl, vu, vt] = params_var(obj, vtype, name, idx)
 %       [x0, xmin, xmax] = obj.params_var();
 %       [pg0, pg_lb, pg_ub] = obj.params_var('pg');
 %       [zij0, zij_lb, zij_ub, ztype] = obj.params_var('z', {i, j});
-%   
+%
 %   See also OPT_MODEL/PARAMS_VAR.
 
 %   MATPOWER
@@ -47,7 +47,7 @@ if nargin < 3
             if have_vt
                 N = var.idx.N.(name);
                 vt0 = var.data.vt.(name);
-                if isscalar(vt0) && N > 1 
+                if isscalar(vt0) && N > 1
                     vt = [ vt char(vt0 * ones(1, N)) ];
                 else
                     vt = [ vt vt0 ];
@@ -69,7 +69,7 @@ if nargin < 3
                 sn = sc; sn(2).type = '()';
                 N = subsref(var.idx.N, sn);
                 vt0 = subsref(var.data.vt, sc);
-                if isscalar(vt0) && N > 1 
+                if isscalar(vt0) && N > 1
                     vt = [ vt char(vt0 * ones(1, N)) ];
                 else
                     if ~isempty(vt0)
@@ -88,7 +88,7 @@ else
             if have_vt
                 N = var.idx.N.(name);
                 vt0 = var.data.vt.(name);
-                if isscalar(vt0) && N > 1 
+                if isscalar(vt0) && N > 1
                     vt = char(vt0 * ones(1, N));
                 else
                     vt = vt0;
@@ -109,7 +109,7 @@ else
                 sn = sc; sn(2).type = '()';
                 N = subsref(var.idx.N, sn);
                 vt0 = subsref(var.data.vt, sc);
-                if isscalar(vt0) && N > 1 
+                if isscalar(vt0) && N > 1
                     vt = char(vt0 * ones(1, N));
                 else
                     vt = vt0;

@@ -51,7 +51,7 @@ classdef mp_form_acp < mp_form_ac
 %             Ivm = Y * diagv;
 %             Iva = 1j * Ivm;
 %             Ivm = Ivm * D;
-% 
+%
 %             %% + current from linear power term
 %             Iva = Iva + 1j * C;
 %             Ivm = Ivm - C * D;

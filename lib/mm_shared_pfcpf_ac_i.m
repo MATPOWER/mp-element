@@ -10,7 +10,7 @@ classdef mm_shared_pfcpf_ac_i < handle
 
 %     properties
 %     end
-    
+
     methods
         function ad = build_aux_data_i(obj, nm, ad)
             %% build additional aux data

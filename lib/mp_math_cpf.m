@@ -220,7 +220,7 @@ classdef mp_math_cpf < mp_math_pf
             plim = mpopt.cpf.enforce_p_lims;    %% enforce active limits
             vlim = mpopt.cpf.enforce_v_lims;    %% enforce voltage magnitude limits
             flim = mpopt.cpf.enforce_flow_lims; %% enforce branch flow limits
-            
+
             %% initialize event and callback options
             if ~isfield(opt, 'events') || isempty(opt.events)
                 opt.events = {};

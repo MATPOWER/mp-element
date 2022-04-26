@@ -188,7 +188,7 @@ t = 'gen.port_inj_power(x, 1)';
 pg = gen.port_inj_power(x, 1);
 epg = -[0.67; 0.85; 1.63];
 t_is(pg, epg, 12, t);
- 
+
 t = 'gen.port_inj_power(x, 1, [3;1])';
 pg31 = gen.port_inj_power(x, 1, [3;1]);
 t_is(pg31, epg([3;1]), 12, t);
@@ -395,7 +395,7 @@ t = 'S = gen.port_inj_power(x_, 1)';
 Sg = gen.port_inj_power(x_, 1);
 eSg = -[0.7195470; 0.85; 1.63] + 1j * [-0.2406895; 0.0364902; -0.1446011];
 t_is(Sg, eSg, 6, t);
- 
+
 t = 'S = gen.port_inj_power(x_, 1, [3;1])';
 Sg31 = gen.port_inj_power(x_, 1, [3;1]);
 t_is(Sg31, eSg([3;1]), 6, t);
@@ -468,7 +468,7 @@ t = 'I = gen.port_inj_current(x_, 1)';
 Ig = gen.port_inj_current(x_, 1);
 eIg = -[0.7195470; 0.8440197; 1.6311322] + 1j * [0.2406896; -0.1070623; -0.1312139];
 t_is(Ig, eIg, 6, t);
- 
+
 t = 'I = gen.port_inj_current(x_, 1, [3;1])';
 Ig31 = gen.port_inj_current(x_, 1, [3;1]);
 t_is(Ig31, eIg([3;1]), 6, t);
@@ -792,7 +792,7 @@ t = 'S = gen.port_inj_power(x_, 1)';
 Sg = gen.port_inj_power(x_, 1);
 eSg = [-1.7165997; -0.85; -1.63] + 1j * [-0.2570733; -0.0079004; 0.1749047];
 t_is(Sg, eSg, 6, t);
- 
+
 t = 'S = gen.port_inj_power(x_, 1, [3;1])';
 Sg31 = gen.port_inj_power(x_, 1, [3;1]);
 t_is(Sg31, eSg([3;1]), 6, t);

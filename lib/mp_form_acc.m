@@ -169,7 +169,7 @@ classdef mp_form_acc < mp_form_ac
             %% intermediate terms
 %             A = diagIlincJ;
             B = diagvi * conj(Y);
-% 
+
 %             %% linear power term
 %             Su = M;
 %             Sw = 1j * M;
@@ -177,7 +177,7 @@ classdef mp_form_acc < mp_form_ac
 %             %% + power from linear current term
 %             Su = Su + A + B;
 %             Sw = Sw + 1j * (A - B);
-            
+
             A = M + diagIlincJ;
             Su = A + B;
             Sw = 1j * (A - B);
@@ -396,7 +396,7 @@ classdef mp_form_acc < mp_form_ac
             %% unpack data
             [vr, vi] = deal(xx{:});
             nn = length(vr);
-            
+
             %% evaluate Hessian of voltage magnitude^2 function
             if isempty(idx)
                 idx = 1:nn;

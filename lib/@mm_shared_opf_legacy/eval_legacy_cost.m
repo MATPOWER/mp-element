@@ -39,7 +39,7 @@ if om.cost.N
             idx = num2cell(ones(size(dims))); %% initialize idx
             while ~done     %% call eval_legacy_cost() recursively
                 f = f + om.eval_legacy_cost(x, name, idx);
-            
+
                 %% increment idx
                 D = length(dims);
                 idx{D} = idx{D} + 1;    %% increment last dimension

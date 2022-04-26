@@ -11,7 +11,7 @@ classdef mme_buslink_opf_acc < mme_buslink_opf
 %     properties
 %         name = 'buslink';
 %     end
-    
+
     methods
         function obj = add_constraints(obj, mm, nm, dm, mpopt)
             nme = obj.network_model_element(nm);
@@ -21,7 +21,7 @@ classdef mme_buslink_opf_acc < mme_buslink_opf
             vs = struct('name', {'Vr', 'Vr3', 'Vr3', 'Vr3', ...
                                  'Vi', 'Vi3', 'Vi3', 'Vi3'}, ...
                         'idx', {{}, {1}, {2}, {3}, {}, {1}, {2}, {3}});
-    
+
             fcn_va = @(xx)obj.va_fcn(nme, xx, A, b_va);
             hess_va = @(xx, lam)obj.va_hess(nme, xx, lam, A);
             mm.add_nln_constraint('buslink_va', length(b_va), 1, fcn_va, hess_va, vs);

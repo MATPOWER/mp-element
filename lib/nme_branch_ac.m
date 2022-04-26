@@ -11,7 +11,7 @@ classdef nme_branch_ac < nme_branch% & mp_form_ac
 %     properties
 %         name = 'branch';
 %     end
-    
+
     methods
         function obj = build_params(obj, nm, dm)
             build_params@nme_branch(obj, nm, dm);   %% call parent

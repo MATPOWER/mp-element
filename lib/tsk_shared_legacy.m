@@ -10,7 +10,7 @@ classdef tsk_shared_legacy < handle
 
 %     properties
 %     end
-    
+
     methods
         function [d, mpopt] = run_pre_legacy(obj, d, mpopt)
             if ~isa(d, 'mp_data')

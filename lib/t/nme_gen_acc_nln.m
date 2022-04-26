@@ -11,7 +11,7 @@ classdef nme_gen_acc_nln < nme_gen_acc & nme_wrapper_ac_nln
     properties
         nme_class = @nme_gen_acc;
     end
-    
+
     methods
         function obj = nme_gen_acc_nln()
             obj@nme_gen_acc();

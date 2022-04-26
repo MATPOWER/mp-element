@@ -188,7 +188,7 @@ for k = 1:length(cfg_cpf)
         casefile = casefiles{c};
         [alg, name, check, opts] = deal(cfg_cpf{k}{:});
         t = sprintf('CPF - %s : %s : ', casefile, name);
-        
+
         mpopt = mpoption(mpopt0, opts{:}, 'cpf.adapt_step', 1, ...
                         'cpf.nose_tol', 1e-8, 'cpf.stop_at', 'NOSE');
         mpc = loadcase(casefile);

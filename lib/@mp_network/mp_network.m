@@ -158,7 +158,7 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
                 last_i = last_i + m;
                 last_j = last_j + n;
             end
-            
+
             M = sparse(vertcat(ii{:}), vertcat(jj{:}), vertcat(ss{:}), last_i, last_j);
         end
 
@@ -196,9 +196,9 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
 
         %%-----  mp_idx_manager methods  -----
         display(obj)
-        
+
         [v0, vl, vu, vt] = params_var(obj, vtype, name, idx)
-        
+
         function obj = def_set_types(obj)
             obj.set_types = struct(...
                     'node', 'NODES', ...
@@ -210,7 +210,7 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
         function obj = init_set_types(obj)
             %% call parent to create base data structures for each type
             init_set_types@mp_idx_manager(obj);
-            
+
             %% finish initializing data structures for each type
             es = struct();                          %% empty struct
                                                     %% variable types
@@ -345,7 +345,7 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
                 args = varargin;
             end
             nargs = length(args);
-    
+
             v0 = []; vl = []; vu = []; vt = [];
             if nargs >= 1
                 v0 = args{1};
@@ -383,7 +383,7 @@ classdef mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_f
 
             %% add the named variable set
             obj.add_named_set(vtype, name, idx, N);
-            
+
             %% add type-specific data for var (v0, vl, vu, vt)
             d = obj.(vtype).data;
             obj.(vtype).data = [];

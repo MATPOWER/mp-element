@@ -10,7 +10,7 @@ classdef mm_shared_pfcpf_acp < mm_shared_pfcpf_ac
 
 %     properties
 %     end
-    
+
     methods
         function [vx_, z_, x_] = convert_x_m2n(obj, mmx, nm, only_v)
             %% x = obj.pf_convert(mmx, nm)

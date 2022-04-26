@@ -160,7 +160,7 @@ classdef mp_form_ac < mp_form
         function [S, Sv1, Sv2, Szr, Szi] = port_inj_power(obj, x_, sysx, idx)
             % S = obj.port_inj_power(x_, sysx)
             % S = obj.port_inj_power(x_, sysx, idx)
-            %   
+            %
             % [S, Sv1, Sv2] = obj.port_inj_power(...)
             % [S, Sv1, Sv2, Szr, Szi] = obj.port_inj_power(...)
             % sysx : 1 = system x_, 0 = class aggregate x_
@@ -462,7 +462,7 @@ classdef mp_form_ac < mp_form
             dSc = spdiags(conj(S), 0, n, n);
             dlam = spdiags(lam, 0, nlam, nlam);
             Sx = [Sv1 Sv2 Szr Szi];
-            
+
             d2H = 2 * real( obj.port_inj_power_hess(x_, dSc * lam, 1, idx) + ...
                         Sx.' * dlam * conj(Sx) );
         end
@@ -482,7 +482,7 @@ classdef mp_form_ac < mp_form
             dP = spdiags(real(S), 0, n, n);
             dlam = spdiags(lam, 0, nlam, nlam);
             Px = real([Sv1 Sv2 Szr Szi]);
-            
+
             d2H = 2 * real( obj.port_inj_power_hess(x_, dP * lam, 1, idx) + ...
                         Px.' * dlam * Px );
         end
@@ -496,7 +496,7 @@ classdef mp_form_ac < mp_form
             dIc = spdiags(conj(I), 0, n, n);
             dlam = spdiags(lam, 0, nlam, nlam);
             Ix = [Iv1 Iv2 Izr Izi];
-            
+
             d2H = 2 * real( obj.port_inj_power_hess(x_, dIc * lam, 1, idx) + ...
                         Ix.' * dlam * conj(Ix) );
         end

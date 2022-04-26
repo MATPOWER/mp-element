@@ -10,7 +10,7 @@ classdef mm_shared_pfcpf_accs < mm_shared_pfcpf_acc
 
 %     properties
 %     end
-    
+
     methods
         function obj = add_system_vars_pf(obj, nm, dm, mpopt)
             %% get model variables

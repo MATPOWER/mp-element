@@ -10,7 +10,7 @@ classdef mme_branch_opf < mme_branch
 
 %     properties
 %     end
-    
+
     methods
         function [A, l, u, i] = ang_diff_params(obj, dm, ignore)
             dme = obj.data_model_element(dm);

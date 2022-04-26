@@ -12,7 +12,7 @@ classdef mp_network_dc < mp_network & mp_form_dc
         va = [];
         z  = [];
     end
-    
+
     methods
         %% constructor
         function obj = mp_network_dc()

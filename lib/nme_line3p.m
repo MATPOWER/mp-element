@@ -10,7 +10,7 @@ classdef nme_line3p < nm_element & mp_form_acp
 
 %     properties
 %     end
-    
+
     methods
         function name = name(obj)
             name = 'line3p';

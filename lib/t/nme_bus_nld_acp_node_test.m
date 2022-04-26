@@ -10,7 +10,7 @@ classdef nme_bus_nld_acp_node_test < nme_bus_acp
 
 %     properties
 %     end
-    
+
     methods
         function name = name(obj)
             name = 'bus_nld';

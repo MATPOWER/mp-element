@@ -10,7 +10,7 @@ classdef mme_line3p_opf < mme_line3p
 
 %     properties
 %     end
-    
+
     methods
         function x0 = interior_x0(obj, mm, nm, dm, x0)
         end

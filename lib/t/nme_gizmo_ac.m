@@ -11,7 +11,7 @@ classdef nme_gizmo_ac < nme_gizmo% & mp_form_ac
 %     properties
 %         name = 'gizmo';
 %     end
-    
+
     methods
         function obj = add_zvars(obj, nm, dm, idx)
             tab = obj.data_model_element(dm).tab;

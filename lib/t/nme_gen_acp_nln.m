@@ -11,7 +11,7 @@ classdef nme_gen_acp_nln < nme_gen_acp & nme_wrapper_ac_nln
     properties
         nme_class = @nme_gen_acp;
     end
-    
+
     methods
         function obj = nme_gen_acp_nln()
             obj@nme_gen_acp();

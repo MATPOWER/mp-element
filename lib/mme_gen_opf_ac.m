@@ -11,7 +11,7 @@ classdef mme_gen_opf_ac < mme_gen_opf
 %     properties
 %         name = 'gen';
 %     end
-    
+
     methods
         function obj = add_constraints(obj, mm, nm, dm, mpopt)
             %% generator PQ capability curve constraints

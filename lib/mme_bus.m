@@ -10,7 +10,7 @@ classdef mme_bus < mm_element
 
 %     properties
 %     end
-    
+
     methods
         function name = name(obj)
             name = 'bus';

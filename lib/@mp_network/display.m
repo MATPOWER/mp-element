@@ -52,7 +52,7 @@ fprintf(' -------------   --------  ----  ----  --------------------\n');
 for k = 1:length(obj.elements)
     nme = obj.elements{k};
     fprintf('  %-10s %11d %5d %5d    %s', nme.name, nme.nk, nme.np, nme.nz, class(nme));
-    
+
     for j = 1:length(model_params)
         pn = model_params{j};   %% parameter name
         if ~isempty(nme.(pn))

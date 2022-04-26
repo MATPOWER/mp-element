@@ -12,7 +12,7 @@ classdef mme_branch_opf_acc < mme_branch_opf_ac
 %     properties
 %         name = 'branch';
 %     end
-    
+
     methods
         function obj = add_constraints(obj, mm, nm, dm, mpopt)
             nme = obj.network_model_element(nm);

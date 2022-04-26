@@ -10,7 +10,7 @@ classdef mm_shared_pfcpf_acci < mm_shared_pfcpf_acc & mm_shared_pfcpf_ac_i
 
 %     properties
 %     end
-    
+
     methods
         function ad = build_aux_data(obj, nm, dm, mpopt)
              %% call parent

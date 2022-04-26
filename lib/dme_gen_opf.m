@@ -99,7 +99,7 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
 
                 %% form constraint matrix
                 m = sum(cost.pwl_n(ipwl));  %% total number of cost points
-                Ay = sparse([], [], [], m-ny, ybas+ny-1, 2*(m-ny)); 
+                Ay = sparse([], [], [], m-ny, ybas+ny-1, 2*(m-ny));
                 by = [];
                 k = 1;
                 j = 1;

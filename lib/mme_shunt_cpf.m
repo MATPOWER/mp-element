@@ -10,7 +10,7 @@ classdef mme_shunt_cpf < mme_shunt_pf_ac
 
 %     properties
 %     end
-    
+
     methods
         function obj = data_model_update(obj, mm, nm, dm, mpopt)
             %% call parent to compute injections

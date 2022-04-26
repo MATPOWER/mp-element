@@ -11,7 +11,7 @@ classdef mme_branch_opf_acp < mme_branch_opf_ac
 %     properties
 %         name = 'branch';
 %     end
-    
+
     methods
         function obj = add_constraints(obj, mm, nm, dm, mpopt)
             %% call parent

@@ -49,7 +49,7 @@ classdef nm_element < handle
                     %% and kk = k + (j-1)*nz
         soln        %% struct for storing solved states, quantities
     end
-    
+
     methods
         function name = name(obj)
             name = '';      %% e.g. 'bus', 'gen'
@@ -356,7 +356,7 @@ classdef nm_element < handle
 %             [mD, nD] = size(D);
 %             A = [ C sparse(mC, nD); sparse(mD, nC) D ];
 %         end
-%         
+% 
 %         function Ap = getAprime(obj, tr)
 %             if nargin < 1
 %                 C = obj.C';
@@ -372,7 +372,7 @@ classdef nm_element < handle
 %                     sparse(mD, 2*nC) D sparse(mD, nD);
 %                     sparse(mD, 2*nC+nD) D ];
 %         end
-        
+
         function display(obj)
 %             if have_feature('octave')
 %                 struct(obj)

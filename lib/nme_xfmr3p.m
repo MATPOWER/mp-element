@@ -10,7 +10,7 @@ classdef nme_xfmr3p < nm_element & mp_form_acp
 
 %     properties
 %     end
-    
+
     methods
         function name = name(obj)
             name = 'xfmr3p';

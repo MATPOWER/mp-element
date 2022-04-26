@@ -10,7 +10,7 @@ classdef mm_shared_pfcpf_dc < mm_shared_pfcpf
 
 %     properties
 %     end
-    
+
     methods
         function ad = build_aux_data(obj, nm, dm, mpopt)
             %% call parent
@@ -77,7 +77,7 @@ classdef mm_shared_pfcpf_dc < mm_shared_pfcpf
 
         function z = update_z(obj, nm, v, z, ad)
             %% update/allocate slack node active power injections
-            
+
             %% coefficient matrix for power injection states at slack bus
             CC = nm.C(ad.ref, :) * nm.get_params([], 'K') * nm.D';
             jr = find(any(CC, 1));  %% indices of corresponding states

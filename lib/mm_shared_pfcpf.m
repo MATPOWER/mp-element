@@ -10,7 +10,7 @@ classdef mm_shared_pfcpf < handle
 
 %     properties
 %     end
-    
+
     methods
         function ad = build_aux_data(obj, nm, dm, mpopt)
             %% create aux_data struct

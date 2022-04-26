@@ -11,7 +11,7 @@ classdef nme_gen_dc < nme_gen & mp_form_dc
 %     properties
 %         name = 'gen';
 %     end
-    
+
     methods
         function obj = add_zvars(obj, nm, dm, idx)
             ng = obj.nk;

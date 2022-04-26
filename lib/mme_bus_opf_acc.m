@@ -11,7 +11,7 @@ classdef mme_bus_opf_acc < mme_bus_opf_ac
 %     properties
 %         name = 'bus';
 %     end
-    
+
     methods
         function add_constraints(obj, mm, nm, dm, mpopt)
             dme = obj.data_model_element(dm);

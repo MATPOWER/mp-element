@@ -10,7 +10,7 @@ classdef mme_bus_pf_acc < mme_bus
 
 %     properties
 %     end
-    
+
     methods
         function obj = data_model_update(obj, mm, nm, dm, mpopt)
             %% complex bus voltages

@@ -10,7 +10,7 @@ classdef mme_gen < mm_element
 
 %     properties
 %     end
-    
+
     methods
         function name = name(obj)
             name = 'gen';

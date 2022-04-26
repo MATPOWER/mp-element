@@ -10,7 +10,7 @@ classdef mme_xfmr3p < mm_element
 
 %     properties
 %     end
-    
+
     methods
         function name = name(obj)
             name = 'xfmr3p';

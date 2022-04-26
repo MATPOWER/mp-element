@@ -40,7 +40,7 @@ classdef mp_math_pf_acps < mp_math_pf & mm_shared_pfcpf_acps
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
             alg = mpopt.pf.alg;
             ad = obj.aux_data;
-            
+
             %% power balance constraints
             switch alg
                 case  {'FDXB', 'FDBX'}
@@ -59,7 +59,7 @@ classdef mp_math_pf_acps < mp_math_pf & mm_shared_pfcpf_acps
             [v_, z_] = obj.convert_x_m2n(x, nm, 1);
 
             [pv, pq, npv, npq, Y] = deal(ad.pv, ad.pq, ad.npv, ad.npq, ad.Y);
-            
+
             %% total nodal complex bus power extractions
             SS = zeros(size(v_));
             SS(pv) = f(1:npv);

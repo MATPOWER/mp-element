@@ -11,7 +11,7 @@ classdef mme_buslink_pf_ac < mme_buslink
 %     properties
 %         name = 'buslink';
 %     end
-    
+
     methods
         function obj = add_vars(obj, mm, nm, dm, mpopt)
             nme = obj.network_model_element(nm);

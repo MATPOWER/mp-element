@@ -11,7 +11,7 @@ classdef nme_wrapper_ac_nln < handle
     properties
         nme = [];           %% wrapped nm_element object
     end
-    
+
     methods
         function obj = nme_wrapper_ac_nln_init(obj)
             obj.nme = obj.nme_class();      %% construct wrapped class
@@ -20,7 +20,7 @@ classdef nme_wrapper_ac_nln < handle
         function build_nln_params(obj, nm, dm)
             %% build params for wrapped object
             obj.nme.build_params(nm, dm);
-            
+
             %% remove other params
             obj.Y = [];
             obj.L = [];
@@ -28,7 +28,7 @@ classdef nme_wrapper_ac_nln < handle
             obj.N = [];
             obj.i = [];
             obj.s = [];
-            
+
             %% add nonlinear function/hessian params
             obj.inln = @(x_, sysx, idx)port_inj_current(obj.nme, x_, sysx, idx);
             obj.snln = @(x_, sysx, idx)port_inj_power(obj.nme, x_, sysx, idx);

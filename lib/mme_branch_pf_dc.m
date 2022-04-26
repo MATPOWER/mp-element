@@ -10,7 +10,7 @@ classdef mme_branch_pf_dc < mme_branch
 
 %     properties
 %     end
-    
+
     methods
         function obj = data_model_update(obj, mm, nm, dm, mpopt)
             %% branch active power flows

@@ -405,7 +405,7 @@ classdef mp_task < handle
             nm.build(dm);
             nm = obj.network_model_build_post(nm, dm, mpopt);
         end
-        
+
         function nm = network_model_build_pre(obj, nm, dm, mpopt)
         end
 

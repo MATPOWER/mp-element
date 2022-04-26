@@ -9,8 +9,8 @@ classdef nme_gizmo_acp < nme_gizmo_ac & mp_form_acp
 %   See https://matpower.org for more info.
 
 %     properties
-%     end
-%     
+%     end     %% properties
+
 %     methods
 %     end     %% methods
 end         %% classdef

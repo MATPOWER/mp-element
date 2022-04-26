@@ -11,7 +11,7 @@ classdef mme_buslink_opf_acp < mme_buslink_opf
 %     properties
 %         name = 'buslink';
 %     end
-    
+
     methods
         function obj = add_constraints(obj, mm, nm, dm, mpopt)
             nme = obj.network_model_element(nm);

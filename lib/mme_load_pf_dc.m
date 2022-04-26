@@ -10,7 +10,7 @@ classdef mme_load_pf_dc < mme_load
 
 %     properties
 %     end
-    
+
     methods
         function obj = data_model_update(obj, mm, nm, dm, mpopt)
             %% load active power consumption

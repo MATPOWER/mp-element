@@ -229,7 +229,7 @@ classdef mp_network_ac < mp_network% & mp_form_ac
                     %% indices of rows/cols of H corresponding to nme x_
                     h = [(i1:iN) nv+(i1:iN) 2*nv+(j1:jN) 2*nv+nz+(j1:jN)].';
                 end
-                
+
                 %% set up port index and lambda vectors for nme
                 if ~isempty(idx)    %% selected ports only
                     apidx = find(idx >= i1 & idx <= iN);    %% aggregate port indices in range

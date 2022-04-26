@@ -10,7 +10,7 @@ classdef nme_gizmo < nm_element
 
 %     properties
 %     end
-    
+
     methods
         function name = name(obj)
             name = 'gizmo';

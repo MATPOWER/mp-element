@@ -12,7 +12,7 @@ classdef mp_network_acc < mp_network_ac & mp_form_acc
         vr = [];
         vi = [];
     end
-    
+
     methods
         function obj = mp_network_acc()
             obj@mp_network_ac();

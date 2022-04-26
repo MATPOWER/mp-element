@@ -11,7 +11,7 @@ classdef mme_bus_opf_ac < mme_bus
 %     properties
 %         name = 'bus';
 %     end
-    
+
     methods
         function vm = interior_vm(obj, mm, nm, dm)
             %% return vm equal to avg of clipped limits

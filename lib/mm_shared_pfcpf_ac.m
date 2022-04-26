@@ -10,7 +10,7 @@ classdef mm_shared_pfcpf_ac < mm_shared_pfcpf
 
 %     properties
 %     end
-    
+
     methods
         function obj = add_system_varset_pf(obj, nm, vvar, typ)
             ad = obj.aux_data;

@@ -10,7 +10,7 @@ classdef mme_shunt_pf_dc < mme_shunt
 
 %     properties
 %     end
-    
+
     methods
         function obj = data_model_update(obj, mm, nm, dm, mpopt)
             %% shunt complex power consumption

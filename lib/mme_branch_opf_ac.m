@@ -10,7 +10,7 @@ classdef mme_branch_opf_ac < mme_branch_opf
 
 %     properties
 %     end
-    
+
     methods
         function obj = add_constraints(obj, mm, nm, dm, mpopt)
             %% find branches with flow limits

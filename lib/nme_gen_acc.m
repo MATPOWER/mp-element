@@ -9,8 +9,8 @@ classdef nme_gen_acc < nme_gen_ac & mp_form_acc
 %   See https://matpower.org for more info.
 
 %     properties
-%     end
-%     
+%     end     %% properties
+
 %     methods
 %     end     %% methods
 end         %% classdef

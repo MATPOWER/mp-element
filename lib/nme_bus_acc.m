@@ -12,7 +12,7 @@ classdef nme_bus_acc < nme_bus & mp_form_acc
 %     properties
 %         name = 'bus';
 %     end
-    
+
     methods
         function obj = add_vvars(obj, nm, dm, idx)
             dme = obj.data_model_element(dm);

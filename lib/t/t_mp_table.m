@@ -466,7 +466,7 @@ for k = 1:nc
     T5 = table_class(var3, var2);
     T6 = [T2 T1 T5];
     t_ok(isequal(T6, [T4 T5]), [t '[T1 T2 T3]']);
- 
+
     %% deleting variables
     t = sprintf('%s : delete variables : ', cls);
     if skip

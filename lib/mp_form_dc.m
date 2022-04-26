@@ -63,17 +63,17 @@ classdef mp_form_dc < mp_form
 
         function P = port_inj_power(obj, x, sysx, idx)
             % sys x : 1 = system x, 0 = class aggregate x
-            
+
             if nargin < 4
                 idx = [];
                 if nargin < 3
                     sysx = 1;
                 end
             end
-            
+
             [B, K, p] = obj.get_params(idx);
             [v, z] = obj.x2vz(x, sysx);
-            
+
             if isempty(z)
                 P = B*v + p;
             else

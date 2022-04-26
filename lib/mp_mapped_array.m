@@ -7,7 +7,7 @@ classdef mp_mapped_array < handle
 %       VALS - cell array of values to be stored
 %       NAMES - cell array of names for each element in VALS,
 %           where a valid name is any valid variable name, except
-%           'p_', 'add_name', 'add_elements', 'delete_elements', 
+%           'p_', 'add_name', 'add_elements', 'delete_elements',
 %           'is_index_name', 'name2idx', 'copy' and 'display'
 %
 %   Currently, arrays are only 1-D.
