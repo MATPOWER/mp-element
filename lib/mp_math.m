@@ -75,11 +75,11 @@ classdef mp_math < mp_element_container & opt_model
             %% elements
             fprintf('\nELEMENTS\n')
             fprintf('========\n')
-            fprintf('  name           class\n');
-            fprintf(' -------------  --------------------\n');
+            fprintf('  name              class\n');
+            fprintf(' ----------------  --------------------\n');
             for k = 1:length(obj.elements)
                 mme = obj.elements{k};
-                fprintf('  %-10s     %s\n', mme.name, class(mme));
+                fprintf('  %-13s     %s\n', mme.name, class(mme));
             end
         end
 
