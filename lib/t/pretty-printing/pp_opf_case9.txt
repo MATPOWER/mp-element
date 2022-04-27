@@ -107,7 +107,7 @@ Load ID    Bus ID   Status   P (MW)   Q (MVAr)
       3         3       -       10.00    94.19   270.00       -   
 
                                  Reactive Power Limits
- Gen ID    Bus ID     mu LB      LB       pg       UB       mu UB
+ Gen ID    Bus ID     mu LB      LB       qg       UB       mu UB
 --------  --------  ---------  -------  -------  -------   --------
       1         1       -     -300.00    12.97   300.00       -   
       2         2       -     -300.00     0.03   300.00       -   

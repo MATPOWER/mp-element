@@ -236,7 +236,7 @@ Link ID    Bus ID    Bus ID   Status
       3         3       -       10.00    99.39   270.00       -   
 
                                  Reactive Power Limits
- Gen ID    Bus ID     mu LB      LB       pg       UB       mu UB
+ Gen ID    Bus ID     mu LB      LB       qg       UB       mu UB
 --------  --------  ---------  -------  -------  -------   --------
       1         1       -     -300.00    25.36   300.00       -   
       2         2       -     -300.00    16.99   300.00       -   

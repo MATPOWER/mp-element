@@ -209,14 +209,25 @@ classdef dme_gen_opf < dme_gen & dme_shared_opf
 
         function h = pp_get_headers_lim(obj, dm, out_e, mpopt, pp_args)
             if pp_args.gen.pq == 'P'
-                h1 = [pp_get_headers_lim@dme_shared_opf(obj, dm, out_e, mpopt, pp_args) ...
-                      {'                                  Active Power Limits'} ];
+                h0 = pp_get_headers_lim@dme_shared_opf(obj, dm, out_e, mpopt, pp_args);
+                label = ' Active Power Limits';
+                var = 'pg';
             else    % pp_args.gen.pq == 'Q'
-                h1 = {'', ...
-                      '                                 Reactive Power Limits' };
+                tmp = pp_args; tmp.gen.pq = 'P';
+                rows = obj.pp_rows_lim(dm, out_e, mpopt, tmp);
+                if isempty(rows)
+                    h0 = pp_get_headers_lim@dme_shared_opf(obj, dm, out_e, mpopt, pp_args);
+                else
+                    h0 = {''};
+                end
+                label = 'Reactive Power Limits';
+                var = 'qg';
             end
-            h = [ h1 ...
-                {   ' Gen ID    Bus ID     mu LB      LB       pg       UB       mu UB', ...
+            h = [ h0, ...
+                {   sprintf(...
+                    '                                 %s', label), ...
+                    sprintf( ...
+                    ' Gen ID    Bus ID     mu LB      LB       %s       UB       mu UB', var), ...
                     '--------  --------  ---------  -------  -------  -------   --------' } ];
             %%       1234567   1234567  12345.789 12345.78 12345.78 12345.78  12345.789
         end

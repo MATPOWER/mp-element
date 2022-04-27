@@ -187,7 +187,7 @@ Shunt ID   Bus ID   Status   P (MW)   Q (MVAr)
       9        30     19.200   -30.00   -30.00     0.00       -   
 
                                  Reactive Power Limits
- Gen ID    Bus ID     mu LB      LB       pg       UB       mu UB
+ Gen ID    Bus ID     mu LB      LB       qg       UB       mu UB
 --------  --------  ---------  -------  -------  -------   --------
       7         7     46.837   -15.00   -15.00     0.00       -   
       8        15     56.016   -12.00   -12.00     0.00       -   
