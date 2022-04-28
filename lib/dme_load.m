@@ -114,6 +114,12 @@ classdef dme_load < dm_element
             %%       1234567 123456789 -----1 12345678.0 1234567.9
         end
 
+        function f = pp_get_footers_det(obj, dm, out_e, mpopt, pp_args)
+            f = {'                            --------  --------',
+                sprintf('%18s Total:%10.1f %9.1f', ...
+                    '', sum(obj.tab.p(obj.on)), sum(obj.tab.q(obj.on)))};
+        end
+
         function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
             if obj.tab.status(k) && abs(obj.tab.p(k)) > 1e-5
                 p = sprintf('%10.1f', obj.tab.p(k));

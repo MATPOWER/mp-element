@@ -184,6 +184,12 @@ classdef dm_element < handle
 
                     %% data
                     obj.pp_data(dm, section, rows, out_e, mpopt, fd, pp_args);
+
+                    %% footers
+                    f = obj.pp_get_footers(dm, section, out_e, mpopt, pp_args);
+                    for k = 1:length(f)
+                        fprintf(fd, '%s\n', f{k});
+                    end
                 end
             end
         end
@@ -220,6 +226,17 @@ classdef dm_element < handle
                     h = obj.pp_get_headers_det(dm, out_e, mpopt, pp_args);
                 otherwise
                     h = obj.pp_get_headers_other(dm, section, out_e, mpopt, pp_args);
+            end
+        end
+
+        function f = pp_get_footers(obj, dm, section, out_e, mpopt, pp_args)
+            switch section
+                case {'cnt', 'sum', 'ext'}
+                    f = {};
+                case 'det'
+                    f = obj.pp_get_footers_det(dm, out_e, mpopt, pp_args);
+                otherwise
+                    f = obj.pp_get_footers_other(dm, section, out_e, mpopt, pp_args);
             end
         end
 
@@ -289,6 +306,10 @@ classdef dm_element < handle
             else
                 h = dm.pp_section_label(str);
             end
+        end
+
+        function f = pp_get_footers_det(obj, dm, out_e, mpopt, pp_args)
+            f = {};
         end
 
         function obj = pp_data_det(obj, dm, rows, out_e, mpopt, fd, pp_args)

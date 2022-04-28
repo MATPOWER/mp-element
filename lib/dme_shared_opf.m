@@ -50,6 +50,15 @@ classdef dme_shared_opf < handle
             end
         end
 
+        function f = pp_get_footers_other(obj, dm, section, out_e, mpopt, pp_args)
+            switch section
+                case 'lim'
+                    f = obj.pp_get_footers_lim(dm, out_e, mpopt, pp_args);
+                otherwise
+                    error('dme_shared_opf:pp_get_footers_other: unknown section ''%s''', section);
+            end
+        end
+
         function obj = pp_data_other(obj, dm, section, rows, out_e, mpopt, fd, pp_args)
             switch section
                 case 'lim'
@@ -88,6 +97,10 @@ classdef dme_shared_opf < handle
             else
                 h = dm.pp_section_label(str);
             end
+        end
+
+        function f = pp_get_footers_lim(obj, dm, out_e, mpopt, pp_args)
+            f = {};
         end
 
         function obj = pp_data_lim(obj, dm, rows, out_e, mpopt, fd, pp_args)

@@ -107,6 +107,12 @@ classdef dme_shunt < dm_element
             %%       1234567 123456789 -----1 1234567.90 123456.89
         end
 
+        function f = pp_get_footers_det(obj, dm, out_e, mpopt, pp_args)
+            f = {'                            --------  --------',
+                sprintf('%18s Total:%10.2f %9.2f', ...
+                    '', sum(obj.tab.p(obj.on)), sum(obj.tab.q(obj.on)))};
+        end
+
         function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
             if obj.tab.status(k) && abs(obj.tab.p(k)) > 1e-5
                 p = sprintf('%10.2f', obj.tab.p(k));
