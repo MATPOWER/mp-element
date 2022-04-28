@@ -207,9 +207,18 @@ classdef dme_gen < dm_element
         end
 
         function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
-            str = sprintf('%7d %9d %6d %10.1f %9.1f', ...
-                obj.tab.uid(k), obj.tab.bus(k), obj.tab.status(k), ...
-                obj.tab.pg(k), obj.tab.qg(k));
+            if obj.tab.status(k) && abs(obj.tab.pg(k)) > 1e-5
+                pg = sprintf('%10.1f', obj.tab.pg(k));
+            else
+                pg = '       -  ';
+            end
+            if obj.tab.status(k) && abs(obj.tab.qg(k)) > 1e-5
+                qg = sprintf('%9.1f', obj.tab.qg(k));
+            else
+                qg = '      -  ';
+            end
+            str = sprintf('%7d %9d %6d %10s %9s', ...
+                obj.tab.uid(k), obj.tab.bus(k), obj.tab.status(k), pg, qg);
         end
     end     %% methods
 end         %% classdef

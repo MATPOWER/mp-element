@@ -50,6 +50,9 @@ classdef mp_data_opf < mp_data
                 out_s.elm.branch  = out_s.all;
                 out_s.elm.gen     = out_s.all;
             end
+            if isfield(mpopt.out.lim, 'elm')
+                out_s.elm = nested_struct_copy(out_s.elm, mpopt.out.lim.elm);
+            end
             out_s.any = any(cell2mat( ...
                     cellfun(@double, struct2cell(out_s.elm), ...
                             'UniformOutput', false) ));

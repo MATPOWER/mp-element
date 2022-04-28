@@ -115,9 +115,18 @@ classdef dme_load < dm_element
         end
 
         function str = pp_data_row_det(obj, dm, k, out_e, mpopt, fd, pp_args)
-            str = sprintf('%7d %9d %6d %10.1f %9.1f', ...
-                obj.tab.uid(k), obj.tab.bus(k), obj.tab.status(k), ...
-                obj.tab.p(k), obj.tab.q(k));
+            if obj.tab.status(k) && abs(obj.tab.p(k)) > 1e-5
+                p = sprintf('%10.1f', obj.tab.p(k));
+            else
+                p = '       -  ';
+            end
+            if obj.tab.status(k) && abs(obj.tab.q(k)) > 1e-5
+                q = sprintf('%9.1f', obj.tab.q(k));
+            else
+                q = '      -  ';
+            end
+            str = sprintf('%7d %9d %6d %10s %9s', ...
+                obj.tab.uid(k), obj.tab.bus(k), obj.tab.status(k), p, q);
         end
     end     %% methods
 end         %% classdef
