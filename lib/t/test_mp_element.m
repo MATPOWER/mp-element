@@ -44,6 +44,7 @@ tests{end+1} = 't_node_test';
 tests{end+1} = 't_run_mp';
 tests{end+1} = 't_run_mp_3p';
 tests{end+1} = 't_pretty_print';
+tests{end+1} = 't_mpx_reserves';
 
 %% run the tests
 all_ok = t_run_tests( tests, verbose );
