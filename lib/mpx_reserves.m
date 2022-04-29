@@ -32,21 +32,6 @@ classdef mpx_reserves < mp_extension
             end
         end
 
-        function nm_elements = nm_element_classes(obj, nm_class, task_tag, mpopt)
-            switch task_tag
-                case {'OPF'}
-                    if strcmp(upper(mpopt.model), 'AC')
-                        nm_elements = { @nme_reserve_gen_ac, ...
-                                        @nme_reserve_zone_ac };
-                    else
-                        nm_elements = { @nme_reserve_gen_dc, ...
-                                        @nme_reserve_zone_dc };
-                    end
-                otherwise
-                    nm_elements = {};       %% no modifications
-            end
-        end
-
         function mm_elements = mm_element_classes(obj, mm_class, task_tag, mpopt)
             switch task_tag
                 case {'OPF'}

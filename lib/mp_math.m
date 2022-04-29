@@ -58,7 +58,7 @@ classdef mp_math < mp_element_container & opt_model
             obj.elements = mp_mapped_array();
             for c = obj.element_classes
                 mme = c{1}();       %% element constructor
-                if is_index_name(nm.elements, mme.name) %% nm element exists
+                if dm.online(mme.name)      %% dm element exists
                     obj.elements.add_elements(mme, mme.name);
                 end
             end
