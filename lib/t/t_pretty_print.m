@@ -29,11 +29,7 @@ else
     verbose = 0;
 end
 if have_feature('octave')
-    if have_feature('octave', 'vnum') >= 4
-        file_in_path_warn_id = 'Octave:data-file-in-path';
-    else
-        file_in_path_warn_id = 'Octave:fopen-file-in-path';
-    end
+    file_in_path_warn_id = 'Octave:data-file-in-path';
     s1 = warning('query', file_in_path_warn_id);
     warning('off', file_in_path_warn_id);
 end
