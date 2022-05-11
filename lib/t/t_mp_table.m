@@ -51,8 +51,10 @@ for k = 1:nc
 
     t = sprintf('%s : constructor - no args : ', cls);
     T = table_class();
-    skip = have_feature('octave') && isa(T, 'table') && ...
+    skip_oct_tab = isa(T, 'table') && have_feature('octave') && ...
             skip_tests_for_tablicious;
+    skip_ml_tab = isa(T, 'table') && have_feature('matlab') && ...
+            have_feature('matlab', 'vnum') < 9.010;
     t_ok(isa(T, class_names{k}), [t 'class']);
     t_ok(isempty(T), [t 'isempty']);
 
@@ -85,7 +87,7 @@ for k = 1:nc
 % show_me(T(5,4));
 
     t = sprintf('%s : constructor - ind vars, w/names : ', cls);
-    if skip
+    if skip_oct_tab || skip_ml_tab
         T = table_class(var1, var2, var3, var4, var5, var6, ...
             'VariableNames', var_names, 'RowNames', row_names);
     else
@@ -102,7 +104,7 @@ for k = 1:nc
     t_is([nr, nz], [6 6], 12, [t '[nr, nz] = size(T)']);
     t_ok(isequal(T.Properties.VariableNames, var_names), [t 'VariableNames'] );
     t_ok(isequal(T.Properties.RowNames, row_names), [t 'RowNames'] );
-    if skip
+    if skip_oct_tab || skip_ml_tab
         t_skip(1, [t 'DimensionNames not yet supported'] );
     else
         t_ok(isequal(T.Properties.DimensionNames, dim_names), [t 'DimensionNames'] );
@@ -173,7 +175,7 @@ for k = 1:nc
 
     %% {} indexing
     t = sprintf('%s : subsref {} : ', cls);
-    if skip
+    if skip_oct_tab
         t_skip(6, [t 'T{:, j} syntax not yet supported'])
     else
         t_ok(isequal(T{:, 1}, v1), [t 'T{:, 1} == v1']);
@@ -185,20 +187,20 @@ for k = 1:nc
     end
 
     t_ok(isequal(T{2, 1}, v1(2)), [t 'T{i, j} == v<j>(i)']);
-    if skip
+    if skip_oct_tab
         t_skip(1, [t 'T{i, j} syntax not yet supported for matrices'])
     else
         t_ok(isequal(T{4, 6}, v6(4, :)), [t 'T{i, j} == v<j>(i)']);
     end
 
-    %% remove skip when https://github.com/apjanke/octave-tablicious/pull/89
-    %% is merged
-    if skip
+    %% remove skip_oct_tab when
+    %% https://github.com/apjanke/octave-tablicious/pull/89 is merged
+    if skip_oct_tab
         t_skip(1, [t 'T{end, end} syntax not yet supported'])
     else
         t_ok(isequal(T{end, end}, v6(end,:)), [t 'T{end, end} == v<end>(end,:)']);
     end
-    if skip
+    if skip_oct_tab
         t_skip(8, [t 'T{ii, j} syntax not yet supported'])
     else
         t_ok(isequal(T{1:3, 2}, v2(1:3)), [t 'T{i1:iN, j} == v<j>(i1:iN)']);
@@ -222,7 +224,7 @@ for k = 1:nc
     t_is(T.dbl, var4, 12, [t 'T{:, 4} = var4']);
     T{:, 5} = var5;
     t_is(T.boo, var5, 12, [t 'T{:, 5} = var5']);
-    if skip
+    if skip_oct_tab
         t_skip(1, 'T{:, j} = M syntax not yet supported for matrices');
     else
         T{:, 6} = var6;
@@ -231,7 +233,7 @@ for k = 1:nc
 
     T{2, 1} = v1(2);
     t_ok(isequal(T{2, 1}, v1(2)), [t 'T{i, j} = v<j>(i)']);
-    if skip
+    if skip_oct_tab
         t_skip(1, 'T{i, j} = M syntax not yet supported for matrices');
     else
         T{4, 6} = v6(4, :);
@@ -239,7 +241,7 @@ for k = 1:nc
     end
     T{1:3, 2} = v2(1:3);
     t_ok(isequal(T.flt(1:3), v2(1:3)), [t 'T{i1:iN, j} = v<j>(i1:iN)']);
-    if skip
+    if skip_oct_tab
         t_skip(2, 'T{i1:iN, j} = M syntax not yet supported for matrices');
     else
         T{1:3, 6} = v6(1:3, :);
@@ -249,7 +251,7 @@ for k = 1:nc
     end
     T{[6;3], 5} = v5([6;3]);
     t_ok(isequal(T.boo([6;3]), v5([6;3])), [t 'T{ii, j} = v<j>(ii)']);
-    if skip
+    if skip_oct_tab
         t_skip(2, 'T{ii, j} = M syntax not yet supported for matrices');
     else
         T{[6;3], 6} = v6([6;3], :);
@@ -257,7 +259,7 @@ for k = 1:nc
         T{[6;3], 6} = v6([6;3], [2;1]);
         t_ok(isequal(T.mat([6;3], :), v6([6;3], [2;1])), [t 'T{ii, j} = v<j>(ii, jj)']);
     end
-    if skip
+    if skip_oct_tab
         t_skip(2, [t 'T{ii, jj} syntax not yet supported'])
     else
         T{6:-1:3, [2;4;6;5]} = [v2(6:-1:3) v4(6:-1:3) v6(6:-1:3, :) v5(6:-1:3)];
@@ -270,7 +272,7 @@ for k = 1:nc
     T{:, 3} = v3;
     T{:, 4} = v4;
     T{:, 5} = v5;
-    if ~skip
+    if ~skip_oct_tab
         T{:, 6} = v6;
     end
 
@@ -283,7 +285,7 @@ for k = 1:nc
     t_ok(isequal(T2.Properties.VariableNames, var_names(jj)), [t 'VariableNames']);
     t_ok(isequal(table_values(T2), {v1(ii), v3(ii), v4(ii), v6(ii, :)}), [t 'VariableValues']);
     t_ok(isequal(T2.Properties.RowNames, row_names(ii)), [t 'RowNames']);
-    if skip
+    if skip_oct_tab || skip_ml_tab
         t_skip(1, [t 'DimensionNames not yet supported'])
     else
         t_ok(isequal(T2.Properties.DimensionNames, dim_names), [t 'DimensionNames']);
@@ -297,7 +299,7 @@ for k = 1:nc
     t_ok(isequal(T2.Properties.VariableNames, var_names(jj)), [t 'VariableNames']);
     t_ok(isequal(table_values(T2), {v2, v4, v6}), [t 'VariableValues']);
     t_ok(isequal(T2.Properties.RowNames, row_names), [t 'RowNames']);
-    if skip
+    if skip_oct_tab || skip_ml_tab
         t_skip(1, [t 'DimensionNames not yet supported'])
     else
         t_ok(isequal(T2.Properties.DimensionNames, dim_names), [t 'DimensionNames']);
@@ -311,7 +313,7 @@ for k = 1:nc
     t_ok(isequal(T2.Properties.VariableNames, var_names), [t 'VariableNames']);
     t_ok(isequal(table_values(T2), {v1(ii), v2(ii), v3(ii), v4(ii), v5(ii), v6(ii, :)}), [t 'VariableValues']);
     t_ok(isequal(T2.Properties.RowNames, row_names(ii)), [t 'RowNames']);
-    if skip
+    if skip_oct_tab || skip_ml_tab
         t_skip(1, [t 'DimensionNames not yet supported'])
     else
         t_ok(isequal(T2.Properties.DimensionNames, dim_names), [t 'DimensionNames']);
@@ -324,7 +326,7 @@ for k = 1:nc
     t_ok(isequal(T2.Properties.VariableNames, var_names(4)), [t 'VariableNames']);
     t_ok(isequal(table_values(T2), {v4(5)}), [t 'VariableValues']);
     t_ok(isequal(T2.Properties.RowNames, row_names(5)), [t 'RowNames']);
-    if skip
+    if skip_oct_tab || skip_ml_tab
         t_skip(1, [t 'DimensionNames not yet supported'])
     else
         t_ok(isequal(T2.Properties.DimensionNames, dim_names), [t 'DimensionNames']);
@@ -335,15 +337,15 @@ for k = 1:nc
     t_ok(isequal(T2.Properties.VariableNames, var_names(6)), [t 'VariableNames']);
     t_ok(isequal(table_values(T2), {v6(3, :)}), [t 'VariableValues']);
     t_ok(isequal(T2.Properties.RowNames, row_names(3)), [t 'RowNames']);
-    if skip
+    if skip_oct_tab || skip_ml_tab
         t_skip(1, [t 'DimensionNames not yet supported'])
     else
         t_ok(isequal(T2.Properties.DimensionNames, dim_names), [t 'DimensionNames']);
     end
 
-    %% remove skip when https://github.com/apjanke/octave-tablicious/pull/89
-    %% is merged
-    if skip
+    %% remove skip_oct_tab
+    %% when https://github.com/apjanke/octave-tablicious/pull/89 is merged
+    if skip_oct_tab
         t_skip(5, sprintf('%s : T(end, end) not yet supported.', cls));
     else
         t = sprintf('%s : subsref () : T(end, end) : ', cls);
@@ -353,14 +355,14 @@ for k = 1:nc
         t_ok(isequal(T2.Properties.VariableNames, var_names(6)), [t 'VariableNames']);
         t_ok(isequal(table_values(T2), {v6(end, :)}), [t 'VariableValues']);
         t_ok(isequal(T2.Properties.RowNames, row_names(end)), [t 'RowNames']);
-        if skip
+        if skip_oct_tab || skip_ml_tab
             t_skip(1, [t 'DimensionNames not yet supported'])
         else
             t_ok(isequal(T2.Properties.DimensionNames, dim_names), [t 'DimensionNames']);
         end
     end
 
-    if skip
+    if skip_oct_tab
         t_skip(20, sprintf('%s : subsasgn () not yet supported.', cls));
     else
         t = sprintf('%s : subsasgn () : T(ii,jj) : ', cls);
@@ -372,7 +374,7 @@ for k = 1:nc
         t_ok(isequal(T2.Properties.VariableNames, var_names(jj)), [t 'VariableNames']);
         t_ok(isequal(table_values(T2), {v1(ii0), v3(ii0), v4(ii0), v6(ii0, :)}), [t 'VariableValues']);
         t_ok(isequal(T2.Properties.RowNames, row_names(ii)), [t 'RowNames']);
-        if skip
+        if skip_oct_tab || skip_ml_tab
             t_skip(1, [t 'DimensionNames not yet supported'])
         else
             t_ok(isequal(T2.Properties.DimensionNames, dim_names), [t 'DimensionNames']);
@@ -387,7 +389,7 @@ for k = 1:nc
         t_ok(isequal(T2.Properties.VariableNames, var_names(jj)), [t 'VariableNames']);
         t_ok(isequal(table_values(T2), {v2(end:-1:1), v4(end:-1:1), v6(end:-1:1, :)}), [t 'VariableValues']);
         t_ok(isequal(T2.Properties.RowNames, row_names), [t 'RowNames']);
-        if skip
+        if skip_oct_tab || skip_ml_tab
             t_skip(1, [t 'DimensionNames not yet supported'])
         else
             t_ok(isequal(T2.Properties.DimensionNames, dim_names), [t 'DimensionNames']);
@@ -403,7 +405,7 @@ for k = 1:nc
         t_ok(isequal(T2.Properties.VariableNames, var_names), [t 'VariableNames']);
         t_ok(isequal(table_values(T2), {v1(ii0), v2(ii0), v3(ii0), v4(ii0), v5(ii0), v6(ii0, :)}), [t 'VariableValues']);
         t_ok(isequal(T2.Properties.RowNames, row_names(ii)), [t 'RowNames']);
-        if skip
+        if skip_oct_tab || skip_ml_tab
             t_skip(1, [t 'DimensionNames not yet supported'])
         else
             t_ok(isequal(T2.Properties.DimensionNames, dim_names), [t 'DimensionNames']);
@@ -418,7 +420,7 @@ for k = 1:nc
         t_ok(isequal(T2.Properties.VariableNames, var_names(4)), [t 'VariableNames']);
         t_ok(isequal(table_values(T2), {exp(1)}), [t 'VariableValues']);
         t_ok(isequal(T2.Properties.RowNames, row_names(5)), [t 'RowNames']);
-        if skip
+        if skip_oct_tab || skip_ml_tab
             t_skip(1, [t 'DimensionNames not yet supported'])
         else
             t_ok(isequal(T2.Properties.DimensionNames, dim_names), [t 'DimensionNames']);
@@ -432,7 +434,7 @@ for k = 1:nc
         t_ok(isequal(T2.Properties.VariableNames, var_names(6)), [t 'VariableNames']);
         t_ok(isequal(table_values(T2), {[111 222]}), [t 'VariableValues']);
         t_ok(isequal(T2.Properties.RowNames, row_names(3)), [t 'RowNames']);
-        if skip
+        if skip_oct_tab || skip_ml_tab
             t_skip(1, [t 'DimensionNames not yet supported'])
         else
             t_ok(isequal(T2.Properties.DimensionNames, dim_names), [t 'DimensionNames']);
@@ -449,7 +451,7 @@ for k = 1:nc
     t_ok(isequal(T4, T3), [t '[T1;T2]']);
     T5 = table_class([7;8],[7.7;8.8],{'seven';'eight'},1./[7;8],[-1;2]<=0, [70 75; 80 85], ...
         'VariableNames', var_names);
-    if skip
+    if skip_oct_tab
         t_skip(1, [t 'RowNames auto-generation not yet supported']);
     else
         T6 = [T5; T2; T1];
@@ -469,7 +471,7 @@ for k = 1:nc
 
     %% deleting variables
     t = sprintf('%s : delete variables : ', cls);
-    if skip
+    if skip_oct_tab
         t_skip(1, [t 'not yet supported']);
     else
         T7 = T;
@@ -491,7 +493,7 @@ for k = 1:nc
     T3 = T6(:, 6:7);
     ii = [5;3;1];
     jj = [6:7];
-    if skip
+    if skip_oct_tab
         t_skip(6, [t 'T{ii, :} syntax not yet supported'])
     else
         ex = horzcat(v3, var3);
@@ -504,7 +506,7 @@ for k = 1:nc
     end
 
     t = sprintf('%s : more subsasgn {} : ', cls);
-    if skip
+    if skip_oct_tab
         t_skip(6, [t 'T{ii, :} syntax not yet supported'])
     else
         T2{ii, :} = [var1(ii) var2(ii) var4(ii) var6(ii, :) var5(ii)];
