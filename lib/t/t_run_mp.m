@@ -45,7 +45,8 @@ mm_classes = {
 };
 
 t = 'build data model converter';
-dmc = dmc_class().build();
+dmc = dmc_class();
+dmc.build();
 t_ok(isa(dmc, 'mp_dm_converter'), t);
 
 for k = 1:length(tasks)
@@ -53,21 +54,26 @@ for k = 1:length(tasks)
 
     %% build data model
     dm_class = dm_classes{k};
-    dm = dm_class().build('case9', dmc);
+    dm = dm_class();
+    dm.build('case9', dmc);
     t_ok(isa(dm, 'mp_data'), [t 'build data model']);
 
     %% build network model
-    nm = nm_class().build(dm);
+    nm = nm_class();
+    nm.build(dm);
     t_ok(isa(nm, 'mp_network'), [t 'build network model']);
 
     if strcmp(tasks{k}, 'CPF')
-        dm.userdata.target = dm_class().build('case9target', dmc);
-        nm.userdata.target = nm_class().build(dm.userdata.target);
+        dm.userdata.target = dm_class();
+        dm.userdata.target.build('case9target', dmc);
+        nm.userdata.target = nm_class();
+        nm.userdata.target.build(dm.userdata.target);
     end
 
     %% build math model
     mm_class = mm_classes{k};
-    mm = mm_class().build(nm, dm, mpopt);
+    mm = mm_class();
+    mm.build(nm, dm, mpopt);
     t_ok(isa(mm, 'mp_math'), [t 'build math model']);
 
     %% solve math model

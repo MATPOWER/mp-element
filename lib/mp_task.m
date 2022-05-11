@@ -382,7 +382,8 @@ classdef mp_task < handle
 
         function nm = network_model_create(obj, dm, mpopt, mpx)
             nm_class = obj.network_model_class(dm, mpopt, mpx);
-            nm = nm_class().init_set_types();
+            nm = nm_class();
+            nm.init_set_types();
 
             %% apply extensions
             for k = 1:length(mpx)
@@ -447,7 +448,8 @@ classdef mp_task < handle
 
         function mm = math_model_create(obj, nm, dm, mpopt, mpx)
             mm_class = obj.math_model_class(nm, dm, mpopt, mpx);
-            mm = mm_class().init_set_types();
+            mm = mm_class();
+            mm.init_set_types();
 
             %% apply extensions
             for k = 1:length(mpx)
