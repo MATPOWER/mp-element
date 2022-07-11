@@ -33,14 +33,16 @@ classdef (Abstract) mp_task < handle
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
+    properties (Abstract)
+        tag     %% task tag - e.g. 'PF', 'CPF', 'OPF'
+        name    %% task name - e.g. 'Power Flow', etc.
+    end
     properties
         dmc     %% data model converter object
         dm      %% data model object
         nm      %% network model object
         mm      %% mathematical model object
         mm_opt  %% solve options for mathematical model
-        tag     %% task tag - e.g. 'PF', 'CPF', 'OPF'
-        name    %% task name - e.g. 'Power Flow', etc.
         i_dm    %% iteration counter for data model loop
         i_nm    %% iteration counter for network model loop
         i_mm    %% iteration counter for math model loop

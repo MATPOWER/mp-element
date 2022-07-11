@@ -23,6 +23,8 @@ classdef mp_task_pf < mp_task
 %   See https://matpower.org for more info.
 
     properties
+        tag = 'PF';
+        name = 'Power Flow';
         dc      %% true if DC network model (cached in run_pre(), from mpopt)
         iterations
         ref
@@ -33,15 +35,6 @@ classdef mp_task_pf < mp_task
     end
 
     methods
-        %%-----  constructor  -----
-        function obj = mp_task_pf()
-            %% call parent constructor
-            obj@mp_task();
-
-            obj.tag = 'PF';
-            obj.name = 'Power Flow';
-        end
-
         %%-----  task methods  -----
         function [d, mpopt] = run_pre(obj, d, mpopt)
             [d, mpopt] = run_pre@mp_task(obj, d, mpopt);    %% call parent

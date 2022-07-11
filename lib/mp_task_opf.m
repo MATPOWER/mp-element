@@ -17,19 +17,12 @@ classdef mp_task_opf < mp_task
 %   See https://matpower.org for more info.
 
     properties
+        tag = 'OPF';
+        name = 'Optimal Power Flow';
         dc      %% true if DC network model (cached in run_pre(), from mpopt)
     end
 
     methods
-        %%-----  constructor  -----
-        function obj = mp_task_opf()
-            %% call parent constructor
-            obj@mp_task();
-
-            obj.tag = 'OPF';
-            obj.name = 'Optimal Power Flow';
-        end
-
         %%-----  task methods  -----
         function [d, mpopt] = run_pre(obj, d, mpopt)
             [d, mpopt] = run_pre@mp_task(obj, d, mpopt);     %% call parent
