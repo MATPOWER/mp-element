@@ -1,4 +1,4 @@
-classdef mp_form_ac < mp_form
+classdef (Abstract) mp_form_ac < mp_form
 %MP_FORM_AC  MATPOWER Formulation base class for AC formulations
 %   Each concrete Network Model Element class must inherit, at least
 %   indirectly, from both NM_ELEMENT and MP_FORM.

@@ -1,4 +1,4 @@
-classdef mm_shared_opf_legacy < handle
+classdef (Abstract) mm_shared_opf_legacy < handle
 %MM_SHARED_OPF_LEGACY  MATPOWER mathematical model for optimal power flow (OPF) problem.
 %   ?
 %

@@ -1,4 +1,4 @@
-classdef mp_network_ac < mp_network% & mp_form_ac
+classdef (Abstract) mp_network_ac < mp_network% & mp_form_ac
 %MP_NETWORK_AC Abstract class, explicitly a subclass of MP_NETWORK and
 %              implicitly assumed to be a subclass of MP_FORM_AC as well
 

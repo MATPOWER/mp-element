@@ -1,4 +1,4 @@
-classdef nme_load_ac < nme_load% & mp_form_ac
+classdef (Abstract) nme_load_ac < nme_load% & mp_form_ac
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)

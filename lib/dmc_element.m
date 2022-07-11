@@ -1,4 +1,4 @@
-classdef dmc_element < handle
+classdef (Abstract) dmc_element < handle
 %DMC_ELEMENT  Abstract base class for data model converter for indv elements
 
 %   MATPOWER
@@ -11,6 +11,7 @@ classdef dmc_element < handle
 
 %     properties
 %     end     %% properties
+
 
     methods
         function name = name(obj)

@@ -1,4 +1,4 @@
-classdef mm_shared_pfcpf < handle
+classdef (Abstract) mm_shared_pfcpf < handle
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)

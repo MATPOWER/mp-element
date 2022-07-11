@@ -1,4 +1,4 @@
-classdef nme_wrapper_ac_nln < handle
+classdef (Abstract) nme_wrapper_ac_nln < handle
 
 %   MATPOWER
 %   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)

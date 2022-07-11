@@ -1,4 +1,4 @@
-classdef dm_element < handle
+classdef (Abstract) dm_element < handle
 %DM_ELEMENT  Abstract base class for MATPOWER data model elements
 
 %   MATPOWER

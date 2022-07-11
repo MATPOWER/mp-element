@@ -1,4 +1,4 @@
-classdef mp_task < handle
+classdef (Abstract) mp_task < handle
 %MP_TASK  MATPOWER task abstract base class.
 %   Each task type (e.g. power flow, CPF, OPF) will inherit from MP_TASK.
 %

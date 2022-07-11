@@ -1,4 +1,4 @@
-classdef mp_math_opf_acc < mp_math_opf_ac
+classdef (Abstract) mp_math_opf_acc < mp_math_opf_ac
 %MP_MATH_OPF_ACC  MATPOWER mathematical model for AC optimal power flow (OPF) problem.
 %   ?
 %

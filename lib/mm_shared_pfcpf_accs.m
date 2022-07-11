@@ -1,4 +1,4 @@
-classdef mm_shared_pfcpf_accs < mm_shared_pfcpf_acc
+classdef (Abstract) mm_shared_pfcpf_accs < mm_shared_pfcpf_acc
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

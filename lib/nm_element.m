@@ -1,4 +1,4 @@
-classdef nm_element < handle
+classdef (Abstract) nm_element < handle
 %NM_ELEMENT  Abstract base class for MATPOWER network model elements
 %   NME = NM_ELEMENT()
 %

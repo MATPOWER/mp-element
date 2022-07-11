@@ -1,4 +1,4 @@
-classdef mp_math < mp_element_container & opt_model
+classdef (Abstract) mp_math < mp_element_container & opt_model
 %MP_MATH  MATPOWER mathematical model abstract base class.
 %   ?
 %

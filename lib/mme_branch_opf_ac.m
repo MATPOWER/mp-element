@@ -1,4 +1,4 @@
-classdef mme_branch_opf_ac < mme_branch_opf
+classdef (Abstract) mme_branch_opf_ac < mme_branch_opf
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

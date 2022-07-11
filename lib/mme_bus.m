@@ -1,4 +1,4 @@
-classdef mme_bus < mm_element
+classdef (Abstract) mme_bus < mm_element
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

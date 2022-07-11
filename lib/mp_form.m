@@ -1,4 +1,4 @@
-classdef mp_form < handle
+classdef (Abstract) mp_form < handle
 %MP_FORM  MATPOWER Formulation abstract base class.
 %   Each concrete Network Model Element class must inherit, at least
 %   indirectly, from both NM_ELEMENT and MP_FORM.

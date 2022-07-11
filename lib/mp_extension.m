@@ -1,4 +1,4 @@
-classdef mp_extension < handle
+classdef (Abstract) mp_extension < handle
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)

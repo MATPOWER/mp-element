@@ -1,4 +1,4 @@
-classdef mp_math_pf < mp_math
+classdef (Abstract) mp_math_pf < mp_math
 %MP_MATH_PF  MATPOWER mathematical model for power flow (PF) problem.
 %   ?
 %

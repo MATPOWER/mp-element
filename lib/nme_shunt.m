@@ -1,4 +1,4 @@
-classdef nme_shunt < nm_element
+classdef (Abstract) nme_shunt < nm_element
 
 %   MATPOWER
 %   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)

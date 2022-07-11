@@ -1,4 +1,4 @@
-classdef nme_bus3p < nm_element
+classdef (Abstract) nme_bus3p < nm_element
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

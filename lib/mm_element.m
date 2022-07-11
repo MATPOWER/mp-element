@@ -1,4 +1,4 @@
-classdef mm_element < handle
+classdef (Abstract) mm_element < handle
 %MM_ELEMENT  Abstract base class for mathematical model element
 
 %   MATPOWER
