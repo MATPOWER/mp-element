@@ -27,7 +27,7 @@ classdef mp_mapped_array < handle
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-    properties
+    properties (Access=private)
         p_ = struct( 'names', {{}}, 'vals', {{}}, 'map', struct() );
     end     %% properties
 
@@ -40,25 +40,20 @@ classdef mp_mapped_array < handle
 
         function new_obj = copy(obj)
             new_obj = eval(class(obj));  %% create new object
-            my_ismethod = @ismethod;
 
-            %% make copies of properties
-            if have_feature('octave')
-                s1 = warning('query', 'Octave:classdef-to-struct');
-                warning('off', 'Octave:classdef-to-struct');
-                if have_feature('octave', 'vnum') < 6
-                    %% Octave 5 ismethod() does not find methods defined in
-                    %% classdef file, so we use our own here
-                    my_ismethod = @(o, n)octave5_ismethod_override(o, n);
-                end
+            %% define my_ismethod()
+            if have_feature('octave') && have_feature('octave', 'vnum') < 6
+                %% Octave 5 ismethod() does not find methods defined in
+                %% classdef file, so we use our own here
+                my_ismethod = @(o, n)octave5_ismethod_override(o, n);
+            else
+                my_ismethod = @ismethod;
             end
-            props = fieldnames(obj);
-            if have_feature('octave')
-                warning(s1.state, 'Octave:classdef-to-struct');
-            end
-            for k = 1:length(props)
-                new_obj.(props{k}) = obj.(props{k});
-            end
+
+            %% copy private p_ property which should contain everything
+            %% Note: a sub-class with additional properties would have to
+            %% override copy() if they need special handling
+            new_obj.p_ = obj.p_;
 
             %% make copies of values
             for k = 1:length(obj.p_.vals)
