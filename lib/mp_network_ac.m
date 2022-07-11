@@ -13,10 +13,13 @@ classdef (Abstract) mp_network_ac < mp_network% & mp_form_ac
     properties
         zr = [];
         zi = [];
-        inln_list = {};         %% private: list of indexes of nme's w/inln
-        snln_list = {};         %% private: list of indexes of nme's w/snln
-        inln_hess_list = {};    %% private: list of indexes of nme's w/inln_hess
-        snln_hess_list = {};    %% private: list of indexes of nme's w/snln_hess
+    end
+
+    properties (Access=protected)
+        inln_list = {};         %% list of indexes of nme's w/inln
+        snln_list = {};         %% list of indexes of nme's w/snln
+        inln_hess_list = {};    %% list of indexes of nme's w/inln_hess
+        snln_hess_list = {};    %% list of indexes of nme's w/snln_hess
     end
 
     methods
