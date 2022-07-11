@@ -9,8 +9,8 @@ classdef dme_bus_opf < dme_bus & dme_shared_opf
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-    properties
-    end     %% properties
+%     properties
+%     end     %% properties
 
     methods
         function names = main_table_var_names(obj)
