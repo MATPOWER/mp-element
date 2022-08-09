@@ -1,4 +1,4 @@
-function tsk = run_mp(task_class, d, mpopt, varargin)
+function task_rv = run_mp(task_class, d, mpopt, varargin)
 %RUN_MP
 %
 %   Inputs:
@@ -13,7 +13,7 @@ function tsk = run_mp(task_class, d, mpopt, varargin)
 %           'mpx' - MATPOWER extension or cell array of MATPOWER extensions
 %               to apply
 %   Output:
-%       TSK - task object
+%       TASK - task object
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
@@ -80,5 +80,5 @@ if ~isempty(soln_fname) && task.success
 end
 
 if nargout
-    tsk = task;
+    task_rv = task;
 end

@@ -1,4 +1,4 @@
-classdef mp_task_opf_legacy < mp_task_opf & tsk_shared_legacy
+classdef mp_task_opf_legacy < mp_task_opf & task_shared_legacy
 %MP_TASK_OPF_LEGACY  MATPOWER task for legacy optimal power flow (OPF).
 %   MP_TASK_OPF_LEGACY provides implementation for optimal power flow problem.
 %

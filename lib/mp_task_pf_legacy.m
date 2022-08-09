@@ -1,4 +1,4 @@
-classdef mp_task_pf_legacy < mp_task_pf & tsk_shared_legacy
+classdef mp_task_pf_legacy < mp_task_pf & task_shared_legacy
 %MP_TASK_PF_LEGACY  MATPOWER task for legacy power flow (PF).
 %   MP_TASK_PF_LEGACY provides implementation for power flow problem.
 %

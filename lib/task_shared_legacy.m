@@ -1,4 +1,4 @@
-classdef (Abstract) tsk_shared_legacy < handle
+classdef (Abstract) task_shared_legacy < handle
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)

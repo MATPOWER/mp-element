@@ -1,4 +1,4 @@
-function tssk = t_run_mp(quiet)
+function task_rv = t_run_mp(quiet)
 %T_RUN_MP  Tests for RUN_MP and simple creation and solve of models.
 
 %   MATPOWER
@@ -92,12 +92,12 @@ for k = 1:length(tasks)
     t_ok(all(dm.elements.branch.tab.pl_fr ~= 0), [t 'data model update']);
 
     %% run_mp
-    tsk = run_mp(task_classes{k}, d{k}, mpopt);
-    t_is(tsk.success, 1, 12, [t 'run_mp : success']);
+    task = run_mp(task_classes{k}, d{k}, mpopt);
+    t_is(task.success, 1, 12, [t 'run_mp : success']);
 end
 
 if nargout  %% set output arg
-    tssk = tsk;
+    task_rv = task;
 end
 
 t_end;

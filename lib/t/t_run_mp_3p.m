@@ -1,4 +1,4 @@
-function tsk = t_run_mp_3p(quiet)
+function task = t_run_mp_3p(quiet)
 %T_RUN_MP_3P  Tests for RUN_PF and RUN_OPF for 3-phase and hybrid test cases.
 
 %   MATPOWER
@@ -225,7 +225,7 @@ warning('on', 'update_z:multiple_nodes');
 warning(s.state, sing_mat_warn_id);
 
 if nargout  %% set output arg
-    tsk = pf;
+    task = pf;
 end
 
 t_end;
