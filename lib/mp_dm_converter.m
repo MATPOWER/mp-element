@@ -81,7 +81,7 @@ classdef (Abstract) mp_dm_converter < mp_element_container
         end
 
         function fname_out = save(obj, fname, d)
-            error('mp_dm_converter/save: must be implemented by sub-class');
+            error('mp_dm_converter/save: must be implemented by subclass');
         end
 
         function display(obj)

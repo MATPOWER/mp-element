@@ -27,19 +27,19 @@ classdef (Abstract) mp_math < mp_element_container & opt_model
 
     methods
         function tag = task_tag(obj)
-            error('mp_math/task_tag: must be implemented in sub-class');
+            error('mp_math/task_tag: must be implemented in subclass');
         end
 
         function name = task_name(obj)
-            error('mp_math/task_name: must be implemented in sub-class');
+            error('mp_math/task_name: must be implemented in subclass');
         end
 
         function tag = form_tag(obj)
-            error('mp_math/form_tag: must be implemented in sub-class');
+            error('mp_math/form_tag: must be implemented in subclass');
         end
 
         function name = form_name(obj)
-            error('mp_math/form_name: must be implemented in sub-class');
+            error('mp_math/form_name: must be implemented in subclass');
         end
 
         function obj = build(obj, nm, dm, mpopt)

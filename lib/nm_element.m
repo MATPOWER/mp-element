@@ -2,7 +2,7 @@ classdef (Abstract) nm_element < handle
 %NM_ELEMENT  Abstract base class for MATPOWER network model elements
 %   NME = NM_ELEMENT()
 %
-%   Each concrete sub-class must also inherit from a sub-class of MP_FORM.
+%   Each concrete subclass must also inherit from a subclass of MP_FORM.
 %
 %   Properties
 %       np : number of ports per element

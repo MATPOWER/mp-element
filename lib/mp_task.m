@@ -379,7 +379,7 @@ classdef (Abstract) mp_task < handle
         end
 
         function nm_class = network_model_class_default(obj, dm, mpopt)
-            error('mp_task/network_model_class_default: must be implemented in sub-class');
+            error('mp_task/network_model_class_default: must be implemented in subclass');
         end
 
         function nm = network_model_create(obj, dm, mpopt, mpx)
@@ -445,7 +445,7 @@ classdef (Abstract) mp_task < handle
         end
 
         function mm_class = math_model_class_default(obj, nm, dm, mpopt)
-            error('mp_task/math_model_class_default: must be implemented in sub-class');
+            error('mp_task/math_model_class_default: must be implemented in subclass');
         end
 
         function mm = math_model_create(obj, nm, dm, mpopt, mpx)

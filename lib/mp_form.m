@@ -31,15 +31,15 @@ classdef (Abstract) mp_form < handle
 
     methods
         function name = form_name(obj)
-            error('mp_form/form_name: must be implemented in sub-class');
+            error('mp_form/form_name: must be implemented in subclass');
         end
 
         function tag = form_tag(obj)
-            error('mp_form/form_tag: must be implemented in sub-class');
+            error('mp_form/form_tag: must be implemented in subclass');
         end
 
         function params = model_params(obj)
-            error('mp_form/model_params: must be implemented in sub-class');
+            error('mp_form/model_params: must be implemented in subclass');
         end
 
         function varargout = get_params(obj, idx, names)

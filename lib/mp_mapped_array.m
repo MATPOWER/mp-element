@@ -51,7 +51,7 @@ classdef mp_mapped_array < handle
             end
 
             %% copy private p_ property which should contain everything
-            %% Note: a sub-class with additional properties would have to
+            %% Note: a subclass with additional properties would have to
             %% override copy() if they need special handling
             new_obj.p_ = obj.p_;
 
@@ -200,7 +200,7 @@ classdef mp_mapped_array < handle
                                     varargout{1} = obj.p_;
                                 end
                             otherwise   %% unknown methods or properties
-                                        %% e.g. defined by sub-class
+                                        %% e.g. defined by subclass
                                 if R
                                     [varargout{1:nargout}] = ...
                                         subsref(obj.(s(1).subs), s(2:end));
