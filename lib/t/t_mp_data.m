@@ -46,7 +46,6 @@ for k = 1:nt
         t = sprintf('%s.copy() : ', tests{k}{1});
         dm = tests{k}{2}.copy();
         tests{k}{2}.source = [];
-        tests{k}{2}.elements{1}.ID = [];
     else
         t = sprintf('mp_data().build(%s, dmc) : ', tests{k}{1});
         dm = mp_data().build(tests{k}{2}, dmc);

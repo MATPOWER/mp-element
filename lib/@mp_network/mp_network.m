@@ -301,6 +301,7 @@ classdef (Abstract) mp_network < nm_element & mp_element_container & mp_idx_mana
             %%  label = obj.set_type_label(set_type, idxs)
             %%  label = obj.set_type_label(set_type, idxs, dm)
             label = cell(size(idxs));
+            ID = cell(size(idxs));
             if nargin > 3
                 s = obj.set_type_idx_map(set_type, idxs, dm);
                 [ID{1:length(idxs(:))}] = deal(s.ID);

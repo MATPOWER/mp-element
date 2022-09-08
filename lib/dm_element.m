@@ -13,7 +13,6 @@ classdef (Abstract) dm_element < handle
         tab             %% main data table
         nr              %% total number of rows in table
         n               %% number of online elements
-        ID              %% nr x 1 vector of unique IDs, maps dmi to ID
         ID2i            %% max(ID) x 1 vector, maps IDs to row indices
         on              %% n x 1 vector of row indices of online elements
         off             %% (nr-n) x 1 vector of row indices of offline elements
@@ -105,11 +104,9 @@ classdef (Abstract) dm_element < handle
         end
 
         function obj = initialize(obj, dm)
-            %% set the IDs
-            ID = obj.get_ID(dm);
-
             %% create ID --> index mapping
             nr = obj.nr;
+            ID = obj.ID;
             maxID = max(ID);
             if ~isempty(ID)
                 if nr > 5000 && maxID > 10 * nr %% use sparse map (save memory)
@@ -126,9 +123,14 @@ classdef (Abstract) dm_element < handle
             obj.init_status(dm);
         end
 
-        function ID = get_ID(obj, dm)
-            ID = obj.tab.uid;
-            obj.ID = ID;
+        function uid = ID(obj, idx)
+            %% returns nr x 1 vector of unique IDs, maps row index to ID
+            %% (or indexed version)
+            if nargin > 1 && ~isempty(idx)
+                uid = obj.tab.uid(idx);
+            else
+                uid = obj.tab.uid;
+            end
         end
 
         function obj = init_status(obj, dm)
