@@ -430,29 +430,6 @@ classdef (Abstract) mp_network < nm_element & mp_element_container & mp_idx_mana
             [varargout{1:nargout}] = obj.get_set_type_idx('state', name);
         end
 
-        function [i1, iN] = get_set_type_idx(obj, node_state, name)
-            %% private method
-            %% [i1 iN] = obj.get_set_type_idx(node_state, name)
-            %% stidx = obj.get_set_type_idx(node_state, name), where
-            %%      stidx = [i1:iN]' or
-            %%      stidx = {[i1(1):iN(1)]', ..., [i1(n):iN(n)]'}
-            idx = obj.get_idx(node_state);
-            i1 = idx.i1.(name);
-            iN = idx.iN.(name);
-            if nargout == 1
-                N = length(i1);
-                if N == 1
-                    i1 = (i1:iN)';
-                else
-                    t = cell(1, N);
-                    for k = 1:N
-                        t{k} = (i1(k):iN(k))';
-                    end
-                    i1 = t;
-                end
-            end
-        end
-
         function [ref, pv, pq, by_elm] = node_types(obj, nm, dm, idx, skip_ensure_ref)
             %%          ntv          = obj.node_types(nm, dm)
             %%         [ntv, by_elm] = obj.node_types(nm, dm)
@@ -589,4 +566,28 @@ classdef (Abstract) mp_network < nm_element & mp_element_container & mp_idx_mana
             end
         end
     end     %% methods
+
+    methods (Access = private)
+        function [i1, iN] = get_set_type_idx(obj, node_state, name)
+            %% [i1 iN] = obj.get_set_type_idx(node_state, name)
+            %% stidx = obj.get_set_type_idx(node_state, name), where
+            %%      stidx = [i1:iN]' or
+            %%      stidx = {[i1(1):iN(1)]', ..., [i1(n):iN(n)]'}
+            idx = obj.get_idx(node_state);
+            i1 = idx.i1.(name);
+            iN = idx.iN.(name);
+            if nargout == 1
+                N = length(i1);
+                if N == 1
+                    i1 = (i1:iN)';
+                else
+                    t = cell(1, N);
+                    for k = 1:N
+                        t{k} = (i1(k):iN(k))';
+                    end
+                    i1 = t;
+                end
+            end
+        end
+    end     %% methods (private)
 end         %% classdef
