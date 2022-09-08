@@ -62,6 +62,11 @@ classdef (Abstract) mp_math < mp_element_container & opt_model
                     obj.elements.add_elements(mme, mme.name);
                 end
             end
+
+            obj.add_aux_data(nm, dm, mpopt);
+            obj.add_vars(nm, dm, mpopt);
+            obj.add_constraints(nm, dm, mpopt);
+            obj.add_costs(nm, dm, mpopt);
         end
 
         function display(obj)

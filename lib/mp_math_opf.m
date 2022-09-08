@@ -30,14 +30,6 @@ classdef (Abstract) mp_math_opf < mp_math
             name = 'Optimal Power Flow';
         end
 
-        function obj = build(obj, nm, dm, mpopt)
-            build@mp_math(obj, nm, dm, mpopt);  %% call parent
-            obj.add_aux_data(nm, dm, mpopt);
-            obj.add_vars(nm, dm, mpopt);
-            obj.add_constraints(nm, dm, mpopt);
-            obj.add_costs(nm, dm, mpopt);
-        end
-
         function ad = build_aux_data(obj, nm, dm, mpopt)
             %% create aux_data struct
             ad = obj.build_base_aux_data(nm, dm, mpopt);

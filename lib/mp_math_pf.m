@@ -30,11 +30,8 @@ classdef (Abstract) mp_math_pf < mp_math
             name = 'Power Flow';
         end
 
-        function obj = build(obj, nm, dm, mpopt)
-            build@mp_math(obj, nm, dm, mpopt);  %% call parent
-            obj.add_aux_data(nm, dm, mpopt);
-            obj.add_vars(nm, dm, mpopt);
-            obj.add_constraints(nm, dm, mpopt);
+        function obj = add_costs(obj, nm, dm, mpopt)
+            %% no costs for PF and CPF
         end
 
         function obj = add_system_vars(obj, nm, dm, mpopt)
