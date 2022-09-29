@@ -28,7 +28,12 @@ if have_feature('octave')
     file_in_path_warn_id = 'Octave:data-file-in-path';
     s1 = warning('query', file_in_path_warn_id);
     warning('off', file_in_path_warn_id);
+    near_sing_matrix_warn_id = 'Octave:nearly-singular-matrix';
+else
+    near_sing_matrix_warn_id = 'MATLAB:nearlySingularMatrix';
 end
+s = warning('query', near_sing_matrix_warn_id);
+warning('off', near_sing_matrix_warn_id);
 
 [pathstr, name, ext] = fileparts(which('t_pretty_print'));
 
@@ -290,5 +295,6 @@ end
 if have_feature('octave')
     warning(s1.state, file_in_path_warn_id);
 end
+warning(s.state, near_sing_matrix_warn_id);
 
 t_end;
