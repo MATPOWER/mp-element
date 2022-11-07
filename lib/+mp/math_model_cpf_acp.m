@@ -1,8 +1,8 @@
-classdef (Abstract) mp_math_cpf_acp < mp_math_cpf
-%MP_MATH_CPF_ACP  MATPOWER mathematical model for continuation power flow (CPF) problem.
+classdef (Abstract) math_model_cpf_acp < mp.math_model_cpf
+%MP.MATH_MODEL_CPF_ACP  MATPOWER mathematical model for continuation power flow (CPF) problem.
 %   ?
 %
-%   MP_MATH_CPF_ACP ... power flow ...
+%   MP.MATH_MODEL_CPF_ACP ... power flow ...
 %
 %   Properties
 %       ? - ?
@@ -23,8 +23,8 @@ classdef (Abstract) mp_math_cpf_acp < mp_math_cpf
 
     methods
         %% constructor
-        function obj = mp_math_cpf_acp()
-            obj@mp_math_cpf();
+        function obj = math_model_cpf_acp()
+            obj@mp.math_model_cpf();
             obj.element_classes = { @mme_bus_pf_acp, @mme_gen_pf_ac, ...
                 @mme_branch_pf_ac, @mme_load_cpf, @mme_shunt_cpf };
         end

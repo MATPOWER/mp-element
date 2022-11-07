@@ -1,8 +1,8 @@
-classdef mp_math_pf_dc < mp_math_pf & mm_shared_pfcpf_dc
-%MP_MATH_PF_DC  MATPOWER mathematical model for DC power flow (PF) problem.
+classdef math_model_pf_dc < mp.math_model_pf & mm_shared_pfcpf_dc
+%MP.MATH_MODEL_PF_DC  MATPOWER mathematical model for DC power flow (PF) problem.
 %   ?
 %
-%   MP_MATH_PF_DC ... power flow ...
+%   MP.MATH_MODEL_PF_DC ... power flow ...
 %
 %   Properties
 %       ? - ?
@@ -23,8 +23,8 @@ classdef mp_math_pf_dc < mp_math_pf & mm_shared_pfcpf_dc
 
     methods
         %% constructor
-        function obj = mp_math_pf_dc()
-            obj@mp_math_pf();
+        function obj = math_model_pf_dc()
+            obj@mp.math_model_pf();
             obj.element_classes = { @mme_bus_pf_dc, @mme_gen_pf_dc, ...
                 @mme_load_pf_dc, @mme_branch_pf_dc, @mme_shunt_pf_dc };
         end
@@ -48,7 +48,7 @@ classdef mp_math_pf_dc < mp_math_pf & mm_shared_pfcpf_dc
         end
 
         function opt = solve_opts(obj, nm, dm, mpopt)
-            %% overrides mp_math_pf/solve_opts()
+            %% overrides mp.math_model_pf/solve_opts()
             %% TO DO: move pf.alg to pf.ac.solver and add a
             %%        pf.dc.solver to set the 'leq_opt.solver' option here
             opt = struct( ...

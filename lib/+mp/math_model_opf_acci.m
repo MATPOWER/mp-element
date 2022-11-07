@@ -1,8 +1,8 @@
-classdef mp_math_opf_acpi < mp_math_opf_acp
-%MP_MATH_OPF_ACPI  MATPOWER mathematical model for AC optimal power flow (OPF) problem.
+classdef math_model_opf_acci < mp.math_model_opf_acc
+%MP.MATH_MODEL_OPF_ACCI  MATPOWER mathematical model for AC optimal power flow (OPF) problem.
 %   ?
 %
-%   MP_MATH_OPF_ACPI ... power flow ...
+%   MP.MATH_MODEL_OPF_ACCI ... power flow ...
 %
 %   Properties
 %       ? - ?
@@ -23,11 +23,11 @@ classdef mp_math_opf_acpi < mp_math_opf_acp
 
     methods
         function tag = form_tag(obj)
-            tag = 'acpi';
+            tag = 'acci';
         end
 
         function name = form_name(obj)
-            name = 'AC-polar-current';
+            name = 'AC-cartesian-current';
         end
 
         function add_node_balance_constraints(obj, nm, dm, mpopt)

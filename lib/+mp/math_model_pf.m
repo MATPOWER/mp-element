@@ -1,8 +1,8 @@
-classdef (Abstract) mp_math_pf < mp_math
-%MP_MATH_PF  MATPOWER mathematical model for power flow (PF) problem.
+classdef (Abstract) math_model_pf < mp.math_model
+%MP.MATH_MODEL_PF  MATPOWER mathematical model for power flow (PF) problem.
 %   ?
 %
-%   MP_MATH_PF ... power flow ...
+%   MP.MATH_MODEL_PF ... power flow ...
 %
 %   Properties
 %       ? - ?
@@ -40,7 +40,7 @@ classdef (Abstract) mp_math_pf < mp_math
         end
 
         function opt = solve_opts(obj, nm, dm, mpopt)
-            %% for AC power flow only, must override for mp_math_pf_dc
+            %% for AC power flow only, must override for mp.math_model_pf_dc
             switch mpopt.pf.alg
                 case 'DEFAULT'
                     opt = mpopt2nleqopt(mpopt, obj.problem_type(), 'DEFAULT');
@@ -66,7 +66,7 @@ classdef (Abstract) mp_math_pf < mp_math
                         'need_jac',         0, ...
                         'update_fcn',       zg_x_update  );
                 otherwise
-                    error('mp_math_pf/solve_opts: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
+                    error('mp.math_model_pf/solve_opts: invalid value for MPOPT.PF.ALG (%s)', mpopt.pf.alg);
             end
             opt.verbose = mpopt.verbose;
         end

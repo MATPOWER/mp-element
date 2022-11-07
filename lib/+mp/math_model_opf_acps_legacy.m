@@ -1,8 +1,8 @@
-classdef mp_math_opf_accs_legacy < mp_math_opf_accs & mm_shared_opf_legacy
-%MP_MATH_OPF_ACCS_LEGACY  MATPOWER mathematical model for AC optimal power flow (OPF) problem.
+classdef math_model_opf_acps_legacy < mp.math_model_opf_acps & mm_shared_opf_legacy
+%MP.MATH_MODEL_OPF_ACPS_LEGACY  MATPOWER mathematical model for AC optimal power flow (OPF) problem.
 %   ?
 %
-%   MP_MATH_OPF_ACCS_LEGACY ... power flow ...
+%   MP.MATH_MODEL_OPF_ACPS_LEGACY ... power flow ...
 %
 %   Properties
 %       ? - ?
@@ -23,8 +23,8 @@ classdef mp_math_opf_accs_legacy < mp_math_opf_accs & mm_shared_opf_legacy
 
     methods
         %% constructor
-        function obj = mp_math_opf_accs_legacy()
-            obj@mp_math_opf_accs();
+        function obj = math_model_opf_acps_legacy()
+            obj@mp.math_model_opf_acps();
             if nargin > 0 && isstruct(mpc)
                 obj.mpc = mpc;
             end
@@ -42,7 +42,7 @@ classdef mp_math_opf_accs_legacy < mp_math_opf_accs & mm_shared_opf_legacy
 
         function obj = add_named_set(obj, varargin)
             % call parent method (also checks for valid type for named set)
-            add_named_set@mp_math_opf_accs(obj, varargin{:});
+            add_named_set@mp.math_model_opf_acps(obj, varargin{:});
             obj.add_named_set_legacy(varargin{:});
         end
 
@@ -51,18 +51,18 @@ classdef mp_math_opf_accs_legacy < mp_math_opf_accs & mm_shared_opf_legacy
         end
 
         function obj = init_set_types(obj)
-            init_set_types@mp_math_opf_accs(obj);
+            init_set_types@mp.math_model_opf_acps(obj);
             obj.init_set_types_legacy();
         end
 
         function obj = build(obj, nm, dm, mpopt)
             obj.mpc = dm.source;
-            build@mp_math_opf_accs(obj, nm, dm, mpopt);
+            build@mp.math_model_opf_acps(obj, nm, dm, mpopt);
             obj.build_legacy(nm, dm, mpopt);
         end
 
         function obj = add_vars(obj, nm, dm, mpopt)
-            add_vars@mp_math_opf_accs(obj, nm, dm, mpopt);  %% call parent
+            add_vars@mp.math_model_opf_acps(obj, nm, dm, mpopt);    %% call parent
 
             %% legacy user-defined variables
             if isfield(dm.userdata, 'legacy_opf_user_mods')
@@ -71,7 +71,7 @@ classdef mp_math_opf_accs_legacy < mp_math_opf_accs & mm_shared_opf_legacy
         end
 
         function add_system_costs(obj, nm, dm, mpopt)
-            add_system_costs@mp_math_opf_accs(obj, nm, dm, mpopt);  %% call parent
+            add_system_costs@mp.math_model_opf_acps(obj, nm, dm, mpopt);    %% call parent
 
             %% legacy user-defined costs
             if isfield(dm.userdata, 'legacy_opf_user_mods')
@@ -81,7 +81,7 @@ classdef mp_math_opf_accs_legacy < mp_math_opf_accs & mm_shared_opf_legacy
 
         function obj = add_system_constraints(obj, nm, dm, mpopt)
             %% call parent
-            add_system_constraints@mp_math_opf_accs(obj, nm, dm, mpopt);
+            add_system_constraints@mp.math_model_opf_acps(obj, nm, dm, mpopt);
 
             %% legacy user-defined constraints
             if isfield(dm.userdata, 'legacy_opf_user_mods')
@@ -90,7 +90,7 @@ classdef mp_math_opf_accs_legacy < mp_math_opf_accs & mm_shared_opf_legacy
         end
 
         function names = legacy_user_var_names(obj)
-            names = {'Vr', 'Vi', 'Pg', 'Qg'};
+            names = {'Va', 'Vm', 'Pg', 'Qg'};
         end
     end     %% methods
 end         %% classdef

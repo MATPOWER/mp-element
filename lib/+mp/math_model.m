@@ -1,8 +1,8 @@
-classdef (Abstract) mp_math < mp_element_container & opt_model
-%MP_MATH  MATPOWER mathematical model abstract base class.
+classdef (Abstract) math_model < mp_element_container & opt_model
+%MP.MATH_MODEL  MATPOWER mathematical model abstract base class.
 %   ?
 %
-%   MP_MATH provides properties and methods related to the specific
+%   MP.MATH_MODEL provides properties and methods related to the specific
 %   problem specification being solved (e.g. power flow, continuation
 %   power flow, optimal power flow, etc.) ...
 %
@@ -27,19 +27,19 @@ classdef (Abstract) mp_math < mp_element_container & opt_model
 
     methods
         function tag = task_tag(obj)
-            error('mp_math/task_tag: must be implemented in subclass');
+            error('mp.math_model/task_tag: must be implemented in subclass');
         end
 
         function name = task_name(obj)
-            error('mp_math/task_name: must be implemented in subclass');
+            error('mp.math_model/task_name: must be implemented in subclass');
         end
 
         function tag = form_tag(obj)
-            error('mp_math/form_tag: must be implemented in subclass');
+            error('mp.math_model/form_tag: must be implemented in subclass');
         end
 
         function name = form_name(obj)
-            error('mp_math/form_name: must be implemented in subclass');
+            error('mp.math_model/form_name: must be implemented in subclass');
         end
 
         function obj = build(obj, nm, dm, mpopt)

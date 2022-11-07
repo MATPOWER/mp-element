@@ -39,9 +39,9 @@ dm_classes = {
 };
 nm_class = @mp.net_model_acp;
 mm_classes = {
-    @mp_math_pf_acps,
-    @mp_math_cpf_acps,
-    @mp_math_opf_acps
+    @mp.math_model_pf_acps,
+    @mp.math_model_cpf_acps,
+    @mp.math_model_opf_acps
 };
 
 t = 'build data model converter';
@@ -74,7 +74,7 @@ for k = 1:length(tasks)
     mm_class = mm_classes{k};
     mm = mm_class();
     mm.build(nm, dm, mpopt);
-    t_ok(isa(mm, 'mp_math'), [t 'build math model']);
+    t_ok(isa(mm, 'mp.math_model'), [t 'build math model']);
 
     %% solve math model
     % opt = mm.solve_opts(nm, dm, mpopt);

@@ -1,8 +1,8 @@
-classdef mp_math_pf_acps < mp_math_pf & mm_shared_pfcpf_acps
-%MP_MATH_PF_ACPS  MATPOWER mathematical model for AC power flow (PF) problem.
+classdef math_model_pf_acps < mp.math_model_pf & mm_shared_pfcpf_acps
+%MP.MATH_MODEL_PF_ACPS  MATPOWER mathematical model for AC power flow (PF) problem.
 %   ?
 %
-%   MP_MATH_PF_ACPS ... power flow ...
+%   MP.MATH_MODEL_PF_ACPS ... power flow ...
 %
 %   Properties
 %       ? - ?
@@ -23,8 +23,8 @@ classdef mp_math_pf_acps < mp_math_pf & mm_shared_pfcpf_acps
 
     methods
         %% constructor
-        function obj = mp_math_pf_acps()
-            obj@mp_math_pf();
+        function obj = math_model_pf_acps()
+            obj@mp.math_model_pf();
             obj.element_classes = { @mme_bus_pf_acp, @mme_gen_pf_ac, ...
                 @mme_load_pf_ac, @mme_branch_pf_ac, @mme_shunt_pf_ac };
         end
@@ -133,7 +133,7 @@ classdef mp_math_pf_acps < mp_math_pf & mm_shared_pfcpf_acps
                     nm2.build(dm2);
                     [Y2, L, M] = nm2.get_params([], {'Y', 'L', 'M'});
                     if any(any(L)) || any(any(M))
-                        error('mp_math_pf_acps/zg_x_update: B matrix for Z-bus Gauss w/PV buses not implemented for models with non-zero L and/or M matrices.')
+                        error('mp.math_model_pf_acps/zg_x_update: B matrix for Z-bus Gauss w/PV buses not implemented for models with non-zero L and/or M matrices.')
                     end
                     Bpp = -nm2.C * imag(Y2) * nm2.C';
 
@@ -194,7 +194,7 @@ classdef mp_math_pf_acps < mp_math_pf & mm_shared_pfcpf_acps
             [Y1, L, M] = nm1.get_params([], {'Y', 'L', 'M'});
             Y2 = nm2.get_params();
             if any(any(L)) || any(any(M))
-                error('mp_math_pf_acps/fd_jac_approx: fast-decoupled Jacobian approximation not implemented for models with non-zero L and/or M matrices.')
+                error('mp.math_model_pf_acps/fd_jac_approx: fast-decoupled Jacobian approximation not implemented for models with non-zero L and/or M matrices.')
             end
 
             %% form reduced Bp and Bpp matrices

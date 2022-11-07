@@ -1,8 +1,8 @@
-classdef mp_math_pf_accs < mp_math_pf & mm_shared_pfcpf_accs
-%MP_MATH_PF_ACCS  MATPOWER mathematical model for AC power flow (PF) problem.
+classdef math_model_pf_acpi < mp.math_model_pf & mm_shared_pfcpf_acpi
+%MP.MATH_MODEL_PF_ACPI  MATPOWER mathematical model for AC power flow (PF) problem.
 %   ?
 %
-%   MP_MATH_PF_ACCS ... power flow ...
+%   MP.MATH_MODEL_PF_ACPI ... power flow ...
 %
 %   Properties
 %       ? - ?
@@ -23,25 +23,26 @@ classdef mp_math_pf_accs < mp_math_pf & mm_shared_pfcpf_accs
 
     methods
         %% constructor
-        function obj = mp_math_pf_accs()
-            obj@mp_math_pf();
-            obj.element_classes = { @mme_bus_pf_acc, @mme_gen_pf_ac, ...
+        function obj = math_model_pf_acpi()
+            obj@mp.math_model_pf();
+            obj.element_classes = { @mme_bus_pf_acp, @mme_gen_pf_ac, ...
                 @mme_load_pf_ac, @mme_branch_pf_ac, @mme_shunt_pf_ac };
         end
 
         function tag = form_tag(obj)
-            tag = 'accs';
+            tag = 'acpi';
         end
 
         function name = form_name(obj)
-            name = 'AC-cartesian-power';
+            name = 'AC-polar-current';
         end
 
         function obj = add_node_balance_constraints(obj, nm, dm, mpopt)
             %% power balance constraints
             ad = obj.aux_data;
+            npvq = ad.npv+ad.npq;
             fcn = @(x)node_balance_equations(obj, x, nm);
-            obj.add_nln_constraint({'Pmis', 'Qmis', 'Vmis'}, [ad.npv+ad.npq;ad.npq;ad.npv], 1, fcn, []);
+            obj.add_nln_constraint({'Irmis', 'Iimis'}, [npvq;npvq], 1, fcn, []);
         end
     end     %% methods
 end         %% classdef

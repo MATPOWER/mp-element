@@ -176,19 +176,19 @@ classdef task_pf < mp.task
                 case 'AC'
                     if mpopt.pf.v_cartesian
                         if mpopt.pf.current_balance
-                            mm_class = @mp_math_pf_acci;
+                            mm_class = @mp.math_model_pf_acci;
                         else
-                            mm_class = @mp_math_pf_accs;
+                            mm_class = @mp.math_model_pf_accs;
                         end
                     else
                         if mpopt.pf.current_balance
-                            mm_class = @mp_math_pf_acpi;
+                            mm_class = @mp.math_model_pf_acpi;
                         else
-                            mm_class = @mp_math_pf_acps;
+                            mm_class = @mp.math_model_pf_acps;
                         end
                     end
                 case 'DC'
-                    mm_class = @mp_math_pf_dc;
+                    mm_class = @mp.math_model_pf_dc;
             end
         end
     end     %% methods

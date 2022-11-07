@@ -1,8 +1,8 @@
-classdef (Abstract) mp_math_cpf < mp_math_pf
-%MP_MATH_CPF  MATPOWER math model for continuation power flow (CPF) problem.
+classdef (Abstract) math_model_cpf < mp.math_model_pf
+%MP.MATH_MODEL_CPF  MATPOWER math model for continuation power flow (CPF) problem.
 %   ?
 %
-%   MP_MATH_CPF ... continuation power flow ...
+%   MP.MATH_MODEL_CPF ... continuation power flow ...
 %
 %   Properties
 %       ? - ?
@@ -52,7 +52,7 @@ classdef (Abstract) mp_math_cpf < mp_math_pf
         end
 
         function add_vars(obj, nm, dm, mpopt)
-            add_vars@mp_math_pf(obj, nm, dm, mpopt);
+            add_vars@mp.math_model_pf(obj, nm, dm, mpopt);
             %% required for using nmt to compute nm state from mm state
             obj.aux_data.adt.var_map = obj.aux_data.var_map;
             obj.add_var('lambda', 1, 0);
@@ -165,20 +165,20 @@ classdef (Abstract) mp_math_cpf < mp_math_pf
             [vat, vmt] = nm.aux_data_va_vm(adt);
             rpv = [ad.ref; ad.pv];
             if norm(va(ad.ref)-vat(ad.ref), Inf) > tol
-                error('mp_math_cpf/check_xfer: base and target cases must have identical voltage angles at reference nodes.')
+                error('mp.math_model_cpf/check_xfer: base and target cases must have identical voltage angles at reference nodes.')
             end
             if norm(vm(rpv)-vmt(rpv), Inf) > tol
-                error('mp_math_cpf/check_xfer: base and target cases must have identical voltage magnitudes at reference and PV nodes.')
+                error('mp.math_model_cpf/check_xfer: base and target cases must have identical voltage magnitudes at reference and PV nodes.')
             end
             %% 2. Elements of z that vary with lambda must have only constant
             %%    coefficients, i.e. corresponding columns of L and N must be
             %%    identical in base and target models.
             k = find(zz);
             if norm(LL(:,k) - LLt(:,k), Inf) > tol
-                error('mp_math_cpf/check_xfer: base and target cases must have identical coefficients for any current injection state variables that vary from base to target.')
+                error('mp.math_model_cpf/check_xfer: base and target cases must have identical coefficients for any current injection state variables that vary from base to target.')
             end
             if norm(NN(:,k) - NNt(:,k), Inf) > tol
-                error('mp_math_cpf/check_xfer: base and target cases must have identical coefficients for any power injection state variables that vary from base to target.')
+                error('mp.math_model_cpf/check_xfer: base and target cases must have identical coefficients for any power injection state variables that vary from base to target.')
             end
         end
 
@@ -200,7 +200,7 @@ classdef (Abstract) mp_math_cpf < mp_math_pf
 
             k = find( bus_num < 0 | bus_num > length(b2i) );
             if ~isempty(k)
-                error('mp_math_cpf/plot_yfcn: %d is not a valid bus number for CPF voltage plot', bus_idx(k));
+                error('mp.math_model_cpf/plot_yfcn: %d is not a valid bus number for CPF voltage plot', bus_idx(k));
             end
 
             idx = nidx(b2i(bus_num));
@@ -433,7 +433,7 @@ classdef (Abstract) mp_math_cpf < mp_math_pf
             if ~isempty(ev)
                 ad = obj.aux_data;
                 if ad.nref ~= 1
-                    error('mp_math_cpf/callback_qlim: ''cpf.enforce_qlims'' option only valid for systems with exactly one REF bus');
+                    error('mp.math_model_cpf/callback_qlim: ''cpf.enforce_qlims'' option only valid for systems with exactly one REF bus');
                 end
 
                 efidx = ev.idx;             %% event function index
@@ -545,7 +545,7 @@ classdef (Abstract) mp_math_cpf < mp_math_pf
             if ~isempty(ev)
                 ad = obj.aux_data;
                 if ad.nref ~= 1
-                    error('mp_math_cpf/callback_plim: ''cpf.enforce_plims'' option only valid for systems with exactly one REF bus');
+                    error('mp.math_model_cpf/callback_plim: ''cpf.enforce_plims'' option only valid for systems with exactly one REF bus');
                 end
 
                 efidx = ev.idx;             %% event function index

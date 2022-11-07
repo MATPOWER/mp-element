@@ -1,8 +1,8 @@
-classdef mp_math_cpf_acci < mp_math_cpf_acc & mm_shared_pfcpf_acci
-%MP_MATH_CPF_ACCI  MATPOWER mathematical model for continuation power flow (CPF) problem.
+classdef math_model_pf_acci < mp.math_model_pf & mm_shared_pfcpf_acci
+%MP.MATH_MODEL_PF_ACCI  MATPOWER mathematical model for AC power flow (PF) problem.
 %   ?
 %
-%   MP_MATH_CPF_ACCI ... power flow ...
+%   MP.MATH_MODEL_PF_ACCI ... power flow ...
 %
 %   Properties
 %       ? - ?
@@ -22,6 +22,13 @@ classdef mp_math_cpf_acci < mp_math_cpf_acc & mm_shared_pfcpf_acci
 %     end
 
     methods
+        %% constructor
+        function obj = math_model_pf_acci()
+            obj@mp.math_model_pf();
+            obj.element_classes = { @mme_bus_pf_acc, @mme_gen_pf_ac, ...
+                @mme_load_pf_ac, @mme_branch_pf_ac, @mme_shunt_pf_ac };
+        end
+
         function tag = form_tag(obj)
             tag = 'acci';
         end
@@ -34,7 +41,7 @@ classdef mp_math_cpf_acci < mp_math_cpf_acc & mm_shared_pfcpf_acci
             %% power balance constraints
             ad = obj.aux_data;
             npvq = ad.npv+ad.npq;
-            fcn = @(x)node_balance_equations_cpf(obj, x, nm);
+            fcn = @(x)node_balance_equations(obj, x, nm);
             obj.add_nln_constraint({'Irmis', 'Iimis', 'Vmis'}, [npvq;npvq;ad.npv], 1, fcn, []);
         end
     end     %% methods

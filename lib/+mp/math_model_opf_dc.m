@@ -1,8 +1,8 @@
-classdef mp_math_opf_dc < mp_math_opf
-%MP_MATH_OPF_DC  MATPOWER mathematical model for DC optimal power flow (OPF) problem.
+classdef math_model_opf_dc < mp.math_model_opf
+%MP.MATH_MODEL_OPF_DC  MATPOWER mathematical model for DC optimal power flow (OPF) problem.
 %   ?
 %
-%   MP_MATH_OPF_DC ... power flow ...
+%   MP.MATH_MODEL_OPF_DC ... power flow ...
 %
 %   Properties
 %       ? - ?
@@ -23,8 +23,8 @@ classdef mp_math_opf_dc < mp_math_opf
 
     methods
         %% constructor
-        function obj = mp_math_opf_dc()
-            obj@mp_math_opf();
+        function obj = math_model_opf_dc()
+            obj@mp.math_model_opf();
             obj.element_classes = { @mme_bus_opf_dc, @mme_gen_opf_dc, ...
                 @mme_load_pf_dc, @mme_branch_opf_dc, @mme_shunt_pf_dc };
         end

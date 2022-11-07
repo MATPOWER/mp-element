@@ -1,4 +1,4 @@
-classdef mp_math_opf_acps_node_test < mp_math_opf_acps
+classdef math_model_pf_acps_node_test < mp.math_model_pf_acps
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)
@@ -10,11 +10,11 @@ classdef mp_math_opf_acps_node_test < mp_math_opf_acps
 
     methods
         %% constructor
-        function obj = mp_math_opf_acps_node_test()
-            obj@mp_math_opf_acps();
-            obj.element_classes = { @mme_bus_nld_opf_acps_node_test, ...
-                @mme_bus_ld_opf_acps_node_test, @mme_gen_opf_ac, ...
-                @mme_branch_opf_acp_node_test };
+        function obj = math_model_pf_acps_node_test()
+            obj@mp.math_model_pf_acps();
+            obj.element_classes = { @mme_bus_nld_pf_acps_node_test, ...
+                @mme_bus_ld_pf_acps_node_test, @mme_gen_pf_ac, ...
+                @mme_branch_pf_ac };
 
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),

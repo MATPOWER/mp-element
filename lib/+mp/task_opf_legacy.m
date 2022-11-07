@@ -57,19 +57,19 @@ classdef task_opf_legacy < mp.task_opf & task_shared_legacy
                 case 'AC'
                     if mpopt.opf.v_cartesian
                         if mpopt.opf.current_balance
-                            mm_class = @mp_math_opf_acci_legacy;
+                            mm_class = @mp.math_model_opf_acci_legacy;
                         else
-                            mm_class = @mp_math_opf_accs_legacy;
+                            mm_class = @mp.math_model_opf_accs_legacy;
                         end
                     else
                         if mpopt.opf.current_balance
-                            mm_class = @mp_math_opf_acpi_legacy;
+                            mm_class = @mp.math_model_opf_acpi_legacy;
                         else
-                            mm_class = @mp_math_opf_acps_legacy;
+                            mm_class = @mp.math_model_opf_acps_legacy;
                         end
                     end
                 case 'DC'
-                    mm_class = @mp_math_opf_dc_legacy;
+                    mm_class = @mp.math_model_opf_dc_legacy;
             end
         end
 

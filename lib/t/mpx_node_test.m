@@ -27,9 +27,9 @@ classdef mpx_node_test < mp_extension
         function mm_class = math_model_class(obj, mm_class, task_tag, mpopt)
             switch task_tag
                 case {'PF'}
-                    mm_class = @mp_math_pf_acps_node_test;
+                    mm_class = @mp.math_model_pf_acps_node_test;
                 case {'OPF'}
-                    mm_class = @mp_math_opf_acps_node_test;
+                    mm_class = @mp.math_model_opf_acps_node_test;
             end
         end
     end     %% methods
