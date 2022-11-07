@@ -1,4 +1,4 @@
-classdef mp_network_acc < mp_network_ac & mp_form_acc
+classdef net_model_acp_node_test < mp.net_model_acp
 
 %   MATPOWER
 %   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
@@ -8,17 +8,13 @@ classdef mp_network_acc < mp_network_ac & mp_form_acc
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-    properties
-        vr = [];
-        vi = [];
-    end
-
     methods
-        function obj = mp_network_acc()
-            obj@mp_network_ac();
+        %% constructor
+        function obj = net_model_acp_node_test()
+            obj@mp.net_model_acp();
             obj.element_classes = ...
-                { @nme_bus_acc, @nme_gen_acc, @nme_load_acc, ...
-                    @nme_branch_acc, @nme_shunt_acc };
+                { @nme_bus_nld_acp_node_test, @nme_bus_ld_acp_node_test, ...
+                    @nme_gen_acp, @nme_branch_acp };
 
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
@@ -28,22 +24,6 @@ classdef mp_network_acc < mp_network_ac & mp_form_acc
             %% WORKAROUND:  INIT_SET_TYPES() is called explicitly as needed
             %%              (if obj.node is empty) in BUILD() and DISPLAY(),
             %%              after object construction, but before object use.
-        end
-
-        function obj = def_set_types(obj)
-            def_set_types@mp_network_ac(obj);   %% call parent first
-            obj.set_types.vr = 'REAL VOLTAGE VARS (vr)';
-            obj.set_types.vi = 'IMAG VOLTAGE VARS (vi)';
-        end
-
-        function va = initial_voltage_angle(obj, idx)
-            vr = obj.params_var('vr');  %% inital value
-            vi = obj.params_var('vi');  %% inital value
-            if nargin < 2 || isempty(idx)
-                va = angle(vr + 1j * vi);
-            else
-                va = angle(vr(idx) + 1j * vi(idx));
-            end
         end
     end     %% methods
 end         %% classdef

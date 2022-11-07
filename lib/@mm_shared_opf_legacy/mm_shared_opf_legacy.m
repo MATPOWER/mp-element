@@ -98,10 +98,10 @@ classdef (Abstract) mm_shared_opf_legacy < handle
                     if any(cp.dd ~= 1) || any(cp.kk)    %% not simple quadratic form
                         if dc                           %% (includes "dead zone" or
                             if any(cp.dd ~= 1)          %%  quadratic "penalty")
-                                error('mp_network/add_legacy_user_costs: DC OPF can only handle legacy user-defined costs with d = 1');
+                                error('mm_shared_opf_legacy/add_legacy_user_costs: DC OPF can only handle legacy user-defined costs with d = 1');
                             end
                             if any(cp.kk)
-                                error('mp_network/add_legacy_user_costs: DC OPF can only handle legacy user-defined costs with no "dead zone", i.e. k = 0');
+                                error('mm_shared_opf_legacy/add_legacy_user_costs: DC OPF can only handle legacy user-defined costs with no "dead zone", i.e. k = 0');
                             end
                         else
                             %% use general nonlinear cost to implement legacy user cost

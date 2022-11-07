@@ -21,7 +21,7 @@ classdef mpx_node_test < mp_extension
         end
 
         function nm_class = network_model_class(obj, nm_class, task_tag, mpopt)
-            nm_class = @mp_network_acp_node_test;
+            nm_class = @mp.net_model_acp_node_test;
         end
 
         function mm_class = math_model_class(obj, mm_class, task_tag, mpopt)

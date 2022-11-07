@@ -37,7 +37,7 @@ dm_classes = {
     @mp.data_model_cpf,
     @mp.data_model_opf
 };
-nm_class = @mp_network_acp;
+nm_class = @mp.net_model_acp;
 mm_classes = {
     @mp_math_pf_acps,
     @mp_math_cpf_acps,
@@ -61,7 +61,7 @@ for k = 1:length(tasks)
     %% build network model
     nm = nm_class();
     nm.build(dm);
-    t_ok(isa(nm, 'mp_network'), [t 'build network model']);
+    t_ok(isa(nm, 'mp.net_model'), [t 'build network model']);
 
     if strcmp(tasks{k}, 'CPF')
         dm.userdata.target = dm_class();

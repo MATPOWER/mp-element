@@ -1,5 +1,5 @@
-classdef (Abstract) mp_network < nm_element & mp_element_container & mp_idx_manager% & mp_form
-%MP_NETWORK  Abstract base class for MATPOWER network model
+classdef (Abstract) net_model < nm_element & mp_element_container & mp_idx_manager% & mp_form
+%MP.NET_MODEL  Abstract base class for MATPOWER network model
 %   Explicitly a subclass of NM_ELEMENT, MP_IDX_MANAGER and MPE_CONTAINER,
 %   and implicitly assumed to be a subclass of MP_FORM as well.
 
@@ -513,7 +513,7 @@ classdef (Abstract) mp_network < nm_element & mp_element_container & mp_idx_mana
             if nargout > 1      %% ref, pv, pq
                 if isempty(ref)
                     if isempty(pv)
-                        error('mp_network/ensure_ref_node: must have at least one REF or PV node');
+                        error('mp.net_model/ensure_ref_node: must have at least one REF or PV node');
                     end
                     obj.set_node_type_ref(dm, pv(1));
                     ref = pv(1);
@@ -525,7 +525,7 @@ classdef (Abstract) mp_network < nm_element & mp_element_container & mp_idx_mana
                 if isempty(ref)
                     pv = find(ntv == NODE_TYPE.PV); %% PV node indices
                     if isempty(pv)
-                        error('mp_network/ensure_ref_node: must have at least one REF or PV node');
+                        error('mp.net_model/ensure_ref_node: must have at least one REF or PV node');
                     end
                     obj.set_node_type_ref(dm, pv(1));
 

@@ -1,4 +1,4 @@
-classdef mp_network_dc < mp_network & mp_form_dc
+classdef net_model_dc < mp.net_model & mp_form_dc
 
 %   MATPOWER
 %   Copyright (c) 2019-2020, Power Systems Engineering Research Center (PSERC)
@@ -15,8 +15,8 @@ classdef mp_network_dc < mp_network & mp_form_dc
 
     methods
         %% constructor
-        function obj = mp_network_dc()
-            obj@mp_network();
+        function obj = net_model_dc()
+            obj@mp.net_model();
             obj.element_classes = { ...
                 @nme_bus_dc, @nme_gen_dc, @nme_load_dc, ...
                     @nme_branch_dc, @nme_shunt_dc };
@@ -32,14 +32,14 @@ classdef mp_network_dc < mp_network & mp_form_dc
         end
 
         function obj = def_set_types(obj)
-            def_set_types@mp_network(obj);      %% call parent first
+            def_set_types@mp.net_model(obj);        %% call parent first
             obj.set_types.va = 'VOLTAGE VARS (va)';
             obj.set_types.z  = 'NON-VOLTAGE VARS (z)';
         end
 
         function obj = build_params(obj, nm, dm)
             %% call parent to build individual element parameters
-            build_params@mp_network(obj, nm, dm);
+            build_params@mp.net_model(obj, nm, dm);
 
             %% aggregate parameters from individual elements
             obj.B = obj.stack_matrix_params('B', 1);

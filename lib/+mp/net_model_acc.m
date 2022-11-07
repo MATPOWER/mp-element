@@ -1,4 +1,4 @@
-classdef mp_network_acp < mp_network_ac & mp_form_acp
+classdef net_model_acc < mp.net_model_ac & mp_form_acc
 
 %   MATPOWER
 %   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
@@ -9,16 +9,16 @@ classdef mp_network_acp < mp_network_ac & mp_form_acp
 %   See https://matpower.org for more info.
 
     properties
-        va = [];
-        vm = [];
+        vr = [];
+        vi = [];
     end
 
     methods
-        function obj = mp_network_acp()
-            obj@mp_network_ac();
+        function obj = net_model_acc()
+            obj@mp.net_model_ac();
             obj.element_classes = ...
-                { @nme_bus_acp, @nme_gen_acp, @nme_load_acp, ...
-                    @nme_branch_acp, @nme_shunt_acp };
+                { @nme_bus_acc, @nme_gen_acc, @nme_load_acc, ...
+                    @nme_branch_acc, @nme_shunt_acc };
 
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
@@ -31,15 +31,18 @@ classdef mp_network_acp < mp_network_ac & mp_form_acp
         end
 
         function obj = def_set_types(obj)
-            def_set_types@mp_network_ac(obj);   %% call parent first
-            obj.set_types.va = 'VOLTAGE ANG VARS (va)';
-            obj.set_types.vm = 'VOLTAGE MAG VARS (vm)';
+            def_set_types@mp.net_model_ac(obj);     % call parent first
+            obj.set_types.vr = 'REAL VOLTAGE VARS (vr)';
+            obj.set_types.vi = 'IMAG VOLTAGE VARS (vi)';
         end
 
         function va = initial_voltage_angle(obj, idx)
-            va = obj.params_var('va');
-            if nargin > 1 && ~isempty(idx)
-                va = va(idx);
+            vr = obj.params_var('vr');  %% inital value
+            vi = obj.params_var('vi');  %% inital value
+            if nargin < 2 || isempty(idx)
+                va = angle(vr + 1j * vi);
+            else
+                va = angle(vr(idx) + 1j * vi(idx));
             end
         end
     end     %% methods

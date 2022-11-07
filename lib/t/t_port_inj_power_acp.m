@@ -40,7 +40,7 @@ for c = 1:length(tc)
     %% create network model object
     mpc = loadcase(casefile);
     dm = mp.data_model().modify_element_classes(@dme_gizmo).build(mpc, dmc);
-    ac = mp_network_acp().modify_element_classes(@nme_gizmo_acp).build(dm);
+    ac = mp.net_model_acp().modify_element_classes(@nme_gizmo_acp).build(dm);
     C = ac.C;
     D = ac.D;
     np = ac.np;

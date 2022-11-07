@@ -1,5 +1,5 @@
-classdef (Abstract) mp_network_ac < mp_network% & mp_form_ac
-%MP_NETWORK_AC Abstract class, explicitly a subclass of MP_NETWORK and
+classdef (Abstract) net_model_ac < mp.net_model% & mp_form_ac
+%MP.NET_MODEL_AC Abstract class, explicitly a subclass of MP.NET_MODEL and
 %              implicitly assumed to be a subclass of MP_FORM_AC as well
 
 %   MATPOWER
@@ -24,14 +24,14 @@ classdef (Abstract) mp_network_ac < mp_network% & mp_form_ac
 
     methods
         function obj = def_set_types(obj)
-            def_set_types@mp_network(obj);      %% call parent first
+            def_set_types@mp.net_model(obj);    %% call parent first
             obj.set_types.zr = 'NON-VOLTAGE VARS REAL (zr)';
             obj.set_types.zi = 'NON-VOLTAGE VARS IMAG (zi)';
         end
 
         function obj = build_params(obj, nm, dm)
             %% call parent to build individual element parameters
-            build_params@mp_network(obj, nm, dm);
+            build_params@mp.net_model(obj, nm, dm);
 
             %% aggregate parameters from individual elements
             obj.Y = obj.stack_matrix_params('Y', 1);

@@ -130,12 +130,12 @@ classdef task_pf < mp.task
             switch upper(mpopt.model)
                 case 'AC'
                     if mpopt.pf.v_cartesian
-                        nm_class = @mp_network_acc;
+                        nm_class = @mp.net_model_acc;
                     else
-                        nm_class = @mp_network_acp;
+                        nm_class = @mp.net_model_acp;
                     end
                 case 'DC'
-                    nm_class = @mp_network_dc;
+                    nm_class = @mp.net_model_dc;
             end
         end
 

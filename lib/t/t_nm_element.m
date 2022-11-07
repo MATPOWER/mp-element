@@ -27,10 +27,10 @@ mpopt = mpoption('out.all', 0, 'verbose', 0);
 dmc = mp_dm_converter_mpc2().build();
 
 %%-----  DC formulation  -----
-t = 'mp_network_dc() : ';
-dc = mp_network_dc();
+t = 'mp.net_model_dc() : ';
+dc = mp.net_model_dc();
 t_ok(strcmp(dc.name, 'network'), [t 'name']);
-t_ok(strcmp(class(dc), 'mp_network_dc'), [t 'class']);
+t_ok(strcmp(class(dc), 'mp.net_model_dc'), [t 'class']);
 t_ok(strcmp(dc.find_form_class(), 'mp_form_dc'), [t 'formulation class']);
 t_ok(strcmp(dc.form_name, 'DC'), [t 'formulation name']);
 t_ok(strcmp(dc.form_tag, 'dc'), [t 'formulation tag']);
@@ -198,10 +198,10 @@ pg2 = gen.port_inj_power(x, 1, 2);
 t_is(pg2, epg(2), 12, t);
 
 %%-----  AC formulation  -----
-t = 'mp_network_acp() : ';
-ac = mp_network_acp();
+t = 'mp.net_model_acp() : ';
+ac = mp.net_model_acp();
 t_ok(strcmp(ac.name, 'network'), [t 'name']);
-t_ok(strcmp(class(ac), 'mp_network_acp'), [t 'class']);
+t_ok(strcmp(class(ac), 'mp.net_model_acp'), [t 'class']);
 t_ok(strcmp(ac.find_form_class(), 'mp_form_acp'), [t 'formulation class']);
 t_ok(strcmp(ac.form_name, 'AC-polar'), [t 'formulation name']);
 t_ok(strcmp(ac.form_tag, 'acp'), [t 'formulation tag']);
@@ -516,10 +516,10 @@ t_is(success, 1, 12, [t 'success']);
 t_is(i, 4, 12, [t 'i']);
 
 %%-----  AC gizmo test formulation  -----
-t = 'mp_network_acp_test() : ';
-ac = mp_network_acp_test();
+t = 'mp.net_model_acp_test() : ';
+ac = mp.net_model_acp_test();
 t_ok(strcmp(ac.name, 'network'), [t 'name']);
-t_ok(strcmp(class(ac), 'mp_network_acp_test'), [t 'class']);
+t_ok(strcmp(class(ac), 'mp.net_model_acp_test'), [t 'class']);
 t_ok(strcmp(ac.find_form_class(), 'mp_form_acp'), [t 'formulation class']);
 t_ok(strcmp(ac.form_name, 'AC-polar'), [t 'formulation name']);
 t_ok(strcmp(ac.form_tag, 'acp'), [t 'formulation tag']);
@@ -557,7 +557,7 @@ s1 = warning('query', warn_id);
 warning('off', warn_id);
 % mpopt.exp.dmc_element_classes = @dmce_gizmo_mpc2;
 % mpopt.exp.dm_element_classes = @dme_gizmo;
-% mpopt.exp.network_model_class = @mp_network_acp_test;
+% mpopt.exp.network_model_class = @mp.net_model_acp_test;
 % success = pf.run(mpc, mpopt);
 success = pf.run(mpc, mpopt, {mpx_gizmo()});
 warning(s1.state, warn_id);
@@ -575,7 +575,7 @@ mpc.bus(:, VA) = angle(v_) * 180/pi;
 mpc.bus(:, VM) = abs(v_);
 dmc = mp_dm_converter_mpc2().modify_element_classes(@dmce_gizmo_mpc2).build();
 dm = mp.data_model().modify_element_classes(@dme_gizmo).build(mpc, dmc);
-ac = mp_network_acp_test().build(dm);
+ac = mp.net_model_acp_test().build(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);
 t_is(ac.nz, 7, 12, [t 'nz']);

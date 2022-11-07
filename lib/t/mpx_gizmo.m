@@ -13,7 +13,7 @@ classdef mpx_gizmo < mp_extension
 
     methods
         function nm_class = network_model_class(obj, nm_class, task_tag, mpopt)
-            nm_class = @mp_network_acp_test;
+            nm_class = @mp.net_model_acp_test;
         end
 
         function dmc_elements = dmc_element_classes(obj, dmc_class, fmt, mpopt)

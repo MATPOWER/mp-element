@@ -84,12 +84,12 @@ classdef task_opf < mp.task
         %%-----  network model methods  -----
         function nm_class = network_model_class_default(obj, dm, mpopt)
             if obj.dc
-                nm_class = @mp_network_dc;
+                nm_class = @mp.net_model_dc;
             else
                 if mpopt.opf.v_cartesian
-                    nm_class = @mp_network_acc;
+                    nm_class = @mp.net_model_acc;
                 else
-                    nm_class = @mp_network_acp;
+                    nm_class = @mp.net_model_acp;
                 end
             end
         end

@@ -1,4 +1,4 @@
-classdef mp_network_acp_node_test < mp_network_acp
+classdef net_model_acp < mp.net_model_ac & mp_form_acp
 
 %   MATPOWER
 %   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
@@ -8,13 +8,17 @@ classdef mp_network_acp_node_test < mp_network_acp
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
+    properties
+        va = [];
+        vm = [];
+    end
+
     methods
-        %% constructor
-        function obj = mp_network_acp_node_test()
-            obj@mp_network_acp();
+        function obj = net_model_acp()
+            obj@mp.net_model_ac();
             obj.element_classes = ...
-                { @nme_bus_nld_acp_node_test, @nme_bus_ld_acp_node_test, ...
-                    @nme_gen_acp, @nme_branch_acp };
+                { @nme_bus_acp, @nme_gen_acp, @nme_load_acp, ...
+                    @nme_branch_acp, @nme_shunt_acp };
 
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
@@ -24,6 +28,19 @@ classdef mp_network_acp_node_test < mp_network_acp
             %% WORKAROUND:  INIT_SET_TYPES() is called explicitly as needed
             %%              (if obj.node is empty) in BUILD() and DISPLAY(),
             %%              after object construction, but before object use.
+        end
+
+        function obj = def_set_types(obj)
+            def_set_types@mp.net_model_ac(obj);     %% call parent first
+            obj.set_types.va = 'VOLTAGE ANG VARS (va)';
+            obj.set_types.vm = 'VOLTAGE MAG VARS (vm)';
+        end
+
+        function va = initial_voltage_angle(obj, idx)
+            va = obj.params_var('va');
+            if nargin > 1 && ~isempty(idx)
+                va = va(idx);
+            end
         end
     end     %% methods
 end         %% classdef
