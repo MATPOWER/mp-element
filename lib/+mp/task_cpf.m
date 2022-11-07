@@ -32,7 +32,7 @@ classdef task_cpf < mp.task_pf
 
         %%-----  task methods  -----
         function [d, mpopt] = run_pre(obj, d, mpopt)
-            if ~isa(d, 'mp_data')
+            if ~isa(d, 'mp.data_model')
                 if ~iscell(d) || length(d) < 2
                     error('mp.task_cpf/run_pre: input cases must be provided in a 2-element cell array, specifying the base and target cases, respectively')
                 end
@@ -97,7 +97,7 @@ classdef task_cpf < mp.task_pf
 
         %%-----  data model methods  -----
         function dm_class = data_model_class_default(obj)
-            dm_class = @mp_data_cpf;
+            dm_class = @mp.data_model_cpf;
         end
 
         function dm = data_model_build(obj, d, dmc, mpopt, mpx)

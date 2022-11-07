@@ -13,7 +13,7 @@ classdef (Abstract) task_shared_legacy < handle
 
     methods
         function [d, mpopt] = run_pre_legacy(obj, d, mpopt)
-            if ~isa(d, 'mp_data')
+            if ~isa(d, 'mp.data_model')
                 %% Handle experimental system-wide ZIP loads (for backward
                 %% compatibility), by moving data from
                 %%  mpopt.exp.sys_wide_zip_loads to

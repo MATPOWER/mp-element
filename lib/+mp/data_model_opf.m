@@ -1,5 +1,5 @@
-classdef mp_data_opf < mp_data
-%MP_DATA_OPF  Base class for MATPOWER data model
+classdef data_model_opf < mp.data_model
+%MP.DATA_MODEL_OPF  MATPOWER data model class for OPF tasks
 
 %   MATPOWER
 %   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
@@ -14,9 +14,9 @@ classdef mp_data_opf < mp_data
 
     methods
         %% constructor
-        function obj = mp_data_opf()
+        function obj = data_model_opf()
             %% call parent constructor
-            obj@mp_data();
+            obj@mp.data_model();
             obj.element_classes = ...
                 { @dme_bus_opf, @dme_gen_opf, @dme_load_opf, ...
                     @dme_branch_opf, @dme_shunt_opf };
@@ -24,7 +24,7 @@ classdef mp_data_opf < mp_data
 
         function [out, add] = pp_flags(obj, mpopt)
             %% call parent
-            [out, add_] = pp_flags@mp_data(obj, mpopt);
+            [out, add_] = pp_flags@mp.data_model(obj, mpopt);
             suppress = add_.suppress;
             s0 = add_.s0;
 
@@ -67,7 +67,7 @@ classdef mp_data_opf < mp_data
         end
 
         function sections = pp_section_list(obj, out)
-            sections = pp_section_list@mp_data(obj, out);
+            sections = pp_section_list@mp.data_model(obj, out);
             sections{end+1} = 'lim';
         end
 
@@ -76,7 +76,7 @@ classdef mp_data_opf < mp_data
                 case 'lim'
                     h = {};
                 otherwise
-                    error('mp_data_opf:pp_get_headers_other: unknown section ''%s''', section);
+                    error('mp.data_model_opf:pp_get_headers_other: unknown section ''%s''', section);
             end
         end
     end     %% methods

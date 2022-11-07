@@ -266,7 +266,7 @@ classdef (Abstract) task < handle
         end
 
         function dmc = dm_converter_create(obj, d, mpopt, mpx)
-            if isa(d, 'mp_data')
+            if isa(d, 'mp.data_model')
                 dmc = [];
             else
                 dmc_class = obj.dm_converter_class(d, mpopt, mpx);
@@ -322,7 +322,7 @@ classdef (Abstract) task < handle
         end
 
         function dm_class = data_model_class_default(obj)
-            dm_class = @mp_data;
+            dm_class = @mp.data_model;
         end
 
         function dm = data_model_create(obj, d, mpopt, mpx)
@@ -345,7 +345,7 @@ classdef (Abstract) task < handle
         end
 
         function dm = data_model_build(obj, d, dmc, mpopt, mpx)
-            if isa(d, 'mp_data')
+            if isa(d, 'mp.data_model')
                 dm = d;
             else
                 dm = obj.data_model_create(d, mpopt, mpx);

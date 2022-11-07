@@ -51,7 +51,7 @@ t_ok(strcmp(dc.set_types.z, 'NON-VOLTAGE VARS (z)'), [t 'set_types.z']);
 t_is(length(dc.elements), 0, 12, [t '# of element types']);
 
 t = 'dc.build(dm, dmc) : ';
-dm = mp_data().build(rundcpf(loadcase(casefile), mpopt), dmc);
+dm = mp.data_model().build(rundcpf(loadcase(casefile), mpopt), dmc);
 mpc = dm.source;
 t_ok(mpc.success, [t 'solved power flow']);
 dc.build(dm);
@@ -227,7 +227,7 @@ t_ok(strcmp(ac.set_types.zi, 'NON-VOLTAGE VARS IMAG (zi)'), [t 'set_types.zi']);
 t_is(length(ac.elements), 0, 12, [t '# of element types']);
 
 t = 'ac.build(dm) : ';
-dm = mp_data().build(runpf(loadcase(casefile), mpopt), dmc);
+dm = mp.data_model().build(runpf(loadcase(casefile), mpopt), dmc);
 mpc = dm.source;
 t_ok(mpc.success, [t 'solved power flow']);
 ac.build(dm);
@@ -574,7 +574,7 @@ t = 'ac.build(dm) : ';
 mpc.bus(:, VA) = angle(v_) * 180/pi;
 mpc.bus(:, VM) = abs(v_);
 dmc = mp_dm_converter_mpc2().modify_element_classes(@dmce_gizmo_mpc2).build();
-dm = mp_data().modify_element_classes(@dme_gizmo).build(mpc, dmc);
+dm = mp.data_model().modify_element_classes(@dme_gizmo).build(mpc, dmc);
 ac = mp_network_acp_test().build(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);
 t_is(ac.np, 30, 12, [t 'np']);

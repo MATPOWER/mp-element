@@ -1,8 +1,8 @@
-function obj = t_mp_data(quiet)
-%T_MP_DATA  Tests for MP_DATA.
+function obj = t_mp_data_model(quiet)
+%T_MP_DATA_MODEL  Tests for MP.DATA_MODEL.
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -27,7 +27,7 @@ end
 casefile = 't_case_ext';
 mpc = loadcase(casefile);
 dmc = mp_dm_converter_mpc2().build();
-dm0 = mp_data().build(mpc, dmc);
+dm0 = mp.data_model().build(mpc, dmc);
 nb = size(mpc.bus, 1);
 ID2i = zeros(2, 1);     %% initialize as col vector
 ID2i(mpc.bus(:, BUS_I)) = (1:nb);
@@ -42,13 +42,13 @@ nt = length(tests);
 t_begin(65*nt + 2, quiet);
 
 for k = 1:nt
-    if isa(tests{k}{2}, 'mp_data')
+    if isa(tests{k}{2}, 'mp.data_model')
         t = sprintf('%s.copy() : ', tests{k}{1});
         dm = tests{k}{2}.copy();
         tests{k}{2}.source = [];
     else
-        t = sprintf('mp_data().build(%s, dmc) : ', tests{k}{1});
-        dm = mp_data().build(tests{k}{2}, dmc);
+        t = sprintf('mp.data_model().build(%s, dmc) : ', tests{k}{1});
+        dm = mp.data_model().build(tests{k}{2}, dmc);
     end
     t_ok(iscell(dm.element_classes), [t 'iscell(dm.element_classes)']);
     t_is(length(dm.element_classes), 5, 12, [t 'length(dm.element_classes)']);
@@ -128,7 +128,7 @@ for k = 1:nt
 end
 
 t = 'modify_element_classes : ';
-dm = mp_data;
+dm = mp.data_model;
 e = {@dme_bus, @dme_gen, @dme_load, @dme_branch, @dme_shunt};
 t_ok(isequal(dm.element_classes, e), [t 'before']);
 dm.modify_element_classes({'dme_shunt', @dme_gizmo, {@dme_gen, 'dme_gen'}});

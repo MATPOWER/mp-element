@@ -1,5 +1,5 @@
-classdef mp_data < mp_element_container
-%MP_DATA  Base class for MATPOWER data model
+classdef data_model < mp_element_container
+%MP.DATA_MODEL  Base class for MATPOWER data model
 
 %   MATPOWER
 %   Copyright (c) 1996-2022, Power Systems Engineering Research Center (PSERC)
@@ -22,7 +22,7 @@ classdef mp_data < mp_element_container
 
     methods
         %% constructor
-        function obj = mp_data()
+        function obj = data_model()
             %% call parent constructor
             obj@mp_element_container();
             obj.element_classes = ...
@@ -332,7 +332,7 @@ classdef mp_data < mp_element_container
                 bus_dme.vm_ub(ib) = (1-use_vg) * bus_dme.vm_ub(ib) + use_vg * vm_ub(ib);
                 bus_dme.vm_lb(ib) = (1-use_vg) * bus_dme.vm_lb(ib) + use_vg * vm_lb(ib);
             else
-                error('mp_data/set_bus_v_lims_via_vg: option ''opf.use_vg'' (= %g) cannot be negative or greater than 1', use_vg);
+                error('mp.data_model/set_bus_v_lims_via_vg: option ''opf.use_vg'' (= %g) cannot be negative or greater than 1', use_vg);
             end
 
             %% update bus table as well (for output)

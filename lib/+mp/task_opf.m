@@ -64,7 +64,7 @@ classdef task_opf < mp.task
 
         %%-----  data model methods  -----
         function dm_class = data_model_class_default(obj)
-            dm_class = @mp_data_opf;
+            dm_class = @mp.data_model_opf;
         end
 
         function dm = data_model_build_post(obj, dm, dmc, mpopt)

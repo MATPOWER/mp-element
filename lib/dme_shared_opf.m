@@ -1,5 +1,5 @@
 classdef (Abstract) dme_shared_opf < handle
-%DME_SHARED_OPF  Mix-in class for MATPOWER data model elements for MP_DATA_OPF
+%DME_SHARED_OPF  Mix-in class for MATPOWER elements for MP.DATA_MODEL_OPF
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)

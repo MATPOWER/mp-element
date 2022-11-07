@@ -32,7 +32,7 @@ tests = {};
 %% MATPOWER base test
 tests{end+1} = 't_mp_mapped_array';
 tests{end+1} = 't_mp_table';
-tests{end+1} = 't_mp_data';
+tests{end+1} = 't_mp_data_model';
 tests{end+1} = 't_dmc_element';
 tests{end+1} = 't_mp_dm_converter_mpc2';
 tests{end+1} = 't_nm_element';

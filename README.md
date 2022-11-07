@@ -47,7 +47,7 @@ of MATLAB or Octave, including setting up your MATLAB/Octave path.
   >> test_mp_element
   t_mp_mapped_array.........ok
   t_mp_table................ok
-  t_mp_data.................ok
+  t_mp_data_model...........ok
   t_mp_dm_converter_mpc2....ok
   t_nm_element..............ok
   t_port_inj_current_acc....ok

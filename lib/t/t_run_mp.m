@@ -33,9 +33,9 @@ task_classes = {@mp.task_pf, @mp.task_cpf, @mp.task_opf};
 d = {casefile, {casefile, casefilet}, casefile};
 dmc_class = @mp_dm_converter_mpc2;
 dm_classes = {
-    @mp_data,
-    @mp_data_cpf,
-    @mp_data_opf
+    @mp.data_model,
+    @mp.data_model_cpf,
+    @mp.data_model_opf
 };
 nm_class = @mp_network_acp;
 mm_classes = {
@@ -56,7 +56,7 @@ for k = 1:length(tasks)
     dm_class = dm_classes{k};
     dm = dm_class();
     dm.build('case9', dmc);
-    t_ok(isa(dm, 'mp_data'), [t 'build data model']);
+    t_ok(isa(dm, 'mp.data_model'), [t 'build data model']);
 
     %% build network model
     nm = nm_class();

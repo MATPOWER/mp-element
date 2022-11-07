@@ -17,7 +17,7 @@ classdef mpx_node_test < mp_extension
         end
 
         function dm_class = data_model_class(obj, dm_class, task_tag, mpopt)
-            dm_class = @mp_data_node_test;
+            dm_class = @mp.data_model_node_test;
         end
 
         function nm_class = network_model_class(obj, nm_class, task_tag, mpopt)

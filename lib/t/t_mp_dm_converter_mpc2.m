@@ -55,8 +55,8 @@ t_ok(strcmp(dmc.elements{4}.name, 'branch'), [t 'element{4} is branch']);
 t_ok(strcmp(dmc.elements{5}.name, 'shunt'), [t 'element{5} is shunt']);
 
 t = 'dm constructor : ';
-dm = mp_data_cpf();
-t_ok(isa(dm, 'mp_data'), [t 'class']);
+dm = mp.data_model_cpf();
+t_ok(isa(dm, 'mp.data_model'), [t 'class']);
 t_is(length(dm.element_classes), 5, 12, [t '# of element_classes']);
 t_ok(isempty(dm.elements), [t 'elements empty']);
 
@@ -103,7 +103,7 @@ mpc1 = struct( ...
     'gencost', mpc0.gencost, ...
     'bus_name', {mpc0.bus_name} );
 dmc = mp_dm_converter_mpc2().build();
-dm = mp_data_opf().build(mpc1, dmc);
+dm = mp.data_model_opf().build(mpc1, dmc);
 mpc = dmc.export(dm);
 mpc1.gen(:, MBASE) = 0;
 mpc1.branch(7, BR_STATUS) = 0;
