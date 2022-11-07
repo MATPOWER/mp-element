@@ -1,6 +1,6 @@
-classdef mp_task_cpf < mp_task_pf
-%MP_TASK_CPF  MATPOWER task for continuation power flow (CPF).
-%   MP_TASK_CPF provides implementation for continuation power flow problem.
+classdef task_cpf < mp.task_pf
+%MP.TASK_CPF  MATPOWER task for continuation power flow (CPF).
+%   MP.TASK_CPF provides implementation for continuation power flow problem.
 %
 %   Properties
 %       warmstart
@@ -9,7 +9,7 @@ classdef mp_task_cpf < mp_task_pf
 %       ?
 
 %   MATPOWER
-%   Copyright (c) 2020, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -22,9 +22,9 @@ classdef mp_task_cpf < mp_task_pf
 
     methods
         %% constructor
-        function obj = mp_task_cpf()
+        function obj = task_cpf()
             %% call parent constructor
-            obj@mp_task_pf();
+            obj@mp.task_pf();
 
             obj.tag = 'CPF';
             obj.name = 'Continuation Power Flow';
@@ -34,10 +34,10 @@ classdef mp_task_cpf < mp_task_pf
         function [d, mpopt] = run_pre(obj, d, mpopt)
             if ~isa(d, 'mp_data')
                 if ~iscell(d) || length(d) < 2
-                    error('mp_task_cpf/run_pre: input cases must be provided in a 2-element cell array, specifying the base and target cases, respectively')
+                    error('mp.task_cpf/run_pre: input cases must be provided in a 2-element cell array, specifying the base and target cases, respectively')
                 end
-                d{1} = run_pre@mp_task_pf(obj, d{1}, mpopt);
-                d{2} = run_pre@mp_task_pf(obj, d{2}, mpopt);
+                d{1} = run_pre@mp.task_pf(obj, d{1}, mpopt);
+                d{2} = run_pre@mp.task_pf(obj, d{2}, mpopt);
             end
         end
 
@@ -89,9 +89,9 @@ classdef mp_task_cpf < mp_task_pf
         %%-----  data model converter methods  -----
         function dmc_class = dm_converter_class(obj, d, mpopt, mpx)
             if iscell(d) && length(d) == 2
-                dmc_class = dm_converter_class@mp_task_pf(obj, d{1}, mpopt, mpx);
+                dmc_class = dm_converter_class@mp.task_pf(obj, d{1}, mpopt, mpx);
             else
-                error('mp_task_cpf/dm_converter_class: d must be 2-element cell array');
+                error('mp.task_cpf/dm_converter_class: d must be 2-element cell array');
             end
         end
 
@@ -102,25 +102,25 @@ classdef mp_task_cpf < mp_task_pf
 
         function dm = data_model_build(obj, d, dmc, mpopt, mpx)
             if iscell(d) && length(d) == 2
-                dm  = data_model_build@mp_task_pf(obj, d{1}, dmc, mpopt, mpx);
-                dmt = data_model_build@mp_task_pf(obj, d{2}, dmc, mpopt, mpx);
+                dm  = data_model_build@mp.task_pf(obj, d{1}, dmc, mpopt, mpx);
+                dmt = data_model_build@mp.task_pf(obj, d{2}, dmc, mpopt, mpx);
                 dm.userdata.target = dmt;
             else
-                error('mp_task_cpf/data_model_build: d must be 2-element cell array');
+                error('mp.task_cpf/data_model_build: d must be 2-element cell array');
             end
         end
 
         %%-----  network model methods  -----
         function nm = network_model_build(obj, dm, mpopt, mpx)
             dmt = dm.userdata.target;
-            nm  = network_model_build@mp_task_pf(obj, dm,  mpopt, mpx);
-            nmt = network_model_build@mp_task_pf(obj, dmt, mpopt, mpx);
+            nm  = network_model_build@mp.task_pf(obj, dm,  mpopt, mpx);
+            nmt = network_model_build@mp.task_pf(obj, dmt, mpopt, mpx);
             nm.userdata.target = nmt;
         end
 
         function nm = network_model_x_soln(obj, mm, nm)
             %% call parent
-            nm = network_model_x_soln@mp_task_pf(obj, mm, nm);
+            nm = network_model_x_soln@mp.task_pf(obj, mm, nm);
 
             %% update solution in target network model
             nm.userdata.target = mm.network_model_x_soln(nm.userdata.target);
@@ -128,7 +128,7 @@ classdef mp_task_cpf < mp_task_pf
 
         function nm = network_model_update(obj, mm, nm)
             %% call parent
-            nm = network_model_update@mp_task_pf(obj, mm, nm);
+            nm = network_model_update@mp.task_pf(obj, mm, nm);
 
             %% update port injection solutin in target network model
             nmt = nm.userdata.target;
@@ -157,12 +157,12 @@ classdef mp_task_cpf < mp_task_pf
                         end
                     end
                 case 'DC'
-                    error('mp_task_cpf/math_model_class_default: CPF not applicable for DC model');
+                    error('mp.task_cpf/math_model_class_default: CPF not applicable for DC model');
             end
         end
 
         function opt = math_model_opt(obj, mm, nm, dm, mpopt)
-            opt = math_model_opt@mp_task_pf(obj, mm, nm, dm, mpopt);
+            opt = math_model_opt@mp.task_pf(obj, mm, nm, dm, mpopt);
 
             %% add the warmstart options, if available
             if ~isempty(obj.warmstart)

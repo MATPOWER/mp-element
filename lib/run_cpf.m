@@ -8,4 +8,4 @@ function varargout = run_cpf(varargin)
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://matpower.org for more info.
 
-[varargout{1:nargout}] = run_mp(@mp_task_cpf, varargin{:});
+[varargout{1:nargout}] = run_mp(@mp.task_cpf, varargin{:});

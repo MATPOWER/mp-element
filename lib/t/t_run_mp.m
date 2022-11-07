@@ -29,7 +29,7 @@ mpopt = mpoption(opt);
 mpopt = mpoption(mpopt, 'out.all', 0);
 
 tasks = {'PF', 'CPF', 'OPF'};
-task_classes = {@mp_task_pf, @mp_task_cpf, @mp_task_opf};
+task_classes = {@mp.task_pf, @mp.task_cpf, @mp.task_opf};
 d = {casefile, {casefile, casefilet}, casefile};
 dmc_class = @mp_dm_converter_mpc2;
 dm_classes = {

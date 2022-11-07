@@ -3,8 +3,8 @@ function task_rv = run_mp(task_class, d, mpopt, varargin)
 %
 %   Inputs:
 %       TASK_CLASS - function handle to constructor of default task class for
-%           type of task to be run, e.g. @mp_task_pf for power flow,
-%           @mp_task_cpf for CPF, and @mp_task_opf for OPF
+%           type of task to be run, e.g. @mp.task_pf for power flow,
+%           @mp.task_cpf for CPF, and @mp.task_opf for OPF
 %       D - input data specification, e.g. MATPOWER case name, case struct, etc.
 %       MPOPT - MATPOWER options struct
 %       additional <name>, <value> pairs, where <name> can be:

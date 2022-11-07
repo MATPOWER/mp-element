@@ -502,9 +502,9 @@ t_is(Igzr, Izr(2, :), 12, [t 'Izr']);
 t_is(Igzi, Izi(2, :), 12, [t 'Izi']);
 
 %% AC Newton power flow
-t = 'mp_task_pf().run(mpc, mpopt) : ';
+t = 'mp.task_pf().run(mpc, mpopt) : ';
 mpc = loadcase(casefile);
-pf = mp_task_pf();
+pf = mp.task_pf();
 success = pf.run(mpc, mpopt);
 v_ = pf.nm.soln.v;
 success = pf.mm.soln.eflag > 0;
@@ -545,13 +545,13 @@ t_ok(strcmp(ac.set_types.zi, 'NON-VOLTAGE VARS IMAG (zi)'), [t 'set_types.zi']);
 t_is(length(ac.elements), 0, 12, [t '# of element types']);
 
 %% AC Newton power flow
-t = 'mp_task_pf().run(mpc, mpopt) : ';
+t = 'mp.task_pf().run(mpc, mpopt) : ';
 mpc = loadcase(casefile);
 ref = find(mpc.bus(:, BUS_TYPE) == REF);
 mpc.gen(ref, PG) = 1.7165997325858 * mpc.baseMVA;
 mpc.gen(:, QG) = [0.2570733353840 0.0079004398259 -0.1749046999314].' * mpc.baseMVA;
 % mpopt = mpoption(mpopt, 'verbose', 2);
-pf = mp_task_pf();
+pf = mp.task_pf();
 warn_id = 'update_z:multiple_nodes';
 s1 = warning('query', warn_id);
 warning('off', warn_id);

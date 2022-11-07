@@ -1,6 +1,6 @@
-classdef mp_task_opf_legacy < mp_task_opf & task_shared_legacy
-%MP_TASK_OPF_LEGACY  MATPOWER task for legacy optimal power flow (OPF).
-%   MP_TASK_OPF_LEGACY provides implementation for optimal power flow problem.
+classdef task_opf_legacy < mp.task_opf & task_shared_legacy
+%MP.TASK_OPF_LEGACY  MATPOWER task for legacy optimal power flow (OPF).
+%   MP.TASK_OPF_LEGACY provides implementation for optimal power flow problem.
 %
 %   Properties
 %       ?
@@ -8,7 +8,7 @@ classdef mp_task_opf_legacy < mp_task_opf & task_shared_legacy
 %   Methods
 %       ?
 %
-%   See also MP_TASK_OPF
+%   See also MP.TASK_OPF
 
 %   MATPOWER
 %   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)
@@ -25,7 +25,7 @@ classdef mp_task_opf_legacy < mp_task_opf & task_shared_legacy
         %%-----  task methods  -----
         function [d, mpopt] = run_pre(obj, d, mpopt)
             [d, mpopt] = obj.run_pre_legacy(d, mpopt);
-            [d, mpopt] = run_pre@mp_task_opf(obj, d, mpopt);
+            [d, mpopt] = run_pre@mp.task_opf(obj, d, mpopt);
         end
 
         function obj = run_post(obj, mm, nm, dm, mpopt);
@@ -42,7 +42,7 @@ classdef mp_task_opf_legacy < mp_task_opf & task_shared_legacy
         %%-----  data model methods  -----
         function dm = data_model_build_post(obj, dm, dmc, mpopt)
             %% call parent
-            dm = data_model_build_post@mp_task_opf(obj, dm, dmc, mpopt);
+            dm = data_model_build_post@mp.task_opf(obj, dm, dmc, mpopt);
 
             %% pre-process inputs for legacy user vars, constraints, costs
             dm = dmc.legacy_user_mod_inputs(dm, mpopt, obj.dc);

@@ -1,6 +1,6 @@
-classdef mp_task_pf < mp_task
-%MP_TASK_PF  MATPOWER task for power flow (PF).
-%   MP_TASK_PF provides implementation for power flow problem.
+classdef task_pf < mp.task
+%MP.TASK_PF  MATPOWER task for power flow (PF).
+%   MP.TASK_PF provides implementation for power flow problem.
 %
 %   Properties
 %       dc
@@ -37,7 +37,7 @@ classdef mp_task_pf < mp_task
     methods
         %%-----  task methods  -----
         function [d, mpopt] = run_pre(obj, d, mpopt)
-            [d, mpopt] = run_pre@mp_task(obj, d, mpopt);    %% call parent
+            [d, mpopt] = run_pre@mp.task(obj, d, mpopt);    %% call parent
 
             %% cache DC model flag
             obj.dc = strcmp(upper(mpopt.model), 'DC');
@@ -158,7 +158,7 @@ classdef mp_task_pf < mp_task
         end
 
         function nm = network_model_x_soln(obj, mm, nm)
-            nm = network_model_x_soln@mp_task(obj, mm, nm);
+            nm = network_model_x_soln@mp.task(obj, mm, nm);
 
             %% if ref node has been changed, adjust voltage angles
             %% to make angle at original ref node = specified value

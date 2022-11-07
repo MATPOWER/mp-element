@@ -1,6 +1,6 @@
-classdef mp_task_opf < mp_task
-%MP_TASK_OPF  MATPOWER task for optimal power flow (OPF).
-%   MP_TASK_OPF provides implementation for optimal power flow problem.
+classdef task_opf < mp.task
+%MP.TASK_OPF  MATPOWER task for optimal power flow (OPF).
+%   MP.TASK_OPF provides implementation for optimal power flow problem.
 %
 %   Properties
 %       ?
@@ -25,7 +25,7 @@ classdef mp_task_opf < mp_task
     methods
         %%-----  task methods  -----
         function [d, mpopt] = run_pre(obj, d, mpopt)
-            [d, mpopt] = run_pre@mp_task(obj, d, mpopt);     %% call parent
+            [d, mpopt] = run_pre@mp.task(obj, d, mpopt);     %% call parent
 
             %% cache DC model flag
             obj.dc = strcmp(upper(mpopt.model), 'DC');
@@ -36,18 +36,18 @@ classdef mp_task_opf < mp_task
                 switch alg
                     case 'IPOPT'
                         if ~have_feature('ipopt')
-                            error('mp_task_opf/run_pre: MPOPT.opf.ac.solver = ''%s'' requires IPOPT (see https://github.com/coin-or/Ipopt)', alg);
+                            error('mp.task_opf/run_pre: MPOPT.opf.ac.solver = ''%s'' requires IPOPT (see https://github.com/coin-or/Ipopt)', alg);
                         end
                     case 'FMINCON'
                         if ~have_feature('fmincon')
-                            error('mp_task_opf/run_pre: MPOPT.opf.ac.solver = ''%s'' requires FMINCON (Optimization Toolbox 2.x or later)', alg);
+                            error('mp.task_opf/run_pre: MPOPT.opf.ac.solver = ''%s'' requires FMINCON (Optimization Toolbox 2.x or later)', alg);
                         end
                     case 'KNITRO'
                         if ~have_feature('knitro')
-                            error('mp_task_opf/run_pre: MPOPT.opf.ac.solver = ''%s'' requires Artelys Knitro (see https://www.artelys.com/solvers/knitro/)', alg);
+                            error('mp.task_opf/run_pre: MPOPT.opf.ac.solver = ''%s'' requires Artelys Knitro (see https://www.artelys.com/solvers/knitro/)', alg);
                         end
                     case {'MINOPF', 'PDIPM', 'TRALM', 'SDPOPF'}
-                        error('mp_task_opf/run_pre: MPOPT.opf.ac.solver = ''%s'' not supported.', alg);
+                        error('mp.task_opf/run_pre: MPOPT.opf.ac.solver = ''%s'' not supported.', alg);
                 end
             end
         end
@@ -57,7 +57,7 @@ classdef mp_task_opf < mp_task
                 fd = 1;     %% print to stdio by default
             end
 
-            print_soln_header@mp_task(obj, mpopt, fd);
+            print_soln_header@mp.task(obj, mpopt, fd);
             fprintf(fd, ...
                 'Objective Function Value = %.2f $/hr\n', obj.mm.soln.f);
         end
@@ -69,7 +69,7 @@ classdef mp_task_opf < mp_task
 
         function dm = data_model_build_post(obj, dm, dmc, mpopt)
             %% call parent
-            dm = data_model_build_post@mp_task(obj, dm, dmc, mpopt);
+            dm = data_model_build_post@mp.task(obj, dm, dmc, mpopt);
 
             if ~obj.dc
                 %% if requested, adjust bus voltage magnitude

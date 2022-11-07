@@ -1,8 +1,8 @@
-classdef (Abstract) mp_task < handle
-%MP_TASK  MATPOWER task abstract base class.
-%   Each task type (e.g. power flow, CPF, OPF) will inherit from MP_TASK.
+classdef (Abstract) task < handle
+%MP.TASK  MATPOWER task abstract base class.
+%   Each task type (e.g. power flow, CPF, OPF) will inherit from MP.TASK.
 %
-%   MP_TASK provides properties and methods related to the specific
+%   MP.TASK provides properties and methods related to the specific
 %   problem specification being solved (e.g. power flow, continuation
 %   power flow, optimal power flow, etc.). In particular, it coordinates
 %   all interactions between the 3 model layers: data model, network model,
@@ -184,7 +184,7 @@ classdef (Abstract) mp_task < handle
             if fname
                 [fd, msg] = fopen(fname, 'at');
                 if fd == -1
-                    warning('mp_task/print_soln: could not open file ''%s'' for writing\n%s', fname, msg);
+                    warning('mp.task/print_soln: could not open file ''%s'' for writing\n%s', fname, msg);
                 else
                     obj.print_soln_header(mpopt, fd);
                     if mpopt.out.all == 0
@@ -243,7 +243,7 @@ classdef (Abstract) mp_task < handle
                 if ismpc2(d)
                     d_fmt = 'mpc2';
                 else
-                    error('mp_task: input data format not recognized');
+                    error('mp.task: input data format not recognized');
                 end
 
                 %% get default class
@@ -251,7 +251,7 @@ classdef (Abstract) mp_task < handle
                     case 'mpc2'
                         dmc_class = obj.dm_converter_class_mpc2_default();
                     otherwise
-                        error('mp_task: input data format not recognized');
+                        error('mp.task: input data format not recognized');
                 end
 
                 %% apply extensions
@@ -379,7 +379,7 @@ classdef (Abstract) mp_task < handle
         end
 
         function nm_class = network_model_class_default(obj, dm, mpopt)
-            error('mp_task/network_model_class_default: must be implemented in subclass');
+            error('mp.task/network_model_class_default: must be implemented in subclass');
         end
 
         function nm = network_model_create(obj, dm, mpopt, mpx)
@@ -445,7 +445,7 @@ classdef (Abstract) mp_task < handle
         end
 
         function mm_class = math_model_class_default(obj, nm, dm, mpopt)
-            error('mp_task/math_model_class_default: must be implemented in subclass');
+            error('mp.task/math_model_class_default: must be implemented in subclass');
         end
 
         function mm = math_model_create(obj, nm, dm, mpopt, mpx)
