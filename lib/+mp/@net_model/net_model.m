@@ -195,10 +195,6 @@ classdef (Abstract) net_model < nm_element & mp_element_container & mp_idx_manag
         end
 
         %%-----  mp_idx_manager methods  -----
-        display(obj)
-
-        [v0, vl, vu, vt] = params_var(obj, vtype, name, idx)
-
         function obj = def_set_types(obj)
             obj.set_types = struct(...
                     'node', 'NODES', ...
@@ -222,6 +218,79 @@ classdef (Abstract) net_model < nm_element & mp_element_container & mp_idx_manag
                     'vl', es, ...
                     'vu', es, ...
                     'vt', es );
+            end
+        end
+
+        function display(obj)
+            %DISPLAY  Displays the object.
+            %   Called when semicolon is omitted at the command-line. Displays the details
+            %   of the variables, constraints, costs included in the model.
+            %
+            %   See also MP_IDX_MANAGER.
+
+            %% Due to a bug related to inheritance in constructors in
+            %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),
+            %% init_set_types() cannot be called directly in the
+            %% MP_IDX_MANAGER constructor, as desired.
+            %%
+            %% WORKAROUND:  Initialize MP_IDX_MANAGER fields here, if needed,
+            %%              after object construction, but before object use.
+            if isempty(obj.node)        %% only if not already initialized
+                obj.init_set_types();
+            end
+
+            %% base element info
+            display@nm_element(obj)
+            fprintf('\n');
+
+            %% nodes and states
+            obj.display_set('node');
+            obj.display_set('port');
+            obj.display_set('state');
+
+            %% variables
+            vvars = obj.model_vvars();
+            zvars = obj.model_zvars();
+            for k = 1:length(vvars)
+                obj.display_set(vvars{k});
+            end
+            for k = 1:length(zvars)
+                obj.display_set(zvars{k});
+            end
+
+            %% elements
+            model_params = obj.model_params();
+            fprintf('ELEMENTS\n')
+            fprintf('========\n')
+            fprintf('  name                  N      np    nz    class, param(m,n))\n');
+            fprintf(' ----------------   --------  ----  ----  --------------------\n');
+            for k = 1:length(obj.elements)
+                nme = obj.elements{k};
+                fprintf('  %-13s %11d %5d %5d    %s', nme.name, nme.nk, nme.np, nme.nz, class(nme));
+
+                for j = 1:length(model_params)
+                    pn = model_params{j};   %% parameter name
+                    if ~isempty(nme.(pn))
+                        [m, n] = size(nme.(pn));
+                        fprintf(', %s(%d,%d)', pn, m, n);
+                    end
+                end
+                fprintf('\n');
+            %     nme
+            end
+
+            %% user data
+            fields = fieldnames(obj.userdata);
+            if ~isempty(fields)
+                fprintf('\nUSER DATA\n')
+                fprintf('=========\n')
+                fprintf('  name                         size       class\n');
+                fprintf(' ------------------------   -----------  --------------------\n');
+                for k = 1:length(fields)
+                    f = obj.userdata.(fields{k});
+                    [m, n] = size(f);
+                    fprintf('  %-24s  %5dx%-5d   %s\n', fields{k}, m, n, class(f));
+                end
             end
         end
 
@@ -404,6 +473,127 @@ classdef (Abstract) net_model < nm_element & mp_element_container & mp_idx_manag
                 d.vt = subsasgn(d.vt, sc, vt);      %% variable type
             end
             obj.(vtype).data = d;
+        end
+
+        function [v0, vl, vu, vt] = params_var(obj, vtype, name, idx)
+            %PARAMS_VAR  Returns initial value, lower bound and upper bound for opt variables.
+            %   [V0, VL, VU] = OBJ.PARAMS_VAR(VTYPE)
+            %   [V0, VL, VU] = OBJ.PARAMS_VAR(VTYPE, NAME)
+            %   [V0, VL, VU] = OBJ.PARAMS_VAR(VTYPE, NAME, IDX_LIST)
+            %   [V0, VL, VU, VT] = OBJ.PARAMS_VAR(...)
+            %   Returns the initial value V0, lower bound VL and upper bound VU for
+            %   the full optimization variable vector, or for a specific named or named
+            %   and indexed variable set. Optionally also returns a corresponding char
+            %   vector VT of variable types, where 'C', 'I' and 'B' represent continuous
+            %   integer and binary variables, respectively.
+            %
+            %   Examples:
+            %       [x0, xmin, xmax] = obj.params_var();
+            %       [pg0, pg_lb, pg_ub] = obj.params_var('pg');
+            %       [zij0, zij_lb, zij_ub, ztype] = obj.params_var('z', {i, j});
+            %
+            %   See also OPT_MODEL/PARAMS_VAR.
+
+            if nargout > 3
+                have_vt = 1;
+            else
+                have_vt = 0;
+            end
+            var = obj.(vtype);
+            if nargin < 3
+                v0 = []; vl = []; vu = []; vt = char([]);
+                %% calls to substruct() are relatively expensive, so we pre-build the
+                %% structs for addressing cell and numeric array fields, updating only
+                %% the subscripts before use
+                sc = struct('type', {'.', '{}'}, 'subs', {'', 1});  %% cell array field
+                for k = 1:var.NS
+                    name = var.order(k).name;
+                    idx = var.order(k).idx;
+                    if isempty(idx)
+                        v0 = [ v0; var.data.v0.(name) ];
+                        vl = [ vl; var.data.vl.(name) ];
+                        vu = [ vu; var.data.vu.(name) ];
+                        if have_vt
+                            N = var.idx.N.(name);
+                            vt0 = var.data.vt.(name);
+                            if isscalar(vt0) && N > 1
+                                vt = [ vt char(vt0 * ones(1, N)) ];
+                            else
+                                vt = [ vt vt0 ];
+                            end
+                        end
+                    else
+                        % (calls to substruct() are relatively expensive ...
+                        % sc = substruct('.', name, '{}', idx);
+                        % ... so replace it with these more efficient lines)
+                        sc(1).subs = name;
+                        sc(2).subs = idx;
+                        v0 = [ v0; subsref(var.data.v0, sc) ];
+                        vl = [ vl; subsref(var.data.vl, sc) ];
+                        vu = [ vu; subsref(var.data.vu, sc) ];
+                        if have_vt
+                            % (calls to substruct() are relatively expensive ...
+                            % sn = substruct('.', name, '()', idx);
+                            % ... so replace it with these more efficient lines)
+                            sn = sc; sn(2).type = '()';
+                            N = subsref(var.idx.N, sn);
+                            vt0 = subsref(var.data.vt, sc);
+                            if isscalar(vt0) && N > 1
+                                vt = [ vt char(vt0 * ones(1, N)) ];
+                            else
+                                if ~isempty(vt0)
+                                    vt = [ vt vt0 ];
+                                end
+                            end
+                        end
+                    end
+                end
+            else
+                if isfield(var.idx.N, name)
+                    if nargin < 4 || isempty(idx)
+                        v0 = var.data.v0.(name);
+                        vl = var.data.vl.(name);
+                        vu = var.data.vu.(name);
+                        if have_vt
+                            N = var.idx.N.(name);
+                            vt0 = var.data.vt.(name);
+                            if isscalar(vt0) && N > 1
+                                vt = char(vt0 * ones(1, N));
+                            else
+                                vt = vt0;
+                            end
+                        end
+                    else
+                        % (calls to substruct() are relatively expensive ...
+                        % sc = substruct('.', name, '{}', idx);
+                        % ... so replace it with these more efficient lines)
+                        sc = struct('type', {'.', '{}'}, 'subs', {name, idx});
+                        v0 = subsref(var.data.v0, sc);
+                        vl = subsref(var.data.vl, sc);
+                        vu = subsref(var.data.vu, sc);
+                        if have_vt
+                            % (calls to substruct() are relatively expensive ...
+                            % sn = substruct('.', name, '()', idx);
+                            % ... so replace it with these more efficient lines)
+                            sn = sc; sn(2).type = '()';
+                            N = subsref(var.idx.N, sn);
+                            vt0 = subsref(var.data.vt, sc);
+                            if isscalar(vt0) && N > 1
+                                vt = char(vt0 * ones(1, N));
+                            else
+                                vt = vt0;
+                            end
+                        end
+                    end
+                else
+                    v0 = [];
+                    vl = [];
+                    vu = [];
+                    if have_vt
+                        vt = [];
+                    end
+                end
+            end
         end
 
         function varargout = get_node_idx(obj, name)
