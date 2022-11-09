@@ -116,27 +116,38 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
                         obj.pwl1 = pwl1;
                     end
 
-                    gencost = pcost;
+                    gc = pcost;
                 else    %% p_or_q = 'Q'
-                    gencost = qcost;
+                    gc = qcost;
                 end
 
-                if ~isempty(gencost)
-                    %% convert single-block piecewise-linear costs into linear polynomial cost
-                    pwl1 = find(gencost(:, MODEL) == PW_LINEAR & gencost(:, NCOST) == 2);
-                    if ~isempty(pwl1)
-                        x0 = gencost(pwl1, COST);
-                        y0 = gencost(pwl1, COST+1);
-                        x1 = gencost(pwl1, COST+2);
-                        y1 = gencost(pwl1, COST+3);
-                        m = (y1 - y0) ./ (x1 - x0);
-                        b = y0 - m .* x0;
-                        gencost(pwl1, MODEL) = POLYNOMIAL;
-                        gencost(pwl1, NCOST) = 2;
-                        gencost(pwl1, COST:COST+1) = [m b];
+                if ~isempty(gc)
+                    %% reduce order where highest order has zero coefficient
+                    while 1
+                        ii = find(  gc(:, MODEL) == POLYNOMIAL & ...
+                                    gc(:, NCOST) > 2 & ...
+                                    gc(:, COST) == 0    );
+                        if isempty(ii), break; end  %% exit loop if there are none
+                        gc(ii, NCOST) = gc(ii, NCOST) - 1;          %% reduce order
+                        gc(ii, COST:end-1) = gc(ii, COST+1:end);    %% shift coeffs
+                        gc(ii, end) = 0;
                     end
 
-                    val = obj.gencost2cost_table(gencost);
+                    %% convert single-block piecewise-linear costs into linear polynomial cost
+                    pwl1 = find(gc(:, MODEL) == PW_LINEAR & gc(:, NCOST) == 2);
+                    if ~isempty(pwl1)
+                        x0 = gc(pwl1, COST);
+                        y0 = gc(pwl1, COST+1);
+                        x1 = gc(pwl1, COST+2);
+                        y1 = gc(pwl1, COST+3);
+                        m = (y1 - y0) ./ (x1 - x0);
+                        b = y0 - m .* x0;
+                        gc(pwl1, MODEL) = POLYNOMIAL;
+                        gc(pwl1, NCOST) = 2;
+                        gc(pwl1, COST:COST+1) = [m b];
+                    end
+
+                    val = obj.gencost2cost_table(gc);
                 else
                     val = [];
                 end
