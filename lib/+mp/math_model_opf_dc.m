@@ -25,8 +25,8 @@ classdef math_model_opf_dc < mp.math_model_opf
         %% constructor
         function obj = math_model_opf_dc()
             obj@mp.math_model_opf();
-            obj.element_classes = { @mme_bus_opf_dc, @mme_gen_opf_dc, ...
-                @mme_load_pf_dc, @mme_branch_opf_dc, @mme_shunt_pf_dc };
+            obj.element_classes = { @mp.mme_bus_opf_dc, @mp.mme_gen_opf_dc, ...
+                @mp.mme_load_pf_dc, @mp.mme_branch_opf_dc, @mp.mme_shunt_pf_dc };
         end
 
         function tag = form_tag(obj)

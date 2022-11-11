@@ -35,8 +35,8 @@ classdef mpx_reserves < mp_extension
         function mm_elements = mm_element_classes(obj, mm_class, task_tag, mpopt)
             switch task_tag
                 case {'OPF'}
-                    mm_elements = { @mme_reserve_gen, ...
-                                    @mme_reserve_zone };
+                    mm_elements = { @mp.mme_reserve_gen, ...
+                                    @mp.mme_reserve_zone };
                 otherwise
                     mm_elements = {};       %% no modifications
             end

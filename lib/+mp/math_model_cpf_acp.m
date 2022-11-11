@@ -25,8 +25,8 @@ classdef (Abstract) math_model_cpf_acp < mp.math_model_cpf
         %% constructor
         function obj = math_model_cpf_acp()
             obj@mp.math_model_cpf();
-            obj.element_classes = { @mme_bus_pf_acp, @mme_gen_pf_ac, ...
-                @mme_branch_pf_ac, @mme_load_cpf, @mme_shunt_cpf };
+            obj.element_classes = { @mp.mme_bus_pf_acp, @mp.mme_gen_pf_ac, ...
+                @mp.mme_branch_pf_ac, @mp.mme_load_cpf, @mp.mme_shunt_cpf };
         end
 
         function efv = event_vlim(obj, cx, opt, nm, dm, mpopt)

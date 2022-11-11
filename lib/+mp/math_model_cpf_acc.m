@@ -25,8 +25,8 @@ classdef (Abstract) math_model_cpf_acc < mp.math_model_cpf
         %% constructor
         function obj = math_model_cpf_acc()
             obj@mp.math_model_cpf();
-            obj.element_classes = { @mme_bus_pf_acc, @mme_gen_pf_ac, ...
-                @mme_branch_pf_ac, @mme_load_cpf, @mme_shunt_cpf };
+            obj.element_classes = { @mp.mme_bus_pf_acc, @mp.mme_gen_pf_ac, ...
+                @mp.mme_branch_pf_ac, @mp.mme_load_cpf, @mp.mme_shunt_cpf };
         end
     end     %% methods
 end         %% classdef

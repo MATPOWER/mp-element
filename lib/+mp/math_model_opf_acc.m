@@ -25,8 +25,8 @@ classdef (Abstract) math_model_opf_acc < mp.math_model_opf_ac
         %% constructor
         function obj = math_model_opf_acc()
             obj@mp.math_model_opf_ac();
-            obj.element_classes = { @mme_bus_opf_acc, @mme_gen_opf_ac, ...
-                @mme_load_pf_ac, @mme_branch_opf_acc, @mme_shunt_pf_ac };
+            obj.element_classes = { @mp.mme_bus_opf_acc, @mp.mme_gen_opf_ac, ...
+                @mp.mme_load_pf_ac, @mp.mme_branch_opf_acc, @mp.mme_shunt_pf_ac };
         end
 
         function [vx_, z_, x_] = convert_x_m2n(obj, mmx, nm)
