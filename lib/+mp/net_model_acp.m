@@ -17,8 +17,8 @@ classdef net_model_acp < mp.net_model_ac & mp.form_acp
         function obj = net_model_acp()
             obj@mp.net_model_ac();
             obj.element_classes = ...
-                { @nme_bus_acp, @nme_gen_acp, @nme_load_acp, ...
-                    @nme_branch_acp, @nme_shunt_acp };
+                { @mp.nme_bus_acp, @mp.nme_gen_acp, @mp.nme_load_acp, ...
+                    @mp.nme_branch_acp, @mp.nme_shunt_acp };
 
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),

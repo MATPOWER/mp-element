@@ -18,8 +18,8 @@ classdef net_model_dc < mp.net_model & mp.form_dc
         function obj = net_model_dc()
             obj@mp.net_model();
             obj.element_classes = { ...
-                @nme_bus_dc, @nme_gen_dc, @nme_load_dc, ...
-                    @nme_branch_dc, @nme_shunt_dc };
+                @mp.nme_bus_dc, @mp.nme_gen_dc, @mp.nme_load_dc, ...
+                    @mp.nme_branch_dc, @mp.nme_shunt_dc };
 
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),

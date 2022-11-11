@@ -12,7 +12,7 @@ classdef net_model_acp_test < mp.net_model_acp
         %% constructor
         function obj = net_model_acp_test()
             obj@mp.net_model_acp();
-            obj.element_classes{end+1} = @nme_gizmo_acp;
+            obj.element_classes{end+1} = @mp.nme_gizmo_acp;
 
             %% Due to a bug related to inheritance in constructors in
             %% Octave 5.2 and earlier (https://savannah.gnu.org/bugs/?52614),

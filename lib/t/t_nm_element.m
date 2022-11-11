@@ -62,9 +62,9 @@ t_is(dc.nv, 9, 12, [t 'nv']);
 t_is(length(dc.elements), 4, 12, [t '# of element types']);
 
 nme = dc.elements;
-t = 'nme_bus_dc : '; k = 1;
+t = 'mp.nme_bus_dc : '; k = 1;
 t_ok(strcmp(nme{k}.name, 'bus'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_bus_dc'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_bus_dc'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_dc'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'DC'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'dc'), [t 'formulation tag']);
@@ -80,9 +80,9 @@ t_ok(isempty(nme{k}.D), [t 'D']);
 % C = nme{k}.C
 % D = nme{k}.D
 
-t = 'nme_gen_dc : '; k = 2;
+t = 'mp.nme_gen_dc : '; k = 2;
 t_ok(strcmp(nme{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_gen_dc'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_gen_dc'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_dc'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'DC'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'dc'), [t 'formulation tag']);
@@ -98,9 +98,9 @@ t_is(nme{k}.D, speye(3), 12, [t 'D']);
 % C = nme{k}.C
 % D = nme{k}.D
 
-t = 'nme_load_dc : '; k = 3;
+t = 'mp.nme_load_dc : '; k = 3;
 t_ok(strcmp(nme{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_load_dc'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_load_dc'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_dc'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'DC'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'dc'), [t 'formulation tag']);
@@ -117,9 +117,9 @@ t_ok(isempty(nme{k}.D), [t 'D']);
 % C = nme{k}.C
 % D = nme{k}.D
 
-t = 'nme_branch_dc : '; k = 4;
+t = 'mp.nme_branch_dc : '; k = 4;
 t_ok(strcmp(nme{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_branch_dc'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_branch_dc'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_dc'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'DC'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'dc'), [t 'formulation tag']);
@@ -182,7 +182,7 @@ t_is(P2, eP([3;1]), 8, t);
 t = 'dc.elements.gen : ';
 gen = dc.elements.gen;
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(gen), 'nme_gen_dc'), [t 'class']);
+t_ok(strcmp(class(gen), 'mp.nme_gen_dc'), [t 'class']);
 
 t = 'gen.port_inj_power(x, 1)';
 pg = gen.port_inj_power(x, 1);
@@ -238,9 +238,9 @@ t_is(ac.nv, 18, 12, [t 'nv']);
 t_is(length(ac.elements), 4, 12, [t '# of element types']);
 
 nme = ac.elements;
-t = 'nme_bus_acp : '; k = 1;
+t = 'mp.nme_bus_acp : '; k = 1;
 t_ok(strcmp(nme{k}.name, 'bus'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_bus_acp'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_bus_acp'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_acp'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'AC-polar'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'acp'), [t 'formulation tag']);
@@ -259,9 +259,9 @@ t_ok(isempty(nme{k}.D), [t 'D']);
 % C = nme{k}.C
 % D = nme{k}.D
 
-t = 'nme_gen_acp : '; k = 2;
+t = 'mp.nme_gen_acp : '; k = 2;
 t_ok(strcmp(nme{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_gen_acp'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_gen_acp'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_acp'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'AC-polar'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'acp'), [t 'formulation tag']);
@@ -280,9 +280,9 @@ t_is(nme{k}.D, speye(3), 12, [t 'D']);
 % C = nme{k}.C
 % D = nme{k}.D
 
-t = 'nme_load_acp : '; k = 3;
+t = 'mp.nme_load_acp : '; k = 3;
 t_ok(strcmp(nme{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_load_acp'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_load_acp'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_acp'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'AC-polar'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'acp'), [t 'formulation tag']);
@@ -302,9 +302,9 @@ t_ok(isempty(nme{k}.D), [t 'D']);
 % C = nme{k}.C
 % D = nme{k}.D
 
-t = 'nme_branch_acp : '; k = 4;
+t = 'mp.nme_branch_acp : '; k = 4;
 t_ok(strcmp(nme{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_branch_acp'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_branch_acp'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_acp'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'AC-polar'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'acp'), [t 'formulation tag']);
@@ -389,7 +389,7 @@ t_is(Szi1, Szi([3;2;1], :), 12, [t 'Szi']);
 t = 'ac.elements.gen : ';
 gen = ac.elements.gen;
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(gen), 'nme_gen_acp'), [t 'class']);
+t_ok(strcmp(class(gen), 'mp.nme_gen_acp'), [t 'class']);
 
 t = 'S = gen.port_inj_power(x_, 1)';
 Sg = gen.port_inj_power(x_, 1);
@@ -583,9 +583,9 @@ t_is(ac.nv, 18, 12, [t 'nv']);
 t_is(length(ac.elements), 5, 12, [t '# of element types']);
 
 nme = ac.elements;
-t = 'nme_bus_acp : '; k = 1;
+t = 'mp.nme_bus_acp : '; k = 1;
 t_ok(strcmp(nme{k}.name, 'bus'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_bus_acp'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_bus_acp'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_acp'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'AC-polar'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'acp'), [t 'formulation tag']);
@@ -604,9 +604,9 @@ t_ok(isempty(nme{k}.D), [t 'D']);
 % C = nme{k}.C
 % D = nme{k}.D
 
-t = 'nme_gen_acp : '; k = 2;
+t = 'mp.nme_gen_acp : '; k = 2;
 t_ok(strcmp(nme{k}.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_gen_acp'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_gen_acp'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_acp'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'AC-polar'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'acp'), [t 'formulation tag']);
@@ -625,9 +625,9 @@ t_is(nme{k}.D, sparse(1:3, 1:3, 1, 7, 3), 12, [t 'D']);
 % C = nme{k}.C
 % D = nme{k}.D
 
-t = 'nme_load_acp : '; k = 3;
+t = 'mp.nme_load_acp : '; k = 3;
 t_ok(strcmp(nme{k}.name, 'load'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_load_acp'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_load_acp'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_acp'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'AC-polar'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'acp'), [t 'formulation tag']);
@@ -647,9 +647,9 @@ t_ok(isempty(nme{k}.D), [t 'D']);
 % C = nme{k}.C
 % D = nme{k}.D
 
-t = 'nme_branch_acp : '; k = 4;
+t = 'mp.nme_branch_acp : '; k = 4;
 t_ok(strcmp(nme{k}.name, 'branch'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_branch_acp'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_branch_acp'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_acp'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'AC-polar'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'acp'), [t 'formulation tag']);
@@ -684,9 +684,9 @@ t_ok(isempty(nme{k}.D), [t 'D']);
 % C = nme{k}.C
 % D = nme{k}.D
 
-t = 'nme_gizmo_acp : '; k = 5;
+t = 'mp.nme_gizmo_acp : '; k = 5;
 t_ok(strcmp(nme{k}.name, 'gizmo'), [t 'name']);
-t_ok(strcmp(class(nme{k}), 'nme_gizmo_acp'), [t 'class']);
+t_ok(strcmp(class(nme{k}), 'mp.nme_gizmo_acp'), [t 'class']);
 t_ok(strcmp(nme{k}.find_form_class(), 'mp.form_acp'), [t 'formulation class']);
 t_ok(strcmp(nme{k}.form_name, 'AC-polar'), [t 'formulation name']);
 t_ok(strcmp(nme{k}.form_tag, 'acp'), [t 'formulation tag']);
@@ -786,7 +786,7 @@ t_is(Szi1, Szi([3;2;1], :), 12, [t 'Szi']);
 t = 'ac.elements.gen : ';
 gen = ac.elements.gen;
 t_ok(strcmp(gen.name, 'gen'), [t 'name']);
-t_ok(strcmp(class(gen), 'nme_gen_acp'), [t 'class']);
+t_ok(strcmp(class(gen), 'mp.nme_gen_acp'), [t 'class']);
 
 t = 'S = gen.port_inj_power(x_, 1)';
 Sg = gen.port_inj_power(x_, 1);
