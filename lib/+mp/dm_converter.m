@@ -1,4 +1,4 @@
-classdef (Abstract) dm_converter < mp_element_container
+classdef (Abstract) dm_converter < mp.element_container
 %MP.DM_CONVERTER  Abstract base class for MATPOWER data model converters.
 
 %   MATPOWER

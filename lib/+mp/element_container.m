@@ -1,5 +1,5 @@
-classdef (Abstract) mp_element_container < handle
-%MP_ELEMENT_CONTAINER  Mix-in class to handle named/ordered element object array
+classdef (Abstract) element_container < handle
+%MP.ELEMENT_CONTAINER  Mix-in class to handle named/ordered element object array
 
 %   MATPOWER
 %   Copyright (c) 2020-2021, Power Systems Engineering Research Center (PSERC)

@@ -1,4 +1,4 @@
-classdef data_model < mp_element_container
+classdef data_model < mp.element_container
 %MP.DATA_MODEL  Base class for MATPOWER data model
 
 %   MATPOWER
@@ -24,7 +24,7 @@ classdef data_model < mp_element_container
         %% constructor
         function obj = data_model()
             %% call parent constructor
-            obj@mp_element_container();
+            obj@mp.element_container();
             obj.element_classes = ...
                 { @dme_bus, @dme_gen, @dme_load, ...
                     @dme_branch, @dme_shunt };
