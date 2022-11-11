@@ -36,7 +36,7 @@ classdef task_opf_legacy < mp.task_opf & task_shared_legacy
 
         %%-----  data model converter methods  -----
         function dmc_class = dm_converter_class_mpc2_default(obj)
-            dmc_class = @mp_dm_converter_mpc2_legacy;
+            dmc_class = @mp.dm_converter_mpc2_legacy;
         end
 
         %%-----  data model methods  -----

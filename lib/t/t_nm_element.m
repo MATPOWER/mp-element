@@ -24,7 +24,7 @@ end
 
 casefile = 't_case9_gizmo';
 mpopt = mpoption('out.all', 0, 'verbose', 0);
-dmc = mp_dm_converter_mpc2().build();
+dmc = mp.dm_converter_mpc2().build();
 
 %%-----  DC formulation  -----
 t = 'mp.net_model_dc() : ';
@@ -573,7 +573,7 @@ t_is(i, 4, 12, [t 'i']);
 t = 'ac.build(dm) : ';
 mpc.bus(:, VA) = angle(v_) * 180/pi;
 mpc.bus(:, VM) = abs(v_);
-dmc = mp_dm_converter_mpc2().modify_element_classes(@dmce_gizmo_mpc2).build();
+dmc = mp.dm_converter_mpc2().modify_element_classes(@dmce_gizmo_mpc2).build();
 dm = mp.data_model().modify_element_classes(@dme_gizmo).build(mpc, dmc);
 ac = mp.net_model_acp_test().build(dm);
 t_is(ac.nk, 1, 12, [t 'nk']);

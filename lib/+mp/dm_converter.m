@@ -1,8 +1,8 @@
-classdef (Abstract) mp_dm_converter < mp_element_container
-%MP_DM_CONVERTER  Abstract base class for MATPOWER data model converters.
+classdef (Abstract) dm_converter < mp_element_container
+%MP.DM_CONVERTER  Abstract base class for MATPOWER data model converters.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -14,7 +14,7 @@ classdef (Abstract) mp_dm_converter < mp_element_container
 
     methods
         function tag = format_tag(obj)
-            error('mp_dm_converter/format_tag: must be implemented by sub-class');
+            error('mp.dm_converter/format_tag: must be implemented by sub-class');
         end
 
         function obj = build(obj)
@@ -81,7 +81,7 @@ classdef (Abstract) mp_dm_converter < mp_element_container
         end
 
         function fname_out = save(obj, fname, d)
-            error('mp_dm_converter/save: must be implemented by subclass');
+            error('mp.dm_converter/save: must be implemented by subclass');
         end
 
         function display(obj)

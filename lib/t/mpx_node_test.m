@@ -13,7 +13,7 @@ classdef mpx_node_test < mp_extension
 
     methods
         function dmc_class = dm_converter_class(obj, dmc_class, fmt, mpopt)
-            dmc_class = @mp_dm_converter_mpc2_node_test;
+            dmc_class = @mp.dm_converter_mpc2_node_test;
         end
 
         function dm_class = data_model_class(obj, dm_class, task_tag, mpopt)

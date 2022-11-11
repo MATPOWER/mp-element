@@ -1,8 +1,8 @@
 function tssk = t_mp_dm_converter_mpc2(quiet)
-%T_MP_DM_CONVERTER_MPC2  Tests for MP_DM_CONVERTER_MPC2.
+%T_MP_DM_CONVERTER_MPC2  Tests for MP.DM_CONVERTER_MPC2.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -35,13 +35,13 @@ mpc0 = loadcase(casefile);
 mpc0.bus(end, MU_VMIN) = 0;         %% add columns
 mpc0.gen(end, MU_QMIN) = 0;         %% add columns
 mpc0.branch(end, MU_ANGMAX) = 0;    %% add columns
-dmc = mp_dm_converter_mpc2().build();
+dmc = mp.dm_converter_mpc2().build();
 
 t_begin(27, quiet);
 
 t = 'dmc constructor : ';
-dmc = mp_dm_converter_mpc2();
-t_ok(isa(dmc, 'mp_dm_converter'), [t 'class']);
+dmc = mp.dm_converter_mpc2();
+t_ok(isa(dmc, 'mp.dm_converter'), [t 'class']);
 t_is(length(dmc.element_classes), 5, 12, [t '# of element_classes']);
 t_ok(isempty(dmc.elements), [t 'elements empty']);
 
@@ -102,7 +102,7 @@ mpc1 = struct( ...
     'branch', mpc0.branch, ...
     'gencost', mpc0.gencost, ...
     'bus_name', {mpc0.bus_name} );
-dmc = mp_dm_converter_mpc2().build();
+dmc = mp.dm_converter_mpc2().build();
 dm = mp.data_model_opf().build(mpc1, dmc);
 mpc = dmc.export(dm);
 mpc1.gen(:, MBASE) = 0;

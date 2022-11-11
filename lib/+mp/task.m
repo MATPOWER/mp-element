@@ -262,7 +262,7 @@ classdef (Abstract) task < handle
         end
 
         function dmc_class = dm_converter_class_mpc2_default(obj)
-            dmc_class = @mp_dm_converter_mpc2;
+            dmc_class = @mp.dm_converter_mpc2;
         end
 
         function dmc = dm_converter_create(obj, d, mpopt, mpx)

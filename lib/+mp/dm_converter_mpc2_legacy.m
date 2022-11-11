@@ -1,5 +1,5 @@
-classdef mp_dm_converter_mpc2_legacy < mp_dm_converter_mpc2
-%MP_DM_CONVERTER_MPC2_LEGACY  MATPOWER data model converter for MATPOWER case v2.
+classdef dm_converter_mpc2_legacy < mp.dm_converter_mpc2
+%MP.DM_CONVERTER_MPC2_LEGACY  MATPOWER data model converter for MATPOWER case v2.
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
@@ -33,7 +33,7 @@ classdef mp_dm_converter_mpc2_legacy < mp_dm_converter_mpc2
                     if nlin && size(A, 2) >= 2*nb + 2*ng
                         %% make sure there aren't any constraints on Vm or Qg
                         if any(any(A(:, acc)))
-                            error('mp_dm_converter_mpc2_legacy/legacy_user_mod_inputs: attempting to solve DC OPF with user constraints on Vm or Qg');
+                            error('mp.dm_converter_mpc2_legacy/legacy_user_mod_inputs: attempting to solve DC OPF with user constraints on Vm or Qg');
                         end
                         A(:, acc) = [];         %% delete Vm and Qg columns
                     end
@@ -43,7 +43,7 @@ classdef mp_dm_converter_mpc2_legacy < mp_dm_converter_mpc2
                             [ii, jj] = find(N(:, acc));
                             ii = unique(ii);    %% indices of w with potential non-zero cost terms from Vm or Qg
                             if any(Cw(ii)) || (~isempty(H) && any(any(H(:, ii))))
-                                error('mp_dm_converter_mpc2_legacy/legacy_user_mod_inputs: attempting to solve DC OPF with user costs on Vm or Qg');
+                                error('mp.dm_converter_mpc2_legacy/legacy_user_mod_inputs: attempting to solve DC OPF with user costs on Vm or Qg');
                             end
                         end
                         N(:, acc) = [];         %% delete Vm and Qg columns
@@ -61,13 +61,13 @@ classdef mp_dm_converter_mpc2_legacy < mp_dm_converter_mpc2
             if nlin
                 nz = size(A, 2) - nx;   %% number of user z variables
                 if nz < 0
-                    error('mp_dm_converter_mpc2_legacy/legacy_user_mod_inputs: user supplied A matrix must have at least %d columns.', nx);
+                    error('mp.dm_converter_mpc2_legacy/legacy_user_mod_inputs: user supplied A matrix must have at least %d columns.', nx);
                 end
             else
                 nz = 0;               %% number of user z variables
                 if nw                 %% still need to check number of columns of N
                     if size(mpc.N, 2) ~= nx;
-                        error('mp_dm_converter_mpc2_legacy/legacy_user_mod_inputs: user supplied N matrix must have %d columns.', nx);
+                        error('mp.dm_converter_mpc2_legacy/legacy_user_mod_inputs: user supplied N matrix must have %d columns.', nx);
                     end
                 end
             end

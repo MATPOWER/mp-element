@@ -1,8 +1,8 @@
-classdef mp_dm_converter_mpc2_node_test < mp_dm_converter_mpc2
-%MP_DM_CONVERTER_MPC2_NODE_TEST  MATPOWER data model converter for MATPOWER case v2.
+classdef dm_converter_mpc2_node_test < mp.dm_converter_mpc2
+%MP.DM_CONVERTER_MPC2_NODE_TEST  MATPOWER data model converter for MATPOWER case v2.
 
 %   MATPOWER
-%   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
+%   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
 %   by Ray Zimmerman, PSERC Cornell
 %
 %   This file is part of MATPOWER.
@@ -14,9 +14,9 @@ classdef mp_dm_converter_mpc2_node_test < mp_dm_converter_mpc2
 
     methods
         %% constructor
-        function obj = mp_dm_converter_mpc2_node_test()
+        function obj = dm_converter_mpc2_node_test()
             %% call parent constructor
-            obj@mp_dm_converter_mpc2();
+            obj@mp.dm_converter_mpc2();
             obj.element_classes = ...
                 { @dmce_bus_nld_mpc2_node_test, @dmce_bus_ld_mpc2_node_test, ...
                   @dmce_gen_mpc2, @dmce_branch_mpc2 };

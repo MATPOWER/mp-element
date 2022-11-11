@@ -31,7 +31,7 @@ mpopt = mpoption(mpopt, 'out.all', 0);
 tasks = {'PF', 'CPF', 'OPF'};
 task_classes = {@mp.task_pf, @mp.task_cpf, @mp.task_opf};
 d = {casefile, {casefile, casefilet}, casefile};
-dmc_class = @mp_dm_converter_mpc2;
+dmc_class = @mp.dm_converter_mpc2;
 dm_classes = {
     @mp.data_model,
     @mp.data_model_cpf,
@@ -47,7 +47,7 @@ mm_classes = {
 t = 'build data model converter';
 dmc = dmc_class();
 dmc.build();
-t_ok(isa(dmc, 'mp_dm_converter'), t);
+t_ok(isa(dmc, 'mp.dm_converter'), t);
 
 for k = 1:length(tasks)
     t = sprintf('%s : ', tasks{k});

@@ -26,7 +26,7 @@ end
 
 casefile = 't_case_ext';
 mpc = loadcase(casefile);
-dmc = mp_dm_converter_mpc2().build();
+dmc = mp.dm_converter_mpc2().build();
 dm0 = mp.data_model().build(mpc, dmc);
 nb = size(mpc.bus, 1);
 ID2i = zeros(2, 1);     %% initialize as col vector
