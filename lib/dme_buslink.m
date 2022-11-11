@@ -1,4 +1,4 @@
-classdef dme_buslink < dm_element
+classdef dme_buslink < mp.dm_element
 %DME_BUSLINK  MATPOWER data model class for 1-to-3-phase buslink data
 
 %   MATPOWER
@@ -43,7 +43,7 @@ classdef dme_buslink < dm_element
         end
 
         function names = main_table_var_names(obj)
-            names = horzcat( main_table_var_names@dm_element(obj), ...
+            names = horzcat( main_table_var_names@mp.dm_element(obj), ...
                 {'bus', 'bus3p'});
         end
 
@@ -52,7 +52,7 @@ classdef dme_buslink < dm_element
 %         end
 
         function obj = initialize(obj, dm)
-            initialize@dm_element(obj, dm); %% call parent
+            initialize@mp.dm_element(obj, dm); %% call parent
 
             %% get bus mapping info
             b2i  = dm.elements.bus.ID2i;    %% bus num to idx mapping
@@ -72,7 +72,7 @@ classdef dme_buslink < dm_element
             obj.tab.status = obj.tab.status & bs(obj.bus) & bs3(obj.bus3p);
 
             %% call parent to fill in on/off
-            update_status@dm_element(obj, dm);
+            update_status@mp.dm_element(obj, dm);
         end
 
         function obj = build_params(obj, dm)
@@ -106,7 +106,7 @@ classdef dme_buslink < dm_element
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
+            h = [ pp_get_headers_det@mp.dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   '                      3-ph', ...
                     'Link ID    Bus ID    Bus ID   Status', ...
                     '--------  --------  --------  ------' } ];

@@ -1,4 +1,4 @@
-classdef dme_gen3p < dm_element
+classdef dme_gen3p < mp.dm_element
 %DME_GEN3P  MATPOWER data model class for 3-phase gen data
 
 %   MATPOWER
@@ -45,7 +45,7 @@ classdef dme_gen3p < dm_element
         end
 
         function names = main_table_var_names(obj)
-            names = horzcat( main_table_var_names@dm_element(obj), ...
+            names = horzcat( main_table_var_names@mp.dm_element(obj), ...
                 {'bus', 'vm1_setpoint', 'vm2_setpoint', 'vm3_setpoint', ...
                 'pg1', 'pg2', 'pg3', 'qg1', 'qg2', 'qg3'});
         end
@@ -55,7 +55,7 @@ classdef dme_gen3p < dm_element
 %         end
 
         function obj = initialize(obj, dm)
-            initialize@dm_element(obj, dm); %% call parent
+            initialize@mp.dm_element(obj, dm); %% call parent
 
             %% get bus mapping info
             b2i = dm.elements.bus3p.ID2i;   %% bus num to idx mapping
@@ -72,7 +72,7 @@ classdef dme_gen3p < dm_element
             obj.tab.status = obj.tab.status & bs(obj.bus);
 
             %% call parent to fill in on/off
-            update_status@dm_element(obj, dm);
+            update_status@mp.dm_element(obj, dm);
         end
 
         function obj = build_params(obj, dm)
@@ -98,7 +98,7 @@ classdef dme_gen3p < dm_element
 
         function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
+            pp_data_sum@mp.dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print generation summary
             fprintf(fd, '  %-29s %12.1f kW %12.1f kVAr\n', 'Total 3-ph generation', ...
@@ -115,7 +115,7 @@ classdef dme_gen3p < dm_element
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
+            h = [ pp_get_headers_det@mp.dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   '  3-ph      3-ph             Phase A Power     Phase B Power     Phase C Power', ...
                     ' Gen ID    Bus ID   Status   (kW)    (KVAr)    (kW)    (kVAr)    (kW)    (kVAr)', ...
                     '--------  --------  ------  -------  ------   -------  ------   -------  ------' } ];

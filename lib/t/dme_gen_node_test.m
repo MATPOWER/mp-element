@@ -28,7 +28,7 @@ classdef dme_gen_node_test < dme_gen_opf
         end
 
         function obj = initialize(obj, dm)
-            initialize@dm_element(obj, dm);     %% call parent
+            initialize@mp.dm_element(obj, dm);  %% call parent
 
             %% get bus mapping info
             obj.nbet = length(obj.cxn_type);
@@ -78,7 +78,7 @@ classdef dme_gen_node_test < dme_gen_opf
             end
 
             %% call parent to fill in on/off
-            update_status@dm_element(obj, dm);
+            update_status@mp.dm_element(obj, dm);
         end
     end     %% methods
 end         %% classdef

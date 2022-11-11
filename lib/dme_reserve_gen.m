@@ -1,4 +1,4 @@
-classdef dme_reserve_gen < dm_element & dme_shared_opf
+classdef dme_reserve_gen < mp.dm_element & dme_shared_opf
 %DME_RESERVE_GEN  MATPOWER data model class for reserve gen data
 
 %   MATPOWER
@@ -29,7 +29,7 @@ classdef dme_reserve_gen < dm_element & dme_shared_opf
         end
 
         function names = main_table_var_names(obj)
-            names = horzcat( main_table_var_names@dm_element(obj), ...
+            names = horzcat( main_table_var_names@mp.dm_element(obj), ...
                 {'gen', 'cost', 'qty', 'ramp10', 'r', 'r_lb', 'r_ub', ...
                  'total_cost', 'prc', 'mu_lb', 'mu_ub', 'mu_pg_ub'});
         end
@@ -47,7 +47,7 @@ classdef dme_reserve_gen < dm_element & dme_shared_opf
             obj.tab.status = obj.tab.status & gs(obj.tab.gen);
 
             %% call parent to fill in on/off
-            update_status@dm_element(obj, dm);
+            update_status@mp.dm_element(obj, dm);
         end
 
         function obj = build_params(obj, dm)
@@ -64,7 +64,7 @@ classdef dme_reserve_gen < dm_element & dme_shared_opf
 
         function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
+            pp_data_sum@mp.dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print reserve summary
             fprintf(fd, '  %-29s %12.1f MW\n', 'Total reserves', ...
@@ -82,7 +82,7 @@ classdef dme_reserve_gen < dm_element & dme_shared_opf
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
+            h = [ pp_get_headers_det@mp.dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   '                            Reserves    Price     Cost ', ...
                     ' Gen ID    Bus ID   Status    (MW)     ($/MW)     ($)      Included in Zones ...', ...
                     '--------  --------  ------  --------  --------  --------  ------------------------' } ];

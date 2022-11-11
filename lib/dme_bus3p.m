@@ -1,4 +1,4 @@
-classdef dme_bus3p < dm_element
+classdef dme_bus3p < mp.dm_element
 %DME_BUS3P  MATPOWER data model class for 3-phase bus data
 
 %   MATPOWER
@@ -33,7 +33,7 @@ classdef dme_bus3p < dm_element
         end
 
         function names = main_table_var_names(obj)
-            names = horzcat( main_table_var_names@dm_element(obj), ...
+            names = horzcat( main_table_var_names@mp.dm_element(obj), ...
                 {'type', 'base_kv', 'vm1', 'vm2', 'vm3', 'va1', 'va2', 'va3'});
         end
 
@@ -42,7 +42,7 @@ classdef dme_bus3p < dm_element
 %         end
 
         function obj = init_status(obj, dm)
-            %% overrides dm_element/init_status()
+            %% overrides mp.dm_element/init_status()
 
             %% check that all buses have a valid type
             bt = obj.tab.type;
@@ -60,7 +60,7 @@ classdef dme_bus3p < dm_element
 
         function obj = update_status(obj, dm)
             %% call parent to fill in on/off
-            update_status@dm_element(obj, dm);
+            update_status@mp.dm_element(obj, dm);
 
             %% update bus type property to correspond to online buses only
             obj.type = obj.type(obj.on);
@@ -127,7 +127,7 @@ classdef dme_bus3p < dm_element
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
+            h = [ pp_get_headers_det@mp.dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   '  3-ph            Phase A Voltage    Phase B Voltage    Phase C Voltage', ...
                     ' Bus ID   Status   (kV)     (deg)     (kV)     (deg)     (kV)     (deg)', ...
                     '--------  ------  -------  -------   -------  -------   -------  -------' } ];

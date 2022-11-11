@@ -1,4 +1,4 @@
-classdef dme_line3p < dm_element
+classdef dme_line3p < mp.dm_element
 %DME_LINE3P  MATPOWER data model class for 3-phase line data
 
 %   MATPOWER
@@ -42,7 +42,7 @@ classdef dme_line3p < dm_element
         end
 
         function names = main_table_var_names(obj)
-            names = horzcat( main_table_var_names@dm_element(obj), ...
+            names = horzcat( main_table_var_names@mp.dm_element(obj), ...
                 {'bus_fr', 'bus_to', 'lc', 'len', ...
                  'pl1_fr', 'ql1_fr', 'pl2_fr', 'ql2_fr', 'pl3_fr', 'ql3_fr', ...
                  'pl1_to', 'ql1_to', 'pl2_to', 'ql2_to', 'pl3_to', 'ql3_to' ...
@@ -59,7 +59,7 @@ classdef dme_line3p < dm_element
 %         end
 
         function obj = initialize(obj, dm)
-            initialize@dm_element(obj, dm); %% call parent
+            initialize@mp.dm_element(obj, dm); %% call parent
 
             %% get bus mapping info
             b2i = dm.elements.bus3p.ID2i;   %% bus num to idx mapping
@@ -78,7 +78,7 @@ classdef dme_line3p < dm_element
                                               bs(obj.tbus);
 
             %% call parent to fill in on/off
-            update_status@dm_element(obj, dm);
+            update_status@mp.dm_element(obj, dm);
         end
 
         function obj = build_params(obj, dm)
@@ -139,18 +139,18 @@ classdef dme_line3p < dm_element
                     c_to = struct('cm', abs(i_to), 'ca', angle(i_to) * 180/pi);
 
                     pp_args.line3p = {'c', 'f', abs(i_fr), angle(i_fr) * 180/pi};
-                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
+                    pretty_print@mp.dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
 
                     pp_args.line3p = {'c', 't', abs(i_to), angle(i_to) * 180/pi};
-                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
+                    pretty_print@mp.dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
 
                     pp_args.line3p = {'s', 'f', real(s_fr), imag(s_fr)};
-                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
+                    pretty_print@mp.dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
 
                     pp_args.line3p = {'s', 't', real(s_to), imag(s_to)};
-                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
+                    pretty_print@mp.dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
                 otherwise
-                    pretty_print@dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
+                    pretty_print@mp.dm_element(obj, dm, section, out_e, mpopt, fd, pp_args);
             end
         end
 
@@ -160,7 +160,7 @@ classdef dme_line3p < dm_element
 
         function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
+            pp_data_sum@mp.dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print generation summary
             t = obj.tab;
@@ -180,7 +180,7 @@ classdef dme_line3p < dm_element
             cs = pp_args.line3p{1};
             ft = pp_args.line3p{2};
             if cs == 'c' && ft == 'f'
-                h1 = pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args);
+                h1 = pp_get_headers_det@mp.dm_element(obj, dm, out_e, mpopt, pp_args);
             else
                 h1 = {};
             end

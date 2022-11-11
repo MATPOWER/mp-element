@@ -1,4 +1,4 @@
-classdef dme_branch < dm_element
+classdef dme_branch < mp.dm_element
 %DME_BRANCH  MATPOWER data model class for branch data
 
 %   MATPOWER
@@ -45,7 +45,7 @@ classdef dme_branch < dm_element
         end
 
         function names = main_table_var_names(obj)
-            names = horzcat( main_table_var_names@dm_element(obj), ...
+            names = horzcat( main_table_var_names@mp.dm_element(obj), ...
                 {'bus_fr', 'bus_to', 'r', 'x', 'g_fr', 'b_fr', ...
                 'g_to', 'b_to', 'sm_ub_a', 'sm_ub_b', 'sm_ub_c', ...
                 'cm_ub_a', 'cm_ub_b', 'cm_ub_c', 'vad_lb', 'vad_ub', ...
@@ -58,7 +58,7 @@ classdef dme_branch < dm_element
         end
 
         function obj = initialize(obj, dm)
-            initialize@dm_element(obj, dm);     %% call parent
+            initialize@mp.dm_element(obj, dm);  %% call parent
 
             %% get bus mapping info
             b2i = dm.elements.bus.ID2i;     %% bus num to idx mapping
@@ -77,7 +77,7 @@ classdef dme_branch < dm_element
                                               bs(obj.tbus);
 
             %% call parent to fill in on/off
-            update_status@dm_element(obj, dm);
+            update_status@mp.dm_element(obj, dm);
         end
 
         function obj = build_params(obj, dm)
@@ -94,7 +94,7 @@ classdef dme_branch < dm_element
 
         function obj = pp_data_cnt(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_cnt@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
+            pp_data_cnt@mp.dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             num_xf = length(find(obj.tab.tm));
             num_xf_on = length(find(obj.tab.tm(obj.on)));
@@ -128,7 +128,7 @@ classdef dme_branch < dm_element
 
         function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
+            pp_data_sum@mp.dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print branch summary
             fprintf(fd, '  %-29s  %12.2f MW', 'Total branch losses', ...
@@ -141,7 +141,7 @@ classdef dme_branch < dm_element
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
+            h = [ pp_get_headers_det@mp.dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   ' Branch     From       To             From Bus Injection   To Bus Injection', ...
                     '   ID      Bus ID    Bus ID   Status   P (MW)   Q (MVAr)   P (MW)   Q (MVAr)', ...
                     '--------  --------  --------  ------  --------  --------  --------  --------' } ];

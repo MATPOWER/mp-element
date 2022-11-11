@@ -1,4 +1,4 @@
-classdef dme_reserve_zone < dm_element & dme_shared_opf
+classdef dme_reserve_zone < mp.dm_element & dme_shared_opf
 %DME_RESERVE_ZONE  MATPOWER data model class for reserve zone data
 
 %   MATPOWER
@@ -29,7 +29,7 @@ classdef dme_reserve_zone < dm_element & dme_shared_opf
         end
 
         function names = main_table_var_names(obj)
-            names = horzcat( main_table_var_names@dm_element(obj), ...
+            names = horzcat( main_table_var_names@mp.dm_element(obj), ...
                 {'req', 'zones', 'prc'} );
         end
 
@@ -50,7 +50,7 @@ classdef dme_reserve_zone < dm_element & dme_shared_opf
             obj.tab.status = obj.tab.status .* any(z, 2);
 
             %% call parent to fill in on/off
-            update_status@dm_element(obj, dm);
+            update_status@mp.dm_element(obj, dm);
         end
 
         function obj = build_params(obj, dm)
@@ -66,7 +66,7 @@ classdef dme_reserve_zone < dm_element & dme_shared_opf
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
+            h = [ pp_get_headers_det@mp.dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   '                   No. of  Requirement   Price', ...
                     ' Zone ID   Status   Gens       (MW)     ($/MW)', ...
                     '---------  ------  ------  -----------  --------' } ];

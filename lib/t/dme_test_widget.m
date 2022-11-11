@@ -1,4 +1,4 @@
-classdef dme_test_widget < dm_element
+classdef dme_test_widget < mp.dm_element
 %DME_BUS  MATPOWER data model class for test widget data
 
 %   MATPOWER
@@ -27,7 +27,7 @@ classdef dme_test_widget < dm_element
         end
 
         function names = main_table_var_names(obj)
-            names = horzcat( main_table_var_names@dm_element(obj), ...
+            names = horzcat( main_table_var_names@mp.dm_element(obj), ...
                 {'ids', 'twos', 'alpha', 'beta', 'gamma', 'delta', 'epsilon'});
         end
 

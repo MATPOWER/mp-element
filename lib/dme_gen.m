@@ -1,4 +1,4 @@
-classdef dme_gen < dm_element
+classdef dme_gen < mp.dm_element
 %DME_GEN  MATPOWER data model class for gen data
 
 %   MATPOWER
@@ -43,7 +43,7 @@ classdef dme_gen < dm_element
         end
 
         function names = main_table_var_names(obj)
-            names = horzcat( main_table_var_names@dm_element(obj), ...
+            names = horzcat( main_table_var_names@mp.dm_element(obj), ...
                 {'bus', 'vm_setpoint', 'pg_lb', 'pg_ub', 'qg_lb', 'qg_ub', ...
                 'pg', 'qg', 'in_service', ...
                 'startup_cost_cold', ...
@@ -59,7 +59,7 @@ classdef dme_gen < dm_element
         end
 
         function obj = initialize(obj, dm)
-            initialize@dm_element(obj, dm);    %% call parent
+            initialize@mp.dm_element(obj, dm);    %% call parent
 
             %% get bus mapping info
             b2i = dm.elements.bus.ID2i;     %% bus num to idx mapping
@@ -76,7 +76,7 @@ classdef dme_gen < dm_element
             obj.tab.status = obj.tab.status & bs(obj.bus);
 
             %% call parent to fill in on/off
-            update_status@dm_element(obj, dm);
+            update_status@mp.dm_element(obj, dm);
         end
 
         function obj = build_params(obj, dm)
@@ -153,7 +153,7 @@ classdef dme_gen < dm_element
 
         function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
+            pp_data_sum@mp.dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             ac = mpopt.model(1) ~= 'D';     %% AC model?
 
@@ -199,7 +199,7 @@ classdef dme_gen < dm_element
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
+            h = [ pp_get_headers_det@mp.dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   '                             Power Generation', ...
                     ' Gen ID    Bus ID   Status   P (MW)   Q (MVAr)', ...
                     '--------  --------  ------  --------  --------' } ];

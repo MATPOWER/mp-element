@@ -1,4 +1,4 @@
-classdef dme_bus < dm_element
+classdef dme_bus < mp.dm_element
 %DME_BUS  MATPOWER data model class for bus data
 
 %   MATPOWER
@@ -31,7 +31,7 @@ classdef dme_bus < dm_element
         end
 
         function names = main_table_var_names(obj)
-            names = horzcat( main_table_var_names@dm_element(obj), ...
+            names = horzcat( main_table_var_names@mp.dm_element(obj), ...
                 {'base_kv', 'type', 'area', 'zone', 'vm_lb', 'vm_ub', ...
                  'va', 'vm'});
         end
@@ -41,7 +41,7 @@ classdef dme_bus < dm_element
         end
 
         function obj = init_status(obj, dm)
-            %% overrides dm_element/init_status()
+            %% overrides mp.dm_element/init_status()
 
             %% check that all buses have a valid type
             bt = obj.tab.type;
@@ -59,7 +59,7 @@ classdef dme_bus < dm_element
 
         function obj = update_status(obj, dm)
             %% call parent to fill in on/off
-            update_status@dm_element(obj, dm);
+            update_status@mp.dm_element(obj, dm);
 
             %% update bus type property to correspond to online buses only
             obj.type = obj.type(obj.on);
@@ -117,7 +117,7 @@ classdef dme_bus < dm_element
 
         function obj = pp_data_cnt(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_cnt@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
+            pp_data_cnt@mp.dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print area, zone counts
             fprintf(fd, '  %-36s%7d\n', '  Areas', ...
@@ -132,7 +132,7 @@ classdef dme_bus < dm_element
 
         function obj = pp_data_ext(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_ext@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
+            pp_data_ext@mp.dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print bus extremes
             [min_vm, min_vm_i] = min(obj.tab.vm);
@@ -159,7 +159,7 @@ classdef dme_bus < dm_element
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
+            h = [ pp_get_headers_det@mp.dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   '                      Voltage', ...
                     ' Bus ID   Status  Mag(pu)  Ang(deg)', ...
                     '--------  ------  -------  --------' } ];

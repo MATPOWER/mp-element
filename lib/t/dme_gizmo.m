@@ -1,4 +1,4 @@
-classdef dme_gizmo < dm_element
+classdef dme_gizmo < mp.dm_element
 %DME_GIZMO  MATPOWER data model class for gizmo data
 
 %   MATPOWER
@@ -37,14 +37,14 @@ classdef dme_gizmo < dm_element
         end
 
         function names = main_table_var_names(obj)
-            names = horzcat( main_table_var_names@dm_element(obj), ...
+            names = horzcat( main_table_var_names@mp.dm_element(obj), ...
                 {'bus_1', 'bus_2', 'bus_3', 'Y1r', 'Y1i', 'Y2r', 'Y2i', ...
                 'Lr', 'Li', 'Ir', 'Ii', 'M1r', 'M1i', 'M2r', 'M2i', ...
                 'Nr', 'Ni', 'Sr', 'Si', 'Zr1', 'Zi1', 'Zr2', 'Zi2'});
         end
 
         function obj = initialize(obj, dm)
-            initialize@dm_element(obj, dm);     %% call parent
+            initialize@mp.dm_element(obj, dm);  %% call parent
 
             %% get bus mapping info
             b2i = dm.elements.bus.ID2i;         %% bus num to idx mapping
@@ -65,7 +65,7 @@ classdef dme_gizmo < dm_element
                                               bs(obj.bus3);
 
             %% call parent to fill in on/off
-            update_status@dm_element(obj, dm);
+            update_status@mp.dm_element(obj, dm);
         end
     end     %% methods
 end         %% classdef

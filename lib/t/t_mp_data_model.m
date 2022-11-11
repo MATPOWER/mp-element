@@ -68,7 +68,7 @@ for k = 1:nt
 
     bus = dm.elements.bus;
     t_ok(isa(bus, 'dme_bus'), [t 'bus class']);
-    t_ok(isa(bus, 'dm_element'), [t 'bus isa dm_element']);
+    t_ok(isa(bus, 'mp.dm_element'), [t 'bus isa mp.dm_element']);
     t_ok(strcmp(bus.name, 'bus'), [t 'bus.name']);
     t_is(bus.nr, 10, 12, [t 'bus.nr']);
     t_is(bus.n, 9, 12, [t 'bus.n']);
@@ -80,7 +80,7 @@ for k = 1:nt
 
     gen = dm.elements.gen;
     t_ok(isa(gen, 'dme_gen'), [t 'gen class']);
-    t_ok(isa(gen, 'dm_element'), [t 'gen isa dm_element']);
+    t_ok(isa(gen, 'mp.dm_element'), [t 'gen isa mp.dm_element']);
     t_ok(strcmp(gen.name, 'gen'), [t 'gen.name']);
     t_is(gen.nr, 4, 12, [t 'gen.nr']);
     t_is(gen.n, 3, 12, [t 'gen.n']);
@@ -92,7 +92,7 @@ for k = 1:nt
 
     ld = dm.elements.load;
     t_ok(isa(ld, 'dme_load'), [t 'load class']);
-    t_ok(isa(ld, 'dm_element'), [t 'ld isa dm_element']);
+    t_ok(isa(ld, 'mp.dm_element'), [t 'ld isa mp.dm_element']);
     t_ok(strcmp(ld.name, 'load'), [t 'ld.name']);
     t_is(ld.nr, 3, 12, [t 'ld.nr']);
     t_is(ld.n, 3, 12, [t 'ld.n']);
@@ -104,7 +104,7 @@ for k = 1:nt
 
     branch = dm.elements.branch;
     t_ok(isa(branch, 'dme_branch'), [t 'branch class']);
-    t_ok(isa(branch, 'dm_element'), [t 'branch isa dm_element']);
+    t_ok(isa(branch, 'mp.dm_element'), [t 'branch isa mp.dm_element']);
     t_ok(strcmp(branch.name, 'branch'), [t 'branch.name']);
     t_is(branch.nr, 10, 12, [t 'branch.nr']);
     t_is(branch.n, 9, 12, [t 'branch.n']);
@@ -116,7 +116,7 @@ for k = 1:nt
 
     shunt = dm.elements.shunt;
     t_ok(isa(shunt, 'dme_shunt'), [t 'shunt class']);
-    t_ok(isa(shunt, 'dm_element'), [t 'shunt isa dm_element']);
+    t_ok(isa(shunt, 'mp.dm_element'), [t 'shunt isa mp.dm_element']);
     t_ok(strcmp(shunt.name, 'shunt'), [t 'shunt.name']);
     t_is(shunt.nr, 2, 12, [t 'shunt.nr']);
     t_is(shunt.n, 2, 12, [t 'shunt.n']);

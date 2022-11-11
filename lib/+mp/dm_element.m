@@ -1,5 +1,5 @@
 classdef (Abstract) dm_element < handle
-%DM_ELEMENT  Abstract base class for MATPOWER data model elements
+%MP.DM_ELEMENT  Abstract base class for MATPOWER data model elements
 
 %   MATPOWER
 %   Copyright (c) 2020-2022, Power Systems Engineering Research Center (PSERC)

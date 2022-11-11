@@ -1,4 +1,4 @@
-classdef dme_load < dm_element
+classdef dme_load < mp.dm_element
 %DME_LOAD  MATPOWER data model class for load data
 
 %   MATPOWER
@@ -41,7 +41,7 @@ classdef dme_load < dm_element
         end
 
         function names = main_table_var_names(obj)
-            names = horzcat( main_table_var_names@dm_element(obj), ...
+            names = horzcat( main_table_var_names@mp.dm_element(obj), ...
                 {'bus', 'pd', 'qd', 'pd_i', 'qd_i', 'pd_z', 'qd_z', ...
                 'p', 'q'});
         end
@@ -51,7 +51,7 @@ classdef dme_load < dm_element
         end
 
         function nr = count(obj, dm)
-            nr = count@dm_element(obj, dm);
+            nr = count@mp.dm_element(obj, dm);
             if nr
                 obj.bus = obj.tab.source_uid;
             end
@@ -65,7 +65,7 @@ classdef dme_load < dm_element
             obj.tab.status = obj.tab.status & bs(obj.bus);
 
             %% call parent to fill in on/off
-            update_status@dm_element(obj, dm);
+            update_status@mp.dm_element(obj, dm);
         end
 
         function obj = build_params(obj, dm)
@@ -83,7 +83,7 @@ classdef dme_load < dm_element
 
         function obj = pp_data_sum(obj, dm, rows, out_e, mpopt, fd, pp_args)
             %% call parent
-            pp_data_sum@dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
+            pp_data_sum@mp.dm_element(obj, dm, rows, out_e, mpopt, fd, pp_args);
 
             %% print load summary
             fprintf(fd, '  %-29s %12.1f MW', 'Total load', ...
@@ -107,7 +107,7 @@ classdef dme_load < dm_element
         end
 
         function h = pp_get_headers_det(obj, dm, out_e, mpopt, pp_args)
-            h = [ pp_get_headers_det@dm_element(obj, dm, out_e, mpopt, pp_args) ...
+            h = [ pp_get_headers_det@mp.dm_element(obj, dm, out_e, mpopt, pp_args) ...
                 {   '                             Power Consumption', ...
                     'Load ID    Bus ID   Status   P (MW)   Q (MVAr)', ...
                     '--------  --------  ------  --------  --------' } ];
