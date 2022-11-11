@@ -1,14 +1,14 @@
-classdef mp_form_acc < mp_form_ac
-%MP_FORM_ACC  MATPOWER Formulation class for AC cartesian voltage formulations
+classdef form_acc < mp.form_ac
+%MP.FORM_ACC  MATPOWER Formulation class for AC cartesian voltage formulations
 %   Each concrete Network Model Element class must inherit, at least
-%   indirectly, from both NM_ELEMENT and MP_FORM.
+%   indirectly, from both NM_ELEMENT and MP.FORM.
 %
-%   Subclass of MP_FORM_AC.
-%   MP_FORM provides properties and methods related to the specific
+%   Subclass of MP.FORM_AC.
+%   MP.FORM provides properties and methods related to the specific
 %   formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   Properties
-%       (model parameters inherited from MP_FORM_AC)
+%       (model parameters inherited from MP.FORM_AC)
 %
 %   Methods
 %       form_name() - returns string w/name of formulation ('AC-cartesian formulation')

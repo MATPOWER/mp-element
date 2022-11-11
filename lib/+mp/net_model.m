@@ -1,7 +1,7 @@
-classdef (Abstract) net_model < nm_element & mp_element_container & mp_idx_manager% & mp_form
+classdef (Abstract) net_model < nm_element & mp_element_container & mp_idx_manager% & mp.form
 %MP.NET_MODEL  Abstract base class for MATPOWER network model
 %   Explicitly a subclass of NM_ELEMENT, MP_IDX_MANAGER and MPE_CONTAINER,
-%   and implicitly assumed to be a subclass of MP_FORM as well.
+%   and implicitly assumed to be a subclass of MP.FORM as well.
 
 %   MATPOWER
 %   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)

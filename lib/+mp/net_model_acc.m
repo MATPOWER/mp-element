@@ -1,4 +1,4 @@
-classdef net_model_acc < mp.net_model_ac & mp_form_acc
+classdef net_model_acc < mp.net_model_ac & mp.form_acc
 
 %   MATPOWER
 %   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)

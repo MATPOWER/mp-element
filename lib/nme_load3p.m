@@ -1,4 +1,4 @@
-classdef nme_load3p < nm_element & mp_form_acp
+classdef nme_load3p < nm_element & mp.form_acp
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

@@ -1,6 +1,6 @@
-classdef (Abstract) net_model_ac < mp.net_model% & mp_form_ac
+classdef (Abstract) net_model_ac < mp.net_model% & mp.form_ac
 %MP.NET_MODEL_AC Abstract class, explicitly a subclass of MP.NET_MODEL and
-%              implicitly assumed to be a subclass of MP_FORM_AC as well
+%              implicitly assumed to be a subclass of MP.FORM_AC as well
 
 %   MATPOWER
 %   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)

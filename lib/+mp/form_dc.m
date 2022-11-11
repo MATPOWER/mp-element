@@ -1,13 +1,13 @@
-classdef mp_form_dc < mp_form
-%MP_FORM_DC  MATPOWER Formulation base class for DC formulations
+classdef form_dc < mp.form
+%MP.FORM_DC  MATPOWER Formulation base class for DC formulations
 %   Each concrete Network Model Element class must inherit, at least
-%   indirectly, from both NM_ELEMENT and MP_FORM.
+%   indirectly, from both NM_ELEMENT and MP.FORM.
 %
-%   Subclass of MP_FORM.
-%   MP_FORM provides properties and methods related to the specific
+%   Subclass of MP.FORM.
+%   MP.FORM provides properties and methods related to the specific
 %   formulation (e.g. DC version, AC polar power version, etc.)
 %
-%   MP_FORM_DC defines:
+%   MP.FORM_DC defines:
 %       linear active power injection = B theta + K z + p
 %
 %   Properties

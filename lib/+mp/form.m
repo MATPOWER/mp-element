@@ -1,9 +1,9 @@
-classdef (Abstract) mp_form < handle
-%MP_FORM  MATPOWER Formulation abstract base class.
+classdef (Abstract) form < handle
+%MP.FORM  MATPOWER Formulation abstract base class.
 %   Each concrete Network Model Element class must inherit, at least
-%   indirectly, from both NM_ELEMENT and MP_FORM.
+%   indirectly, from both NM_ELEMENT and MP.FORM.
 %
-%   MP_FORM provides properties and methods related to the specific
+%   MP.FORM provides properties and methods related to the specific
 %   formulation (e.g. DC version, AC polar power version, etc.)
 %
 %   Properties
@@ -31,15 +31,15 @@ classdef (Abstract) mp_form < handle
 
     methods
         function name = form_name(obj)
-            error('mp_form/form_name: must be implemented in subclass');
+            error('mp.form/form_name: must be implemented in subclass');
         end
 
         function tag = form_tag(obj)
-            error('mp_form/form_tag: must be implemented in subclass');
+            error('mp.form/form_tag: must be implemented in subclass');
         end
 
         function params = model_params(obj)
-            error('mp_form/model_params: must be implemented in subclass');
+            error('mp.form/model_params: must be implemented in subclass');
         end
 
         function varargout = get_params(obj, idx, names)
@@ -60,7 +60,7 @@ classdef (Abstract) mp_form < handle
 
             if nargout > length(names)
                 namestr = sprintf(' ''%s''', names{:})
-                error('mp_form/get_params: return values must correspond to%s', namestr);
+                error('mp.form/get_params: return values must correspond to%s', namestr);
             end
 
             varargout = cell(1, nargout);
@@ -87,13 +87,13 @@ classdef (Abstract) mp_form < handle
         end
 
         function form_class = find_form_class(obj)
-            if isa(obj, 'mp_form')
-                tab = obj.superclass_tab({'mp_form', 'nm_element'});
+            if isa(obj, 'mp.form')
+                tab = obj.superclass_tab({'mp.form', 'nm_element'});
 
                 %% select among classes that are not nm_element's ...
                 j = find(tab.ii(:, 2) == 0);
-                %% ... the mp_form class with longest inheritance path
-                %% back to mp_form
+                %% ... the mp.form class with longest inheritance path
+                %% back to mp.form
                 [~, k] = max(tab.ii(j, 1));
 
                 assert(~isempty(k));
@@ -104,7 +104,7 @@ classdef (Abstract) mp_form < handle
         end
 
         function [tab, ii] = superclass_tab(obj, roots, mcls, tab, ii, level)
-            %% obj - an mp_form object
+            %% obj - an mp.form object
             %% roots - cell array of names of root classes to search for
             %% mcls - meta class object (undocumented MATLAB and Octave) for
             %%        the class of interest

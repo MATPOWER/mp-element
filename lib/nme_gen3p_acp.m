@@ -1,4 +1,4 @@
-classdef nme_gen3p_acp < nme_gen3p & mp_form_acp
+classdef nme_gen3p_acp < nme_gen3p & mp.form_acp
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)

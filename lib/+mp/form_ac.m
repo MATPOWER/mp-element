@@ -1,13 +1,13 @@
-classdef (Abstract) mp_form_ac < mp_form
-%MP_FORM_AC  MATPOWER Formulation base class for AC formulations
+classdef (Abstract) form_ac < mp.form
+%MP.FORM_AC  MATPOWER Formulation base class for AC formulations
 %   Each concrete Network Model Element class must inherit, at least
-%   indirectly, from both NM_ELEMENT and MP_FORM.
+%   indirectly, from both NM_ELEMENT and MP.FORM.
 %
-%   Subclass of MP_FORM.
-%   MP_FORM provides properties and methods related to the specific
+%   Subclass of MP.FORM.
+%   MP.FORM provides properties and methods related to the specific
 %   formulation (e.g. DC version, AC polar power version, etc.)
 %
-%   MP_FORM_AC defines:
+%   MP.FORM_AC defines:
 %       linear current injection       = Y v_ + L z_ + i
 %       linear complex power injection = M v_ + N z_ + s
 %
@@ -153,7 +153,7 @@ classdef (Abstract) mp_form_ac < mp_form
                     end
                 end
             elseif ~isempty(obj.snln)
-                error('mp_form_ac/port_inj_current: Nonlinear current function not defined for corresponding nonlinear power function.')
+                error('mp.form_ac/port_inj_current: Nonlinear current function not defined for corresponding nonlinear power function.')
             end
         end
 
@@ -246,7 +246,7 @@ classdef (Abstract) mp_form_ac < mp_form
                     end
                 end
             elseif ~isempty(obj.inln)
-                error('mp_form_ac/port_inj_power: Nonlinear power function not defined for corresponding nonlinear current function.')
+                error('mp.form_ac/port_inj_power: Nonlinear power function not defined for corresponding nonlinear current function.')
             end
         end
 
@@ -316,7 +316,7 @@ classdef (Abstract) mp_form_ac < mp_form
             if ~isempty(obj.inln_hess)
                 H = H + obj.inln_hess(x_, lam, sysx, idx);
             elseif ~isempty(obj.snln_hess)
-                error('mp_form_ac/port_inj_current_hess: Nonlinear current Hessian not defined for corresponding nonlinear power Hessian.')
+                error('mp.form_ac/port_inj_current_hess: Nonlinear current Hessian not defined for corresponding nonlinear power Hessian.')
             end
         end
 
@@ -386,7 +386,7 @@ classdef (Abstract) mp_form_ac < mp_form
             if ~isempty(obj.snln_hess)
                 H = H + obj.snln_hess(x_, lam, sysx, idx);
             elseif ~isempty(obj.inln_hess)
-                error('mp_form_ac/port_inj_power_hess: Nonlinear power Hessian not defined for corresponding nonlinear current Hessian.')
+                error('mp.form_ac/port_inj_power_hess: Nonlinear power Hessian not defined for corresponding nonlinear current Hessian.')
             end
         end
 
