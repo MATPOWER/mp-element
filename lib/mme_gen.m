@@ -1,4 +1,4 @@
-classdef (Abstract) mme_gen < mm_element
+classdef (Abstract) mme_gen < mp.mm_element
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

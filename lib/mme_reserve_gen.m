@@ -1,4 +1,4 @@
-classdef mme_reserve_gen < mm_element
+classdef mme_reserve_gen < mp.mm_element
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)

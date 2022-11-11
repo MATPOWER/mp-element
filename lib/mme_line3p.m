@@ -1,4 +1,4 @@
-classdef mme_line3p < mm_element
+classdef mme_line3p < mp.mm_element
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)

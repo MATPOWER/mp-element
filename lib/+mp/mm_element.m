@@ -1,5 +1,5 @@
 classdef (Abstract) mm_element < handle
-%MM_ELEMENT  Abstract base class for mathematical model element
+%MP.MM_ELEMENT  Abstract base class for mathematical model element
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

@@ -1,4 +1,4 @@
-classdef (Abstract) mme_shunt < mm_element
+classdef (Abstract) mme_shunt < mp.mm_element
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)
