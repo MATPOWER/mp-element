@@ -1,7 +1,7 @@
 classdef (Abstract) form < handle
 %MP.FORM  MATPOWER Formulation abstract base class.
 %   Each concrete Network Model Element class must inherit, at least
-%   indirectly, from both NM_ELEMENT and MP.FORM.
+%   indirectly, from both MP.NM_ELEMENT and MP.FORM.
 %
 %   MP.FORM provides properties and methods related to the specific
 %   formulation (e.g. DC version, AC polar power version, etc.)
@@ -88,9 +88,9 @@ classdef (Abstract) form < handle
 
         function form_class = find_form_class(obj)
             if isa(obj, 'mp.form')
-                tab = obj.superclass_tab({'mp.form', 'nm_element'});
+                tab = obj.superclass_tab({'mp.form', 'mp.nm_element'});
 
-                %% select among classes that are not nm_element's ...
+                %% select among classes that are not mp.nm_element's ...
                 j = find(tab.ii(:, 2) == 0);
                 %% ... the mp.form class with longest inheritance path
                 %% back to mp.form

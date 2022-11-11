@@ -1,7 +1,7 @@
 classdef form_dc < mp.form
 %MP.FORM_DC  MATPOWER Formulation base class for DC formulations
 %   Each concrete Network Model Element class must inherit, at least
-%   indirectly, from both NM_ELEMENT and MP.FORM.
+%   indirectly, from both MP.NM_ELEMENT and MP.FORM.
 %
 %   Subclass of MP.FORM.
 %   MP.FORM provides properties and methods related to the specific

@@ -1,6 +1,6 @@
 classdef (Abstract) nm_element < handle
-%NM_ELEMENT  Abstract base class for MATPOWER network model elements
-%   NME = NM_ELEMENT()
+%MP.NM_ELEMENT  Abstract base class for MATPOWER network model elements
+%   NME = MP.NM_ELEMENT()
 %
 %   Each concrete subclass must also inherit from a subclass of MP.FORM.
 %
@@ -229,9 +229,9 @@ classdef (Abstract) nm_element < handle
             nc = length(cxn_idx_prop);  %% number of connections per element
             if iscell(cxn_type)
                 if isempty(cxn_type_prop)
-                    assert(length(cxn_type) == nc, 'nm_element/node_indices: requires CXN_TYPE_PROP if specifying more than one CXN_TYPE and CXN_TYPE length does not match that of CXN_IDX_PROP');
+                    assert(length(cxn_type) == nc, 'mp.nm_element/node_indices: requires CXN_TYPE_PROP if specifying more than one CXN_TYPE and CXN_TYPE length does not match that of CXN_IDX_PROP');
                 else
-                    assert(length(cxn_type_prop) == nc, 'nm_element/node_indices: CXN_TYPE_PROP length must match that of CXN_IDX_PROP');
+                    assert(length(cxn_type_prop) == nc, 'mp.nm_element/node_indices: CXN_TYPE_PROP length must match that of CXN_IDX_PROP');
                 end
             end
 
@@ -245,7 +245,7 @@ classdef (Abstract) nm_element < handle
 
                     %% number of connections
                     assert(obj.np == nc * jxn_nme.nn, ...
-                        'nm_element/node_indices: number of %s connections per %s (%d) x number of nodes per %s (%d) should equal the number of ports per %s (%d)', ...
+                        'mp.nm_element/node_indices: number of %s connections per %s (%d) x number of nodes per %s (%d) should equal the number of ports per %s (%d)', ...
                         cxn_type, obj.name, nc, cxn_type, jxn_nme.nn, obj.name, obj.np);
 
                     p = 1;                      %% initialize port index
@@ -276,7 +276,7 @@ classdef (Abstract) nm_element < handle
 
                         %% number of connections
                         assert(p <= obj.np, ...
-                            'nm_element/node_indices: port index for %s connections for %s (%d) exceeds the available number of ports per %s (%d)', ...
+                            'mp.nm_element/node_indices: port index for %s connections for %s (%d) exceeds the available number of ports per %s (%d)', ...
                             cxn_type{k}, obj.name, p, obj.name, obj.np);
 
                         %% jxn indices for cxn k of online elements
@@ -305,7 +305,7 @@ classdef (Abstract) nm_element < handle
 
                         %% number of connections
                         assert(obj.np == nc * jxn_nme.nn, ...
-                            'nm_element/node_indices: number of %s connections per %s (%d) x number of nodes per %s (%d) should equal the number of ports per %s (%d)', ...
+                            'mp.nm_element/node_indices: number of %s connections per %s (%d) x number of nodes per %s (%d) should equal the number of ports per %s (%d)', ...
                             cxn_type{i}, obj.name, nc, cxn_type{i}, jxn_nme.nn, obj.name, obj.np);
 
                         for k = 1:nc                %% for connection k

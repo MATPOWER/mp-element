@@ -1,4 +1,4 @@
-classdef (Abstract) nme_branch < nm_element
+classdef (Abstract) nme_branch < mp.nm_element
 
 %   MATPOWER
 %   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)

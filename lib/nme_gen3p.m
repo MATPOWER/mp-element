@@ -1,4 +1,4 @@
-classdef (Abstract) nme_gen3p < nm_element % & mp.form_ac
+classdef (Abstract) nme_gen3p < mp.nm_element % & mp.form_ac
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
@@ -40,7 +40,7 @@ classdef (Abstract) nme_gen3p < nm_element % & mp.form_ac
         end
 
         function obj = build_params(obj, nm, dm)
-            build_params@nm_element(obj, nm, dm);   %% call parent
+            build_params@mp.nm_element(obj, nm, dm);    %% call parent
             obj.N = -speye(obj.nk * obj.nz);
         end
     end     %% methods

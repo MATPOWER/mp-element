@@ -1,4 +1,4 @@
-classdef nme_load3p < nm_element & mp.form_acp
+classdef nme_load3p < mp.nm_element & mp.form_acp
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
@@ -21,7 +21,7 @@ classdef nme_load3p < nm_element & mp.form_acp
         end
 
         function obj = build_params(obj, nm, dm)
-            build_params@nm_element(obj, nm, dm);   %% call parent
+            build_params@mp.nm_element(obj, nm, dm);    %% call parent
             dme = obj.data_model_element(dm);
 
             %% constant complex power demand

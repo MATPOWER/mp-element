@@ -1,7 +1,8 @@
-classdef (Abstract) net_model < nm_element & mp.element_container & mp_idx_manager% & mp.form
+classdef (Abstract) net_model < mp.nm_element & mp.element_container & mp_idx_manager% & mp.form
 %MP.NET_MODEL  Abstract base class for MATPOWER network model
-%   Explicitly a subclass of NM_ELEMENT, MP_IDX_MANAGER and MPE_CONTAINER,
-%   and implicitly assumed to be a subclass of MP.FORM as well.
+%   Explicitly a subclass of MP.NM_ELEMENT, MP_IDX_MANAGER and
+%   MP.ELEMENT_CONTAINER, and implicitly assumed to be a subclass of MP.FORM
+%   as well.
 
 %   MATPOWER
 %   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
@@ -79,7 +80,7 @@ classdef (Abstract) net_model < nm_element & mp.element_container & mp_idx_manag
 
             %% if network has its own nodes to add, do that now
             if obj.nn
-                add_nodes@nm_element(obj, nm, dm);
+                add_nodes@mp.nm_element(obj, nm, dm);
             end
 
             %% add voltage variables for each node
@@ -97,7 +98,7 @@ classdef (Abstract) net_model < nm_element & mp.element_container & mp_idx_manag
 %             %% if network has its own states to add, do that now
 %             %% (this doesn't work because nz includes states from all elements)
 %             if obj.nz
-%                 add_states@nm_element(obj, nm, dm);
+%                 add_states@mp.nm_element(obj, nm, dm);
 %             end
 
             %% add state variables for each node
@@ -240,7 +241,7 @@ classdef (Abstract) net_model < nm_element & mp.element_container & mp_idx_manag
             end
 
             %% base element info
-            display@nm_element(obj)
+            display@mp.nm_element(obj)
             fprintf('\n');
 
             %% nodes and states

@@ -1,4 +1,4 @@
-classdef (Abstract) nme_buslink < nm_element %& mp.form_ac
+classdef (Abstract) nme_buslink < mp.nm_element %& mp.form_ac
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
@@ -37,7 +37,7 @@ classdef (Abstract) nme_buslink < nm_element %& mp.form_ac
         end
 
         function obj = build_params(obj, nm, dm)
-            build_params@nm_element(obj, nm, dm);   %% call parent
+            build_params@mp.nm_element(obj, nm, dm);    %% call parent
             I = (dm.base_kva / dm.base_mva / 1000) * speye(obj.nk);
             obj.N = [ repmat(I, 1, obj.nz);
                      -speye(obj.nk * obj.nz) ];

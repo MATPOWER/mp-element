@@ -1,5 +1,5 @@
 function obj = t_nm_element(quiet, out_ac)
-%T_NM_ELEMENT  Tests for NM_ELEMENT.
+%T_NM_ELEMENT  Tests for MP.NM_ELEMENT.
 
 %   MATPOWER
 %   Copyright (c) 2019-2022, Power Systems Engineering Research Center (PSERC)
