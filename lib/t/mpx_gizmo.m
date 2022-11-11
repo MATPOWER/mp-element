@@ -21,7 +21,7 @@ classdef mpx_gizmo < mp_extension
         end
 
         function dm_elements = dm_element_classes(obj, dm_class, task_tag, mpopt)
-            dm_elements = { @dme_gizmo };
+            dm_elements = { @mp.dme_gizmo };
         end
     end     %% methods
 end         %% classdef

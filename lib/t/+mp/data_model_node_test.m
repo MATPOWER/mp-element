@@ -18,8 +18,8 @@ classdef data_model_node_test < mp.data_model
             %% call parent constructor
             obj@mp.data_model();
             obj.element_classes = ...
-                { @dme_bus_nld_node_test, @dme_bus_ld_node_test, ...
-                    @dme_gen_node_test, @dme_branch_node_test };
+                { @mp.dme_bus_nld_node_test, @mp.dme_bus_ld_node_test, ...
+                    @mp.dme_gen_node_test, @mp.dme_branch_node_test };
         end
     end     %% methods
 end         %% classdef

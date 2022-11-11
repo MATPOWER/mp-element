@@ -61,12 +61,12 @@ t_ok(isa(dmce, 'mp.dmc_element'), [t 'class']);
 t_is(dmce.use_r, 0, 12, [t 'dmce.use_r == 0']);
 
 t = sprintf('%s : dme : ', k);
-dme = dme_test_widget();
+dme = mp.dme_test_widget();
 t_ok(isa(dme, 'mp.dm_element'), [t 'class']);
 t_ok(isempty(dme.tab), [t 'dme.tab empty']);
 
 t = sprintf('%s : import(dme, d) : ', k);
-dme = dmce.import(dme_test_widget(), d0);
+dme = dmce.import(mp.dme_test_widget(), d0);
 t_ok(~isempty(dme.tab), [t 'dme.tab not empty']);
 t_ok(isequal(dme.tab, tab0), [t 'dme.tab']);
 
@@ -79,7 +79,7 @@ t_ok(isequal(d, ed), [t 'd']);
 t = sprintf('%s : import(dme, d, var_names) : ', k);
 d = d0; d.foo = d0.foo(:, end:-1:1);    %% reverse columns
 tab = tab0; tmp = tab.alpha; tab.alpha = tab.epsilon; tab.epsilon = tmp;
-dme = dmce.import(dme_test_widget(), d0);
+dme = dmce.import(mp.dme_test_widget(), d0);
 dme = dmce.import(dme, d, {'alpha', 'epsilon'});
 t_ok(isequal(dme.tab, tab), [t 'dme.tab']);
 
@@ -94,7 +94,7 @@ t_ok(isequal(d, ed), [t 'd']);
 t = sprintf('%s : import(dme, d, var_names, <scalar>) : ', k);
 d = d0; d.foo = d0.foo(:, end:-1:1);    %% reverse columns
 tab = tab0; tmp = tab.alpha(ridx1); tab.alpha(ridx1) = tab.epsilon(ridx1); tab.epsilon(ridx1) = tmp;
-dme = dmce.import(dme_test_widget(), d0);
+dme = dmce.import(mp.dme_test_widget(), d0);
 dme = dmce.import(dme, d, {'alpha', 'epsilon'}, ridx1);
 t_ok(isequal(dme.tab, tab), [t 'dme.tab']);
 
@@ -109,7 +109,7 @@ t_ok(isequal(d, ed), [t 'd']);
 t = sprintf('%s : import(dme, d, var_names, <vector>) : ', k);
 d = d0; d.foo = d0.foo(:, end:-1:1);    %% reverse columns
 tab = tab0; tmp = tab.alpha(ridx2); tab.alpha(ridx2) = tab.epsilon(ridx2); tab.epsilon(ridx2) = tmp;
-dme = dmce.import(dme_test_widget(), d0);
+dme = dmce.import(mp.dme_test_widget(), d0);
 dme = dmce.import(dme, d, {'alpha', 'epsilon'}, ridx2);
 t_ok(isequal(dme.tab, tab), [t 'dme.tab']);
 
@@ -130,7 +130,7 @@ t_ok(isa(dmce, 'mp.dmc_element'), [t 'class']);
 t_is(dmce.use_r, 1, 12, [t 'dmce.use_r == 1']);
 
 t = sprintf('%s : import(dme, d) : ', k);
-dme = dmce.import(dme_test_widget(), d0);
+dme = dmce.import(mp.dme_test_widget(), d0);
 t_ok(~isempty(dme.tab), [t 'dme.tab not empty']);
 t_ok(isequal(dme.tab, tab1), [t 'dme.tab']);
 
@@ -150,7 +150,7 @@ tmp = tab.alpha;
 tab.alpha = tab.gamma / 2;
 tab.gamma = tmp * 2;
 tab.name = baz(r, 1);
-dme = dmce.import(dme_test_widget(), d0);
+dme = dmce.import(mp.dme_test_widget(), d0);
 dme = dmce.import(dme, d, {'alpha', 'name', 'gamma'});
 t_ok(isequal(dme.tab, tab), [t 'dme.tab']);
 
@@ -172,7 +172,7 @@ tmp = tab.alpha(ridx1);
 tab.alpha(ridx1) = tab.gamma(ridx1) / 2;
 tab.gamma(ridx1) = tmp * 2;
 tab.name(ridx1) = baz(r(ridx1), 1);
-dme = dmce.import(dme_test_widget(), d0);
+dme = dmce.import(mp.dme_test_widget(), d0);
 dme = dmce.import(dme, d, {'alpha', 'name', 'gamma'}, ridx1);
 t_ok(isequal(dme.tab, tab), [t 'dme.tab']);
 
@@ -194,7 +194,7 @@ tmp = tab.alpha(ridx2);
 tab.alpha(ridx2) = tab.gamma(ridx2) / 2;
 tab.gamma(ridx2) = tmp * 2;
 tab.name(ridx2) = baz(r(ridx2), 1);
-dme = dmce.import(dme_test_widget(), d0);
+dme = dmce.import(mp.dme_test_widget(), d0);
 dme = dmce.import(dme, d, {'alpha', 'name', 'gamma'}, ridx2);
 t_ok(isequal(dme.tab, tab), [t 'dme.tab']);
 

@@ -26,8 +26,8 @@ classdef data_model < mp.element_container
             %% call parent constructor
             obj@mp.element_container();
             obj.element_classes = ...
-                { @dme_bus, @dme_gen, @dme_load, ...
-                    @dme_branch, @dme_shunt };
+                { @mp.dme_bus, @mp.dme_gen, @mp.dme_load, ...
+                    @mp.dme_branch, @mp.dme_shunt };
         end
 
         function new_obj = copy(obj)

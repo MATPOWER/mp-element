@@ -67,7 +67,7 @@ for k = 1:nt
     t_is(dm.elements.name2idx('shunt'), 5, 12, [t 'dm.elements.name2idx(''shunt'')']);
 
     bus = dm.elements.bus;
-    t_ok(isa(bus, 'dme_bus'), [t 'bus class']);
+    t_ok(isa(bus, 'mp.dme_bus'), [t 'bus class']);
     t_ok(isa(bus, 'mp.dm_element'), [t 'bus isa mp.dm_element']);
     t_ok(strcmp(bus.name, 'bus'), [t 'bus.name']);
     t_is(bus.nr, 10, 12, [t 'bus.nr']);
@@ -79,7 +79,7 @@ for k = 1:nt
     t_is(bus.off, 6, 12, [t 'bus.off']);
 
     gen = dm.elements.gen;
-    t_ok(isa(gen, 'dme_gen'), [t 'gen class']);
+    t_ok(isa(gen, 'mp.dme_gen'), [t 'gen class']);
     t_ok(isa(gen, 'mp.dm_element'), [t 'gen isa mp.dm_element']);
     t_ok(strcmp(gen.name, 'gen'), [t 'gen.name']);
     t_is(gen.nr, 4, 12, [t 'gen.nr']);
@@ -91,7 +91,7 @@ for k = 1:nt
     t_is(gen.off, 3, 12, [t 'gen.off']);
 
     ld = dm.elements.load;
-    t_ok(isa(ld, 'dme_load'), [t 'load class']);
+    t_ok(isa(ld, 'mp.dme_load'), [t 'load class']);
     t_ok(isa(ld, 'mp.dm_element'), [t 'ld isa mp.dm_element']);
     t_ok(strcmp(ld.name, 'load'), [t 'ld.name']);
     t_is(ld.nr, 3, 12, [t 'ld.nr']);
@@ -103,7 +103,7 @@ for k = 1:nt
     t_ok(isempty(ld.off), [t 'ld.off']);
 
     branch = dm.elements.branch;
-    t_ok(isa(branch, 'dme_branch'), [t 'branch class']);
+    t_ok(isa(branch, 'mp.dme_branch'), [t 'branch class']);
     t_ok(isa(branch, 'mp.dm_element'), [t 'branch isa mp.dm_element']);
     t_ok(strcmp(branch.name, 'branch'), [t 'branch.name']);
     t_is(branch.nr, 10, 12, [t 'branch.nr']);
@@ -115,7 +115,7 @@ for k = 1:nt
     t_is(branch.off, 7, 12, [t 'branch.off']);
 
     shunt = dm.elements.shunt;
-    t_ok(isa(shunt, 'dme_shunt'), [t 'shunt class']);
+    t_ok(isa(shunt, 'mp.dme_shunt'), [t 'shunt class']);
     t_ok(isa(shunt, 'mp.dm_element'), [t 'shunt isa mp.dm_element']);
     t_ok(strcmp(shunt.name, 'shunt'), [t 'shunt.name']);
     t_is(shunt.nr, 2, 12, [t 'shunt.nr']);
@@ -129,10 +129,10 @@ end
 
 t = 'modify_element_classes : ';
 dm = mp.data_model;
-e = {@dme_bus, @dme_gen, @dme_load, @dme_branch, @dme_shunt};
+e = {@mp.dme_bus, @mp.dme_gen, @mp.dme_load, @mp.dme_branch, @mp.dme_shunt};
 t_ok(isequal(dm.element_classes, e), [t 'before']);
-dm.modify_element_classes({'dme_shunt', @dme_gizmo, {@dme_gen, 'dme_gen'}});
-e = {@dme_bus, @dme_gen, @dme_load, @dme_branch, @dme_gizmo};
+dm.modify_element_classes({'mp.dme_shunt', @mp.dme_gizmo, {@mp.dme_gen, 'mp.dme_gen'}});
+e = {@mp.dme_bus, @mp.dme_gen, @mp.dme_load, @mp.dme_branch, @mp.dme_gizmo};
 t_ok(isequal(dm.element_classes, e), [t 'after']);
 
 t_end;

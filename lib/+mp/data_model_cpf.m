@@ -18,8 +18,8 @@ classdef data_model_cpf < mp.data_model
             %% call parent constructor
             obj@mp.data_model();
             obj.element_classes = ...
-                { @dme_bus, @dme_gen, @dme_load_cpf, ...
-                    @dme_branch, @dme_shunt_cpf };
+                { @mp.dme_bus, @mp.dme_gen, @mp.dme_load_cpf, ...
+                    @mp.dme_branch, @mp.dme_shunt_cpf };
         end
     end     %% methods
 end         %% classdef

@@ -18,8 +18,8 @@ classdef data_model_opf < mp.data_model
             %% call parent constructor
             obj@mp.data_model();
             obj.element_classes = ...
-                { @dme_bus_opf, @dme_gen_opf, @dme_load_opf, ...
-                    @dme_branch_opf, @dme_shunt_opf };
+                { @mp.dme_bus_opf, @mp.dme_gen_opf, @mp.dme_load_opf, ...
+                    @mp.dme_branch_opf, @mp.dme_shunt_opf };
         end
 
         function [out, add] = pp_flags(obj, mpopt)
