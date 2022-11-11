@@ -1,5 +1,5 @@
-classdef dmce_reserve_zone_mpc2 < mp.dmc_element % & dmce_reserves
-%DMCE_RESERVE_ZONE_MPC2  Data model converter for reserve zones for MATPOWER case v2.
+classdef dmce_reserve_zone_mpc2 < mp.dmc_element % & mp.dmce_reserves
+%MP.DMCE_RESERVE_ZONE_MPC2  Data model converter for reserve zones for MATPOWER case v2.
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)

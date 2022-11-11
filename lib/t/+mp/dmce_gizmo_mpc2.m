@@ -1,5 +1,5 @@
-classdef dmce_gizmo_mpc2 < mp.dmc_element % & dmce_gizmo
-%DMCE_GIZMO_MPC2  Data model converter for gizmo elements for MATPOWER case v2.
+classdef dmce_gizmo_mpc2 < mp.dmc_element % & mp.dmce_gizmo
+%MP.DMCE_GIZMO_MPC2  Data model converter for gizmo elements for MATPOWER case v2.
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

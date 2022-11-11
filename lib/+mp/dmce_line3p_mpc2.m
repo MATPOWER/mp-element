@@ -1,5 +1,5 @@
-classdef dmce_line3p_mpc2 < mp.dmc_element % & dmce_line3p
-%DMCE_LINE3P_MPC2  Data model converter for 3-phase line elements for MATPOWER case v2.
+classdef dmce_line3p_mpc2 < mp.dmc_element % & mp.dmce_line3p
+%MP.DMCE_LINE3P_MPC2  Data model converter for 3-phase line elements for MATPOWER case v2.
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

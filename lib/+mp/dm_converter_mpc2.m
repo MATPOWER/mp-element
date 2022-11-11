@@ -18,8 +18,8 @@ classdef dm_converter_mpc2 < mp.dm_converter
             %% call parent constructor
             obj@mp.dm_converter();
             obj.element_classes = ...
-                { @dmce_bus_mpc2, @dmce_gen_mpc2, @dmce_load_mpc2, ...
-                    @dmce_branch_mpc2, @dmce_shunt_mpc2 };
+                { @mp.dmce_bus_mpc2, @mp.dmce_gen_mpc2, @mp.dmce_load_mpc2, ...
+                    @mp.dmce_branch_mpc2, @mp.dmce_shunt_mpc2 };
         end
 
         function tag = format_tag(obj)

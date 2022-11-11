@@ -1,5 +1,5 @@
-classdef dmce_gen3p_mpc2 < mp.dmc_element % & dmce_gen3p
-%DMCE_GEN3P_MPC2  Data model converter for 3-phase gen elements for MATPOWER case v2.
+classdef dmce_gen3p_mpc2 < mp.dmc_element % & mp.dmce_gen3p
+%MP.DMCE_GEN3P_MPC2  Data model converter for 3-phase gen elements for MATPOWER case v2.
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

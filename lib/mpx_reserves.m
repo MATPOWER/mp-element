@@ -15,8 +15,8 @@ classdef mpx_reserves < mp_extension
         function dmc_elements = dmc_element_classes(obj, dmc_class, fmt, mpopt)
             switch fmt
                 case 'mpc2'
-                    dmc_elements = { @dmce_reserve_gen_mpc2, ...
-                                     @dmce_reserve_zone_mpc2 };
+                    dmc_elements = { @mp.dmce_reserve_gen_mpc2, ...
+                                     @mp.dmce_reserve_zone_mpc2 };
                 otherwise
                     dmc_elements = {};      %% no modifications
             end

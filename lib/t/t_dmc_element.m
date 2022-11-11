@@ -56,7 +56,7 @@ t_begin(24, quiet);
 %% 1 - dme table rows correspond to original data rows
 k = 'A';
 t = sprintf('%s : dmce : ', k);
-dmce = dmce_test_widget();
+dmce = mp.dmce_test_widget();
 t_ok(isa(dmce, 'mp.dmc_element'), [t 'class']);
 t_is(dmce.use_r, 0, 12, [t 'dmce.use_r == 0']);
 
@@ -124,7 +124,7 @@ t_ok(isequal(d, ed), [t 'd']);
 %% 2 - dme table has r for indexing original data rows
 k = 'B';
 t = sprintf('%s : dmce : ', k);
-dmce = dmce_test_widget();
+dmce = mp.dmce_test_widget();
 dmce.use_r = 1;
 t_ok(isa(dmce, 'mp.dmc_element'), [t 'class']);
 t_is(dmce.use_r, 1, 12, [t 'dmce.use_r == 1']);

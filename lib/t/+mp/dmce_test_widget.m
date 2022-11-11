@@ -1,5 +1,5 @@
 classdef dmce_test_widget < mp.dmc_element
-%DMCE_TEST_WIDGET  Data model converter for test widget element
+%MP.DMCE_TEST_WIDGET  Data model converter for test widget element
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)

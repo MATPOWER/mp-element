@@ -1,5 +1,5 @@
-classdef dmce_bus_mpc2 < mp.dmc_element % & dmce_bus
-%DMCE_BUS_MPC2  Data model converter for bus elements for MATPOWER case v2.
+classdef dmce_bus_mpc2 < mp.dmc_element % & mp.dmce_bus
+%MP.DMCE_BUS_MPC2  Data model converter for bus elements for MATPOWER case v2.
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

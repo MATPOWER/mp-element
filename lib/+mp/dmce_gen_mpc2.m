@@ -1,5 +1,5 @@
-classdef dmce_gen_mpc2 < mp.dmc_element % & dmce_gen
-%DMCE_GEN_MPC2  Data model converter for gen elements for MATPOWER case v2.
+classdef dmce_gen_mpc2 < mp.dmc_element % & mp.dmce_gen
+%MP.DMCE_GEN_MPC2  Data model converter for gen elements for MATPOWER case v2.
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)

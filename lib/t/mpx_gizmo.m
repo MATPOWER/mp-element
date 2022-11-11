@@ -17,7 +17,7 @@ classdef mpx_gizmo < mp_extension
         end
 
         function dmc_elements = dmc_element_classes(obj, dmc_class, fmt, mpopt)
-            dmc_elements = { @dmce_gizmo_mpc2 };
+            dmc_elements = { @mp.dmce_gizmo_mpc2 };
         end
 
         function dm_elements = dm_element_classes(obj, dm_class, task_tag, mpopt)

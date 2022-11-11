@@ -1,5 +1,5 @@
-classdef dmce_bus_ld_mpc2_node_test < dmce_bus_nld_mpc2_node_test % & dmce_bus
-%DMCE_BUS_LD_MPC2_NODE_TEST  Data model converter for bus elements for MATPOWER case v2.
+classdef dmce_bus_ld_mpc2_node_test < mp.dmce_bus_nld_mpc2_node_test % & mp.dmce_bus
+%MP.DMCE_BUS_LD_MPC2_NODE_TEST  Data model converter for bus elements for MATPOWER case v2.
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
@@ -30,7 +30,7 @@ classdef dmce_bus_ld_mpc2_node_test < dmce_bus_nld_mpc2_node_test % & dmce_bus
         end
 
         function vmap = table_var_map(obj, dme, mpc)
-            vmap = table_var_map@dmce_bus_nld_mpc2_node_test(obj, dme, mpc);
+            vmap = table_var_map@mp.dmce_bus_nld_mpc2_node_test(obj, dme, mpc);
 
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...

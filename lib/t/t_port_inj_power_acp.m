@@ -34,7 +34,7 @@ end
 
 casefile = 't_case9_gizmo';
 mpopt = mpoption('out.all', 0, 'verbose', 0);
-dmc = mp.dm_converter_mpc2().modify_element_classes(@dmce_gizmo_mpc2).build();
+dmc = mp.dm_converter_mpc2().modify_element_classes(@mp.dmce_gizmo_mpc2).build();
 
 for c = 1:length(tc)
     %% create network model object

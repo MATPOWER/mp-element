@@ -1,5 +1,5 @@
-classdef dmce_branch_mpc2 < mp.dmc_element % & dmce_branch
-%DMCE_BRANCH_MPC2  Data model converter for branch elements for MATPOWER case v2.
+classdef dmce_branch_mpc2 < mp.dmc_element % & mp.dmce_branch
+%MP.DMCE_BRANCH_MPC2  Data model converter for branch elements for MATPOWER case v2.
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
