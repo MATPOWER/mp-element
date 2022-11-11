@@ -1,4 +1,4 @@
-classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
+classdef dmce_gen_mpc2 < mp.dmc_element % & dmce_gen
 %DMCE_GEN_MPC2  Data model converter for gen elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -24,7 +24,7 @@ classdef dmce_gen_mpc2 < dmc_element % & dmce_gen
         end
 
         function vmap = table_var_map(obj, dme, mpc)
-            vmap = table_var_map@dmc_element(obj, dme, mpc);
+            vmap = table_var_map@mp.dmc_element(obj, dme, mpc);
 
             %% define named indices into data matrices
             [GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN, ...

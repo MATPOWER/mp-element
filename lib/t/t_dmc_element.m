@@ -1,5 +1,5 @@
 function t_dmc_element(quiet)
-%T_DMC_ELEMENT  Tests for DMC_ELEMENT.
+%T_DMC_ELEMENT  Tests for MP.DMC_ELEMENT.
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)
@@ -57,12 +57,12 @@ t_begin(24, quiet);
 k = 'A';
 t = sprintf('%s : dmce : ', k);
 dmce = dmce_test_widget();
-t_ok(isa(dmce, 'dmc_element'), [t 'class']);
+t_ok(isa(dmce, 'mp.dmc_element'), [t 'class']);
 t_is(dmce.use_r, 0, 12, [t 'dmce.use_r == 0']);
 
 t = sprintf('%s : dme : ', k);
 dme = dme_test_widget();
-t_ok(isa(dme, 'dm_element'), [t 'class']);
+t_ok(isa(dme, 'mp.dm_element'), [t 'class']);
 t_ok(isempty(dme.tab), [t 'dme.tab empty']);
 
 t = sprintf('%s : import(dme, d) : ', k);
@@ -126,7 +126,7 @@ k = 'B';
 t = sprintf('%s : dmce : ', k);
 dmce = dmce_test_widget();
 dmce.use_r = 1;
-t_ok(isa(dmce, 'dmc_element'), [t 'class']);
+t_ok(isa(dmce, 'mp.dmc_element'), [t 'class']);
 t_is(dmce.use_r, 1, 12, [t 'dmce.use_r == 1']);
 
 t = sprintf('%s : import(dme, d) : ', k);

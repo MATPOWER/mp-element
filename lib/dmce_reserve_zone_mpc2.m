@@ -1,4 +1,4 @@
-classdef dmce_reserve_zone_mpc2 < dmc_element % & dmce_reserves
+classdef dmce_reserve_zone_mpc2 < mp.dmc_element % & dmce_reserves
 %DMCE_RESERVE_ZONE_MPC2  Data model converter for reserve zones for MATPOWER case v2.
 
 %   MATPOWER
@@ -26,7 +26,7 @@ classdef dmce_reserve_zone_mpc2 < dmc_element % & dmce_reserves
         end
 
         function vmap = table_var_map(obj, dme, mpc)
-            vmap = table_var_map@dmc_element(obj, dme, mpc);
+            vmap = table_var_map@mp.dmc_element(obj, dme, mpc);
 
             import_req_fcn   = @(a, b, c, d)import_req(a, b, c, d);
             import_zones_fcn = @(a, b, c, d)import_zones(a, b, c, d);

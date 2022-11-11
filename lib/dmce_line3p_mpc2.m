@@ -1,4 +1,4 @@
-classdef dmce_line3p_mpc2 < dmc_element % & dmce_line3p
+classdef dmce_line3p_mpc2 < mp.dmc_element % & dmce_line3p
 %DMCE_LINE3P_MPC2  Data model converter for 3-phase line elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -22,7 +22,7 @@ classdef dmce_line3p_mpc2 < dmc_element % & dmce_line3p
         end
 
         function vmap = table_var_map(obj, dme, mpc)
-            vmap = table_var_map@dmc_element(obj, dme, mpc);
+            vmap = table_var_map@mp.dmc_element(obj, dme, mpc);
 
             %% mapping for each name, default is {'col', []}
             vmap.uid{2}     = 1;
@@ -85,7 +85,7 @@ classdef dmce_line3p_mpc2 < dmc_element % & dmce_line3p
 
         function dme = import(obj, dme, mpc, varargin)
             %% call parent
-            dme = import@dmc_element(obj, dme, mpc, varargin{:});
+            dme = import@mp.dmc_element(obj, dme, mpc, varargin{:});
 
             if ~isempty(dme.tab)
                 %% system frequency

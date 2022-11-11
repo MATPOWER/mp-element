@@ -1,4 +1,4 @@
-classdef dmce_reserve_gen_mpc2 < dmc_element
+classdef dmce_reserve_gen_mpc2 < mp.dmc_element
 %DMCE_RESERVE_GEN_MPC2  Data model converter for reserve gen elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -55,7 +55,7 @@ classdef dmce_reserve_gen_mpc2 < dmc_element
         end
 
         function vmap = table_var_map(obj, dme, mpc)
-            vmap = table_var_map@dmc_element(obj, dme, mpc);
+            vmap = table_var_map@mp.dmc_element(obj, dme, mpc);
 
             import_cost_fcn = @(a, b, c, d)import_cost(a, b, c, d);
             import_qty_fcn  = @(a, b, c, d)import_qty(a, b, c, d);
@@ -133,7 +133,7 @@ classdef dmce_reserve_gen_mpc2 < dmc_element
             end
 
             %% call parent (to create dme.tab and import uid, ..., req, zone)
-            dme = import@dmc_element(obj, dme, mpc, varargin{:});
+            dme = import@mp.dmc_element(obj, dme, mpc, varargin{:});
         end
     end     %% methods
 end         %% classdef

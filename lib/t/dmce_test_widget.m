@@ -1,4 +1,4 @@
-classdef dmce_test_widget < dmc_element
+classdef dmce_test_widget < mp.dmc_element
 %DMCE_TEST_WIDGET  Data model converter for test widget element
 
 %   MATPOWER
@@ -23,7 +23,7 @@ classdef dmce_test_widget < dmc_element
         end
 
         function [nr, nc, r] = get_import_size(obj, d)
-            [nr, nc, r] = get_import_size@dmc_element(obj, d);
+            [nr, nc, r] = get_import_size@mp.dmc_element(obj, d);
             if obj.use_r
                 r = find(d.foo(:, 6) ~= 0);
                 nr = length(r);
@@ -31,7 +31,7 @@ classdef dmce_test_widget < dmc_element
         end
 
         function [nr, nc, r] = get_export_size(obj, dme)
-            [nr, nc, r] = get_export_size@dmc_element(obj, dme);
+            [nr, nc, r] = get_export_size@mp.dmc_element(obj, dme);
             if obj.use_r
                 r = dme.tab.source_uid;
                 nr = length(r);
@@ -39,7 +39,7 @@ classdef dmce_test_widget < dmc_element
         end
 
         function vmap = table_var_map(obj, dme, d)
-            vmap = table_var_map@dmc_element(obj, dme, d);
+            vmap = table_var_map@mp.dmc_element(obj, dme, d);
 
             if obj.use_r
                 src = {'r'};
@@ -65,7 +65,7 @@ classdef dmce_test_widget < dmc_element
         end
 
         function d = init_export_data(obj, dme, d, spec)
-            d = init_export_data@dmc_element(obj, dme, d, spec);
+            d = init_export_data@mp.dmc_element(obj, dme, d, spec);
             if ~isfield(d, 'bar') || ~isfield(d.bar, 'baz')
                 nr = obj.default_export_data_nrows(spec);
                 d.bar.baz = cell(nr, 2);

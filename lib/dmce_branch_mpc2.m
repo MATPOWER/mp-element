@@ -1,4 +1,4 @@
-classdef dmce_branch_mpc2 < dmc_element % & dmce_branch
+classdef dmce_branch_mpc2 < mp.dmc_element % & dmce_branch
 %DMCE_BRANCH_MPC2  Data model converter for branch elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -22,7 +22,7 @@ classdef dmce_branch_mpc2 < dmc_element % & dmce_branch
         end
 
         function vmap = table_var_map(obj, dme, mpc)
-            vmap = table_var_map@dmc_element(obj, dme, mpc);
+            vmap = table_var_map@mp.dmc_element(obj, dme, mpc);
 
             %% define named indices into data matrices
             [F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, ...

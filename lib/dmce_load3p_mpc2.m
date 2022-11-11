@@ -1,4 +1,4 @@
-classdef dmce_load3p_mpc2 < dmc_element % & dmce_load3p
+classdef dmce_load3p_mpc2 < mp.dmc_element % & dmce_load3p
 %DMCE_LOAD3P_MPC2  Data model converter for 3-phase load elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -23,7 +23,7 @@ classdef dmce_load3p_mpc2 < dmc_element % & dmce_load3p
         end
 
         function vmap = table_var_map(obj, dme, mpc)
-            vmap = table_var_map@dmc_element(obj, dme, mpc);
+            vmap = table_var_map@mp.dmc_element(obj, dme, mpc);
 
             %% mapping for each name, default is {'col', []}
             vmap.uid{2}     = 1;

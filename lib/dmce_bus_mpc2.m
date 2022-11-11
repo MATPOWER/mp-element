@@ -1,4 +1,4 @@
-classdef dmce_bus_mpc2 < dmc_element % & dmce_bus
+classdef dmce_bus_mpc2 < mp.dmc_element % & dmce_bus
 %DMCE_BUS_MPC2  Data model converter for bus elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -22,7 +22,7 @@ classdef dmce_bus_mpc2 < dmc_element % & dmce_bus
         end
 
         function vmap = table_var_map(obj, dme, mpc)
-            vmap = table_var_map@dmc_element(obj, dme, mpc);
+            vmap = table_var_map@mp.dmc_element(obj, dme, mpc);
 
             %% define named indices into data matrices
             [PQ, PV, REF, NONE, BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, ...
@@ -54,7 +54,7 @@ classdef dmce_bus_mpc2 < dmc_element % & dmce_bus
         end
 
         function d = init_export_data(obj, dme, d, spec)
-            d = init_export_data@dmc_element(obj, dme, d, spec);    %% call parent
+            d = init_export_data@mp.dmc_element(obj, dme, d, spec); %% call parent
             if ~all(cellfun(@isempty, dme.tab.name))
                 d.bus_name = cell(spec.nr, 1);
                 [d.bus_name{:}] = deal('');

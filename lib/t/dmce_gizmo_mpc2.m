@@ -1,4 +1,4 @@
-classdef dmce_gizmo_mpc2 < dmc_element % & dmce_gizmo
+classdef dmce_gizmo_mpc2 < mp.dmc_element % & dmce_gizmo
 %DMCE_GIZMO_MPC2  Data model converter for gizmo elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -22,7 +22,7 @@ classdef dmce_gizmo_mpc2 < dmc_element % & dmce_gizmo
         end
 
         function vmap = table_var_map(obj, dme, mpc)
-            vmap = table_var_map@dmc_element(obj, dme, mpc);
+            vmap = table_var_map@mp.dmc_element(obj, dme, mpc);
 
             %% mapping for each name, default is {'col', []}
             vmap.uid        = {'IDs'};      %% consecutive IDs, starting at 1

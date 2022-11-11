@@ -1,4 +1,4 @@
-classdef dmce_gen3p_mpc2 < dmc_element % & dmce_gen3p
+classdef dmce_gen3p_mpc2 < mp.dmc_element % & dmce_gen3p
 %DMCE_GEN3P_MPC2  Data model converter for 3-phase gen elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -22,7 +22,7 @@ classdef dmce_gen3p_mpc2 < dmc_element % & dmce_gen3p
         end
 
         function vmap = table_var_map(obj, dme, mpc)
-            vmap = table_var_map@dmc_element(obj, dme, mpc);
+            vmap = table_var_map@mp.dmc_element(obj, dme, mpc);
 
             %% mapping for each name, default is {'col', []}
             vmap.uid{2}             = 1;

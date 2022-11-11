@@ -1,4 +1,4 @@
-classdef dmce_bus3p_mpc2 < dmc_element % & dmce_bus3p
+classdef dmce_bus3p_mpc2 < mp.dmc_element % & dmce_bus3p
 %DMCE_BUS3P_MPC2  Data model converter for 3-phase bus elements for MATPOWER case v2.
 
 %   MATPOWER
@@ -22,7 +22,7 @@ classdef dmce_bus3p_mpc2 < dmc_element % & dmce_bus3p
         end
 
         function vmap = table_var_map(obj, dme, mpc)
-            vmap = table_var_map@dmc_element(obj, dme, mpc);
+            vmap = table_var_map@mp.dmc_element(obj, dme, mpc);
 
             bsi_fcn = @(ob, mpc, spec, vn)bus_status_import(ob, mpc, spec, vn, 2);
 
