@@ -1,4 +1,4 @@
-classdef (Abstract) mm_shared_pfcpf_acp < mm_shared_pfcpf_ac
+classdef (Abstract) mm_shared_pfcpf_acc < mp.mm_shared_pfcpf_ac
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
@@ -15,12 +15,12 @@ classdef (Abstract) mm_shared_pfcpf_acp < mm_shared_pfcpf_ac
         function [vx_, z_, x_] = convert_x_m2n(obj, mmx, nm, only_v)
             %% x = obj.pf_convert(mmx, nm)
             %% [v, z] = obj.pf_convert(mmx, nm)
-            %% [v, z, x] = obj.pf_convert(mmx, nm)
+            %% [v, z, x] = obj.pf_convert(mmx, nm,)
             %% ... = obj.pf_convert(mmx, nm, only_v)
 
             %% update v_, z_ from mmx
             nm_vars = obj.update_nm_vars(mmx, nm);
-            vx_ = nm_vars.vm .* exp(1j * nm_vars.va);
+            vx_ = nm_vars.vr + 1j * nm_vars.vi;
             z_ = nm_vars.zr + 1j * nm_vars.zi;
 
             %% update z, if requested

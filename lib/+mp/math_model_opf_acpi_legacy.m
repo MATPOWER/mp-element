@@ -1,4 +1,4 @@
-classdef math_model_opf_acpi_legacy < mp.math_model_opf_acpi & mm_shared_opf_legacy
+classdef math_model_opf_acpi_legacy < mp.math_model_opf_acpi & mp.mm_shared_opf_legacy
 %MP.MATH_MODEL_OPF_ACPI_LEGACY  MATPOWER mathematical model for AC optimal power flow (OPF) problem.
 %   ?
 %

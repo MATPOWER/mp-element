@@ -35,7 +35,7 @@ classdef (Abstract) math_model_pf < mp.math_model
         end
 
         function obj = add_system_vars(obj, nm, dm, mpopt)
-            %% implementation in method in mm_shared_pfcpf class hierarchy
+            %% implementation in method in mp.mm_shared_pfcpf class hierarchy
             obj.add_system_vars_pf(nm, dm, mpopt);
         end
 

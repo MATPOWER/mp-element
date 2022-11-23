@@ -1,4 +1,4 @@
-classdef (Abstract) mm_shared_pfcpf_acci < mm_shared_pfcpf_acc & mm_shared_pfcpf_ac_i
+classdef (Abstract) mm_shared_pfcpf_acci < mp.mm_shared_pfcpf_acc & mp.mm_shared_pfcpf_ac_i
 
 %   MATPOWER
 %   Copyright (c) 2021-2022, Power Systems Engineering Research Center (PSERC)
@@ -14,7 +14,7 @@ classdef (Abstract) mm_shared_pfcpf_acci < mm_shared_pfcpf_acc & mm_shared_pfcpf
     methods
         function ad = build_aux_data(obj, nm, dm, mpopt)
              %% call parent
-            ad = build_aux_data@mm_shared_pfcpf_acc(obj, nm, dm, mpopt);
+            ad = build_aux_data@mp.mm_shared_pfcpf_acc(obj, nm, dm, mpopt);
 
             %% add data needed for current formulations
             ad = obj.build_aux_data_i(nm, ad);

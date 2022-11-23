@@ -1,4 +1,4 @@
-classdef math_model_opf_dc_legacy < mp.math_model_opf_dc & mm_shared_opf_legacy
+classdef math_model_opf_dc_legacy < mp.math_model_opf_dc & mp.mm_shared_opf_legacy
 %MP.MATH_MODEL_OPF_DC_LEGACY  MATPOWER mathematical model for DC optimal power flow (OPF) problem.
 %   ?
 %

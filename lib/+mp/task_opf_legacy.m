@@ -50,7 +50,7 @@ classdef task_opf_legacy < mp.task_opf & task_shared_legacy
 
         %%-----  mathematical model methods  -----
         function mm_class = math_model_class_default(obj, nm, dm, mpopt)
-            %% mm_shared_opf_legacy (compatible with opf_model) is required
+            %% mp.mm_shared_opf_legacy (compatible with opf_model) is required
             %% to support legacy cost functions and callback functions that
             %% expect to find mpc in mm.mpc.
             switch upper(mpopt.model)

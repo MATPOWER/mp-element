@@ -1,4 +1,4 @@
-classdef math_model_pf_acci < mp.math_model_pf & mm_shared_pfcpf_acci
+classdef math_model_pf_acci < mp.math_model_pf & mp.mm_shared_pfcpf_acci
 %MP.MATH_MODEL_PF_ACCI  MATPOWER mathematical model for AC power flow (PF) problem.
 %   ?
 %

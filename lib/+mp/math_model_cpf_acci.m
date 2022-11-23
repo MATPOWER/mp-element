@@ -1,4 +1,4 @@
-classdef math_model_cpf_acci < mp.math_model_cpf_acc & mm_shared_pfcpf_acci
+classdef math_model_cpf_acci < mp.math_model_cpf_acc & mp.mm_shared_pfcpf_acci
 %MP.MATH_MODEL_CPF_ACCI  MATPOWER mathematical model for continuation power flow (CPF) problem.
 %   ?
 %
