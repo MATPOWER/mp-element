@@ -86,13 +86,13 @@ classdef dme_buslink < mp.dm_element
             %% check for at least one PQ bus per buslink
             type1 = dm.elements.bus.tab.type(obj.bus);
             type3 = dm.elements.bus3p.tab.type(obj.bus3p);
-            if any(type1 ~= NODE_TYPE.PQ & type3 ~= NODE_TYPE.PQ)
+            if any(type1 ~= mp.NODE_TYPE.PQ & type3 ~= mp.NODE_TYPE.PQ)
                 error('mp.dme_buslink/build_params: at lease one of the buses linked by a buslink must be of type PQ');
             end
 
             %% check for balanced voltage magnitudes for REF and PV buses
             %% on 3-phase side
-            refpv = (type3 == NODE_TYPE.REF | type3 == NODE_TYPE.PV);
+            refpv = (type3 == mp.NODE_TYPE.REF | type3 == mp.NODE_TYPE.PV);
             vm1_ref_pv = dm.elements.bus3p.tab.vm1(obj.bus3p(refpv));
             vm2_ref_pv = dm.elements.bus3p.tab.vm2(obj.bus3p(refpv));
             vm3_ref_pv = dm.elements.bus3p.tab.vm3(obj.bus3p(refpv));

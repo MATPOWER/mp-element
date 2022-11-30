@@ -1,10 +1,10 @@
 classdef (Sealed) NODE_TYPE
-%NODE_TYPE  Defines enumerated type for node types.
+%mp.NODE_TYPE  Defines enumerated type for node types.
 %
-%   NODE_TYPE.PQ = 1
-%   NODE_TYPE.PV = 2
-%   NODE_TYPE.REF = 3
-%   NODE_TYPE.NONE = 4
+%   mp.NODE_TYPE.PQ = 1
+%   mp.NODE_TYPE.PV = 2
+%   mp.NODE_TYPE.REF = 3
+%   mp.NODE_TYPE.NONE = 4
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -28,20 +28,20 @@ classdef (Sealed) NODE_TYPE
 
     methods (Static)
 %         function TorF = is_pq(val)
-%             TorF = val == NODE_TYPE.PQ;
+%             TorF = val == mp.NODE_TYPE.PQ;
 %         end
 % 
 %         function TorF = is_pv(val)
-%             TorF = val == NODE_TYPE.PV;
+%             TorF = val == mp.NODE_TYPE.PV;
 %         end
 % 
 %         function TorF = is_ref(val)
-%             TorF = val == NODE_TYPE.REF;
+%             TorF = val == mp.NODE_TYPE.REF;
 %         end
 
         function TorF = is_valid(val)
-            TorF = val == NODE_TYPE.PQ  | val == NODE_TYPE.PV | ...
-                   val == NODE_TYPE.REF | val == NODE_TYPE.NONE;
+            TorF = val == mp.NODE_TYPE.PQ  | val == mp.NODE_TYPE.PV | ...
+                   val == mp.NODE_TYPE.REF | val == mp.NODE_TYPE.NONE;
         end
     end
 end

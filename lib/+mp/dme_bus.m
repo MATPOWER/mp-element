@@ -45,7 +45,7 @@ classdef dme_bus < mp.dm_element
 
             %% check that all buses have a valid type
             bt = obj.tab.type;
-            err = find(~NODE_TYPE.is_valid(bt));
+            err = find(~mp.NODE_TYPE.is_valid(bt));
             if ~isempty(err)
                 error('mp.dme_bus/init_status: bus %d has an invalid type', err);
             end
@@ -53,7 +53,7 @@ classdef dme_bus < mp.dm_element
             %% temporarily set bus type property with dimensions for all buses
             %% (reduced for online buses only in update_status())
             obj.type = bt;
-            status = (bt ~= NODE_TYPE.NONE);    %% bus status
+            status = (bt ~= mp.NODE_TYPE.NONE);     %% bus status
             obj.tab.status = status;
         end
 
@@ -76,7 +76,7 @@ classdef dme_bus < mp.dm_element
 
             %% pull PV bus voltage magnitudes from gen.vm_setpoint
             vcb = ones(obj.n, 1);   %% create mask of voltage-controlled buses
-            vcb(obj.type == NODE_TYPE.PQ) = 0;  %% exclude PQ buses
+            vcb(obj.type == mp.NODE_TYPE.PQ) = 0;   %% exclude PQ buses
             %% find indices of online gens at online v-c buses
             k = find(vcb(gbus));
             if isempty(ig)
@@ -105,11 +105,13 @@ classdef dme_bus < mp.dm_element
                 %% gen connection matrix, element i, j is 1 if gen j @ bus i is ON
                 Cg = sparse(gbus, (1:ng)', 1, nb, ng);
                 bus_gen_status = Cg * ones(ng, 1);  %% num of gens ON at each bus
-    %             obj.type(obj.type == NODE_TYPE.REF & ~bus_gen_status) = NODE_TYPE.PQ;
+%                obj.type(obj.type == mp.NODE_TYPE.REF & ~bus_gen_status) = ...
+%                    mp.NODE_TYPE.PQ;
                   % above line would affect OPF (not just PF, CPF) where REF is
                   % used only as angle reference and does not require an online gen
-                obj.type(obj.type == NODE_TYPE.PV & ~bus_gen_status) = NODE_TYPE.PQ;
-    %             obj.ensure_ref_bus();   %% pick a new ref bus if one does not exist
+                obj.type(obj.type == mp.NODE_TYPE.PV & ~bus_gen_status) = ...
+                    mp.NODE_TYPE.PQ;
+%                obj.ensure_ref_bus();   %% pick a new ref bus if one does not exist
 
                 obj.set_vm_start(gen_dme, gbus, ig);
             end
@@ -173,18 +175,18 @@ classdef dme_bus < mp.dm_element
         end
 
         function obj = set_bus_type_ref(obj, dm, idx)
-            obj.tab.type(obj.on(idx)) = NODE_TYPE.REF;
-            obj.type(idx) = NODE_TYPE.REF;
+            obj.tab.type(obj.on(idx)) = mp.NODE_TYPE.REF;
+            obj.type(idx) = mp.NODE_TYPE.REF;
         end
 
         function obj = set_bus_type_pv(obj, dm, idx)
-            obj.tab.type(obj.on(idx)) = NODE_TYPE.PV;
-            obj.type(idx) = NODE_TYPE.PV;
+            obj.tab.type(obj.on(idx)) = mp.NODE_TYPE.PV;
+            obj.type(idx) = mp.NODE_TYPE.PV;
         end
 
         function obj = set_bus_type_pq(obj, dm, idx)
-            obj.tab.type(obj.on(idx)) = NODE_TYPE.PQ;
-            obj.type(idx) = NODE_TYPE.PQ;
+            obj.tab.type(obj.on(idx)) = mp.NODE_TYPE.PQ;
+            obj.type(idx) = mp.NODE_TYPE.PQ;
         end
     end     %% methods
 end         %% classdef

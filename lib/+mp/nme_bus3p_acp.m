@@ -19,7 +19,7 @@ classdef nme_bus3p_acp < mp.nme_bus3p & mp.form_acp
             p = idx{1};
 
             %% prepare angle bounds for ref buses
-            ref = dme.type == NODE_TYPE.REF;
+            ref = dme.type == mp.NODE_TYPE.REF;
             va_lb = -Inf(nb, 1);
             va_ub =  Inf(nb, 1);
             vm_start = dme.(sprintf('vm%d_start', p));

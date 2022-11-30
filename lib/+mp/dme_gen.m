@@ -113,7 +113,8 @@ classdef dme_gen < mp.dm_element
                 bus_dme = dm.elements.bus;
                 %% bus types for buses with online gens
                 bt = bus_dme.type(bus_dme.i2on(obj.bus(obj.on)));
-                remaining = find( bt == NODE_TYPE.REF | bt == NODE_TYPE.PV );
+                remaining = find( bt == mp.NODE_TYPE.REF | ...
+                                  bt == mp.NODE_TYPE.PV );
 
                 if length(both) == length(remaining) && ...
                         all(both == remaining) && (isempty(mx) || isempty(mn))

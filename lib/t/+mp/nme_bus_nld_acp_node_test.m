@@ -23,7 +23,7 @@ classdef nme_bus_nld_acp_node_test < mp.nme_bus_acp
             %% prepare angle bounds for ref buses
             va_lb = -Inf(nb, 1);
             va_ub =  Inf(nb, 1);
-            k = find(dme.type == NODE_TYPE.REF);
+            k = find(dme.type == mp.NODE_TYPE.REF);
             va_lb(k) = dme.va_start(k);
             va_ub(k) = dme.va_start(k);
 

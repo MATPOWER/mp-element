@@ -25,9 +25,9 @@ classdef (Abstract) nme_bus < mp.nm_element
             %% [ref, pv, pq] = obj.node_types(nm, dm, idx)
             dme = obj.data_model_element(dm);
             if nargout > 1
-                ref = find(dme.type == NODE_TYPE.REF);  %% ref node indices
-                pv  = find(dme.type == NODE_TYPE.PV);   %% PV node indices
-                pq  = find(dme.type == NODE_TYPE.PQ);   %% PQ node indices
+                ref = find(dme.type == mp.NODE_TYPE.REF);   %% ref node indices
+                pv  = find(dme.type == mp.NODE_TYPE.PV);    %% PV node indices
+                pq  = find(dme.type == mp.NODE_TYPE.PQ);    %% PQ node indices
             else    %% ntv - node type vector
                 ref = dme.type;
             end

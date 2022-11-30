@@ -89,9 +89,9 @@ classdef task_pf < mp.task
 
                     %% convert to PQ bus
                     bus_dme = dm.elements.bus;
-                    ref0 = find(bus_dme.type == NODE_TYPE.REF);
+                    ref0 = find(bus_dme.type == mp.NODE_TYPE.REF);
                     bidx = bus_dme.i2on(gen_dme.bus(gen_dme.on(mx)));   %% bus of mx
-                    if length(ref0) > 1 && any(bus_dme.type(bidx) == NODE_TYPE.REF)
+                    if length(ref0) > 1 && any(bus_dme.type(bidx) == mp.NODE_TYPE.REF)
                         error('mp.task_pf/enforce_q_lims: Sorry, MATPOWER cannot enforce Q limits for slack buses in systems with multiple slacks.');
                     end
                     %% set bus type to PQ
@@ -102,7 +102,7 @@ classdef task_pf < mp.task
                     btv = ntv(i1:iN);                   %% bus type vector
 
                     %% indicate if there's been a change in slack bus
-                    ref = find(btv == NODE_TYPE.REF);   %% new ref bus indices
+                    ref = find(btv == mp.NODE_TYPE.REF);    %% new ref bus indices
                     if mpopt.verbose && ref ~= ref0
                         fprintf('Bus %d is new slack bus\n', ...
                             bus_dme.ID(bus_dme.on(ref)));

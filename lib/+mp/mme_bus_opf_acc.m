@@ -18,7 +18,7 @@ classdef mme_bus_opf_acc < mp.mme_bus_opf_ac
             nme = obj.network_model_element(nm);
 
             %% voltage angle reference constraint
-            ref = find(nme.node_types(nm, dm) == NODE_TYPE.REF);
+            ref = find(nme.node_types(nm, dm) == mp.NODE_TYPE.REF);
             varef = dme.va_start(ref);
             fcn_vref = @(xx)va_fcn(nme, xx, ref, varef);
             hess_vref = @(xx, lam)va_hess(nme, xx, lam, ref);

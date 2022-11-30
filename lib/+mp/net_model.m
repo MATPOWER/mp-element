@@ -712,9 +712,9 @@ classdef (Abstract) net_model < mp.nm_element & mp.element_container & mp_idx_ma
                 end
             else                %% ntv
                 ntv = ref;
-                ref = find(ntv == NODE_TYPE.REF);   %% reference node indices
+                ref = find(ntv == mp.NODE_TYPE.REF);    %% ref node indices
                 if isempty(ref)
-                    pv = find(ntv == NODE_TYPE.PV); %% PV node indices
+                    pv = find(ntv == mp.NODE_TYPE.PV);  %% PV node indices
                     if isempty(pv)
                         error('mp.net_model/ensure_ref_node: must have at least one REF or PV node');
                     end
