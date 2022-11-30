@@ -1,4 +1,4 @@
-classdef task_cpf_legacy < mp.task_cpf & task_shared_legacy
+classdef task_cpf_legacy < mp.task_cpf & mp.task_shared_legacy
 %MP.TASK_CPF_LEGACY  MATPOWER task for legacy continuation power flow (CPF).
 %   MP.TASK_CPF_LEGACY provides implementation for continuation power flow problem.
 %
