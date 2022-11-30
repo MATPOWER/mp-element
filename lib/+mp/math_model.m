@@ -55,7 +55,7 @@ classdef (Abstract) math_model < mp.element_container & opt_model
             end
 
             %% create element objects for each class with data
-            obj.elements = mp_mapped_array();
+            obj.elements = mp.mapped_array();
             for c = obj.element_classes
                 mme = c{1}();       %% element constructor
                 if dm.online(mme.name)      %% dm element exists

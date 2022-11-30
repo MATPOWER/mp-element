@@ -1,5 +1,5 @@
 function obj = t_mp_mapped_array(quiet)
-%T_MP_MAPPED_ARRAY  Tests for MP_MAPPED_ARRAY.
+%T_MP_MAPPED_ARRAY  Tests for MP.MAPPED_ARRAY.
 
 %   MATPOWER
 %   Copyright (c) 2021, Power Systems Engineering Research Center (PSERC)
@@ -23,26 +23,26 @@ end
 t_begin(69, quiet);
 
 %% set up example data
-vals = {[1;2;3], {'one','two','three'}, struct('a',10,'b',20), mp_mapped_array()};
+vals = {[1;2;3], {'one','two','three'}, struct('a',10,'b',20), mp.mapped_array()};
 names = {'vector', 'cellstr', 'struct', 'object'};
 % m0 = cell2struct(num2cell(1:4), names, 2);
 N = length(vals);
 
-t = 'A = mp_mapped_array() : ';
-A = mp_mapped_array();
-t_ok(isa(A, 'mp_mapped_array'), [t 'class']);
+t = 'A = mp.mapped_array() : ';
+A = mp.mapped_array();
+t_ok(isa(A, 'mp.mapped_array'), [t 'class']);
 t_is(length(A), 0, 12, [t 'length']);
 
-t = 'A = mp_mapped_array(vals) : ';
-A = mp_mapped_array(vals);
-t_ok(isa(A, 'mp_mapped_array'), [t 'class']);
+t = 'A = mp.mapped_array(vals) : ';
+A = mp.mapped_array(vals);
+t_ok(isa(A, 'mp.mapped_array'), [t 'class']);
 t_is(length(A), 4, 12, [t 'length']);
 t_ok(isequal(A.p_.vals, vals), [t 'vals']);
 t_ok(isequal(A.p_.names, cell(1, N)), [t 'names']);
 
-t = 'A = mp_mapped_array(vals, names) : ';
-A = mp_mapped_array(vals, names);
-t_ok(isa(A, 'mp_mapped_array'), [t 'class']);
+t = 'A = mp.mapped_array(vals, names) : ';
+A = mp.mapped_array(vals, names);
+t_ok(isa(A, 'mp.mapped_array'), [t 'class']);
 t_is(length(A), 4, 12, [t 'length']);
 t_ok(isequal(A.p_.vals, vals), [t 'vals']);
 t_ok(isequal(A.p_.names, names), [t 'names']);
@@ -100,7 +100,7 @@ A{1}(:) = [2:2:8];
 t_ok(isequal(A.vector, [2;4;6;8]), [t 'A{i}(i) = b']);
 
 t = 'delete_elements(i) : ';
-A = mp_mapped_array(vals, names);
+A = mp.mapped_array(vals, names);
 A.delete_elements(1);
 t_is(length(A), 3, 12, [t 'length']);
 t_ok(isequal(A.p_.vals, vals(2:4)), [t 'vals']);
@@ -109,7 +109,7 @@ m = struct('cellstr', 1, 'struct', 2, 'object', 3);
 t_ok(isequal(A.p_.map, m), [t 'map']);
 
 t = 'delete_elements(<name>) : ';
-A = mp_mapped_array(vals, names);
+A = mp.mapped_array(vals, names);
 A.delete_elements('cellstr');
 t_is(length(A), 3, 12, [t 'length']);
 t_ok(isequal(A.p_.vals, vals([1 3 4])), [t 'vals']);
@@ -118,7 +118,7 @@ m = struct('vector', 1, 'struct', 2, 'object', 3);
 t_ok(isequal(A.p_.map, m), [t 'map']);
 
 t = 'delete_elements(ii<vector>) : ';
-A = mp_mapped_array(vals, names);
+A = mp.mapped_array(vals, names);
 A.delete_elements([3 1]);
 t_is(length(A), 2, 12, [t 'length']);
 t_ok(isequal(A.p_.vals, vals([2 4])), [t 'vals']);
@@ -127,7 +127,7 @@ m = struct('cellstr', 1, 'object', 2);
 t_ok(isequal(A.p_.map, m), [t 'map']);
 
 t = 'delete_elements({names}) : ';
-A = mp_mapped_array(vals, names);
+A = mp.mapped_array(vals, names);
 A.delete_elements({'vector', 'object'});
 t_is(length(A), 2, 12, [t 'length']);
 t_ok(isequal(A.p_.vals, vals([2 3])), [t 'vals']);
@@ -136,7 +136,7 @@ m = struct('cellstr', 1, 'struct', 2);
 t_ok(isequal(A.p_.map, m), [t 'map']);
 
 t = 'add_elements({<single>}) : ';
-A = mp_mapped_array(vals, names);
+A = mp.mapped_array(vals, names);
 A.add_elements({{'hello', 'world'}});
 t_is(length(A), 5, 12, [t 'length']);
 t_ok(isequal(A{5}, {'hello', 'world'}), [t 'vals']);
@@ -163,8 +163,8 @@ A.add_names(5, {'hello', 'saludos', 'pi'});
 t_ok(isequal(A.p_.names(5:7), {'hello', 'saludos', 'pi'}), [t 'names']);
 
 t = 'B = A.copy() : ';
-A = mp_mapped_array(vals, names);
-A.object = mp_mapped_array(vals, names);
+A = mp.mapped_array(vals, names);
+A.object = mp.mapped_array(vals, names);
 B = A.copy();
 A.delete_elements('vector');
 A.object.cellstr{2} = 'changed';

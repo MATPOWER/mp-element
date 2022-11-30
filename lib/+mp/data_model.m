@@ -51,7 +51,7 @@ classdef data_model < mp.element_container
 
         function obj = build(obj, d, dmc)
             %% create empty element objects for each class
-            obj.elements = mp_mapped_array();
+            obj.elements = mp.mapped_array();
             for k = 1:length(obj.element_classes)
                 dme_class = obj.element_classes{k};
                 dme = dme_class();      %% element constructor

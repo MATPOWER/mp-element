@@ -19,7 +19,7 @@ classdef (Abstract) dm_converter < mp.element_container
 
         function obj = build(obj)
             %% create element objects for each class
-            obj.elements = mp_mapped_array();
+            obj.elements = mp.mapped_array();
             for c = obj.element_classes
                 dmce = c{1}();      %% element constructor
                 obj.elements.add_elements(dmce, dmce.name);

@@ -48,7 +48,7 @@ classdef (Abstract) net_model < mp.nm_element & mp.element_container & mp_idx_ma
 
             %% create element objects for each class with data
             obj.nk = 1;
-            obj.elements = mp_mapped_array();
+            obj.elements = mp.mapped_array();
             for c = obj.element_classes
                 nme = c{1}();       %% element constructor
                 if nme.count(dm)

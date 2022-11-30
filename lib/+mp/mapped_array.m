@@ -1,7 +1,7 @@
-classdef mp_mapped_array < handle
-%MP_MAPPED_ARRAY  Cell array indexed by name and numeric index.
-%   MA = MP_MAPPED_ARRAY(VALS)
-%   MA = MP_MAPPED_ARRAY(VALS, NAMES)
+classdef mapped_array < handle
+%MP.MAPPED_ARRAY  Cell array indexed by name and numeric index.
+%   MA = MP.MAPPED_ARRAY(VALS)
+%   MA = MP.MAPPED_ARRAY(VALS, NAMES)
 %
 %   Input:
 %       VALS - cell array of values to be stored
@@ -32,7 +32,7 @@ classdef mp_mapped_array < handle
     end     %% properties
 
     methods
-        function obj = mp_mapped_array(varargin)
+        function obj = mapped_array(varargin)
             if nargin
                 obj.add_elements(varargin{:});
             end
@@ -95,7 +95,7 @@ classdef mp_mapped_array < handle
             N = length(names);
             for k = 1:N
                 if isfield(obj.p_.map, names{k}) && obj.p_.map.(names{k}) ~= k
-                    error('mp_mapped_array: ''%s'' already refers to element %d', ...
+                    error('mp.mapped_array: ''%s'' already refers to element %d', ...
                         names{k}, obj.p_.map.(names{k}));
                 end
             end

@@ -52,9 +52,9 @@ for k = 1:nt
     end
     t_ok(iscell(dm.element_classes), [t 'iscell(dm.element_classes)']);
     t_is(length(dm.element_classes), 5, 12, [t 'length(dm.element_classes)']);
-    t_ok(isa(dm.elements, 'mp_mapped_array'), [t 'isa(dm.elements, ''mp_mapped_array'')']);
+    t_ok(isa(dm.elements, 'mp.mapped_array'), [t 'isa(dm.elements, ''mp.mapped_array'')']);
     t_is(length(dm.elements), 5, 12, [t 'length(dm.elements)']);
-    t_ok(isa(dm.elements, 'mp_mapped_array'), [t 'isa(dm.elements, ''mp_mapped_array'')']);
+    t_ok(isa(dm.elements, 'mp.mapped_array'), [t 'isa(dm.elements, ''mp.mapped_array'')']);
     t_ok(dm.elements.is_index_name('bus'), [t 'dm.elements.is_index_name(''bus'')']);
     t_ok(dm.elements.is_index_name('gen'), [t 'dm.elements.is_index_name(''gen'')']);
     t_ok(dm.elements.is_index_name('load'), [t 'dm.elements.is_index_name(''load'')']);
