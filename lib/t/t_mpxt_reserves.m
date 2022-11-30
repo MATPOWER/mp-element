@@ -1,5 +1,5 @@
-function t_mpx_reserves(quiet)
-%T_MPX_RESERVES  Tests MPX_RESERVES extension.
+function t_mpxt_reserves(quiet)
+%T_MPXT_RESERVES  Tests MP.XT_RESERVES extension.
 
 %   MATPOWER
 %   Copyright (c) 2009-2022, Power Systems Engineering Research Center (PSERC)
@@ -52,10 +52,10 @@ mpopt = mpoption(mpopt, 'out.lim.all', 2);
 
 t = 'run_opf(''t_case30_userfcns'', ...) : ';
 rn = fix(1e9*rand);
-fname = sprintf('pp_mpx_reserve_%d', 1);
+fname = sprintf('pp_mpxt_reserve_%d', 1);
 fname_e = fullfile(pathstr, 'pretty-printing', sprintf('%s.txt', fname));
 fname_g = sprintf('%s_%d.txt', fname, rn);
-task = run_opf(casefile, mpopt, 'mpx', mpx_reserves, 'print_fname', fname_g);
+task = run_opf(casefile, mpopt, 'mpx', mp.xt_reserves, 'print_fname', fname_g);
 rg = task.dm.elements.reserve_gen.tab;
 rz = task.dm.elements.reserve_zone.tab;
 t_ok(task.success, [t 'success']);
@@ -94,10 +94,10 @@ mpc.reserves.zones(:, 5) = 0;
 mpc.reserves.cost(5) = [];
 mpc.reserves.qty(5) = [];
 rn = fix(1e9*rand);
-fname = sprintf('pp_mpx_reserve_%d', 2);
+fname = sprintf('pp_mpxt_reserve_%d', 2);
 fname_e = fullfile(pathstr, 'pretty-printing', sprintf('%s.txt', fname));
 fname_g = sprintf('%s_%d.txt', fname, rn);
-task = run_opf(mpc, mpopt, 'mpx', mpx_reserves, 'print_fname', fname_g);
+task = run_opf(mpc, mpopt, 'mpx', mp.xt_reserves, 'print_fname', fname_g);
 rg = task.dm.elements.reserve_gen.tab;
 rz = task.dm.elements.reserve_zone.tab;
 t_ok(task.success, [t 'success']);
@@ -138,7 +138,7 @@ mpc.reserves.zones = mpc.reserves.zones(:, idx);
 mpc.reserves.cost = mpc.reserves.cost(idx);
 mpc.reserves.qty = mpc.reserves.qty(idx);
 mpc.gen(4, GEN_STATUS) = 0;
-task = run_opf(mpc, mpopt, 'mpx', mpx_reserves);
+task = run_opf(mpc, mpopt, 'mpx', mp.xt_reserves);
 rg = task.dm.elements.reserve_gen.tab;
 rz = task.dm.elements.reserve_zone.tab;
 t_ok(task.success, [t 'success']);
@@ -164,10 +164,10 @@ mpc.reserves.zones(:, 6) = 0;
 mpc.reserves.cost(6) = [];
 mpc.reserves.qty(6) = [];
 rn = fix(1e9*rand);
-fname = sprintf('pp_mpx_reserve_%d', 3);
+fname = sprintf('pp_mpxt_reserve_%d', 3);
 fname_e = fullfile(pathstr, 'pretty-printing', sprintf('%s.txt', fname));
 fname_g = sprintf('%s_%d.txt', fname, rn);
-task = run_opf(mpc, mpopt, 'mpx', mpx_reserves, 'print_fname', fname_g);
+task = run_opf(mpc, mpopt, 'mpx', mp.xt_reserves, 'print_fname', fname_g);
 rg = task.dm.elements.reserve_gen.tab;
 rz = task.dm.elements.reserve_zone.tab;
 t_ok(task.success, [t 'success']);
@@ -202,7 +202,7 @@ end
 t = 'no qty (Rmax) : ';
 mpc = loadcase(casefile);
 mpc.reserves = rmfield(mpc.reserves, 'qty');
-task = run_opf(mpc, mpopt, 'mpx', mpx_reserves);
+task = run_opf(mpc, mpopt, 'mpx', mp.xt_reserves);
 rg = task.dm.elements.reserve_gen.tab;
 rz = task.dm.elements.reserve_zone.tab;
 t_ok(task.success, [t 'success']);
@@ -219,10 +219,10 @@ mpc = loadcase(casefile);
 mpc.reserves = rmfield(mpc.reserves, 'qty');
 mpc.gen(1, RAMP_10) = 25;
 rn = fix(1e9*rand);
-fname = sprintf('pp_mpx_reserve_%d', 4);
+fname = sprintf('pp_mpxt_reserve_%d', 4);
 fname_e = fullfile(pathstr, 'pretty-printing', sprintf('%s.txt', fname));
 fname_g = sprintf('%s_%d.txt', fname, rn);
-task = run_opf(mpc, mpopt, 'mpx', mpx_reserves, 'print_fname', fname_g);
+task = run_opf(mpc, mpopt, 'mpx', mp.xt_reserves, 'print_fname', fname_g);
 rg = task.dm.elements.reserve_gen.tab;
 rz = task.dm.elements.reserve_zone.tab;
 t_ok(task.success, [t 'success']);
@@ -257,10 +257,10 @@ t = 'DC OPF : ';
 mpc = loadcase(casefile);
 mpopt = mpoption(mpopt, 'model', 'DC', 'out.sys_sum', 0);
 rn = fix(1e9*rand);
-fname = sprintf('pp_mpx_reserve_%d', 5);
+fname = sprintf('pp_mpxt_reserve_%d', 5);
 fname_e = fullfile(pathstr, 'pretty-printing', sprintf('%s.txt', fname));
 fname_g = sprintf('%s_%d.txt', fname, rn);
-task = run_opf(mpc, mpopt, 'mpx', mpx_reserves, 'print_fname', fname_g);
+task = run_opf(mpc, mpopt, 'mpx', mp.xt_reserves, 'print_fname', fname_g);
 rg = task.dm.elements.reserve_gen.tab;
 rz = task.dm.elements.reserve_zone.tab;
 t_ok(task.success, [t 'success']);

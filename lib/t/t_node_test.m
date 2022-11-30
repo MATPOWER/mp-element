@@ -28,7 +28,7 @@ mpopt = mpoption('out.all', 0, 'verbose', 0, 'pf.tol', 1e-10);
 mpopt = mpoption(mpopt, 'opf.ignore_angle_lim', 1);
 mpopt0 = mpopt;
 mpopt0.exp.mpe = 0;
-mpopt.exp.mpx = mpx_node_test();
+mpopt.exp.mpx = mp.xt_node_test();
 
 for k = 1:length(cases)
     t = sprintf('PF - %s - ', cases{k});

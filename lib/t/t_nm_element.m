@@ -559,7 +559,7 @@ warning('off', warn_id);
 % mpopt.exp.dm_element_classes = @mp.dme_gizmo;
 % mpopt.exp.network_model_class = @mp.net_model_acp_test;
 % success = pf.run(mpc, mpopt);
-success = pf.run(mpc, mpopt, {mpx_gizmo()});
+success = pf.run(mpc, mpopt, {mp.xt_gizmo()});
 warning(s1.state, warn_id);
 v_ = pf.nm.soln.v;
 success = pf.mm.soln.eflag > 0;

@@ -1,4 +1,4 @@
-classdef mpx_gizmo < mp_extension
+classdef xt_gizmo < mp.extension
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)

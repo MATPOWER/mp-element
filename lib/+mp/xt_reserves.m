@@ -1,4 +1,4 @@
-classdef mpx_reserves < mp_extension
+classdef xt_reserves < mp.extension
 
 %   MATPOWER
 %   Copyright (c) 2022, Power Systems Engineering Research Center (PSERC)
