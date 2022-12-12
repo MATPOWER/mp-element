@@ -69,7 +69,7 @@ for k = 1:nt
     bus = dm.elements.bus;
     t_ok(isa(bus, 'mp.dme_bus'), [t 'bus class']);
     t_ok(isa(bus, 'mp.dm_element'), [t 'bus isa mp.dm_element']);
-    t_ok(strcmp(bus.name, 'bus'), [t 'bus.name']);
+    t_str_match(bus.name, 'bus', [t 'bus.name']);
     t_is(bus.nr, 10, 12, [t 'bus.nr']);
     t_is(bus.n, 9, 12, [t 'bus.n']);
     t_is(bus.ID, mpc.bus(:, BUS_I), 12, [t 'bus.ID']);
@@ -81,7 +81,7 @@ for k = 1:nt
     gen = dm.elements.gen;
     t_ok(isa(gen, 'mp.dme_gen'), [t 'gen class']);
     t_ok(isa(gen, 'mp.dm_element'), [t 'gen isa mp.dm_element']);
-    t_ok(strcmp(gen.name, 'gen'), [t 'gen.name']);
+    t_str_match(gen.name, 'gen', [t 'gen.name']);
     t_is(gen.nr, 4, 12, [t 'gen.nr']);
     t_is(gen.n, 3, 12, [t 'gen.n']);
     t_is(gen.ID, [1:gen.nr]', 12, [t 'gen.ID']);
@@ -93,7 +93,7 @@ for k = 1:nt
     ld = dm.elements.load;
     t_ok(isa(ld, 'mp.dme_load'), [t 'load class']);
     t_ok(isa(ld, 'mp.dm_element'), [t 'ld isa mp.dm_element']);
-    t_ok(strcmp(ld.name, 'load'), [t 'ld.name']);
+    t_str_match(ld.name, 'load', [t 'ld.name']);
     t_is(ld.nr, 3, 12, [t 'ld.nr']);
     t_is(ld.n, 3, 12, [t 'ld.n']);
     t_is(ld.ID, [1:ld.nr]', 12, [t 'ld.ID']);
@@ -105,7 +105,7 @@ for k = 1:nt
     branch = dm.elements.branch;
     t_ok(isa(branch, 'mp.dme_branch'), [t 'branch class']);
     t_ok(isa(branch, 'mp.dm_element'), [t 'branch isa mp.dm_element']);
-    t_ok(strcmp(branch.name, 'branch'), [t 'branch.name']);
+    t_str_match(branch.name, 'branch', [t 'branch.name']);
     t_is(branch.nr, 10, 12, [t 'branch.nr']);
     t_is(branch.n, 9, 12, [t 'branch.n']);
     t_is(branch.ID, [1:branch.nr]', 12, [t 'branch.ID']);
@@ -117,7 +117,7 @@ for k = 1:nt
     shunt = dm.elements.shunt;
     t_ok(isa(shunt, 'mp.dme_shunt'), [t 'shunt class']);
     t_ok(isa(shunt, 'mp.dm_element'), [t 'shunt isa mp.dm_element']);
-    t_ok(strcmp(shunt.name, 'shunt'), [t 'shunt.name']);
+    t_str_match(shunt.name, 'shunt', [t 'shunt.name']);
     t_is(shunt.nr, 2, 12, [t 'shunt.nr']);
     t_is(shunt.n, 2, 12, [t 'shunt.n']);
     t_is(shunt.ID, [1:shunt.nr]', 12, [t 'shunt.ID']);
