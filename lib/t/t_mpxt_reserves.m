@@ -68,18 +68,10 @@ mpc = loadcase(casefile);
 t_is(rg.cost, mpc.reserves.cost, 12, [t 'cost']);
 t_is(rg.qty, mpc.reserves.qty, 12, [t 'qty']);
 t_is(sum(rg.total_cost), 177.8047, 4, [t 'totalcost']);
-got = fileread(fname_g);
-exp = fileread(fname_e);
-got = strrep(got, char([13 10]), char(10));     %% Win to Unix EOL chars
-exp = strrep(exp, char([13 10]), char(10));     %% Win to Unix EOL chars
-got = regexprep(got, ' -(0.0+) ', '  $1 ');
-exp = regexprep(exp, ' -(0.0+) ', '  $1 ');
-got = regexprep(got, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-exp = regexprep(exp, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-t_ok(strcmp(got, exp), [t 'pretty printing']);
-if strcmp(got, exp)
-    delete(fname_g);
-else
+reps = { {' -(0.0+) ', '  $1 ', 1, 1}, ...
+         {'in (.*) seconds \((.*) setup \+ (.*) solve\)', ...
+            'in 0.00 seconds (0.00 setup + 0.00 solve)', 1, 1} };
+if ~t_file_match(fname_g, fname_e, [t 'pretty printing'], reps, 1);
     fprintf('  compare these 2 files:\n    %s\n    %s\n', fname_g, fname_e);
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
@@ -109,18 +101,10 @@ t_is(rg.mu_pg_ub, [0; 0; 0; 0; 0], 7, [t 'mu.Pmax']);
 t_is(rg.cost, mpc.reserves.cost, 12, [t 'cost']);
 t_is(rg.qty, mpc.reserves.qty, 12, [t 'qty']);
 t_is(sum(rg.total_cost), 187.5, 4, [t 'totalcost']);
-got = fileread(fname_g);
-exp = fileread(fname_e);
-got = strrep(got, char([13 10]), char(10));     %% Win to Unix EOL chars
-exp = strrep(exp, char([13 10]), char(10));     %% Win to Unix EOL chars
-got = regexprep(got, ' -(0.0+) ', '  $1 ');
-exp = regexprep(exp, ' -(0.0+) ', '  $1 ');
-got = regexprep(got, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-exp = regexprep(exp, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-t_ok(strcmp(got, exp), [t 'pretty printing']);
-if strcmp(got, exp)
-    delete(fname_g);
-else
+reps = { {' -(0.0+) ', '  $1 ', 1, 1}, ...
+         {'in (.*) seconds \((.*) setup \+ (.*) solve\)', ...
+            'in 0.00 seconds (0.00 setup + 0.00 solve)', 1, 1} };
+if ~t_file_match(fname_g, fname_e, [t 'pretty printing'], reps, 1);
     fprintf('  compare these 2 files:\n    %s\n    %s\n', fname_g, fname_e);
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
@@ -179,18 +163,10 @@ t_is(rg.mu_pg_ub, [0; 0; 0; 0; 0; 0], 7, [t 'mu.Pmax']);
 t_is(rg.cost, mpc.reserves.cost, 12, [t 'cost']);
 t_is(rg.qty, mpc.reserves.qty, 12, [t 'qty']);
 t_is(sum(rg.total_cost), 187.5, 4, [t 'totalcost']);
-got = fileread(fname_g);
-exp = fileread(fname_e);
-got = strrep(got, char([13 10]), char(10));     %% Win to Unix EOL chars
-exp = strrep(exp, char([13 10]), char(10));     %% Win to Unix EOL chars
-got = regexprep(got, ' -(0.0+) ', '  $1 ');
-exp = regexprep(exp, ' -(0.0+) ', '  $1 ');
-got = regexprep(got, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-exp = regexprep(exp, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-t_ok(strcmp(got, exp), [t 'pretty printing']);
-if strcmp(got, exp)
-    delete(fname_g);
-else
+reps = { {' -(0.0+) ', '  $1 ', 1, 1}, ...
+         {'in (.*) seconds \((.*) setup \+ (.*) solve\)', ...
+            'in 0.00 seconds (0.00 setup + 0.00 solve)', 1, 1} };
+if ~t_file_match(fname_g, fname_e, [t 'pretty printing'], reps, 1);
     fprintf('  compare these 2 files:\n    %s\n    %s\n', fname_g, fname_e);
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
@@ -233,18 +209,10 @@ t_is(rg.mu_ub, [0.1; 0; 0; 0; 0; 0], 7, [t 'mu.u']);
 t_is(rg.mu_pg_ub, [0; 0; 0; 0; 0.5; 0], 7, [t 'mu.Pmax']);
 t_is(rg.cost, mpc.reserves.cost, 12, [t 'cost']);
 t_is(sum(rg.total_cost), 177.8047, 4, [t 'totalcost']);
-got = fileread(fname_g);
-exp = fileread(fname_e);
-got = strrep(got, char([13 10]), char(10));     %% Win to Unix EOL chars
-exp = strrep(exp, char([13 10]), char(10));     %% Win to Unix EOL chars
-got = regexprep(got, ' -(0.0+) ', '  $1 ');
-exp = regexprep(exp, ' -(0.0+) ', '  $1 ');
-got = regexprep(got, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-exp = regexprep(exp, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-t_ok(strcmp(got, exp), [t 'pretty printing']);
-if strcmp(got, exp)
-    delete(fname_g);
-else
+reps = { {' -(0.0+) ', '  $1 ', 1, 1}, ...
+         {'in (.*) seconds \((.*) setup \+ (.*) solve\)', ...
+            'in 0.00 seconds (0.00 setup + 0.00 solve)', 1, 1} };
+if ~t_file_match(fname_g, fname_e, [t 'pretty printing'], reps, 1);
     fprintf('  compare these 2 files:\n    %s\n    %s\n', fname_g, fname_e);
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
@@ -272,18 +240,10 @@ t_is(rg.mu_pg_ub, [0; 0; 0; 0; 0.33006533; 0], 7, [t 'mu.Pmax']);
 t_is(rg.cost, mpc.reserves.cost, 12, [t 'cost']);
 t_is(rg.qty, mpc.reserves.qty, 12, [t 'qty']);
 t_is(sum(rg.total_cost), 177.5, 4, [t 'totalcost']);
-got = fileread(fname_g);
-exp = fileread(fname_e);
-got = strrep(got, char([13 10]), char(10));     %% Win to Unix EOL chars
-exp = strrep(exp, char([13 10]), char(10));     %% Win to Unix EOL chars
-got = regexprep(got, ' -(0.0+) ', '  $1 ');
-exp = regexprep(exp, ' -(0.0+) ', '  $1 ');
-got = regexprep(got, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-exp = regexprep(exp, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-t_ok(strcmp(got, exp), [t 'pretty printing']);
-if strcmp(got, exp)
-    delete(fname_g);
-else
+reps = { {' -(0.0+) ', '  $1 ', 1, 1}, ...
+         {'in (.*) seconds \((.*) setup \+ (.*) solve\)', ...
+            'in 0.00 seconds (0.00 setup + 0.00 solve)', 1, 1} };
+if ~t_file_match(fname_g, fname_e, [t 'pretty printing'], reps, 1);
     fprintf('  compare these 2 files:\n    %s\n    %s\n', fname_g, fname_e);
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);

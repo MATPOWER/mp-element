@@ -56,16 +56,9 @@ fname = sprintf('pp_pf_%s', casefile);
 fname_e = fullfile(pathstr, 'pretty-printing', sprintf('%s.txt', fname));
 fname_g = sprintf('%s_%d.txt', fname, rn);
 task = run_pf(casefile, mpopt, 'print_fname', fname_g);
-got = fileread(fname_g);
-exp = fileread(fname_e);
-got = strrep(got, char([13 10]), char(10));     %% Win to Unix EOL chars
-exp = strrep(exp, char([13 10]), char(10));     %% Win to Unix EOL chars
-got = regexprep(got, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-exp = regexprep(exp, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-t_ok(strcmp(got, exp), t);
-if strcmp(got, exp)
-    delete(fname_g);
-else
+reps = { {'in (.*) seconds \((.*) setup \+ (.*) solve\)', ...
+            'in 0.00 seconds (0.00 setup + 0.00 solve)', 1, 1} };
+if ~t_file_match(fname_g, fname_e, t, reps, 1);
     fprintf('  compare these 2 files:\n    %s\n    %s\n', fname_g, fname_e);
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
@@ -80,16 +73,9 @@ fname = sprintf('pp_cpf_%s', casefile);
 fname_e = fullfile(pathstr, 'pretty-printing', sprintf('%s.txt', fname));
 fname_g = sprintf('%s_%d.txt', fname, rn);
 task = run_cpf({casefile, [casefile 'target']}, mpopt, 'print_fname', fname_g);
-got = fileread(fname_g);
-exp = fileread(fname_e);
-got = strrep(got, char([13 10]), char(10));     %% Win to Unix EOL chars
-exp = strrep(exp, char([13 10]), char(10));     %% Win to Unix EOL chars
-got = regexprep(got, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-exp = regexprep(exp, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-t_ok(strcmp(got, exp), t);
-if strcmp(got, exp)
-    delete(fname_g);
-else
+reps = { {'in (.*) seconds \((.*) setup \+ (.*) solve\)', ...
+            'in 0.00 seconds (0.00 setup + 0.00 solve)', 1, 1} };
+if ~t_file_match(fname_g, fname_e, t, reps, 1);
     fprintf('  compare these 2 files:\n    %s\n    %s\n', fname_g, fname_e);
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
@@ -104,16 +90,9 @@ fname = sprintf('pp_opf_%s', casefile);
 fname_e = fullfile(pathstr, 'pretty-printing', sprintf('%s.txt', fname));
 fname_g = sprintf('%s_%d.txt', fname, rn);
 task = run_opf(casefile, mpopt, 'print_fname', fname_g);
-got = fileread(fname_g);
-exp = fileread(fname_e);
-got = strrep(got, char([13 10]), char(10));     %% Win to Unix EOL chars
-exp = strrep(exp, char([13 10]), char(10));     %% Win to Unix EOL chars
-got = regexprep(got, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-exp = regexprep(exp, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-t_ok(strcmp(got, exp), t);
-if strcmp(got, exp)
-    delete(fname_g);
-else
+reps = { {'in (.*) seconds \((.*) setup \+ (.*) solve\)', ...
+            'in 0.00 seconds (0.00 setup + 0.00 solve)', 1, 1} };
+if ~t_file_match(fname_g, fname_e, t, reps, 1);
     fprintf('  compare these 2 files:\n    %s\n    %s\n', fname_g, fname_e);
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
@@ -134,16 +113,9 @@ fname = sprintf('pp_pf_%s', casefile);
 fname_e = fullfile(pathstr, 'pretty-printing', sprintf('%s.txt', fname));
 fname_g = sprintf('%s_%d.txt', fname, rn);
 task = run_pf(mpc, mpopt, 'print_fname', fname_g);
-got = fileread(fname_g);
-exp = fileread(fname_e);
-got = strrep(got, char([13 10]), char(10));     %% Win to Unix EOL chars
-exp = strrep(exp, char([13 10]), char(10));     %% Win to Unix EOL chars
-got = regexprep(got, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-exp = regexprep(exp, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-t_ok(strcmp(got, exp), t);
-if strcmp(got, exp)
-    delete(fname_g);
-else
+reps = { {'in (.*) seconds \((.*) setup \+ (.*) solve\)', ...
+            'in 0.00 seconds (0.00 setup + 0.00 solve)', 1, 1} };
+if ~t_file_match(fname_g, fname_e, t, reps, 1);
     fprintf('  compare these 2 files:\n    %s\n    %s\n', fname_g, fname_e);
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
@@ -158,18 +130,10 @@ fname = sprintf('pp_opf_%s', casefile);
 fname_e = fullfile(pathstr, 'pretty-printing', sprintf('%s.txt', fname));
 fname_g = sprintf('%s_%d.txt', fname, rn);
 task = run_opf(mpc, mpoption(mpopt, 'out.lim.all', 1), 'print_fname', fname_g);
-got = fileread(fname_g);
-exp = fileread(fname_e);
-got = strrep(got, char([13 10]), char(10));     %% Win to Unix EOL chars
-exp = strrep(exp, char([13 10]), char(10));     %% Win to Unix EOL chars
-got = regexprep(got, ' -(0.0+) ', '  $1 ');
-exp = regexprep(exp, ' -(0.0+) ', '  $1 ');
-got = regexprep(got, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-exp = regexprep(exp, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-t_ok(strcmp(got, exp), t);
-if strcmp(got, exp)
-    delete(fname_g);
-else
+reps = { {' -(0.0+) ', '  $1 ', 1, 1}, ...
+         {'in (.*) seconds \((.*) setup \+ (.*) solve\)', ...
+            'in 0.00 seconds (0.00 setup + 0.00 solve)', 1, 1} };
+if ~t_file_match(fname_g, fname_e, t, reps, 1);
     fprintf('  compare these 2 files:\n    %s\n    %s\n', fname_g, fname_e);
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
@@ -186,16 +150,9 @@ fname = sprintf('pp_pf_%s', casefile);
 fname_e = fullfile(pathstr, 'pretty-printing', sprintf('%s.txt', fname));
 fname_g = sprintf('%s_%d.txt', fname, rn);
 task = run_pf(casefile, mpopt, 'print_fname', fname_g, 'mpx', mp.xt_3p());
-got = fileread(fname_g);
-exp = fileread(fname_e);
-got = strrep(got, char([13 10]), char(10));     %% Win to Unix EOL chars
-exp = strrep(exp, char([13 10]), char(10));     %% Win to Unix EOL chars
-got = regexprep(got, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-exp = regexprep(exp, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-t_ok(strcmp(got, exp), t);
-if strcmp(got, exp)
-    delete(fname_g);
-else
+reps = { {'in (.*) seconds \((.*) setup \+ (.*) solve\)', ...
+            'in 0.00 seconds (0.00 setup + 0.00 solve)', 1, 1} };
+if ~t_file_match(fname_g, fname_e, t, reps, 1);
     fprintf('  compare these 2 files:\n    %s\n    %s\n', fname_g, fname_e);
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
@@ -213,16 +170,9 @@ fname_e = fullfile(pathstr, 'pretty-printing', sprintf('%s.txt', fname));
 fname_g = sprintf('%s_%d.txt', fname, rn);
 mpopt.exp.mpx = mp.xt_3p();
 task = run_opf(casefile, mpopt, 'print_fname', fname_g);
-got = fileread(fname_g);
-exp = fileread(fname_e);
-got = strrep(got, char([13 10]), char(10));     %% Win to Unix EOL chars
-exp = strrep(exp, char([13 10]), char(10));     %% Win to Unix EOL chars
-got = regexprep(got, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-exp = regexprep(exp, 'in (.*) seconds \((.*) setup \+ (.*) solve\)', 'in 0.00 seconds (0.00 setup + 0.00 solve)');
-t_ok(strcmp(got, exp), t);
-if strcmp(got, exp)
-    delete(fname_g);
-else
+reps = { {'in (.*) seconds \((.*) setup \+ (.*) solve\)', ...
+            'in 0.00 seconds (0.00 setup + 0.00 solve)', 1, 1} };
+if ~t_file_match(fname_g, fname_e, t, reps, 1);
     fprintf('  compare these 2 files:\n    %s\n    %s\n', fname_g, fname_e);
     if show_diff_on_fail
         cmd = sprintf('%s %s %s', diff_tool, fname_g, fname_e);
@@ -230,33 +180,6 @@ else
         keyboard
     end
 end
-
-% r = rundcopf(mpc, mpopt, tmpfnamedc);
-% got = fileread(tmpfnamedc);
-% if size(got, 1) ~= 1    %% transpose if needed for Octave 3.4
-%     got = got';
-% end
-% got = strrep(got, char([13 10]), char(10));             %% Win to Unix EOL chars
-% got = regexprep(got, 'Converged in (.*) seconds', 'Converged in 0.00 seconds');
-% got = strrep(got, ' -0.0 ', '  0.0 ');
-% got = strrep(got, sprintf(' -0.0\n'), sprintf('  0.0\n'));
-% got = strrep(got, ' -0.00 ', '  0.00 ');
-% got = strrep(got, sprintf(' -0.00\n'), sprintf('  0.00\n'));
-% got = strrep(got, ' -0.000 ', '  0.000 ');
-% got = strrep(got, ' -0.000*', '  0.000*');
-% got = strrep(got, '51.66 $/MWh @ bus 12', '51.66 $/MWh @ bus 13');
-% got = strrep(got, '51.66 $/MWh @ bus 16', '51.66 $/MWh @ bus 13');
-% got = strrep(got, '51.66 $/MWh @ bus 17', '51.66 $/MWh @ bus 13');
-% got = strrep(got, '53.05 $/MWh @ bus 18', '53.05 $/MWh @ bus 15');
-% got = strrep(got, '53.05 $/MWh @ bus 19', '53.05 $/MWh @ bus 15');
-% got = strrep(got, '53.05 $/MWh @ bus 20', '53.05 $/MWh @ bus 15');
-% exp = fileread(fnamedc);
-% exp = strrep(exp, char([13 10]), char(10));   %% Win to Unix EOL chars
-% if size(exp, 1) ~= 1   %% transpose if needed for Octave 3.4
-%     exp = exp';
-% end
-% t_ok(strcmp(got, exp), [t 'standard DC OPF']);
-% delete(tmpfnamedc);
 
 if have_feature('octave')
     warning(s1.state, file_in_path_warn_id);
