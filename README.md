@@ -1,10 +1,21 @@
 MP-Element
 ==========
 
-MP-Element is a new, generalized network and element modeling layer for
-[MATPOWER][1]. It is currently **under active development** in its own
-separate repository, with the intention of eventually being incorporated
-into the core MATPOWER code.
+MP-Element began as a new, generalized network and element modeling
+layer for [MATPOWER][1] and grew into a complete redesign and rewrite
+of the [MATPOWER][1] internals.
+
+---
+---
+>> ### NOTE: MP-Element has been incorporated into MATPOWER 8.
+>> 
+>> _As of Dec 14, 2022, all further development will be done in the main [MATPOWER repository][1]._
+>>
+>>_The components initially developed in this MP-Element repository are now included in MATPOWER and referred to as **MP-Core** and the **legacy** and **flexible MATPOWER frameworks**. For more information, see the [Architecture Overview][10] in the [MATPOWER Developer's Manual][9]._
+>>
+>>_The information below was relevant for MP-Element and development versions of MATPOWER prior to Dec 14, 2022._
+---
+---
 
 
 System Requirements
@@ -138,3 +149,5 @@ author(s) and do not necessarily reflect the views of the funding agencies.
 [6]: https://doi.org/10.5281/zenodo.4110676
 [7]: LICENSE
 [8]: https://github.com/MATPOWER/matpower/blob/master/CHANGES.md
+[9]: https://matpower.org/matpower-docs/dev-manual/
+[10]: https://matpower.org/matpower-docs/dev-manual/architecture.html
