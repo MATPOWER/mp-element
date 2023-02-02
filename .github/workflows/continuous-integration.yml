@@ -121,7 +121,7 @@ jobs:
 
     - name: Install MATPOWER
       run: |
-        git clone --depth=1 https://github.com/MATPOWER/matpower.git $HOME/matpower
+        git clone -b 8.0dev3 --depth=1 https://github.com/MATPOWER/matpower.git $HOME/matpower
         env $ML_PATHVAR=$HOME/matpower $ML_CMD "install_matpower(0,1,1)"
         ln -s ./startup.m .octaverc
         $ML_CMD mpver
